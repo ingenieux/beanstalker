@@ -1,0 +1,65 @@
+README for Beanstalker
+
+CAUTION: Work in Progress
+
+Basically, it is a maven plugin for the AWS BeanStalk APIs. In order to create a new application, download and install.
+
+See test-war for a sample of configs. 
+
+To create a configuration, declare the plugin:
+
+      <plugin>
+        <groupId>com.ingenieux</groupId>
+        <artifactId>beanstalk-maven-plugin</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+        <configuration>
+          <accessKey>
+          <applicationName>mapper-webclient</applicationName>
+          <environmentName>test</environmentName>
+          <solutionStack>32bit Amazon Linux running Tomcat 7</solutionStack>
+          <s3Bucket>mapper-web</s3Bucket>
+        </configuration>
+      </plugin>
+
+For access keys, you could either store into your .m2/settings.xml (recommended):
+
+<awsAccessKey>accessKey</awsAccessKey>
+<awsSecretKey>secretKey</awsSecretKey>
+
+... Or declare into the plugin as such:
+
+<configuration>
+          <accessKey>access key</accessKey>
+          <secretKey>secret key</secretKey>
+</configuration>
+
+Once you do that, here are the steps to create a new environment:
+
+$ mvn beanstalk:check-availability # (OPTIONAL) Checks the cname Availability
+
+$ mvn beanstalk:upload-source-bundle # Uploads your .war file to S3, defined by s3Bucket
+
+$ mvn beanstalk:create-application-version # Creates an Application with a Version as well
+
+$ mvn beanstalk:create-environment # Creates (and launches) and environment
+
+Log into the amazon console at http://aws.amazon.com/console and see the events. Once your app has been fired up, you can terminate it as such:
+
+mvn beanstalk:terminate-environment
+
+Other supported commands include:
+
+$ mvn beanstalk:rebuild-environment # Recreates the environment
+
+$ mvn beanstalk:restart-application-server # Restarts the Application Server
+
+$ mvn beanstalk:create-application # Creates only the application
+
+$ mvn beanstalk:create-storage-location # Creates a bucket for storing your logs
+
+$ mvn beanstalk:delete-application-version # Deletes the application version
+
+$ mvn beanstalk:delete-application # Deletes the application
+
+$ mvn beanstalk:list-stacks # List the available stacks
+
