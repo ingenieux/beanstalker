@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Beanstalk Maven Plugin">
+  <bannerRight>
+    <name>Beanstalk Maven Plugin</name>
+    <href>index.html</href>
+  </bannerRight>
+  <poweredBy>
+    <logo name="Built By Maven" href="http://maven.apache.org"
+          img="http://maven.apache.org/images/logos/maven-feather.png" />
+  </poweredBy>
+  <body>
+    <menu name="Overview">
+      <item name="Index" href="../index.html"/>
+      <item name="Bitbucket" href="http://bitbucket.org/"/>
+      <item name="Plugin Goals" href="plugin-info.html"/>
+      <item name="Usage" href="../usage.html"/>
+    </menu>
+    <menu ref="reports"/>
+  </body>
+</project>
+

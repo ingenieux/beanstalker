@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.ingenieux</groupId>
+  <artifactId>beanstalker</artifactId>
+  <packaging>pom</packaging>
+  <version>0.0.1-SNAPSHOT</version>
+
+  <name>beanstalker parent pom</name>
+  <description>Beanstalker is a set of maven-tooling. It includes both an archetype and a plugin.</description>
+  <url>http://beanstalker.ingenieux.com.br</url>
+  <inceptionYear>2011</inceptionYear>
+
+  <licenses>
+    <license>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <name>Apache 2.0</name>
+    </license>
+  </licenses>
+
+  <distributionManagement>
+    <site>
+      <id>beanstalker.ingenieux.com.br</id>
+      <name>Ingenieux Beanstalker Site</name>
+    </site>
+  </distributionManagement>
+
+  <organization>
+    <name>ingenieux</name>
+    <url>http://ingenieux.com.br</url>
+  </organization>
+
+  <developers>
+    <developer>
+      <id>aldrinleal</id>
+      <name>Aldrin Leal</name>
+      <timezone>UTC-03</timezone>
+    </developer>
+  </developers>
+
+  <issueManagement>
+    <system>bitbucket</system>
+    <url>http://hg.modafocas.org/beanstalker</url>
+  </issueManagement>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+  </properties>
+
+  <scm>
+    <connection>scm:hg:http://hg.modafocas.org/beanstalker</connection>
+    <developerConnection>scm:hg:https://bitbucket.org/aldrinleal/beanstalker</developerConnection>
+    <url>http://bitbucket.org/aldrinleal/beanstalker/src</url>
+  </scm>
+
+
+  <modules>
+    <module>beanstalk-maven-plugin</module>
+    <module>test-war</module>
+  </modules>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk</artifactId>
+        <version>1.2.1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-plugin-api</artifactId>
+        <version>3.0.2</version>
+      </dependency>
+      <dependency>
+        <groupId>net.java.dev.jets3t</groupId>
+        <artifactId>jets3t</artifactId>
+        <version>0.8.1</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.3.2</version>
+        <configuration>
+          <!-- http://maven.apache.org/plugins/maven-compiler-plugin/ -->
+          <source>1.6</source>
+          <target>1.6</target>
+        </configuration>
+      </plugin>
+    </plugins>
+    <extensions>
+      <extension>
+        <groupId>org.apache.maven.wagon</groupId>
+        <artifactId>wagon-file</artifactId>
+        <version>1.0-beta-7</version>
+      </extension>
+    </extensions>
+  </build>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-plugin-plugin</artifactId>
+        <version>2.6</version>
+      </plugin>
+    </plugins>
+  </reporting>
+</project>

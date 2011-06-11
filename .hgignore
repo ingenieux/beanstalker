@@ -1,0 +1,16 @@
+.classpath
+.idea
+.project
+.settings
+target
+MANIFEST.MF
+syntax: glob
+*.iml
+*.log
+ddl.sql
+dropDDL.jdbc
+nbactions.xml
+nb-configuration.xml
+
+syntax: regexp
+^mapper-core/temp$

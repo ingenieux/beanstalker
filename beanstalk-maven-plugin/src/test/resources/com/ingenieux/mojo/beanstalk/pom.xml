@@ -1,0 +1,20 @@
+<project>
+  <groupId>com.ingenieux</groupId>
+  <artifactId>bmp-demo</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  
+  <packaging>war</packaging>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.ingenieux</groupId>
+        <artifactId>beanstalk-maven-plugin</artifactId>
+        <configuration>
+          <accessKey>${aws.accessKey}</accessKey>
+          <secretKey>${aws.secretKey}</secretKey>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

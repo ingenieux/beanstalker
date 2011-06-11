@@ -1,0 +1,55 @@
+ ------
+Maven GAE Plugin Usage
+ ------
+ ------
+ ------
+
+Configuring Maven GAE Plugin
+
+* Creating new project.
+
+ You can easily generate new GAE project with out-of-box persistence, unit-tests
+ and GWT from an archetype. To do that, just type in command like this:
+
++---+
+mvn archetype:create\
+ -DarchetypeGroupId=net.kindleit\
+ -DarchetypeArtifactId=gae-archetype-gwt\
+ -DarchetypeVersion=0.7.0\
+ -DgroupId=your.groupId\
+ -DartifactId=your-artifactId
++---+
+
+* Patching existing project.
+
+ The basic thing to do is to add maven-gae-plugin to the plugin section:
+
++---+
+<project>
+    [...]
+    <build>
+        <plugins>
+            [...]
+            <plugin>
+                <groupId>net.kindleit</groupId>
+                <artifactId>maven-gae-plugin</artifactId>
+                <version>[plugin version]</version>
+                <dependencies>
+                  <dependency>
+                    <groupId>net.kindleit</groupId>
+                    <artifactId>gae-runtime</artifactId>
+                    <version>${gae.version}</version>
+                    <type>pom</type>
+                  </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
+    [...]
+</project>
++---+
+
+ See the {{{./examples/index.html}examples}} page for tips on configuring
+ the persistence, it's unit-testing and GWT.
+
+ See the {{{./examples/passwordPrompt.html}settings}} page for How-To configure maven with your gae account and password.
