@@ -24,7 +24,11 @@ import com.amazonaws.services.elasticbeanstalk.model.CreateApplicationVersionRes
 import com.amazonaws.services.elasticbeanstalk.model.S3Location;
 
 /**
- * Goal which touches a timestamp file.
+ * Creates an Application Version, optionally creating the application itself.
+ * 
+ * See the <a href=
+ * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_CreateApplicationVersion.html"
+ * >CreateApplicationVersion API</a> call.
  * 
  * @goal create-application-version
  */

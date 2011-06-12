@@ -23,7 +23,9 @@ import com.amazonaws.services.elasticbeanstalk.model.CheckDNSAvailabilityRequest
 import com.amazonaws.services.elasticbeanstalk.model.CheckDNSAvailabilityResult;
 
 /**
- * Goal which touches a timestamp file.
+ * Checks the availability of a CNAME.
+ * 
+ * See the <a href="http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_CheckDNSAvailability.html">CheckDNSAvailability API</a> call.
  * 
  * @goal check-availability
  */

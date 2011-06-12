@@ -14,6 +14,11 @@
 
   <packaging>maven-plugin</packaging>
 
+  <scm>
+    <connection>scm:hg:http://hg.modafocas.org/beanstalker</connection>
+    <developerConnection>scm:hg:https://bitbucket.org/aldrinleal/beanstalker</developerConnection>
+  </scm>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.maven</groupId>
@@ -93,4 +98,5 @@
       </plugin>
     </plugins>
   </reporting>
+  <description>The beanstalk-maven-plugin is a maven plugin which is an interface for Amazon Elastic Beanstalk (EBS) Service.</description>
 </project>

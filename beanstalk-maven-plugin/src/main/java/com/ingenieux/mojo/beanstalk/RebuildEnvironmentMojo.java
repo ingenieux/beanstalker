@@ -6,7 +6,11 @@ import org.apache.maven.plugin.MojoFailureException;
 import com.amazonaws.services.elasticbeanstalk.model.RebuildEnvironmentRequest;
 
 /**
- * Terminates the Environment
+ * Rebuilds an Environment
+ * 
+ * See the docs for the <a href=
+ * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_RebuildEnvironment.html"
+ * >RebuildEnvironment API</a> call.
  * 
  * @author Aldrin Leal
  * @goal rebuild-environment

@@ -8,6 +8,10 @@ import com.amazonaws.services.elasticbeanstalk.model.DeleteApplicationVersionReq
 /**
  * Deletes an Application Version
  * 
+ * See the docs for <a href=
+ * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_DeleteApplicationVersion.html"
+ * >DeleteApplicationVersion API</a> call.
+ * 
  * @goal delete-application-version
  * 
  * @author Aldrin Leal

@@ -22,7 +22,11 @@ import com.amazonaws.services.elasticbeanstalk.model.CreateApplicationRequest;
 import com.amazonaws.services.elasticbeanstalk.model.CreateApplicationResult;
 
 /**
- * Goal which touches a timestamp file.
+ * Creates an Application
+ * 
+ * See the <a href=
+ * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_CreateApplication.html"
+ * >CreateApplication API</a> call.
  * 
  * @goal create-application
  */

@@ -25,7 +25,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.PutObjectResult;
 
 /**
- * Goal which touches a timestamp file.
+ * Uploads a packed war file to Amazon S3 for further Deployment.
  * 
  * @goal upload-source-bundle
  */

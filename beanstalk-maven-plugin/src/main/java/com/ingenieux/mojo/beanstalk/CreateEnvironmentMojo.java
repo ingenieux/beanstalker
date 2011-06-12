@@ -11,7 +11,11 @@ import com.amazonaws.services.elasticbeanstalk.model.CreateEnvironmentRequest;
 import com.amazonaws.services.elasticbeanstalk.model.OptionSpecification;
 
 /**
- * Goal which touches a timestamp file.
+ * Creates and Launches an Elastic Beanstalk Environment
+ * 
+ * See the docs for the <a href=
+ * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_CreateEnvironment.html"
+ * >CreateEnvironment API</a> call.
  * 
  * @goal create-environment
  */

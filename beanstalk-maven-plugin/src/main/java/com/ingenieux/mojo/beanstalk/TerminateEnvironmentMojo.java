@@ -8,6 +8,10 @@ import com.amazonaws.services.elasticbeanstalk.model.TerminateEnvironmentRequest
 /**
  * Terminates the Environment
  * 
+ * See the docs for <a href=
+ * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_TerminateEnvironment.html"
+ * >TerminateEnvironment API</a> call.
+ * 
  * @author Aldrin Leal
  * @goal terminate-environment
  */
