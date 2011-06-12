@@ -6,6 +6,10 @@ import org.apache.maven.plugin.MojoFailureException;
 /**
  * Lists the available solution stacks
  * 
+ * See the docs for the <a href=
+ * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_ListAvailableSolutionStacks.html"
+ * >ListAvailableSolutionStacks API</a> call.
+ * 
  * @goal list-stacks
  * @author Aldrin Leal
  * 

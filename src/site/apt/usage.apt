@@ -1,55 +1,305 @@
  ------
-Maven GAE Plugin Usage
+ Beanstalker Plugin Usage
  ------
  ------
- ------
 
-Configuring Maven GAE Plugin
+Quick Start
 
-* Creating new project.
-
- You can easily generate new GAE project with out-of-box persistence, unit-tests
- and GWT from an archetype. To do that, just type in command like this:
+  In order to start using the plugin, first declare the plugin in your pom.xml (assumes war packaging):
 
 +---+
-mvn archetype:create\
- -DarchetypeGroupId=net.kindleit\
- -DarchetypeArtifactId=gae-archetype-gwt\
- -DarchetypeVersion=0.7.0\
- -DgroupId=your.groupId\
- -DartifactId=your-artifactId
+<build>
+  <plugins>
+    <plugin>
+      <groupId>com.ingenieux</groupId>
+      <artifactId>beanstalk-maven-plugin</artifactId>
+      <version>[plugin version]</version>
+    </plugin>
+  </plugins>
+</build>
 +---+
 
-* Patching existing project.
+Credentials
 
- The basic thing to do is to add maven-gae-plugin to the plugin section:
+  Here, you have three options:
+  
+  [[1]] Declare it in your <<<.m2/settings.xml>>>:
 
 +---+
-<project>
-    [...]
-    <build>
-        <plugins>
-            [...]
-            <plugin>
-                <groupId>net.kindleit</groupId>
-                <artifactId>maven-gae-plugin</artifactId>
-                <version>[plugin version]</version>
-                <dependencies>
-                  <dependency>
-                    <groupId>net.kindleit</groupId>
-                    <artifactId>gae-runtime</artifactId>
-                    <version>${gae.version}</version>
-                    <type>pom</type>
-                  </dependency>
-                </dependencies>
-            </plugin>
-        </plugins>
-    </build>
-    [...]
-</project>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                      http://maven.apache.org/xsd/settings-1.0.0.xsd">
+  <profiles>
+    <profile>
+      <id>default</id>
+      <properties>
+        <aws.accessKey>[access key id]</aws.accessKey>
+        <aws.secretKey>[secret access key]</aws.secretKey>
+      </properties>
+    </profile>
+  </profiles>
+  <activeProfiles>
+    <activeProfile>default</activeProfile>
+  </activeProfiles>
+</settings>
 +---+
 
- See the {{{./examples/index.html}examples}} page for tips on configuring
- the persistence, it's unit-testing and GWT.
+  If you don't, find your existing keys from {{{https://aws-portal.amazon.com/gp/aws/developer/account/index.html?action=access-key}AWS Security Credentials}} Page, under "Access Keys"
 
- See the {{{./examples/passwordPrompt.html}settings}} page for How-To configure maven with your gae account and password.
+  [[2]] Declaring upon mvn invocation:
+
++---+
+mvn beanstalk:upload-source-bundle -Daws.accessKey=[access key] -Daws.secretKey=[secret key]
++---+
+
+  [[3]] Declare on the pom itself (not recommended):
+
+  You can also declare under the plugin configuration.
+
++---+
+<build>
+  <plugins>
+    <plugin>
+      <groupId>com.ingenieux</groupId>
+      <artifactId>beanstalk-maven-plugin</artifactId>
+      <version>[plugin version]</version>
+      <configuration>
+        <accessKey>[access key]</accessKey>
+        <secretKey>[secret key]</secretKey>
+      </configuration>
+    </plugin>
+  </plugins>
+</build>
++---+
+
+Testing your credentials
+
+  Now it is a good time to see if your app name is available, and your credentials are correct.
+  
++---+
+$ mvn beanstalk:check-availability -Dcname=test-war
++---+
+
+  If it is available, here is the expected output:
+  
++---+
+...
+[INFO] SUCCESS
+[INFO] fullyQualifiedCNAME: test-war.elasticbeanstalk.com [class: String]
+[INFO] available: true [class: Boolean]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 3.319s
+[INFO] Finished at: Sun Jun 12 19:49:19 GMT-03:00 2011
+[INFO] Final Memory: 5M/15M
+[INFO] ------------------------------------------------------------------------
++---+
+
+Uploading your Application
+
+  Log into the {{{https://console.aws.amazon.com/s3/home}Amazon S3 Console}}, and click on "Create Bucket". 
+  
+  For our needs, use the name of your war ArtifactId, then press the "Create" button.
+
+  If the name isn't available, choose another one and specify the name you selected into the plugin config (s3Bucket parameter):
+
++---+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.ingenieux</groupId>
+        <artifactId>beanstalk-maven-plugin</artifactId>
+        <version>[plugin version]</version>
+        <configuration>
+          <s3Bucket>[bucket name]</s3Bucket>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
++---+
+
+  Now, invoke beanstalk:upload-source-bundle. Note you can override the bucket location via the command-line:
+
++---+
+C:\projetos\sources\beanstalker\test-war>mvn beanstalk:upload-source-bundle -Ds3Bucket=test-war
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] Building test-war 0.2.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] --- beanstalk-maven-plugin:0.2.0-SNAPSHOT:upload-source-bundle (default-cli) @ test-war ---
+[INFO] Target Path: s3://test-war/test-war-0.2.0-SNAPSHOT.war
+[INFO] Uploading artifact file: C:\projetos\sources\beanstalker\test-war\target\test-war-0.2.0-SNAPSHOT.war
+12/06/2011 19:51:47 com.amazonaws.http.AmazonHttpClient executeHelper
+INFO: Sending Request: PUT https://test-war.s3.amazonaws.com /test-war-0.2.0-SNAPSHOT.war Headers: (Content-Length: 2138, 
+ Content-MD5: PhTkDJFUFcwBmmsmPmePXA==, Content-Type: application/octet-stream, )
+12/06/2011 19:51:49 com.amazonaws.http.AmazonHttpClient handleResponse
+INFO: Received successful response: 200, AWS Request ID: 23D3343049BE3BB1
+[INFO] Artifact Uploaded
+[INFO] SUCCESS
+[INFO] ETag: 3e14e40c915415cc019a6b263e678f5c [class: String]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 3.462s
+[INFO] Finished at: Sun Jun 12 19:51:49 GMT-03:00 2011
+[INFO] Final Memory: 4M/15M
+[INFO] ------------------------------------------------------------------------
++---+
+
+  The the default name of the .war file into the bucket is the name of the war file. If you need to change, modify <<<s3Key>>> configuration parameter.
+
+Creating an Application, Application Version, and Creating an Environment
+
+  In Elastic Beanstalk, you're now creating the application, its version (which points to the s3 bucket we just created), and an environment (which describes a running instance of your application)
+
+Now invoke create-application-version and create-environment:
+
++---+
+C:\projetos\sources\beanstalker\test-war>mvn beanstalk:create-application-version beanstalk:create-environment
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] Building test-war 0.2.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] --- beanstalk-maven-plugin:0.2.0-SNAPSHOT:create-application-version (default-cli) @ test-war ---
+12/06/2011 19:59:08 com.amazonaws.http.AmazonHttpClient executeHelper
+INFO: Sending Request: POST https://elasticbeanstalk.us-east-1.amazonaws.com / Parameters: (ApplicationName: test-war, Description: test-war, 
+ VersionLabel: 0.2.0-SNAPSHOT, SignatureMethod: HmacSHA256, AWSAccessKeyId: <access key>, Timestamp: 2011-06-12T22:59:07.937Z, 
+ Signature: OcZrVj7PIOCbVBisfmPwBpOLA8p69DuqRCfOUdUWMxM=, SourceBundle.S3Key: test-war-0.2.0-SNAPSHOT.war, Action: CreateApplicationVersion, 
+ Version: 2010-12-01, SignatureVersion: 2, SourceBundle.S3Bucket: test-war, AutoCreateApplication: true, )
+12/06/2011 19:59:11 com.amazonaws.http.AmazonHttpClient handleResponse
+INFO: Received successful response: 200, AWS Request ID: 9d57376a-9547-11e0-8676-bd0ab3869520
+[INFO] SUCCESS
+[INFO] sourceBundle: {S3Bucket: test-war, S3Key: test-war-0.2.0-SNAPSHOT.war, }
+[class: S3Location]
+[INFO] versionLabel: 0.2.0-SNAPSHOT [class: String]
+[INFO] description: test-war [class: String]
+[INFO] applicationName: test-war [class: String]
+[INFO] dateCreated: Sun Jun 12 19:59:24 GMT-03:00 2011 [class: Date]
+[INFO] dateUpdated: Sun Jun 12 19:59:24 GMT-03:00 2011 [class: Date]
+[INFO]
+[INFO] --- beanstalk-maven-plugin:0.2.0-SNAPSHOT:create-environment (default-cli) @ test-war ---
+12/06/2011 19:59:11 com.amazonaws.http.AmazonHttpClient executeHelper
+INFO: Sending Request: POST https://elasticbeanstalk.us-east-1.amazonaws.com / Parameters: (ApplicationName: test-war, 
+ Description: test-war, VersionLabel: 0.2.0-SNAPSHOT, SignatureMethod: HmacSHA256, SolutionStackName: 32bit Amazon Linux running Tomcat 7, 
+ AWSAccessKeyId: <access key>, Timestamp: 2011-06-12T22:59:11.103Z, Signature: 1kYasV9lhvz5zJ2PMB4hjQz297NMiXKOKJwK4IVw2E8=, 
+ CNAMEPrefix: test-war, EnvironmentName: default, Action: CreateEnvironment, Version: 2010-12-01, SignatureVersion: 2, )
+12/06/2011 19:59:14 com.amazonaws.http.AmazonHttpClient handleResponse
+INFO: Received successful response: 200, AWS Request ID: 9f10cd9b-9547-11e0-8986-27f312aaa18a
+[INFO] SUCCESS
+[INFO] versionLabel: 0.2.0-SNAPSHOT [class: String]
+[INFO] status: Launching [class: String]
+[INFO] applicationName: test-war [class: String]
+[INFO] health: Grey [class: String]
+[INFO] dateUpdated: Sun Jun 12 19:59:27 GMT-03:00 2011 [class: Date]
+[INFO] environmentId: e-ig6jqpcry7 [class: String]
+[INFO] solutionStackName: 32bit Amazon Linux running Tomcat 7 [class: String]
+[INFO] CNAME: test-war.elasticbeanstalk.com [class: String]
+[INFO] description: test-war [class: String]
+[INFO] dateCreated: Sun Jun 12 19:59:27 GMT-03:00 2011 [class: Date]
+[INFO] environmentName: default [class: String]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 7.369s
+[INFO] Finished at: Sun Jun 12 19:59:14 GMT-03:00 2011
+[INFO] Final Memory: 5M/15M
+[INFO] ------------------------------------------------------------------------
+C:\projetos\sources\beanstalker\test-war>
++---+
+
+  Now the application has been created. Jump into the the {{{https://console.aws.amazon.com/elasticbeanstalk/home?region=us-east-1}Console}} and see the environment being created.
+
+  On completion, the "View Running Version" button will be available for you.
+
+Terminating
+
+  In order to terminate, you need the environment id. You can fetch that via describe-environments:
+  
++---+
+C:\projetos\sources\beanstalker\test-war>mvn beanstalk:describe-environments
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] Building test-war 0.2.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] --- beanstalk-maven-plugin:0.2.0-SNAPSHOT:describe-environments (default-cli) @ test-war ---
+12/06/2011 20:04:51 com.amazonaws.http.AmazonHttpClient executeHelper
+INFO: Sending Request: POST https://elasticbeanstalk.us-east-1.amazonaws.com / Parameters: (ApplicationName: test-war, 
+ IncludeDeleted: true, VersionLabel: 0.2.0-SNAPSHOT, Action: DescribeEnvironments, SignatureMethod: HmacSHA256, 
+ AWSAccessKeyId: <access key>, SignatureVersion: 2, Version: 2010-12-01, Signature: hcafS6YLL/ydEg0v5pJQWx1oKihCPTSC8F+l95GyLsc=, 
+ Timestamp: 2011-06-12T23:04:51.648Z, )
+12/06/2011 20:04:53 com.amazonaws.http.AmazonHttpClient handleResponse
+INFO: Received successful response: 200, AWS Request ID: 6a3de59c-9548-11e0-8c30-75aadb90b540
+[INFO] SUCCESS
+[INFO] environments: [{EnvironmentName: default, EnvironmentId: e-ig6jqpcry7, ApplicationName: test-war, VersionLabel: 0.2.0-SNAPSHOT, 
+ SolutionStackName: 32bit Amazon Linux running Tomcat 7, TemplateName: null, Description: test-war, 
+ EndpointURL: awseb-default-365379873.us-east-1.elb.amazonaws.com, CNAME: test-war.elasticbeanstalk.com, 
+ DateCreated: Sun Jun 12 19:59:27 GMT-03:00 2011, DateUpdated: Sun Jun 12 20:02:40 GMT-03:00 2011, Status: Ready, Health: Green, }] 
+ [class: List]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 2.955s
+[INFO] Finished at: Sun Jun 12 20:04:53 GMT-03:00 2011
+[INFO] Final Memory: 5M/15M
+[INFO] ------------------------------------------------------------------------
+C:\projetos\sources\beanstalker\test-war>
++---+
+  
+  For the above sample, the environment id is e-ig6jqpcry7. Replace yours with beanstalk.environmentId and ask terminate-environment:
+
++---+
+C:\projetos\sources\beanstalker\test-war>mvn beanstalk:terminate-environment -Dbeanstalk.environmentId=e-ig6jqpcry7
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] Building test-war 0.2.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] --- beanstalk-maven-plugin:0.2.0-SNAPSHOT:terminate-environment (default-cli) @ test-war ---
+12/06/2011 20:07:11 com.amazonaws.http.AmazonHttpClient executeHelper
+INFO: Sending Request: POST https://elasticbeanstalk.us-east-1.amazonaws.com / Parameters: (TerminateResources: true, 
+ EnvironmentName: default, Action: TerminateEnvironment, SignatureMethod: HmacSHA256, AWSAccessKeyId: 0SB93DDYBE63367703R2, 
+ EnvironmentId: e-ig6jqpcry7, SignatureVersion: 2, Version: 2010-12-01, Signature: ZzRtsKbiYQYvhVmhQH6k3MQOiu+/Xtr/xiUIWxRP71g=, 
+ Timestamp: 2011-06-12T23:07:11.331Z, )
+12/06/2011 20:07:13 com.amazonaws.http.AmazonHttpClient handleResponse
+INFO: Received successful response: 200, AWS Request ID: bd5ff0f5-9548-11e0-8c30-75aadb90b540
+[INFO] SUCCESS
+[INFO] versionLabel: 0.2.0-SNAPSHOT [class: String]
+[INFO] status: Terminating [class: String]
+[INFO] applicationName: test-war [class: String]
+[INFO] endpointURL: awseb-default-365379873.us-east-1.elb.amazonaws.com [class:
+String]
+[INFO] health: Grey [class: String]
+[INFO] dateUpdated: Sun Jun 12 20:07:26 GMT-03:00 2011 [class: Date]
+[INFO] environmentId: e-ig6jqpcry7 [class: String]
+[INFO] solutionStackName: 32bit Amazon Linux running Tomcat 7 [class: String]
+[INFO] CNAME: test-war.elasticbeanstalk.com [class: String]
+[INFO] description: test-war [class: String]
+[INFO] dateCreated: Sun Jun 12 19:59:27 GMT-03:00 2011 [class: Date]
+[INFO] environmentName: default [class: String]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 2.788s
+[INFO] Finished at: Sun Jun 12 20:07:13 GMT-03:00 2011
+[INFO] Final Memory: 5M/15M
+[INFO] ------------------------------------------------------------------------
+C:\projetos\sources\beanstalker\test-war>
++---+
+
+  Head back to your Elastic Beanstalk Page and you'll notice the app has been finished.
+
+Next Steps
+
+  You sucessfully concluded your first steps in using beanstalker for publishing and deploying and maven app.
+  
+  See the {{{./beanstalk-maven-plugin/plugin-info.html}Plugin Docs}} and see the available goals and its arguments.
+

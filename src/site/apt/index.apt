@@ -1,45 +1,13 @@
  ------
- Introduction
+ Beanstalker
  ------
  ------
 
-Maven Google App Engine Plugin (maven-gae-plugin)
+What is it?
 
- The maven-gae-plugin provides support for {{{http://code.google.com/appengine/}Google App Engine}} projects.
- Basically, it attempts to cover all the basic operations provided by Google App Engine SDK, such as
- running project locally, deploying it to Google's cloud, retrieving production logs etc.
+  For now, the Maven Beanstalk Plugin {{{./maven-beanstalk-plugin}maven-beanstalk-plugin}} is a wrapper for the Amazon Beanstalk API for usage from Maven Projects.
 
-* Goals overview
+Usage
 
- The most commonly used (and most tested) goals are:
-
- * {{{./maven-gae-plugin/run-mojo.html}gae:run}} for running project on a local server.
-~~ * {{{./maven-gae-plugin/debug-mojo.html}gae:debug}} for running project on a local server in the java debugging mode.
- * {{{./maven-gae-plugin/deploy-mojo.html}gae:deploy}} for uploading project to the Google cloud.
-
- Click {{{./maven-gae-plugin/plugin-info.html}Goals}} to see the full list of the goals available.
-
-* Usage
-
-  General instructions on how to use the Maven GAE Plugin can be found on the {{{./usage.html}usage page}}. Some more
-  specific use cases are described in the examples given below. Last but not least, users occasionally contribute
-  additional examples, tips or errata to the
-  {{{http://code.google.com/p/maven-gae-plugin/w/list}plugin's wiki page}}.
-
-  In case you still have questions regarding the plugin's usage, please have a look at the {{{./faq.html}FAQ}} and feel
-  free to contact the {{{./mail-lists.html}user mailing list}}. The posts to the mailing list are archived and could
-  already contain the answer to your question as part of an older thread. Hence, it is also worth browsing/searching
-  the {{{./mail-lists.html}mail archive}}.
-
-  If you feel like the plugin is missing a feature or has a defect, you can fill a feature request or bug report in our
-  {{{./issue-tracking.html}issue tracker}}. When creating a new issue, please provide a comprehensive description of your
-  concern. Especially for fixing bugs it is crucial that the developers can reproduce your problem. For this reason,
-  entire debug logs, POMs or most preferably little demo projects attached to the issue are very much appreciated.
-  Of course, patches are welcome, too. Contributors can check out the project from our
-  {{{./source-repository.html}source repository}} and will find supplementary information in the
-  {{{http://maven.apache.org/guides/development/guide-helping.html}guide to helping with Maven}}.
-
-* Examples
-
-  See the {{{./examples/index.html}Examples}} page.
+  See the {{{./usage.html}Usage}} page.
   

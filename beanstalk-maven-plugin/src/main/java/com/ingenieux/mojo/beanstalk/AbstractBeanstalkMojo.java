@@ -63,7 +63,7 @@ public abstract class AbstractBeanstalkMojo extends AbstractMojo {
 	/**
 	 * Environment Id
 	 * 
-	 * @parameter expression="${beanstalk.environmentId}" default-value="default"
+	 * @parameter expression="${beanstalk.environmentId}"
 	 */
 	String environmentId;
 

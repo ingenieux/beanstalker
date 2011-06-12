@@ -55,13 +55,12 @@
   <scm>
     <connection>scm:hg:http://hg.modafocas.org/beanstalker</connection>
     <developerConnection>scm:hg:https://bitbucket.org/aldrinleal/beanstalker</developerConnection>
-    <url>http://bitbucket.org/aldrinleal/beanstalker/src</url>
   </scm>
 
 
   <modules>
-    <module>beanstalk-maven-plugin</module>
     <module>test-war</module>
+    <module>beanstalk-maven-plugin</module>
   </modules>
 
   <dependencyManagement>
@@ -75,11 +74,6 @@
         <groupId>org.apache.maven</groupId>
         <artifactId>maven-plugin-api</artifactId>
         <version>3.0.2</version>
-      </dependency>
-      <dependency>
-        <groupId>net.java.dev.jets3t</groupId>
-        <artifactId>jets3t</artifactId>
-        <version>0.8.1</version>
       </dependency>
       <dependency>
         <groupId>commons-lang</groupId>
@@ -115,6 +109,19 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
         <version>3.0-beta-3</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>sign-artifacts</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>sign</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
     <extensions>
