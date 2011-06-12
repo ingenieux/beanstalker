@@ -23,9 +23,9 @@ public abstract class AbstractBeanstalkMojo extends AbstractMojo {
 	String accessKey;
 
 	/**
-	 * Location of the file.
+	 * Application Description
 	 * 
-	 * @parameter expression="${project.name}"
+	 * @parameter expression="${project.name}" default-value="My Elastic Beanstalk Project"
 	 */
 	String applicationDescription;
 
@@ -40,14 +40,14 @@ public abstract class AbstractBeanstalkMojo extends AbstractMojo {
 	/**
 	 * Auto-Create Application? Defaults to true
 	 * 
-	 * @parameter expression="${beanstalk.autoCreate}
+	 * @parameter expression="${beanstalk.autoCreate}" default-value=true
 	 */
-	boolean autoCreateApplication = true;
+	boolean autoCreateApplication;
 
 	protected AWSCredentials awsCredentials;
 
 	/**
-	 * CName Prefix
+	 * DNS CName Prefix
 	 * 
 	 * @parameter expression="${project.artifactId}"
 	 */
@@ -56,14 +56,14 @@ public abstract class AbstractBeanstalkMojo extends AbstractMojo {
 	/**
 	 * Environment Name
 	 * 
-	 * @parameter expression="${beanstalk.environmentName}"
+	 * @parameter expression="${beanstalk.environmentName}" default-value="default"
 	 */
 	String environmentName;
 
 	/**
 	 * Environment Id
 	 * 
-	 * @parameter expression="${beanstalk.environmentId}"
+	 * @parameter expression="${beanstalk.environmentId}" default-value="default"
 	 */
 	String environmentId;
 
@@ -84,7 +84,7 @@ public abstract class AbstractBeanstalkMojo extends AbstractMojo {
 	/**
 	 * S3 Bucket
 	 * 
-	 * @parameter expression="${s3Bucket}"
+	 * @parameter expression="${s3Bucket}" default-value="${project.artifactId}"
 	 * @required
 	 */
 	String s3Bucket;
@@ -113,7 +113,7 @@ public abstract class AbstractBeanstalkMojo extends AbstractMojo {
 	/**
 	 * Solution Stack Name
 	 * 
-	 * @parameter expression="${beanstalk.solutionStack}"
+	 * @parameter expression="${beanstalk.solutionStack}" default-value="32bit Amazon Linux running Tomcat 7"
 	 */
 	String solutionStack;
 
@@ -127,7 +127,7 @@ public abstract class AbstractBeanstalkMojo extends AbstractMojo {
 	/**
 	 * Auto-Create Application? Defaults to true
 	 * 
-	 * @parameter expression="${project.version}"
+	 * @parameter expression="${project.version}" default-value="true"
 	 */
 	String versionLabel;
 

@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.ingenieux</groupId>
   <artifactId>beanstalker</artifactId>
@@ -22,6 +25,7 @@
     <site>
       <id>beanstalker.ingenieux.com.br</id>
       <name>Ingenieux Beanstalker Site</name>
+      <url>sftp://leal.eng.br:/home/beanstalker/websites/beanstalker.ingenieux.com.br/html</url>
     </site>
   </distributionManagement>
 
@@ -77,6 +81,21 @@
         <artifactId>jets3t</artifactId>
         <version>0.8.1</version>
       </dependency>
+      <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
+        <version>2.6</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-beanutils</groupId>
+        <artifactId>commons-beanutils</artifactId>
+        <version>1.8.3</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-collections</groupId>
+        <artifactId>commons-collections</artifactId>
+        <version>3.2.1</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -92,11 +111,16 @@
           <target>1.6</target>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-site-plugin</artifactId>
+        <version>3.0-beta-3</version>
+      </plugin>
     </plugins>
     <extensions>
       <extension>
         <groupId>org.apache.maven.wagon</groupId>
-        <artifactId>wagon-file</artifactId>
+        <artifactId>wagon-ssh</artifactId>
         <version>1.0-beta-7</version>
       </extension>
     </extensions>
@@ -106,8 +130,8 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-plugin-plugin</artifactId>
-        <version>2.6</version>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+        <version>2.3.1</version>
       </plugin>
     </plugins>
   </reporting>
