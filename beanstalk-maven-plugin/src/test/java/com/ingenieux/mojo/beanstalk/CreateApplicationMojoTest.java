@@ -23,7 +23,7 @@ public class CreateApplicationMojoTest extends AbstractMojoTestCase {
 
 		this.mojo = mojo;
 
-		setVariableValueToObject(mojo, "applicationName", "bmp-demo");
+		setVariableValueToObject(mojo, "applicationName", "test-bmp-demo-" + System.currentTimeMillis());
 	}
 
 	public void testInstantiation() throws Exception {

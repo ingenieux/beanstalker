@@ -46,8 +46,7 @@ public class CheckAvailabilityMojo extends AbstractBeanstalkMojo {
 		    .checkDNSAvailability(checkDNSAvailabilityRequest);
 
 		if (failWhenExists && !result.isAvailable())
-			throw new MojoFailureException("CNAME exists: "
-			    + result.getFullyQualifiedCNAME());
+			throw new MojoFailureException("CNAME exists: " + cnamePrefix);
 
 		return result;
 	}

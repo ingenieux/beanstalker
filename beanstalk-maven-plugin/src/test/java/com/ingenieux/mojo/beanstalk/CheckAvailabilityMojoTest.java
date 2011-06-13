@@ -23,17 +23,13 @@ public class CheckAvailabilityMojoTest extends AbstractMojoTestCase {
 		CheckAvailabilityMojo mojo = (CheckAvailabilityMojo) configureMojo(
 		    new CheckAvailabilityMojo(), pluginConfiguration);
 
-		setVariableValueToObject(mojo, "cnamePrefix", "bmp-demo");
-
 		this.mojo = mojo;
 
 	}
 
-	public void testInstantiation() throws Exception {
-		assertNotNull(mojo);
-	}
-
 	public void testCheckAvailability() throws Exception {
+		setVariableValueToObject(mojo, "cnamePrefix", "bmp-demo-" + System.currentTimeMillis());
+
 		mojo.execute();
 	}
 

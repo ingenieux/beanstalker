@@ -5,7 +5,17 @@ import java.io.File;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 
+import com.amazonaws.services.elasticbeanstalk.model.ApplicationDescription;
+import com.amazonaws.services.elasticbeanstalk.model.ApplicationVersionDescription;
+import com.amazonaws.services.elasticbeanstalk.model.DeleteApplicationRequest;
+import com.amazonaws.services.elasticbeanstalk.model.DeleteApplicationVersionRequest;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationVersionsResult;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationsResult;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 public class CreateApplicationVersionMojoTest extends AbstractMojoTestCase {
 	String s3Bucket = "bmp-demo";
@@ -13,6 +23,16 @@ public class CreateApplicationVersionMojoTest extends AbstractMojoTestCase {
 	String s3Key = "bmp-demo.war";
 
 	private CreateApplicationVersionMojo mojo;
+
+	private Bucket bucket;
+
+	private File testFile;
+
+	private AmazonS3Client client;
+
+	private String applicationName;
+
+	private String versionLabel;
 
 	@Override
 	protected void setUp() throws Exception {
@@ -29,11 +49,73 @@ public class CreateApplicationVersionMojoTest extends AbstractMojoTestCase {
 
 		this.mojo = mojo;
 
-		setVariableValueToObject(mojo, "applicationName", "bmp-demo");
-		setVariableValueToObject(mojo, "versionLabel", "0.0.1-SNAPSHOT");
+		mojo.autoCreateApplication = true;
+
+		applicationName = "test-bmp-demo-" + System.currentTimeMillis();
+		versionLabel = "0.0.1-SNAPSHOT";
+
+		mojo.s3Bucket = s3Bucket = applicationName;
+
+		setVariableValueToObject(mojo, "applicationName", applicationName);
+		setVariableValueToObject(mojo, "versionLabel", versionLabel);
 
 		setVariableValueToObject(mojo, "s3Bucket", s3Bucket);
 		setVariableValueToObject(mojo, "s3Key", s3Key);
+
+		client = new AmazonS3Client(mojo.getAWSCredentials());
+
+		if (!client.doesBucketExist(mojo.s3Bucket))
+			this.bucket = client.createBucket(s3Bucket);
+
+		this.testFile = new File(getBasedir(), "../test-war/target/test-war.war");
+
+		client.putObject(s3Bucket, s3Key, testFile);
+	}
+
+	public void tearDown() {
+		if (null != mojo.service) {
+			DescribeApplicationVersionsResult describeApplicationVersions = mojo.service
+			    .describeApplicationVersions();
+
+			for (ApplicationVersionDescription av : describeApplicationVersions
+			    .getApplicationVersions()) {
+				if (!av.getApplicationName().startsWith("test-bmp-demo-"))
+					continue;
+
+				mojo.service
+				    .deleteApplicationVersion(new DeleteApplicationVersionRequest(av
+				        .getApplicationName(), av.getVersionLabel()));
+			}
+
+			DescribeApplicationsResult describeApplications = mojo.service
+			    .describeApplications();
+
+			for (ApplicationDescription ad : describeApplications.getApplications()) {
+				mojo.service.deleteApplication(new DeleteApplicationRequest(ad
+				    .getApplicationName()));
+			}
+		}
+
+		for (Bucket b : client.listBuckets()) {
+			String name = b.getName();
+
+			if (!name.startsWith("test-bmp-demo-"))
+				continue;
+
+			ObjectListing objects = client.listObjects(name);
+
+			for (S3ObjectSummary resource : objects.getObjectSummaries()) {
+				try {
+					String key = resource.getKey();
+
+					client.deleteObject(new DeleteObjectRequest(name, key));
+				} catch (Exception exc) {
+					exc.printStackTrace();
+				}
+			}
+
+			client.deleteBucket(name);
+		}
 	}
 
 	public void testInstantiation() throws Exception {
@@ -42,22 +124,13 @@ public class CreateApplicationVersionMojoTest extends AbstractMojoTestCase {
 
 	public void testDefaultCreateVersion() throws Exception {
 		mojo.s3Bucket = mojo.s3Key = null;
-		
+
 		mojo.versionLabel = "STANDALONE";
 
 		mojo.execute();
 	}
 
 	public void testApplicationVersionWithSource() throws Exception {
-		File testFile = new File(getBasedir(),
-		    "target/test-classes/com/ingenieux/mojo/beanstalk/test.war");
-
-		AmazonS3Client client = new AmazonS3Client(mojo.getAWSCredentials());
-
-		client.createBucket(s3Bucket);
-
-		client.putObject(s3Bucket, s3Key, testFile);
-		
 		mojo.execute();
 	}
 }
