@@ -24,8 +24,6 @@ public class CreateApplicationVersionMojoTest extends AbstractMojoTestCase {
 
 	private CreateApplicationVersionMojo mojo;
 
-	private Bucket bucket;
-
 	private File testFile;
 
 	private AmazonS3Client client;
@@ -65,7 +63,7 @@ public class CreateApplicationVersionMojoTest extends AbstractMojoTestCase {
 		client = new AmazonS3Client(mojo.getAWSCredentials());
 
 		if (!client.doesBucketExist(mojo.s3Bucket))
-			this.bucket = client.createBucket(s3Bucket);
+			client.createBucket(s3Bucket);
 
 		this.testFile = new File(getBasedir(), "../test-war/target/test-war.war");
 
