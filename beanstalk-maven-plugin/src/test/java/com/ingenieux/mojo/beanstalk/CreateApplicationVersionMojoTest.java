@@ -65,7 +65,7 @@ public class CreateApplicationVersionMojoTest extends AbstractMojoTestCase {
 		if (!client.doesBucketExist(mojo.s3Bucket))
 			client.createBucket(s3Bucket);
 
-		this.testFile = new File(getBasedir(), "../test-war/target/test-war.war");
+		this.testFile = new File(getBasedir(), "src/test/resources/com/ingenieux/mojo/beanstalk/test-war.war");
 
 		client.putObject(s3Bucket, s3Key, testFile);
 	}
