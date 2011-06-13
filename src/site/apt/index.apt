@@ -5,7 +5,7 @@
 
 What is it?
 
-  For now, the Maven Beanstalk Plugin {{{./maven-beanstalk-plugin}maven-beanstalk-plugin}} is a wrapper for the Amazon Beanstalk API for usage from Maven Projects.
+  For now, the Maven Beanstalk Plugin {{{./beanstalk-maven-plugin}maven-beanstalk-plugin}} is a wrapper for the Amazon Beanstalk API for usage from Maven Projects.
 
 Usage
 
