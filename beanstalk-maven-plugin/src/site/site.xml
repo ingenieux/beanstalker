@@ -3,7 +3,6 @@
   <bannerRight>
     <name>Beanstalk Maven Plugin</name>
     <href>index.html</href>
-    <href>usage.html</href>
   </bannerRight>
   <poweredBy>
     <logo name="Built By Maven" href="http://maven.apache.org"
