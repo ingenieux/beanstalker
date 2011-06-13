@@ -40,20 +40,22 @@ public class UploadSourceBundleMojo extends AbstractBeanstalkMojo {
 
 	protected Object executeInternal() throws MojoExecutionException,
 	    MojoFailureException {
-		if (!artifactFile.getPath().endsWith(".war")) {
-			getLog().warn("Not a war file. Skipping");
+		String path = artifactFile.getPath();
+
+		if (!(path.endsWith(".war") || path.endsWith(".jar"))) {
+			getLog().warn("Not a war/jar file. Skipping");
 
 			return null;
 		}
 
 		if (!artifactFile.exists())
 			throw new MojoFailureException("Artifact File does not exists! (file="
-			    + artifactFile.getPath());
+			    + path);
 
 		AmazonS3Client client = new AmazonS3Client(getAWSCredentials());
 
 		getLog().info("Target Path: s3://" + s3Bucket + "/" + s3Key);
-		getLog().info("Uploading artifact file: " + artifactFile.getPath());
+		getLog().info("Uploading artifact file: " + path);
 
 		PutObjectResult result = client.putObject(s3Bucket, s3Key, artifactFile);
 
