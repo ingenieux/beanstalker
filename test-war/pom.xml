@@ -13,6 +13,8 @@
   <artifactId>test-war</artifactId>
   <packaging>war</packaging>
   <build>
+    <finalName>test-war</finalName>
+    
     <plugins>
       <plugin>
         <groupId>com.ingenieux</groupId>
