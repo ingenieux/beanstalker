@@ -9,7 +9,7 @@ See test-war for a sample of configs.
 To create a configuration, declare the plugin:
 
       <plugin>
-        <groupId>com.ingenieux</groupId>
+        <groupId>br.com.ingenieux</groupId>
         <artifactId>beanstalk-maven-plugin</artifactId>
         <version>0.0.1-SNAPSHOT</version>
         <configuration>

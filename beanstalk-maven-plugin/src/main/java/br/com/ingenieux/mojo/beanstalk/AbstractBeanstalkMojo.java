@@ -125,7 +125,7 @@ public abstract class AbstractBeanstalkMojo extends AbstractMojo {
 	String templateName;
 
 	/**
-	 * Auto-Create Application? Defaults to true
+	 * Version Label to use. Defaults to Project Version
 	 * 
 	 * @parameter expression="${project.version}" default-value="true"
 	 */
