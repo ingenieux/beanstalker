@@ -11,7 +11,7 @@ Quick Start
 <build>
   <plugins>
     <plugin>
-      <groupId>com.ingenieux</groupId>
+      <groupId>br.com.ingenieux</groupId>
       <artifactId>beanstalk-maven-plugin</artifactId>
       <version>[plugin version]</version>
     </plugin>
@@ -61,7 +61,7 @@ mvn beanstalk:upload-source-bundle -Daws.accessKey=[access key] -Daws.secretKey=
 <build>
   <plugins>
     <plugin>
-      <groupId>com.ingenieux</groupId>
+      <groupId>br.com.ingenieux</groupId>
       <artifactId>beanstalk-maven-plugin</artifactId>
       <version>[plugin version]</version>
       <configuration>
@@ -109,7 +109,7 @@ Uploading your Application
   <build>
     <plugins>
       <plugin>
-        <groupId>com.ingenieux</groupId>
+        <groupId>br.com.ingenieux</groupId>
         <artifactId>beanstalk-maven-plugin</artifactId>
         <version>[plugin version]</version>
         <configuration>

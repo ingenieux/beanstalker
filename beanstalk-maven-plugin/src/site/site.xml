@@ -11,7 +11,7 @@
   <body>
     <menu name="Overview">
       <item name="Index" href="../index.html"/>
-      <item name="Bitbucket" href="http://bitbucket.org/"/>
+      <item name="Bitbucket" href="http://bitbucket.org/aldrinleal/beanstalker"/>
       <item name="Plugin Goals" href="plugin-info.html"/>
       <item name="Usage" href="../usage.html"/>
     </menu>
