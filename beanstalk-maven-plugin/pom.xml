@@ -69,7 +69,7 @@
         <version>2.8.1</version>
         <configuration>
           <forkMode>none</forkMode>
-          <test>MinimalTestSuite</test>
+          <skip>true</skip>
         </configuration>
       </plugin>
     </plugins>
