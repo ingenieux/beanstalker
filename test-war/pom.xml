@@ -14,12 +14,11 @@
   <packaging>war</packaging>
   <build>
     <finalName>test-war</finalName>
-    
+
     <plugins>
       <plugin>
         <groupId>com.ingenieux</groupId>
         <artifactId>beanstalk-maven-plugin</artifactId>
-        <version>${project.version}</version>
       </plugin>
     </plugins>
   </build>
