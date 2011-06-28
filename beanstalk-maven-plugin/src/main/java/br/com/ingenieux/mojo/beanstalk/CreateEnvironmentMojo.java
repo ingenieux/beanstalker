@@ -1,7 +1,5 @@
 package br.com.ingenieux.mojo.beanstalk;
 
-import java.util.Arrays;
-
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
@@ -27,8 +25,7 @@ public class CreateEnvironmentMojo extends AbstractBeanstalkMojo {
 		request.setDescription(applicationDescription);
 		request.setEnvironmentName(environmentName);
 
-		if (null != optionSettings)
-			request.setOptionSettings(Arrays.asList(optionSettings));
+		request.setOptionSettings(getOptionSettings());
 
 		request.setOptionsToRemove(getOptionsToRemove());
 

@@ -1,5 +1,8 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>beanstalker</artifactId>
@@ -9,13 +12,45 @@
   </parent>
   <artifactId>test-war</artifactId>
   <packaging>war</packaging>
+  
+  <properties>
+    <beanstalk.versionLabel>${project.version}</beanstalk.versionLabel>
+  </properties>
+  
   <build>
-    <finalName>test-war</finalName>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
 
     <plugins>
       <plugin>
-        <groupId>com.ingenieux</groupId>
+        <groupId>br.com.ingenieux</groupId>
         <artifactId>beanstalk-maven-plugin</artifactId>
+        <configuration>
+          <applicationName>beanstalker-test</applicationName>
+          <cnamePrefix>beanstalker-test</cnamePrefix>
+          <solutionStack>32bit Amazon Linux running Tomcat 7</solutionStack>
+          <environmentName>beanstalker-test</environmentName>
+          <s3Bucket>ingenieux-beanstalk-apps</s3Bucket>
+          <s3Key>beanstalker-test/${project.build.finalName}-${beanstalk.versionLabel}.war</s3Key>
+          <!-- <optionSettings> <optionSetting> <namespace>aws:elasticbeanstalk:application</namespace> 
+            <optionName>Application Healthcheck URL</optionName> <value>/_/health</value> 
+            </optionSetting> </optionSettings> -->
+        </configuration>
+        <executions>
+          <execution>
+            <id>default</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>upload-source-bundle</goal>
+              <goal>create-application-version</goal>
+              <goal>update-environment</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

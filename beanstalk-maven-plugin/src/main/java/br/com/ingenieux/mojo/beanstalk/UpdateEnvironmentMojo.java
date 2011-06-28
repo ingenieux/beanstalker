@@ -16,7 +16,6 @@ package br.com.ingenieux.mojo.beanstalk;
  * limitations under the License.
  */
 
-import java.util.Arrays;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -38,8 +37,9 @@ public class UpdateEnvironmentMojo extends AbstractBeanstalkMojo {
 	protected Object executeInternal() throws MojoExecutionException,
 	    MojoFailureException {
 		UpdateEnvironmentRequest req = new UpdateEnvironmentRequest()
+				.withVersionLabel(versionLabel)
 		    .withEnvironmentName(environmentName)
-		    .withOptionSettings(Arrays.asList(optionSettings))
+		    .withOptionSettings(getOptionSettings())
 		    .withOptionsToRemove(getOptionsToRemove());
 
 		return service.updateEnvironment(req);

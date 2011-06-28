@@ -1,7 +1,10 @@
 package br.com.ingenieux.mojo.beanstalk;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeSet;
 
 import org.apache.commons.beanutils.BeanMap;
@@ -95,7 +98,7 @@ public abstract class AbstractBeanstalkMojo extends AbstractMojo {
 	/**
 	 * S3 Key
 	 * 
-	 * @parameter expression="${project.build.finalName}.${project.packaging}"
+	 * @parameter expression="${beanstalk.s3Key}" default-value="${project.build.finalName}.${project.packaging}"
 	 * @required
 	 */
 	String s3Key;
@@ -130,7 +133,7 @@ public abstract class AbstractBeanstalkMojo extends AbstractMojo {
 	/**
 	 * Version Label to use. Defaults to Project Version
 	 * 
-	 * @parameter expression="${project.version}" default-value="true"
+	 * @parameter expression="${beanstalk.versionLabel}" default-value="${project.version}"
 	 */
 	String versionLabel;
 
@@ -211,5 +214,14 @@ public abstract class AbstractBeanstalkMojo extends AbstractMojo {
   		result.add(optionToRemove);
   
   	return result;
+  }
+
+	protected List<ConfigurationOptionSetting> getOptionSettings() {
+    ConfigurationOptionSetting[] arrOptionSettings = optionSettings;
+    
+    if (null == arrOptionSettings || 0 == arrOptionSettings.length)
+    	return Collections.emptyList();
+    
+  	return Arrays.asList(arrOptionSettings);
   }
 }

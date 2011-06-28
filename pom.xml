@@ -71,9 +71,7 @@
     <url>http://bitbucket.org/aldrinleal/beanstalker</url>
   </scm>
 
-
   <modules>
-    <module>test-war</module>
     <module>beanstalk-maven-plugin</module>
     <module>mapreduce-maven-plugin</module>
   </modules>
