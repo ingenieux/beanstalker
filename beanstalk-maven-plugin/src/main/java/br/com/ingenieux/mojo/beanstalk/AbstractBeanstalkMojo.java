@@ -1,6 +1,8 @@
 package br.com.ingenieux.mojo.beanstalk;
 
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.TreeSet;
 
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.maven.plugin.AbstractMojo;
@@ -12,6 +14,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalk;
 import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalkClient;
 import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
+import com.amazonaws.services.elasticbeanstalk.model.OptionSpecification;
 
 public abstract class AbstractBeanstalkMojo extends AbstractMojo {
 	/**
@@ -197,4 +200,16 @@ public abstract class AbstractBeanstalkMojo extends AbstractMojo {
 	public AWSCredentials getAWSCredentials() {
 		return new BasicAWSCredentials(accessKey, secretKey);
 	}
+
+	protected Collection<OptionSpecification> getOptionsToRemove() {
+  	if (null == this.optionsToRemove)
+  		return null;
+  
+  	Collection<OptionSpecification> result = new TreeSet<OptionSpecification>();
+  
+  	for (OptionToRemove optionToRemove : this.optionsToRemove)
+  		result.add(optionToRemove);
+  
+  	return result;
+  }
 }

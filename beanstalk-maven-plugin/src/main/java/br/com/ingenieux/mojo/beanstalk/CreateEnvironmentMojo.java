@@ -1,14 +1,11 @@
 package br.com.ingenieux.mojo.beanstalk;
 
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.TreeSet;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
 import com.amazonaws.services.elasticbeanstalk.model.CreateEnvironmentRequest;
-import com.amazonaws.services.elasticbeanstalk.model.OptionSpecification;
 
 /**
  * Creates and Launches an Elastic Beanstalk Environment
@@ -42,17 +39,5 @@ public class CreateEnvironmentMojo extends AbstractBeanstalkMojo {
 		request.setVersionLabel(versionLabel);
 
 		return service.createEnvironment(request);
-	}
-
-	private Collection<OptionSpecification> getOptionsToRemove() {
-		if (null == this.optionsToRemove)
-			return null;
-
-		Collection<OptionSpecification> result = new TreeSet<OptionSpecification>();
-
-		for (OptionToRemove optionToRemove : this.optionsToRemove)
-			result.add(optionToRemove);
-
-		return result;
 	}
 }
