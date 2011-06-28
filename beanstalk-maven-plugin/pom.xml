@@ -69,6 +69,7 @@
         <version>2.8.1</version>
         <configuration>
           <forkMode>none</forkMode>
+          <test>MinimalTestSuite</test>
         </configuration>
       </plugin>
     </plugins>
