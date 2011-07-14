@@ -67,7 +67,7 @@
 
   <scm>
     <connection>scm:hg:http://bitbucket.org/aldrinleal/beanstalker</connection>
-    <developerConnection>scm:hg:https://bitbucket.org/aldrinleal/beanstalker</developerConnection>
+    <developerConnection>scm:hg:ssh://hg@bitbucket.org/aldrinleal/beanstalker</developerConnection>
     <url>http://bitbucket.org/aldrinleal/beanstalker</url>
   </scm>
 
