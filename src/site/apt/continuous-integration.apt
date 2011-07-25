@@ -72,16 +72,20 @@ mvn beanstalk:upload-source-bundle beanstalk:create-application-version beanstal
 
 Deleting Previous Versions
 
-   You could also use clean-previous-versions, either with days or a count. Start by simulating with the dryRun argument:
+   You could also use clean-previous-versions, either with days or a count. There is a third argument, dryRun, which is set by default to true, in order to avoid mistakes
 
 +---+
-mvn beanstalk:clean-previous-versions -Dbeanstalk.dryRun=1 -Dbeanstalk.daysToKeep=1 
+mvn beanstalk:clean-previous-versions -Dbeanstalk.daysToKeep=1 
 +---+
 
    Or:
 
 +---+
-mvn beanstalk:clean-previous-versions -Dbeanstalk.dryRun=1 -Dbeanstalk.versionsToKeep=1 
+mvn beanstalk:clean-previous-versions -Dbeanstalk.versionsToKeep=1 
 +---+
 
-   When secure enough, simply drop the dryRun parameter.
+   When secure enough, simply set the dryRun parameter as false:
+
++---+
+mvn beanstalk:clean-previous-versions -Dbeanstalk.versionsToKeep=1 -Dbeanstalk.dryRun=false 
++---+

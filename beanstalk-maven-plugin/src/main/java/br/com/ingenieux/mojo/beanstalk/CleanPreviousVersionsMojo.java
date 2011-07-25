@@ -63,9 +63,9 @@ public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
 	/**
 	 * Simulate deletion changing algorithm?
 	 * 
-	 * @parameter expr="${beanstalk.dryRun}"
+	 * @parameter expr="${beanstalk.dryRun}" default-value="true"
 	 */
-	boolean dryRun = true;
+	boolean dryRun;
 
 	@Override
 	protected Object executeInternal() throws MojoExecutionException,
