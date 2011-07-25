@@ -33,10 +33,10 @@ Key Concepts
     <groupId>br.com.ingenieux</groupId>
     <artifactId>beanstalk-maven-plugin</artifactId>
     <configuration>
-      <applicationName>beanstalker-test</applicationName>
-      <cnamePrefix>beanstalker-test</cnamePrefix>
-      <environmentName>beanstalker-test</environmentName>
-      <s3Bucket>your-s3-bucket</s3Bucket>
+      <applicationName>name of your application</applicationName>
+      <cnamePrefix>name of your cnamePrefix</cnamePrefix><!-- cnamePrefix.elasticbeanstalk.com -->
+      <environmentName>name of your environment</environmentName>
+      <s3Bucket>your-s3-bucket</s3Bucket><!-- Remember to create the s3 bucket :) -->
       <s3Key>${project.artifactId}/${project.build.finalName}-${beanstalk.versionLabel}.war</s3Key>
     </configuration>
   </plugin>
