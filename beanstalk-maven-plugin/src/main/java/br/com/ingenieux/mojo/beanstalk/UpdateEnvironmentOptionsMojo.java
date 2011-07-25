@@ -22,19 +22,20 @@ import org.apache.maven.plugin.MojoFailureException;
 import com.amazonaws.services.elasticbeanstalk.model.UpdateEnvironmentRequest;
 
 /**
- * Updates the environment versionLabel for a given environmentName
+ * Updates the environment configuration (optionsSettings / optionsToRemove)
  * 
  * See the <a href=
  * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_UpdateEnvironment.html"
  * >UpdateEnvironment API</a> call.
  * 
- * @goal update-environment
+ * @goal update-environment-options
  */
-public class UpdateEnvironmentMojo extends AbstractBeanstalkMojo {
+public class UpdateEnvironmentOptionsMojo extends AbstractBeanstalkMojo {
 	protected Object executeInternal() throws MojoExecutionException,
 	    MojoFailureException {
 		UpdateEnvironmentRequest req = new UpdateEnvironmentRequest()
-		    .withVersionLabel(versionLabel).withEnvironmentName(environmentName);
+		    .withOptionSettings(getOptionSettings()).withOptionsToRemove(
+		        getOptionsToRemove());
 
 		return service.updateEnvironment(req);
 	}

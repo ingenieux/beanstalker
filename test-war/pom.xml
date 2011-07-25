@@ -7,16 +7,17 @@
   <parent>
     <artifactId>beanstalker</artifactId>
     <groupId>br.com.ingenieux</groupId>
-    <version>0.2.1-SNAPSHOT</version>
+    <version>0.2.2-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>test-war</artifactId>
   <packaging>war</packaging>
-  
+
   <properties>
-    <beanstalk.versionLabel>${project.version}</beanstalk.versionLabel>
+    <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
+    <beanstalk.versionLabel>${maven.build.timestamp}</beanstalk.versionLabel>
   </properties>
-  
+
   <build>
     <resources>
       <resource>
@@ -35,22 +36,15 @@
           <solutionStack>32bit Amazon Linux running Tomcat 7</solutionStack>
           <environmentName>beanstalker-test</environmentName>
           <s3Bucket>ingenieux-beanstalk-apps</s3Bucket>
-          <s3Key>beanstalker-test/${project.build.finalName}-${beanstalk.versionLabel}.war</s3Key>
-          <!-- <optionSettings> <optionSetting> <namespace>aws:elasticbeanstalk:application</namespace> 
-            <optionName>Application Healthcheck URL</optionName> <value>/_/health</value> 
-            </optionSetting> </optionSettings> -->
+          <s3Key>${project.artifactId}/${project.build.finalName}-${beanstalk.versionLabel}.war</s3Key>
+          <optionSettings>
+            <optionSetting>
+              <namespace>aws:elasticbeanstalk:application</namespace>
+              <optionName>Application Healthcheck URL</optionName>
+              <value>/health.html</value>
+            </optionSetting>
+          </optionSettings>
         </configuration>
-        <executions>
-          <execution>
-            <id>default</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>upload-source-bundle</goal>
-              <goal>create-application-version</goal>
-              <goal>update-environment</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>

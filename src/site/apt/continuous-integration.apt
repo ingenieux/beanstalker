@@ -1,0 +1,87 @@
+ ------
+ Beanstalker Plugin: Continuous Integration Usage
+ ------
+ ------
+
+Thanks and Credits
+
+  Parts of this configuration were contributed by {{{https://github.com/carrot-garden}}Andrei Pozolotin} 
+  
+  In particular, this doc was exponsored by {{{expinia.com}}expinia}.
+
+Key Concepts
+
+  In Amazon Elastic Beanstalk, an Application Version binds three values: Its name, the Version Label, AND the S3 Source
+  
+  That said, you can't simply upload a new s3 object and ask it to update - You need to create a new for each new version, or update the version to the S3 source. 
+  
+  If you want to be able to issue rollbacks, creating a new version is a good idea, so we are going to discuss this approach.
+  
+  In maven terms, this could be done via the maven.build.timestamp variable. So start declaring its format:
+  
++---+
+<properties>
+    <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
+    <beanstalk.versionLabel>${maven.build.timestamp}</beanstalk.versionLabel>
+</properties>
++---+
+
+  Next, you can declare the plugin itself:
+  
++---+
+  <plugin>
+    <groupId>br.com.ingenieux</groupId>
+    <artifactId>beanstalk-maven-plugin</artifactId>
+    <configuration>
+      <applicationName>beanstalker-test</applicationName>
+      <cnamePrefix>beanstalker-test</cnamePrefix>
+      <environmentName>beanstalker-test</environmentName>
+      <s3Bucket>your-s3-bucket</s3Bucket>
+      <s3Key>${project.artifactId}/${project.build.finalName}-${beanstalk.versionLabel}.war</s3Key>
+    </configuration>
+  </plugin>
++---+
+
+  Then you can create the application version and launch its environment:
+  
++---+
+mvn beanstalk:upload-source-bundle beanstalk:create-application-version beanstalk:create-environment
++---+
+
+  You can either go to the console and watch for its completion and/or chain the wait-for-environment instead:
+
++---+
+mvn beanstalk:wait-for-environment
++---+
+
+   It will wait by default up to 20 mins (in average, EC2 launches take about 7-12 mins)
+
+Integration with your CI agent
+
+   Once you launched the environment, you can create new application versions by issuing the following goals:
+   
+   [[1]] upload-source-bundle
+   [[2]] create-application-version
+   [[3]] update-environment
+
++---+
+mvn beanstalk:upload-source-bundle beanstalk:create-application-version beanstalk:update-environment
++---+
+
+   You can tweak the settings in the console. In particular, we recommend pointing the health check url to an static html file.
+
+Deleting Previous Versions
+
+   You could also use clean-previous-versions, either with days or a count. Start by simulating with the dryRun argument:
+
++---+
+mvn beanstalk:clean-previous-versions -Dbeanstalk.dryRun=1 -Dbeanstalk.daysToKeep=1 
++---+
+
+   Or:
+
++---+
+mvn beanstalk:clean-previous-versions -Dbeanstalk.dryRun=1 -Dbeanstalk.versionsToKeep=1 
++---+
+
+   When secure enough, simply drop the dryRun parameter.

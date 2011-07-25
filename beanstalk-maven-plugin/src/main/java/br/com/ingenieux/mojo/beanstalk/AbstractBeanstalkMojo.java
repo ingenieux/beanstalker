@@ -11,6 +11,7 @@ import org.apache.commons.beanutils.BeanMap;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.project.MavenProject;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -20,6 +21,13 @@ import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
 import com.amazonaws.services.elasticbeanstalk.model.OptionSpecification;
 
 public abstract class AbstractBeanstalkMojo extends AbstractMojo {
+	/**
+	 * @parameter default-value="${project}"
+	 * @required
+	 * @readonly
+	 */
+	MavenProject mavenProject;
+	
 	/**
 	 * AWS Access Key
 	 * 
