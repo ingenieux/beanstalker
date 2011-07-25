@@ -61,11 +61,34 @@ Integration with your CI agent
    Once you launched the environment, you can create new application versions by issuing the following goals:
    
    [[1]] upload-source-bundle
+   
    [[2]] create-application-version
+
    [[3]] update-environment
 
 +---+
 mvn beanstalk:upload-source-bundle beanstalk:create-application-version beanstalk:update-environment
++---+
+
+   Or you can bind them to the lifecycle:
++---+
+   <plugin>
+            <groupId>br.com.ingenieux</groupId>
+            <artifactId>beanstalk-maven-plugin</artifactId>
+            <configuration>
+              <...>
+            </configuration>
+            <executions>
+                    <execution>
+                            <phase>verify</phase>
+                            <goals>
+                                    <goal>upload-source-bundle</goal>
+                                    <goal>create-application-version</goal>
+                                    <goal>update-environment</goal>
+                            </goals>
+                    </execution>
+            </executions>
+    </plugin>
 +---+
 
    You can tweak the settings in the console. In particular, we recommend pointing the health check url to an static html file.
