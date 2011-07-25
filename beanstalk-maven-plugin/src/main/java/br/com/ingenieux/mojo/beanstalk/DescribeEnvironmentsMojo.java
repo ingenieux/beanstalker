@@ -35,9 +35,9 @@ public class DescribeEnvironmentsMojo extends AbstractBeanstalkMojo {
 	/**
 	 * Include Deleted?
 	 * 
-	 * @parameter expr="${includeDeleted}"
+	 * @parameter expression="${beanstalk.includeDeleted}" default-value=true
 	 */
-	boolean includeDeleted = true;
+	boolean includeDeleted;
 
 	@Override
 	protected Object executeInternal() throws MojoExecutionException,

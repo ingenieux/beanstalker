@@ -36,9 +36,9 @@ public class DeleteApplicationVersionMojo extends AbstractBeanstalkMojo {
 	/**
 	 * Delete the source bundle?
 	 * 
-	 * @parameter expr="${deleteSourceBundle}"
+	 * @parameter expression="${beanstalk.deleteSourceBundle}" default-value=false
 	 */
-	private boolean deleteSourceBundle = false;
+	private boolean deleteSourceBundle;
 
 	@Override
 	protected Object executeInternal() throws MojoExecutionException,

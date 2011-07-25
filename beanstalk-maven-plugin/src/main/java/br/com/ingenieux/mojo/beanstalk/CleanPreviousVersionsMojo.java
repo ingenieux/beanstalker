@@ -42,9 +42,9 @@ public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
 	/**
 	 * Delete the source bundle?
 	 * 
-	 * @parameter expr="${deleteSourceBundle}"
+	 * @parameter expression="${beanstalk.deleteSourceBundle}" default-value=false
 	 */
-	boolean deleteSourceBundle = false;
+	boolean deleteSourceBundle;
 
 	/**
 	 * How many versions to keep?
@@ -63,7 +63,7 @@ public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
 	/**
 	 * Simulate deletion changing algorithm?
 	 * 
-	 * @parameter expr="${beanstalk.dryRun}" default-value="true"
+	 * @parameter expression="${beanstalk.dryRun}" default-value=true
 	 */
 	boolean dryRun;
 

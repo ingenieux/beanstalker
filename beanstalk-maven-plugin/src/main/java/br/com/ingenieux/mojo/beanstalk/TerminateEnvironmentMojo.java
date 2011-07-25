@@ -35,9 +35,9 @@ public class TerminateEnvironmentMojo extends AbstractBeanstalkMojo {
 	/**
 	 * Terminate resources as well?
 	 * 
-	 * @parameter expr="${terminateResources}"
+	 * @parameter expression="${beanstalk.terminateResources}" default-value=true
 	 */
-	boolean terminateResources = true;
+	boolean terminateResources;
 
 	@Override
 	protected Object executeInternal() throws MojoExecutionException,
