@@ -156,7 +156,7 @@ public class RollbackVersionMojo extends AbstractBeanstalkMojo {
 		getLog().info(
 		    "Changing versionLabel for Environment[name=" + environmentName
 		        + "; environmentId=" + environmentId + "] from version "
-		        + curVersionLabel + " to version " + latestVersionDescription);
+		        + curVersionLabel + " to version " + latestVersionDescription.getVersionLabel());
 
 		if (dryRun)
 			return null;
