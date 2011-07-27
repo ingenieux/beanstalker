@@ -73,7 +73,7 @@ public class UploadSourceBundleMojo extends AbstractBeanstalkMojo {
 		getLog().info("Uploading artifact file: " + path);
 
 		PutObjectResult result = client.putObject(s3Bucket, s3Key, artifactFile);
-
+		
 		getLog().info("Artifact Uploaded");
 
 		return result;

@@ -136,7 +136,10 @@ public abstract class AbstractBeanstalkMojo extends AbstractMojo {
 	    MojoFailureException;
 
 	public AWSCredentials getAWSCredentials() {
-		return new BasicAWSCredentials(accessKey, secretKey);
+		if (null == this.awsCredentials)
+			this.awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
+
+		return this.awsCredentials;
 	}
 
 	protected Collection<OptionSpecification> getOptionsToRemove(
