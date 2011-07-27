@@ -1,8 +1,6 @@
 package br.com.ingenieux.mojo.beanstalk;
 
 /*
- * Copyright 2001-2005 The Apache Software Foundation.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -31,11 +29,37 @@ import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettin
  * @goal describe-configuration-settings
  */
 public class DescribeConfigurationSettingsMojo extends AbstractBeanstalkMojo {
+	/**
+	 * Beanstalk Application Name
+	 * 
+	 * @parameter expression="${beanstalk.applicationName}"
+	 *            default-value="${project.artifactId}"
+	 * @required
+	 */
+	String applicationName;
+
+	/**
+	 * Environment Name
+	 * 
+	 * @parameter expression="${beanstalk.environmentName}"
+	 *            default-value="default"
+	 */
+	String environmentName;
+
+	/**
+	 * Template Name
+	 * 
+	 * @parameter expression="${beanstalk.templateName}"
+	 */
+	String templateName;
+
 	protected Object executeInternal() throws MojoExecutionException,
 	    MojoFailureException {
-		DescribeConfigurationSettingsRequest req = new DescribeConfigurationSettingsRequest()
-		    .withApplicationName(this.applicationName)
-		    .withEnvironmentName(environmentName).withTemplateName(templateName);
+		DescribeConfigurationSettingsRequest req = new DescribeConfigurationSettingsRequest()//
+		    .withApplicationName(this.applicationName)//
+		    .withEnvironmentName(environmentName)//
+		    .withTemplateName(templateName)//
+		;
 
 		return service.describeConfigurationSettings(req);
 	}

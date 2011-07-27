@@ -1,8 +1,6 @@
 package br.com.ingenieux.mojo.beanstalk;
 
 /*
- * Copyright 2001-2005 The Apache Software Foundation.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,6 +31,15 @@ import com.amazonaws.services.elasticbeanstalk.model.DeleteApplicationRequest;
  * 
  */
 public class DeleteApplicationMojo extends AbstractBeanstalkMojo {
+	/**
+	 * Beanstalk Application Name
+	 * 
+	 * @parameter expression="${beanstalk.applicationName}"
+	 *            default-value="${project.artifactId}"
+	 * @required
+	 */
+	String applicationName;
+
 	@Override
 	protected Object executeInternal() throws MojoExecutionException,
 	    MojoFailureException {

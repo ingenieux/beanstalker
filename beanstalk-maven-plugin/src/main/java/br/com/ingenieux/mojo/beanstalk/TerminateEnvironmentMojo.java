@@ -1,8 +1,6 @@
 package br.com.ingenieux.mojo.beanstalk;
 
 /*
- * Copyright 2001-2005 The Apache Software Foundation.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -32,6 +30,21 @@ import com.amazonaws.services.elasticbeanstalk.model.TerminateEnvironmentRequest
  * @goal terminate-environment
  */
 public class TerminateEnvironmentMojo extends AbstractBeanstalkMojo {
+	/**
+	 * Environment Name
+	 * 
+	 * @parameter expression="${beanstalk.environmentName}"
+	 *            default-value="default"
+	 */
+	String environmentName;
+
+	/**
+	 * Environment Id
+	 * 
+	 * @parameter expression="${beanstalk.environmentId}"
+	 */
+	String environmentId;
+
 	/**
 	 * Terminate resources as well?
 	 * 

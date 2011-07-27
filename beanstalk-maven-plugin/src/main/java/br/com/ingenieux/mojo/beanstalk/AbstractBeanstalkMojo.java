@@ -1,5 +1,19 @@
 package br.com.ingenieux.mojo.beanstalk;
 
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -16,7 +30,6 @@ import org.apache.maven.plugin.MojoFailureException;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalk;
 import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalkClient;
 import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
 import com.amazonaws.services.elasticbeanstalk.model.OptionSpecification;
@@ -31,81 +44,6 @@ public abstract class AbstractBeanstalkMojo extends AbstractMojo {
 	String accessKey;
 
 	/**
-	 * Application Description
-	 * 
-	 * @parameter expression="${project.name}" default-value="My Elastic Beanstalk Project"
-	 */
-	String applicationDescription;
-
-	/**
-	 * Beanstalk Application Name
-	 * 
-	 * @parameter expression="${project.artifactId}"
-	 * @required
-	 */
-	String applicationName;
-
-	/**
-	 * Auto-Create Application? Defaults to true
-	 * 
-	 * @parameter expression="${beanstalk.autoCreate}" default-value=true
-	 */
-	boolean autoCreateApplication;
-
-	protected AWSCredentials awsCredentials;
-
-	/**
-	 * DNS CName Prefix
-	 * 
-	 * @parameter expression="${beanstalk.cnamePrefix}" default-value="${project.artifactId}"
-	 */
-	String cnamePrefix;
-
-	/**
-	 * Environment Name
-	 * 
-	 * @parameter expression="${beanstalk.environmentName}" default-value="default"
-	 */
-	String environmentName;
-
-	/**
-	 * Environment Id
-	 * 
-	 * @parameter expression="${beanstalk.environmentId}"
-	 */
-	String environmentId;
-
-	/**
-	 * Configuration Option Settings
-	 * 
-	 * @parameter
-	 */
-	ConfigurationOptionSetting[] optionSettings;
-
-	/**
-	 * Options to Remove
-	 * 
-	 * @parameter
-	 */
-	OptionToRemove[] optionsToRemove;
-
-	/**
-	 * S3 Bucket
-	 * 
-	 * @parameter expression="${s3Bucket}" default-value="${project.artifactId}"
-	 * @required
-	 */
-	String s3Bucket;
-
-	/**
-	 * S3 Key
-	 * 
-	 * @parameter expression="${beanstalk.s3Key}" default-value="${project.build.finalName}.${project.packaging}"
-	 * @required
-	 */
-	String s3Key;
-
-	/**
 	 * AWS Secret Key
 	 * 
 	 * @parameter expression="${aws.secretKey}"
@@ -114,42 +52,21 @@ public abstract class AbstractBeanstalkMojo extends AbstractMojo {
 	String secretKey;
 
 	/**
-	 * Beanstalk Service Client
-	 */
-	AWSElasticBeanstalk service;
-
-	/**
-	 * Solution Stack Name
-	 * 
-	 * @parameter expression="${beanstalk.solutionStack}" default-value="32bit Amazon Linux running Tomcat 7"
-	 */
-	String solutionStack;
-
-	/**
-	 * Template Name
-	 * 
-	 * @parameter expression="${beanstalk.templateName}"
-	 */
-	String templateName;
-
-	/**
-	 * Version Label to use. Defaults to Project Version
-	 * 
-	 * @parameter expression="${beanstalk.versionLabel}" default-value="${project.version}"
-	 */
-	String versionLabel;
-	
-	/**
 	 * Verbose Logging?
 	 * 
 	 * @parameter expression="${beanstalk.verbose}" default-value=false
 	 */
-	boolean verbose = false;
+	boolean verbose;
+
+	AWSCredentials awsCredentials;
+
+	AWSElasticBeanstalkClient service;
 
 	@Override
-	public final void execute() throws MojoExecutionException, MojoFailureException {
+	public final void execute() throws MojoExecutionException,
+	    MojoFailureException {
 		setupLogging();
-		
+
 		awsCredentials = getAWSCredentials();
 		service = new AWSElasticBeanstalkClient(awsCredentials);
 
@@ -175,11 +92,11 @@ public abstract class AbstractBeanstalkMojo extends AbstractMojo {
 	}
 
 	void setupLogging() {
-	  if (! verbose) {
+		if (!verbose) {
 			Logger logger = Logger.getLogger("com.amazonaws");
 			logger.setLevel(Level.OFF);
 		}
-  }
+	}
 
 	void displayResults(Object result) {
 		if (null == result)
@@ -222,24 +139,26 @@ public abstract class AbstractBeanstalkMojo extends AbstractMojo {
 		return new BasicAWSCredentials(accessKey, secretKey);
 	}
 
-	protected Collection<OptionSpecification> getOptionsToRemove() {
-  	if (null == this.optionsToRemove)
-  		return null;
-  
-  	Collection<OptionSpecification> result = new TreeSet<OptionSpecification>();
-  
-  	for (OptionToRemove optionToRemove : this.optionsToRemove)
-  		result.add(optionToRemove);
-  
-  	return result;
-  }
+	protected Collection<OptionSpecification> getOptionsToRemove(
+	    OptionToRemove[] optionsToRemove) {
+		if (null == optionsToRemove)
+			return null;
 
-	protected List<ConfigurationOptionSetting> getOptionSettings() {
-    ConfigurationOptionSetting[] arrOptionSettings = optionSettings;
-    
-    if (null == arrOptionSettings || 0 == arrOptionSettings.length)
-    	return Collections.emptyList();
-    
-  	return Arrays.asList(arrOptionSettings);
-  }
+		Collection<OptionSpecification> result = new TreeSet<OptionSpecification>();
+
+		for (OptionToRemove optionToRemove : optionsToRemove)
+			result.add(optionToRemove);
+
+		return result;
+	}
+
+	protected List<ConfigurationOptionSetting> getOptionSettings(
+	    ConfigurationOptionSetting[] optionSettings) {
+		ConfigurationOptionSetting[] arrOptionSettings = optionSettings;
+
+		if (null == arrOptionSettings || 0 == arrOptionSettings.length)
+			return Collections.emptyList();
+
+		return Arrays.asList(arrOptionSettings);
+	}
 }

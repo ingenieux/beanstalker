@@ -1,8 +1,6 @@
 package br.com.ingenieux.mojo.beanstalk;
 
 /*
- * Copyright 2001-2005 The Apache Software Foundation.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,6 +17,7 @@ package br.com.ingenieux.mojo.beanstalk;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
+import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
 import com.amazonaws.services.elasticbeanstalk.model.CreateEnvironmentRequest;
 
 /**
@@ -31,6 +30,77 @@ import com.amazonaws.services.elasticbeanstalk.model.CreateEnvironmentRequest;
  * @goal create-environment
  */
 public class CreateEnvironmentMojo extends AbstractBeanstalkMojo {
+	/**
+	 * Beanstalk Application Name
+	 * 
+	 * @parameter expression="${beanstalk.applicationName}"
+	 *            default-value="${project.artifactId}"
+	 * @required
+	 */
+	String applicationName;
+
+	/**
+	 * DNS CName Prefix
+	 * 
+	 * @parameter expression="${beanstalk.cnamePrefix}"
+	 *            default-value="${project.artifactId}"
+	 */
+	String cnamePrefix;
+
+	/**
+	 * Application Description
+	 * 
+	 * @parameter expression="${beanstalk.applicationDescription}"
+	 *            default-value="${project.name}"
+	 */
+	String applicationDescription;
+
+	/**
+	 * Configuration Option Settings
+	 * 
+	 * @parameter
+	 */
+	ConfigurationOptionSetting[] optionSettings;
+
+	/**
+	 * Options to Remove
+	 * 
+	 * @parameter
+	 */
+	OptionToRemove[] optionsToRemove;
+
+	/**
+	 * Environment Name
+	 * 
+	 * @parameter expression="${beanstalk.environmentName}"
+	 *            default-value="default"
+	 * @required
+	 */
+	String environmentName;
+
+	/**
+	 * Version Label to use. Defaults to Project Version
+	 * 
+	 * @parameter expression="${beanstalk.versionLabel}"
+	 *            default-value="${project.version}"
+	 */
+	String versionLabel;
+
+	/**
+	 * Solution Stack Name
+	 * 
+	 * @parameter expression="${beanstalk.solutionStack}"
+	 *            default-value="32bit Amazon Linux running Tomcat 7"
+	 */
+	String solutionStack;
+
+	/**
+	 * Template Name
+	 * 
+	 * @parameter expression="${beanstalk.templateName}"
+	 */
+	String templateName;
+
 	@Override
 	protected Object executeInternal() throws MojoExecutionException,
 	    MojoFailureException {
@@ -41,9 +111,9 @@ public class CreateEnvironmentMojo extends AbstractBeanstalkMojo {
 		request.setDescription(applicationDescription);
 		request.setEnvironmentName(environmentName);
 
-		request.setOptionSettings(getOptionSettings());
+		request.setOptionSettings(getOptionSettings(optionSettings));
 
-		request.setOptionsToRemove(getOptionsToRemove());
+		request.setOptionsToRemove(getOptionsToRemove(optionsToRemove));
 
 		request.setSolutionStackName(solutionStack);
 

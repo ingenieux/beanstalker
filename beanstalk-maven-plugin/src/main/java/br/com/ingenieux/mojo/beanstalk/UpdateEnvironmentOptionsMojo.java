@@ -1,8 +1,6 @@
 package br.com.ingenieux.mojo.beanstalk;
 
 /*
- * Copyright 2001-2005 The Apache Software Foundation.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,6 +17,7 @@ package br.com.ingenieux.mojo.beanstalk;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
+import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
 import com.amazonaws.services.elasticbeanstalk.model.UpdateEnvironmentRequest;
 
 /**
@@ -31,11 +30,70 @@ import com.amazonaws.services.elasticbeanstalk.model.UpdateEnvironmentRequest;
  * @goal update-environment-options
  */
 public class UpdateEnvironmentOptionsMojo extends AbstractBeanstalkMojo {
+	/**
+	 * Environment Name
+	 * 
+	 * @parameter expression="${beanstalk.environmentName}"
+	 *            default-value="default"
+	 */
+	String environmentName;
+
+	/**
+	 * Environment Id
+	 * 
+	 * @parameter expression="${beanstalk.environmentId}"
+	 */
+	String environmentId;
+
+	/**
+	 * Configuration Option Settings
+	 * 
+	 * @parameter
+	 */
+	ConfigurationOptionSetting[] optionSettings;
+
+	/**
+	 * Options to Remove
+	 * 
+	 * @parameter
+	 */
+	OptionToRemove[] optionsToRemove;
+
+	/**
+	 * Environment Name
+	 * 
+	 * @parameter expression="${beanstalk.environmentDescription}"
+	 *            default-value="default"
+	 * @required
+	 */
+	String environmentDescription;
+
+	/**
+	 * Version Label to use. Defaults to Project Version
+	 * 
+	 * @parameter expression="${beanstalk.versionLabel}"
+	 *            default-value="${project.version}"
+	 */
+	String versionLabel;
+
+	/**
+	 * Template Name
+	 * 
+	 * @parameter expression="${beanstalk.templateName}"
+	 */
+	String templateName;
+
 	protected Object executeInternal() throws MojoExecutionException,
 	    MojoFailureException {
-		UpdateEnvironmentRequest req = new UpdateEnvironmentRequest()
-		    .withOptionSettings(getOptionSettings()).withOptionsToRemove(
-		        getOptionsToRemove());
+		UpdateEnvironmentRequest req = new UpdateEnvironmentRequest();
+
+		req.setDescription(environmentDescription);
+		req.setEnvironmentId(environmentId);
+		req.setEnvironmentName(environmentName);
+		req.setOptionSettings(getOptionSettings(optionSettings));
+		req.setOptionsToRemove(getOptionsToRemove(optionsToRemove));
+		req.setTemplateName(templateName);
+		req.setVersionLabel(versionLabel);
 
 		return service.updateEnvironment(req);
 	}

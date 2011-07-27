@@ -1,8 +1,6 @@
 package br.com.ingenieux.mojo.beanstalk;
 
 /*
- * Copyright 2001-2005 The Apache Software Foundation.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -30,6 +28,23 @@ import com.amazonaws.services.s3.model.PutObjectResult;
  * @goal upload-source-bundle
  */
 public class UploadSourceBundleMojo extends AbstractBeanstalkMojo {
+	/**
+	 * S3 Bucket
+	 * 
+	 * @parameter expression="${s3Bucket}" default-value="${project.artifactId}"
+	 * @required
+	 */
+	String s3Bucket;
+
+	/**
+	 * S3 Key
+	 * 
+	 * @parameter expression="${beanstalk.s3Key}"
+	 *            default-value="${project.build.finalName}.${project.packaging}"
+	 * @required
+	 */
+	String s3Key;
+
 	/**
 	 * Artifact to Deploy
 	 * 

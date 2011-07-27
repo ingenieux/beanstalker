@@ -1,8 +1,6 @@
 package br.com.ingenieux.mojo.beanstalk;
 
 /*
- * Copyright 2001-2005 The Apache Software Foundation.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,6 +31,23 @@ import com.amazonaws.services.elasticbeanstalk.model.DeleteApplicationVersionReq
  * @author Aldrin Leal
  */
 public class DeleteApplicationVersionMojo extends AbstractBeanstalkMojo {
+	/**
+	 * Beanstalk Application Name
+	 * 
+	 * @parameter expression="${beanstalk.applicationName}"
+	 *            default-value="${project.artifactId}"
+	 * @required
+	 */
+	String applicationName;
+
+	/**
+	 * Version Label to use. Defaults to Project Version
+	 * 
+	 * @parameter expression="${beanstalk.versionLabel}"
+	 *            default-value="${project.version}"
+	 */
+	String versionLabel;
+
 	/**
 	 * Delete the source bundle?
 	 * 

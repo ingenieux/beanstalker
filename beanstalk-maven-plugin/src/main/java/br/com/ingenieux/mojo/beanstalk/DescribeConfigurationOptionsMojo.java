@@ -1,8 +1,6 @@
 package br.com.ingenieux.mojo.beanstalk;
 
 /*
- * Copyright 2001-2005 The Apache Software Foundation.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,6 +18,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
 import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationOptionsRequest;
+import com.amazonaws.services.elasticbeanstalk.model.OptionSpecification;
 
 /**
  * Returns the Configuration Settings
@@ -31,10 +30,60 @@ import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationOption
  * @goal describe-configuration-options
  */
 public class DescribeConfigurationOptionsMojo extends AbstractBeanstalkMojo {
+	/**
+	 * Beanstalk Application Name
+	 * 
+	 * @parameter expression="${beanstalk.applicationName}"
+	 *            default-value="${project.artifactId}"
+	 */
+	String applicationName;
+
+	/**
+	 * Environment Name
+	 * 
+	 * @parameter expression="${beanstalk.environmentName}"
+	 *            default-value="default"
+	 */
+	String environmentName;
+
+	/**
+	 * Environment Id
+	 * 
+	 * @parameter expression="${beanstalk.environmentId}"
+	 */
+	String environmentId;
+
+	/**
+	 * Template Name
+	 * 
+	 * @parameter expression="${beanstalk.templateName}"
+	 */
+	String templateName;
+
+	/**
+	 * Solution Stack Name
+	 * 
+	 * @parameter expression="${beanstalk.solutionStack}"
+	 *            default-value="32bit Amazon Linux running Tomcat 7"
+	 */
+	String solutionStack;
+
+	/**
+	 * Option Specifications
+	 * 
+	 * @parameter
+	 */
+	OptionSpecification[] optionSpecifications;
+
 	protected Object executeInternal() throws MojoExecutionException,
 	    MojoFailureException {
-		DescribeConfigurationOptionsRequest req = new DescribeConfigurationOptionsRequest()
-		    .withApplicationName(this.applicationName).withEnvironmentName(environmentName).withTemplateName(templateName);
+		DescribeConfigurationOptionsRequest req = new DescribeConfigurationOptionsRequest()//
+		    .withApplicationName(this.applicationName)//
+		    .withEnvironmentName(environmentName)//
+		    .withOptions(optionSpecifications)//
+		    .withSolutionStackName(solutionStack)//
+		    .withTemplateName(templateName)//
+		;
 
 		return service.describeConfigurationOptions(req);
 	}

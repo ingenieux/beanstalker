@@ -1,8 +1,6 @@
 package br.com.ingenieux.mojo.beanstalk;
 
 /*
- * Copyright 2001-2005 The Apache Software Foundation.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,6 +31,57 @@ import com.amazonaws.services.elasticbeanstalk.model.S3Location;
  * @goal create-application-version
  */
 public class CreateApplicationVersionMojo extends AbstractBeanstalkMojo {
+	/**
+	 * Beanstalk Application Name
+	 * 
+	 * @parameter expression="${beanstalk.applicationName}"
+	 *            default-value="${project.artifactId}"
+	 * @required
+	 */
+	String applicationName;
+
+	/**
+	 * Application Description
+	 * 
+	 * @parameter expression="${beanstalk.applicationDescription}"
+	 *            default-value="${project.name}"
+	 */
+	String applicationDescription;
+
+	/**
+	 * Auto-Create Application? Defaults to true
+	 * 
+	 * @parameter expression="${beanstalk.autoCreate}" default-value=true
+	 */
+	boolean autoCreateApplication;
+
+	/**
+	 * S3 Bucket
+	 * 
+	 * @parameter expression="${beanstalk.s3Bucket}"
+	 *            default-value="${project.artifactId}"
+	 * @required
+	 */
+	String s3Bucket;
+
+	/**
+	 * S3 Key
+	 * 
+	 * @parameter expression="${beanstalk.s3Key}"
+	 *            default-value="${project.build.finalName}.${project.packaging}"
+	 * @required
+	 */
+	String s3Key;
+
+	/**
+	 * Version Label to use. Defaults to Project Version
+	 * 
+	 * @parameter expression="${beanstalk.versionLabel}"
+	 *            default-value="${project.version}"
+	 * @required
+	 */
+	String versionLabel;
+
 	protected Object executeInternal() throws MojoExecutionException {
 		CreateApplicationVersionRequest request = new CreateApplicationVersionRequest();
 

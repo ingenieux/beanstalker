@@ -1,8 +1,6 @@
 package br.com.ingenieux.mojo.beanstalk;
 
 /*
- * Copyright 2001-2005 The Apache Software Foundation.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,11 +23,22 @@ import com.amazonaws.services.elasticbeanstalk.model.CheckDNSAvailabilityResult;
 /**
  * Checks the availability of a CNAME.
  * 
- * See the <a href="http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_CheckDNSAvailability.html">CheckDNSAvailability API</a> call.
+ * See the <a href=
+ * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_CheckDNSAvailability.html"
+ * >CheckDNSAvailability API</a> call.
  * 
  * @goal check-availability
+ * @requiresDirectInvocation
  */
 public class CheckAvailabilityMojo extends AbstractBeanstalkMojo {
+	/**
+	 * DNS CName Prefix
+	 * 
+	 * @parameter expression="${beanstalk.cnamePrefix}"
+	 *            default-value="${project.artifactId}"
+	 */
+	String cnamePrefix;
+
 	/**
 	 * Issue a failure when existing?
 	 * 

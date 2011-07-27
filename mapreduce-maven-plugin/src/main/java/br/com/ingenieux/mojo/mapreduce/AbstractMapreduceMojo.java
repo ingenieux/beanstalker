@@ -1,8 +1,23 @@
 package br.com.ingenieux.mojo.mapreduce;
 
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import java.util.Iterator;
 
 import org.apache.commons.beanutils.BeanMap;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -49,10 +64,19 @@ public abstract class AbstractMapreduceMojo extends AbstractMojo {
 	 */
 	String secretKey;
 
+	/**
+	 * Verbose Logging?
+	 * 
+	 * @parameter expression="${beanstalk.verbose}" default-value=false
+	 */
+	boolean verbose;
+
 	AmazonElasticMapReduceClient service;
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
+		setupLogging();
+		
 		awsCredentials = getAWSCredentials();
 
 		service = new AmazonElasticMapReduceClient(awsCredentials);
@@ -77,6 +101,13 @@ public abstract class AbstractMapreduceMojo extends AbstractMojo {
 
 		displayResults(result);
 	}
+
+	void setupLogging() {
+	  if (! verbose) {
+			Logger logger = Logger.getLogger("com.amazonaws");
+			logger.setLevel(Level.OFF);
+		}
+  }
 
 	void displayResults(Object result) {
 		if (null == result)

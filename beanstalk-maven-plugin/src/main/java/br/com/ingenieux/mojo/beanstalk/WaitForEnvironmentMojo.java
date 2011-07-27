@@ -1,18 +1,6 @@
 package br.com.ingenieux.mojo.beanstalk;
 
-import java.util.Date;
-
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
-
-import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsRequest;
-import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsResult;
-import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
-
 /*
- * Copyright 2001-2005 The Apache Software Foundation.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,6 +13,15 @@ import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import java.util.Date;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+
+import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsRequest;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsResult;
+import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
 
 /**
  * Waits for Environment Status to Change
@@ -33,6 +30,14 @@ import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
  */
 public class WaitForEnvironmentMojo extends AbstractBeanstalkMojo {
 	private static final long MINUTE = 60 * 1000;
+
+	/**
+	 * Beanstalk Application Name
+	 * 
+	 * @parameter expression="${beanstalk.applicationName}" default-value="${project.artifactId}"
+	 * @required
+	 */
+	String applicationName;
 
 	/**
 	 * Minutes until timeout
@@ -60,8 +65,7 @@ public class WaitForEnvironmentMojo extends AbstractBeanstalkMojo {
 			if (timedOutP(expiresAt))
 				throw new MojoExecutionException("Timed out");
 
-			DescribeEnvironmentsRequest req = new DescribeEnvironmentsRequest()
-			    .withEnvironmentNames(this.environmentName);
+			DescribeEnvironmentsRequest req = new DescribeEnvironmentsRequest().withApplicationName(applicationName);
 
 			DescribeEnvironmentsResult result = service.describeEnvironments(req);
 

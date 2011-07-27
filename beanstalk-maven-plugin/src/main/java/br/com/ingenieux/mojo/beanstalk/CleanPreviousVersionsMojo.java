@@ -1,8 +1,6 @@
 package br.com.ingenieux.mojo.beanstalk;
 
 /*
- * Copyright 2001-2005 The Apache Software Foundation.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -43,6 +41,15 @@ import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
  */
 public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
 	/**
+	 * Beanstalk Application Name
+	 * 
+	 * @parameter expression="${beanstalk.applicationName}"
+	 *            default-value="${project.artifactId}"
+	 * @required
+	 */
+	String applicationName;
+
+	/**
 	 * Delete the source bundle?
 	 * 
 	 * @parameter expression="${beanstalk.deleteSourceBundle}" default-value=false
@@ -80,6 +87,7 @@ public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
 			throw new MojoFailureException(
 			    "Declare either versionsToKeep or daysToKeep, but not both nor none!");
 
+		// TODO: Deal with withVersionLabels
 		DescribeApplicationVersionsRequest describeApplicationVersionsRequest = new DescribeApplicationVersionsRequest()
 		    .withApplicationName(applicationName);
 
