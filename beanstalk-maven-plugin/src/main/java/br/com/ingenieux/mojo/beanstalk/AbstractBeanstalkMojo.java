@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.TreeSet;
 
 import org.apache.commons.beanutils.BeanMap;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -136,9 +138,18 @@ public abstract class AbstractBeanstalkMojo extends AbstractMojo {
 	 * @parameter expression="${beanstalk.versionLabel}" default-value="${project.version}"
 	 */
 	String versionLabel;
+	
+	/**
+	 * Verbose Logging?
+	 * 
+	 * @parameter expression="${beanstalk.verbose}" default-value=false
+	 */
+	boolean verbose = false;
 
 	@Override
-	public void execute() throws MojoExecutionException, MojoFailureException {
+	public final void execute() throws MojoExecutionException, MojoFailureException {
+		setupLogging();
+		
 		awsCredentials = getAWSCredentials();
 		service = new AWSElasticBeanstalkClient(awsCredentials);
 
@@ -162,6 +173,13 @@ public abstract class AbstractBeanstalkMojo extends AbstractMojo {
 
 		displayResults(result);
 	}
+
+	void setupLogging() {
+	  if (! verbose) {
+			Logger logger = Logger.getLogger("com.amazonaws");
+			logger.setLevel(Level.OFF);
+		}
+  }
 
 	void displayResults(Object result) {
 		if (null == result)

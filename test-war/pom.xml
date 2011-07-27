@@ -7,7 +7,7 @@
   <parent>
     <artifactId>beanstalker</artifactId>
     <groupId>br.com.ingenieux</groupId>
-    <version>0.2.2-SNAPSHOT</version>
+    <version>0.2.4-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>test-war</artifactId>
@@ -30,13 +30,21 @@
       <plugin>
         <groupId>br.com.ingenieux</groupId>
         <artifactId>beanstalk-maven-plugin</artifactId>
+        <version>${project.version}</version>
         <configuration>
           <applicationName>beanstalker-test</applicationName>
+          <!-- 
           <cnamePrefix>beanstalker-test</cnamePrefix>
+          -->
           <solutionStack>32bit Amazon Linux running Tomcat 7</solutionStack>
+          <!-- 
           <environmentName>beanstalker-test</environmentName>
+          -->
           <s3Bucket>ingenieux-beanstalk-apps</s3Bucket>
+          <!-- 
           <s3Key>${project.artifactId}/${project.build.finalName}-${beanstalk.versionLabel}.war</s3Key>
+          -->
+          <s3Key>${project.artifactId}/${project.build.finalName}.war</s3Key>
           <optionSettings>
             <optionSetting>
               <namespace>aws:elasticbeanstalk:application</namespace>
