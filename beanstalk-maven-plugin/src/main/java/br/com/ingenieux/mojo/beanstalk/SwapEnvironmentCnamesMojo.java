@@ -42,11 +42,11 @@ public class SwapEnvironmentCnamesMojo extends AbstractBeanstalkMojo {
 	String sourceEnvironmentName;
 
 	/**
-	 * Target Environment Name
+	 * Destination Environment Name
 	 * 
-	 * @parameter expression="${beanstalk.targetEnvironmentName}"
+	 * @parameter expression="${beanstalk.destinationEnvironmentName}"
 	 */
-	String targetEnvironmentName;
+	String destinationEnvironmentName;
 
 	@Override
 	protected Object executeInternal() throws MojoExecutionException,
@@ -68,8 +68,8 @@ public class SwapEnvironmentCnamesMojo extends AbstractBeanstalkMojo {
 		if (StringUtils.isNotBlank(sourceEnvironmentName))
 			request.setSourceEnvironmentName(sourceEnvironmentName);
 
-		if (StringUtils.isNotBlank(targetEnvironmentName))
-			request.setSourceEnvironmentName(targetEnvironmentName);
+		if (StringUtils.isNotBlank(destinationEnvironmentName))
+			request.setDestinationEnvironmentName(destinationEnvironmentName);
 
 		return request;
 	}

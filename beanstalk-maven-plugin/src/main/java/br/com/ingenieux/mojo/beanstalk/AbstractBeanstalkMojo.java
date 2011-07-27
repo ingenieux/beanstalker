@@ -55,7 +55,7 @@ public abstract class AbstractBeanstalkMojo extends AbstractMojo {
 	/**
 	 * DNS CName Prefix
 	 * 
-	 * @parameter expression="${project.artifactId}"
+	 * @parameter expression="${beanstalk.cnamePrefix}" default-value="${project.artifactId}"
 	 */
 	String cnamePrefix;
 

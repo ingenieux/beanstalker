@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.ListIterator;
 
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -30,6 +31,8 @@ import com.amazonaws.services.elasticbeanstalk.model.ApplicationVersionDescripti
 import com.amazonaws.services.elasticbeanstalk.model.DeleteApplicationVersionRequest;
 import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationVersionsRequest;
 import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationVersionsResult;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsResult;
+import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
 
 /**
  * Deletes application versions, either by count and/or by date old
@@ -51,14 +54,14 @@ public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
 	 * 
 	 * @parameter default-value="${beanstalk.versionsToKeep}"
 	 */
-	int versionsToKeep;
+	Integer versionsToKeep;
 
 	/**
 	 * How many versions to keep?
 	 * 
 	 * @parameter default-value="${beanstalk.daysToKeep}"
 	 */
-	int daysToKeep;
+	Integer daysToKeep;
 
 	/**
 	 * Simulate deletion changing algorithm?
@@ -70,8 +73,8 @@ public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
 	@Override
 	protected Object executeInternal() throws MojoExecutionException,
 	    MojoFailureException {
-		boolean bVersionsToKeepDefined = (versionsToKeep > 0);
-		boolean bDaysToKeepDefined = (daysToKeep > 0);
+		boolean bVersionsToKeepDefined = (null != versionsToKeep);
+		boolean bDaysToKeepDefined = (null != daysToKeep);
 
 		if (!(bVersionsToKeepDefined ^ bDaysToKeepDefined))
 			throw new MojoFailureException(
@@ -83,8 +86,32 @@ public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
 		DescribeApplicationVersionsResult appVersions = service
 		    .describeApplicationVersions(describeApplicationVersionsRequest);
 
+		DescribeEnvironmentsResult environments = service.describeEnvironments();
+
 		List<ApplicationVersionDescription> appVersionList = new ArrayList<ApplicationVersionDescription>(
 		    appVersions.getApplicationVersions());
+
+		for (EnvironmentDescription d : environments.getEnvironments()) {
+			boolean bActiveEnvironment = (d.getStatus().equals("Running")
+			    || d.getStatus().equals("Launching") || d.getStatus().equals("Ready"));
+
+			for (ListIterator<ApplicationVersionDescription> appVersionIterator = appVersionList
+			    .listIterator(); appVersionIterator.hasNext();) {
+				ApplicationVersionDescription appVersion = appVersionIterator.next();
+
+				boolean bMatchesVersion = appVersion.getVersionLabel().equals(
+				    d.getVersionLabel());
+
+				if (bActiveEnvironment && bMatchesVersion) {
+					getLog().info(
+					    "VersionLabel " + appVersion.getVersionLabel()
+					        + " is bound to environment " + d.getEnvironmentName()
+					        + " - Skipping it");
+
+					appVersionIterator.remove();
+				}
+			}
+		}
 
 		int size = appVersionList.size();
 
