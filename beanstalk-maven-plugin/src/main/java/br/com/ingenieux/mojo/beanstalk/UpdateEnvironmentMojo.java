@@ -87,7 +87,6 @@ public class UpdateEnvironmentMojo extends AbstractBeanstalkMojo {
 		    .withDescription(environmentDescription)//
 		    .withEnvironmentId(environmentId)//
 		    .withEnvironmentName(environmentName)//
-		    .withEnvironmentName(environmentName)//
 		    .withOptionSettings(getOptionSettings(optionSettings))//
 		    .withOptionsToRemove(getOptionsToRemove(optionsToRemove))//
 		    .withTemplateName(templateName)//
