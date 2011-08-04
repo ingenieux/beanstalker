@@ -103,8 +103,8 @@ public abstract class AbstractBeanstalkMojo extends AbstractMojo {
 			return;
 
 		BeanMap beanMap = new BeanMap(result);
-		int i = 0;
-		for (Iterator<?> itProperty = beanMap.keyIterator(); itProperty.hasNext(); i++) {
+
+		for (Iterator<?> itProperty = beanMap.keyIterator(); itProperty.hasNext();) {
 			String propertyName = "" + itProperty.next();
 			Object propertyValue = beanMap.get(propertyName);
 

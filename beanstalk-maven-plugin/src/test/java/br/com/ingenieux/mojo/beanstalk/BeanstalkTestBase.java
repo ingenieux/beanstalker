@@ -85,6 +85,7 @@ public abstract class BeanstalkTestBase extends AbstractMojoTestCase {
   	    "target/test-classes/br/com/ingenieux/mojo/beanstalk/pom.xml");
   }
 
+	@SuppressWarnings("unchecked")
 	protected <T extends AbstractBeanstalkMojo> T getMojo(Class<T> mojoClazz)
       throws Exception {
       	File testPom = this.getBasePom();
