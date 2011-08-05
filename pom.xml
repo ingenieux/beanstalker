@@ -1,180 +1,183 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
--->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <parent>
-    <groupId>org.sonatype.oss</groupId>
-    <artifactId>oss-parent</artifactId>
-    <version>7</version>
-  </parent>
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>br.com.ingenieux</groupId>
-  <artifactId>beanstalker</artifactId>
-  <packaging>pom</packaging>
-  <version>0.2.4-SNAPSHOT</version>
+<!-- /* * Licensed under the Apache License, Version 2.0 (the "License"); 
+	* you may not use this file except in compliance with the License. * You 
+	may obtain a copy of the License at * * http://www.apache.org/licenses/LICENSE-2.0 
+	* * Unless required by applicable law or agreed to in writing, software * 
+	distributed under the License is distributed on an "AS IS" BASIS, * WITHOUT 
+	WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. * See the 
+	License for the specific language governing permissions and * limitations 
+	under the License. */ -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>br.com.ingenieux</groupId>
+	<artifactId>beanstalker</artifactId>
+	<packaging>pom</packaging>
+	<version>0.2.4-SNAPSHOT</version>
 
-  <name>beanstalker</name>
-  <description>Beanstalker is a set of maven-tooling. It includes both an archetype and a plugin.</description>
-  <url>http://beanstalker.ingenieux.com.br</url>
-  <inceptionYear>2011</inceptionYear>
+	<name>beanstalker</name>
+	<description>Beanstalker is a set of maven-tooling. It includes both an archetype and a plugin.</description>
+	<url>http://beanstalker.ingenieux.com.br</url>
+	<inceptionYear>2011</inceptionYear>
 
-  <licenses>
-    <license>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-      <name>Apache 2.0</name>
-    </license>
-  </licenses>
+	<licenses>
+		<license>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<name>Apache 2.0</name>
+		</license>
+	</licenses>
 
-  <distributionManagement>
-    <site>
-      <id>beanstalker.ingenieux.com.br</id>
-      <name>Ingenieux Beanstalker Site</name>
-      <url>sftp://leal.eng.br:/home/beanstalker/websites/beanstalker.ingenieux.com.br/html</url>
-    </site>
-  </distributionManagement>
+	<distributionManagement>
+		<site>
+			<id>beanstalker.ingenieux.com.br</id>
+			<name>Ingenieux Beanstalker Site</name>
+			<url>sftp://leal.eng.br:/home/beanstalker/websites/beanstalker.ingenieux.com.br/html</url>
+		</site>
+	</distributionManagement>
 
-  <mailingLists>
-    <mailingList>
-      <name>beanstalker-users</name>
-      <archive>http://groups.google.com/group/beanstalker-users</archive>
-    </mailingList>
-    <mailingList>
-      <name>beanstalker-dev</name>
-      <archive>http://groups.google.com/group/beanstalker-dev</archive>
-    </mailingList>
-  </mailingLists>
+	<mailingLists>
+		<mailingList>
+			<name>beanstalker-users</name>
+			<archive>http://groups.google.com/group/beanstalker-users</archive>
+		</mailingList>
+		<mailingList>
+			<name>beanstalker-dev</name>
+			<archive>http://groups.google.com/group/beanstalker-dev</archive>
+		</mailingList>
+	</mailingLists>
 
-  <organization>
-    <name>ingenieux</name>
-    <url>http://ingenieux.com.br</url>
-  </organization>
+	<organization>
+		<name>ingenieux</name>
+		<url>http://ingenieux.com.br</url>
+	</organization>
 
-  <developers>
-    <developer>
-      <id>aldrinleal</id>
-      <name>Aldrin Leal</name>
-      <timezone>UTC-03</timezone>
-    </developer>
-  </developers>
+	<developers>
+		<developer>
+			<id>aldrinleal</id>
+			<name>Aldrin Leal</name>
+			<timezone>GMT-03</timezone>
+		</developer>
+	</developers>
 
-  <issueManagement>
-    <system>bitbucket</system>
-    <url>http://hg.modafocas.org/beanstalker</url>
-  </issueManagement>
+	<issueManagement>
+		<system>bitbucket</system>
+		<url>http://hg.modafocas.org/beanstalker</url>
+	</issueManagement>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-  </properties>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+	</properties>
 
-  <scm>
-    <connection>scm:hg:http://bitbucket.org/aldrinleal/beanstalker</connection>
-    <developerConnection>scm:hg:ssh://hg@bitbucket.org/aldrinleal/beanstalker</developerConnection>
-    <url>http://bitbucket.org/aldrinleal/beanstalker</url>
-  </scm>
+	<scm>
+		<connection>scm:hg:http://bitbucket.org/aldrinleal/beanstalker</connection>
+		<developerConnection>scm:hg:ssh://hg@bitbucket.org/aldrinleal/beanstalker</developerConnection>
+		<url>http://bitbucket.org/aldrinleal/beanstalker</url>
+	</scm>
 
-  <modules>
-    <module>beanstalk-maven-plugin</module>
-    <module>mapreduce-maven-plugin</module>
-  </modules>
+	<modules>
+		<module>beanstalk-maven-plugin</module>
+		<module>mapreduce-maven-plugin</module>
+	</modules>
 
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>com.amazonaws</groupId>
-        <artifactId>aws-java-sdk</artifactId>
-        <version>1.2.4</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.maven</groupId>
-        <artifactId>maven-plugin-api</artifactId>
-        <version>3.0.2</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-lang</groupId>
-        <artifactId>commons-lang</artifactId>
-        <version>2.6</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-beanutils</groupId>
-        <artifactId>commons-beanutils</artifactId>
-        <version>1.8.3</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-collections</groupId>
-        <artifactId>commons-collections</artifactId>
-        <version>3.2.1</version>
-      </dependency>
-      <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>3.8.1</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.maven.plugin-testing</groupId>
-        <artifactId>maven-plugin-testing-harness</artifactId>
-        <version>2.0-alpha-1</version>
-      </dependency>
-      <dependency>
-        <groupId>log4j</groupId>
-        <artifactId>log4j</artifactId>
-        <version>1.2.12</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.amazonaws</groupId>
+				<artifactId>aws-java-sdk</artifactId>
+				<version>1.2.4</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.maven</groupId>
+				<artifactId>maven-plugin-api</artifactId>
+				<version>3.0.2</version>
+			</dependency>
+			<dependency>
+				<groupId>commons-lang</groupId>
+				<artifactId>commons-lang</artifactId>
+				<version>2.6</version>
+			</dependency>
+			<dependency>
+				<groupId>commons-beanutils</groupId>
+				<artifactId>commons-beanutils</artifactId>
+				<version>1.8.3</version>
+			</dependency>
+			<dependency>
+				<groupId>commons-collections</groupId>
+				<artifactId>commons-collections</artifactId>
+				<version>3.2.1</version>
+			</dependency>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>3.8.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.maven.plugin-testing</groupId>
+				<artifactId>maven-plugin-testing-harness</artifactId>
+				<version>2.0-alpha-1</version>
+			</dependency>
+			<dependency>
+				<groupId>log4j</groupId>
+				<artifactId>log4j</artifactId>
+				<version>1.2.12</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.3.2</version>
-        <configuration>
-          <!-- http://maven.apache.org/plugins/maven-compiler-plugin/ -->
-          <source>1.6</source>
-          <target>1.6</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-site-plugin</artifactId>
-        <version>3.0-beta-3</version>
-      </plugin>
-      <plugin>
-        <groupId>br.com.ingenieux</groupId>
-        <artifactId>beanstalk-maven-plugin</artifactId>
-        <version>${project.version}</version>
-      </plugin>
-    </plugins>
-    <extensions>
-      <extension>
-        <groupId>org.apache.maven.wagon</groupId>
-        <artifactId>wagon-ssh</artifactId>
-        <version>1.0-beta-7</version>
-      </extension>
-    </extensions>
-  </build>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<!-- http://maven.apache.org/plugins/maven-compiler-plugin/ -->
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-site-plugin</artifactId>
+				<version>3.0-beta-3</version>
+			</plugin>
+			<plugin>
+				<groupId>br.com.ingenieux</groupId>
+				<artifactId>beanstalk-maven-plugin</artifactId>
+				<version>${project.version}</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.9</version>
+				<configuration>
+				  <!--  Temporary - 0.2.5 should improve on IT -->
+					<skip>true</skip>
+				</configuration>
+			</plugin>
+		</plugins>
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-ssh</artifactId>
+				<version>1.0-beta-7</version>
+			</extension>
+		</extensions>
+	</build>
 
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>2.3.1</version>
-      </plugin>
-    </plugins>
-  </reporting>
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>2.3.1</version>
+			</plugin>
+		</plugins>
+	</reporting>
 </project>
