@@ -57,7 +57,14 @@ public abstract class AbstractBeanstalkMojo extends AbstractMojo {
 	 * @parameter expression="${beanstalk.verbose}" default-value=false
 	 */
 	boolean verbose;
-
+	
+	/**
+	 * Ignore Exceptions?
+	 * 
+	 * @parameter expression="${beanstalk.ignoreExceptions}" default-value=false
+	 */
+	boolean ignoreExceptions;
+	
 	AWSCredentials awsCredentials;
 
 	AWSElasticBeanstalkClient service;
@@ -77,9 +84,18 @@ public abstract class AbstractBeanstalkMojo extends AbstractMojo {
 
 			getLog().info("SUCCESS");
 		} catch (Exception e) {
-			getLog().warn("FAILURE: ", e);
-
-			if (MojoExecutionException.class.isAssignableFrom(e.getClass())) {
+			getLog().warn("FAILURE", e);
+			
+			/*
+			 * This is actually the feature I really didn't want to have written, ever. 
+			 * 
+			 * Thank you for reading this comment.
+			 */
+			if (ignoreExceptions) {
+				getLog().warn("Ok. ignoreExceptions is set to true. No result for you!");
+				
+				return;
+			} else if (MojoExecutionException.class.isAssignableFrom(e.getClass())) {
 				throw (MojoExecutionException) e;
 			} else if (MojoFailureException.class.isAssignableFrom(e.getClass())) {
 				throw (MojoFailureException) e;
