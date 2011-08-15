@@ -19,6 +19,8 @@ import org.codehaus.plexus.util.StringUtils;
 
 import com.amazonaws.services.elasticbeanstalk.model.CreateApplicationVersionRequest;
 import com.amazonaws.services.elasticbeanstalk.model.CreateApplicationVersionResult;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationVersionsRequest;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationVersionsResult;
 import com.amazonaws.services.elasticbeanstalk.model.S3Location;
 
 /**
@@ -82,7 +84,25 @@ public class CreateApplicationVersionMojo extends AbstractBeanstalkMojo {
 	 */
 	String versionLabel;
 
+	/**
+	 * Skip when this versionLabel already exists?
+	 * 
+	 * @parameter expression="${beanstalk.skipExisting}" default-value=true
+	 */
+	boolean skipExisting;
+
 	protected Object executeInternal() throws MojoExecutionException {
+		if (skipExisting) {
+			if (versionLabelExists()) {
+				getLog().info(
+						"VersionLabel "
+								+ versionLabel
+								+ " already exists. Skipping creation of new application-version");
+
+				return null;
+			}
+		}
+
 		CreateApplicationVersionRequest request = new CreateApplicationVersionRequest();
 
 		request.setApplicationName(applicationName);
@@ -97,8 +117,28 @@ public class CreateApplicationVersionMojo extends AbstractBeanstalkMojo {
 		request.setVersionLabel(versionLabel);
 
 		CreateApplicationVersionResult result = service
-		    .createApplicationVersion(request);
+				.createApplicationVersion(request);
 
 		return result.getApplicationVersion();
+	}
+
+	private boolean versionLabelExists() {
+		/*
+		 * Builds a request for this very specific version label
+		 */
+		DescribeApplicationVersionsRequest davRequest = new DescribeApplicationVersionsRequest()
+				.withApplicationName(applicationName).withVersionLabels(
+						versionLabel);
+
+		/*
+		 * Sends the request
+		 */
+		DescribeApplicationVersionsResult result = service
+				.describeApplicationVersions(davRequest);
+
+		/*
+		 * Non-empty means the application version label *DOES* exist.
+		 */
+		return !result.getApplicationVersions().isEmpty();
 	}
 }
