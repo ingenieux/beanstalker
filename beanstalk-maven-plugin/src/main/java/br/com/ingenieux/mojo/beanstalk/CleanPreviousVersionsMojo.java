@@ -128,8 +128,6 @@ public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
 			}
 		}
 
-		int size = appVersionList.size();
-
 		Collections.sort(appVersionList,
 				new Comparator<ApplicationVersionDescription>() {
 					@Override
