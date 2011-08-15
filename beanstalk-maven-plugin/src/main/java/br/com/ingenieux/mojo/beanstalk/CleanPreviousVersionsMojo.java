@@ -52,7 +52,8 @@ public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
 	/**
 	 * Delete the source bundle?
 	 * 
-	 * @parameter expression="${beanstalk.deleteSourceBundle}" default-value=false
+	 * @parameter expression="${beanstalk.deleteSourceBundle}"
+	 *            default-value=false
 	 */
 	boolean deleteSourceBundle;
 
@@ -79,42 +80,44 @@ public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
 
 	@Override
 	protected Object executeInternal() throws MojoExecutionException,
-	    MojoFailureException {
+			MojoFailureException {
 		boolean bVersionsToKeepDefined = (null != versionsToKeep);
 		boolean bDaysToKeepDefined = (null != daysToKeep);
 
 		if (!(bVersionsToKeepDefined ^ bDaysToKeepDefined))
 			throw new MojoFailureException(
-			    "Declare either versionsToKeep or daysToKeep, but not both nor none!");
+					"Declare either versionsToKeep or daysToKeep, but not both nor none!");
 
-		// TODO: Deal with withVersionLabels
 		DescribeApplicationVersionsRequest describeApplicationVersionsRequest = new DescribeApplicationVersionsRequest()
-		    .withApplicationName(applicationName);
+				.withApplicationName(applicationName);
 
 		DescribeApplicationVersionsResult appVersions = service
-		    .describeApplicationVersions(describeApplicationVersionsRequest);
+				.describeApplicationVersions(describeApplicationVersionsRequest);
 
-		DescribeEnvironmentsResult environments = service.describeEnvironments();
+		DescribeEnvironmentsResult environments = service
+				.describeEnvironments();
 
 		List<ApplicationVersionDescription> appVersionList = new ArrayList<ApplicationVersionDescription>(
-		    appVersions.getApplicationVersions());
+				appVersions.getApplicationVersions());
 
 		for (EnvironmentDescription d : environments.getEnvironments()) {
 			boolean bActiveEnvironment = (d.getStatus().equals("Running")
-			    || d.getStatus().equals("Launching") || d.getStatus().equals("Ready"));
+					|| d.getStatus().equals("Launching") || d.getStatus()
+					.equals("Ready"));
 
 			for (ListIterator<ApplicationVersionDescription> appVersionIterator = appVersionList
-			    .listIterator(); appVersionIterator.hasNext();) {
-				ApplicationVersionDescription appVersion = appVersionIterator.next();
+					.listIterator(); appVersionIterator.hasNext();) {
+				ApplicationVersionDescription appVersion = appVersionIterator
+						.next();
 
 				boolean bMatchesVersion = appVersion.getVersionLabel().equals(
-				    d.getVersionLabel());
+						d.getVersionLabel());
 
 				if (bActiveEnvironment && bMatchesVersion) {
 					getLog().info(
-					    "VersionLabel " + appVersion.getVersionLabel()
-					        + " is bound to environment " + d.getEnvironmentName()
-					        + " - Skipping it");
+							"VersionLabel " + appVersion.getVersionLabel()
+									+ " is bound to environment "
+									+ d.getEnvironmentName() + " - Skipping it");
 
 					appVersionIterator.remove();
 				}
@@ -124,14 +127,15 @@ public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
 		int size = appVersionList.size();
 
 		Collections.sort(appVersionList,
-		    new Comparator<ApplicationVersionDescription>() {
-			    @Override
-			    public int compare(ApplicationVersionDescription o1,
-			        ApplicationVersionDescription o2) {
-				    return new CompareToBuilder().append(o1.getDateUpdated(),
-				        o2.getDateUpdated()).toComparison();
-			    }
-		    });
+				new Comparator<ApplicationVersionDescription>() {
+					@Override
+					public int compare(ApplicationVersionDescription o1,
+							ApplicationVersionDescription o2) {
+						return new CompareToBuilder().append(
+								o1.getDateUpdated(), o2.getDateUpdated())
+								.toComparison();
+					}
+				});
 
 		if (bDaysToKeepDefined) {
 			Date now = new Date();
@@ -142,7 +146,15 @@ public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
 				delta /= 1000;
 				delta /= 86400;
 
-				if (delta > daysToKeep)
+				boolean shouldDeleteP = (delta > daysToKeep);
+
+				if (getLog().isDebugEnabled())
+					getLog().debug(
+							"Version " + d.getVersionLabel() + " was from "
+									+ delta + " days ago. Should we delete? "
+									+ shouldDeleteP);
+
+				if (shouldDeleteP)
 					deleteVersion(d);
 			}
 		} else {
@@ -150,18 +162,20 @@ public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
 				deleteVersion(appVersionList.remove(0));
 		}
 
-		getLog().info("Deleted " + (size - appVersionList.size()) + " versions.");
+		getLog().info(
+				"Deleted " + (size - appVersionList.size()) + " versions.");
 
 		return null;
 	}
 
 	void deleteVersion(ApplicationVersionDescription versionToRemove) {
-		getLog().info("Must delete version: " + versionToRemove.getVersionLabel());
+		getLog().info(
+				"Must delete version: " + versionToRemove.getVersionLabel());
 
 		DeleteApplicationVersionRequest req = new DeleteApplicationVersionRequest()
-		    .withApplicationName(versionToRemove.getApplicationName())//
-		    .withDeleteSourceBundle(deleteSourceBundle)//
-		    .withVersionLabel(versionToRemove.getVersionLabel());
+				.withApplicationName(versionToRemove.getApplicationName())//
+				.withDeleteSourceBundle(deleteSourceBundle)//
+				.withVersionLabel(versionToRemove.getVersionLabel());
 
 		if (!dryRun)
 			service.deleteApplicationVersion(req);
