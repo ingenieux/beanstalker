@@ -78,6 +78,8 @@ public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
 	 */
 	boolean dryRun;
 
+	private int deletedVersionsCount;
+
 	@Override
 	protected Object executeInternal() throws MojoExecutionException,
 			MojoFailureException {
@@ -99,6 +101,8 @@ public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
 
 		List<ApplicationVersionDescription> appVersionList = new ArrayList<ApplicationVersionDescription>(
 				appVersions.getApplicationVersions());
+		
+		deletedVersionsCount = 0;
 
 		for (EnvironmentDescription d : environments.getEnvironments()) {
 			boolean bActiveEnvironment = (d.getStatus().equals("Running")
@@ -163,7 +167,7 @@ public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
 		}
 
 		getLog().info(
-				"Deleted " + (size - appVersionList.size()) + " versions.");
+				"Deleted " + deletedVersionsCount + " versions.");
 
 		return null;
 	}
@@ -177,7 +181,9 @@ public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
 				.withDeleteSourceBundle(deleteSourceBundle)//
 				.withVersionLabel(versionToRemove.getVersionLabel());
 
-		if (!dryRun)
+		if (!dryRun) {
 			service.deleteApplicationVersion(req);
+			deletedVersionsCount++;
+		}
 	}
 }
