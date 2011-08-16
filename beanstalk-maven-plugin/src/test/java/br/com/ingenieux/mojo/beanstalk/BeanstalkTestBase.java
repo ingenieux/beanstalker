@@ -42,6 +42,8 @@ public abstract class BeanstalkTestBase extends AbstractMojoTestCase {
 	WaitForEnvironmentMojo waitForEnvMojo;
 
 	UpdateEnvironmentMojo updateEnvMojo;
+	
+	DescribeConfigurationTemplatesMojo describeConfigTemplatesMojo;
 
 	String versionLabel;
 	
@@ -72,6 +74,8 @@ public abstract class BeanstalkTestBase extends AbstractMojoTestCase {
 		termEnvMojo = getMojo(TerminateEnvironmentMojo.class);
 
 		updateEnvMojo = getMojo(UpdateEnvironmentMojo.class);
+		
+		describeConfigTemplatesMojo = getMojo(DescribeConfigurationTemplatesMojo.class);
 
 		versionLabel = String.format("test-%08X", System.currentTimeMillis());
 		

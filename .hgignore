@@ -14,3 +14,5 @@ nb-configuration.xml
 
 syntax: regexp
 ^mapper-core/temp$
+syntax: regexp
+^beanstalk-maven-plugin/test\.properties$
