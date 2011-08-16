@@ -63,13 +63,6 @@ public class CreateEnvironmentMojo extends AbstractBeanstalkMojo {
 	ConfigurationOptionSetting[] optionSettings;
 
 	/**
-	 * Options to Remove
-	 * 
-	 * @parameter
-	 */
-	OptionToRemove[] optionsToRemove;
-
-	/**
 	 * Environment Name
 	 * 
 	 * @parameter expression="${beanstalk.environmentName}"
@@ -112,8 +105,6 @@ public class CreateEnvironmentMojo extends AbstractBeanstalkMojo {
 		request.setEnvironmentName(environmentName);
 
 		request.setOptionSettings(getOptionSettings(optionSettings));
-
-		request.setOptionsToRemove(getOptionsToRemove(optionsToRemove));
 
 		request.setSolutionStackName(solutionStack);
 

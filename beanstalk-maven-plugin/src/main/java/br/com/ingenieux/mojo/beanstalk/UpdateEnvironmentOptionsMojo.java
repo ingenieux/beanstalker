@@ -53,13 +53,6 @@ public class UpdateEnvironmentOptionsMojo extends AbstractBeanstalkMojo {
 	ConfigurationOptionSetting[] optionSettings;
 
 	/**
-	 * Options to Remove
-	 * 
-	 * @parameter
-	 */
-	OptionToRemove[] optionsToRemove;
-
-	/**
 	 * Environment Name
 	 * 
 	 * @parameter expression="${beanstalk.environmentDescription}"
@@ -91,7 +84,6 @@ public class UpdateEnvironmentOptionsMojo extends AbstractBeanstalkMojo {
 		req.setEnvironmentId(environmentId);
 		req.setEnvironmentName(environmentName);
 		req.setOptionSettings(getOptionSettings(optionSettings));
-		req.setOptionsToRemove(getOptionsToRemove(optionsToRemove));
 		req.setTemplateName(templateName);
 		req.setVersionLabel(versionLabel);
 
