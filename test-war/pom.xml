@@ -60,13 +60,19 @@
           <s3Key>${project.artifactId}/${project.build.finalName}-${beanstalk.versionLabel}.war</s3Key>
           -->
           <s3Key>${project.artifactId}/${project.build.finalName}.war</s3Key>
-          <optionSettings>
-            <optionSetting>
-              <namespace>aws:elasticbeanstalk:application</namespace>
-              <optionName>Application Healthcheck URL</optionName>
-              <value>/health.html</value>
-            </optionSetting>
-          </optionSettings>
+          <configurationTemplate>default</configurationTemplate>
+          <configurationTemplates>
+            <configurationTemplate>
+              <id>default</id>
+              <optionSettings>
+                <optionSetting>
+                  <namespace>aws:elasticbeanstalk:application</namespace>
+                  <optionName>Application Healthcheck URL</optionName>
+                  <value>/health.html</value>
+                </optionSetting>
+              </optionSettings>
+            </configurationTemplate>
+          </configurationTemplates>
         </configuration>
       </plugin>
     </plugins>

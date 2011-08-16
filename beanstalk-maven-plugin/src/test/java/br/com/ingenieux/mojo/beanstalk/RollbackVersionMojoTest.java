@@ -24,7 +24,7 @@ public class RollbackVersionMojoTest extends BeanstalkTestBase {
 	protected void setUp() throws Exception {
 		super.setUp();
 
-		File testPom = super.getBasePom();
+		File testPom = super.getBasePom("pom.xml");
 
 		PlexusConfiguration pluginConfiguration = extractPluginConfiguration(
 		    "beanstalk-maven-plugin", testPom);

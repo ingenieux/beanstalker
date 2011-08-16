@@ -3,3 +3,6 @@
 # In order to enable testing, modify these values and rename this file to test.properties
 #
 #
+appname=<application name>
+s3Bucket=<bucket where to store to>
+s3KeyMask=<mask for new war storage locations> # beanstalker-test/beanstalker-test-${versionLabel}.war

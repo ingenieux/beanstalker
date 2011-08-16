@@ -21,6 +21,7 @@
         <configuration>
           <accessKey>${aws.accessKey}</accessKey>
           <secretKey>${aws.secretKey}</secretKey>
+          <!-- 
           <configurationTemplate>default</configurationTemplate>
           <configurationTemplates>
             <configurationTemplate>
@@ -35,6 +36,7 @@
               </optionSettings>
             </configurationTemplate>
           </configurationTemplates>
+          -->
         </configuration>
       </plugin>
     </plugins>

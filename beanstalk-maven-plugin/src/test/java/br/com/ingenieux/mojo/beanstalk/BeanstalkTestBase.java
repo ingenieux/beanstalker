@@ -23,12 +23,23 @@ import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalk;
+import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalkClient;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsResult;
+import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
+import com.amazonaws.services.elasticbeanstalk.model.TerminateEnvironmentRequest;
 
 public abstract class BeanstalkTestBase extends AbstractMojoTestCase {
+	private static final String PROP_VERSION_LABEL = "versionLabel";
+
+	private static final String PROP_S3_KEY_MASK = "s3KeyMask";
+
+	private static final String PROP_S3_BUCKET = "s3Bucket";
+
 	Properties properties;
-	
+
 	StrSubstitutor strSub;
-	
+
 	CheckAvailabilityMojo checkAvailabilityMojo;
 
 	CreateApplicationMojo createAppMojo;
@@ -44,39 +55,43 @@ public abstract class BeanstalkTestBase extends AbstractMojoTestCase {
 	WaitForEnvironmentMojo waitForEnvMojo;
 
 	UpdateEnvironmentMojo updateEnvMojo;
-	
+
 	DescribeConfigurationTemplatesMojo describeConfigTemplatesMojo;
-	
+
 	CreateConfigurationTemplateMojo createConfigurationTemplateMojo;
 
 	String versionLabel;
-	
+
 	AWSCredentials credentials;
+
+	AWSElasticBeanstalk service;
 
 	public BeanstalkTestBase() {
 		super();
 	}
-	
+
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		
+
 		Properties properties = new Properties();
-		
+
 		properties.load(new FileInputStream("test.properties"));
-		
+
 		this.properties = properties;
 
 		configureMojos();
-		
+
 		this.credentials = uploadSourceBundleMojo.getAWSCredentials();
+
+		this.service = new AWSElasticBeanstalkClient(credentials);
 	}
 
 	protected void configureMojos() throws Exception {
 		createAppMojo = getMojo(CreateApplicationMojo.class);
 
 		createAppVersionMojo = getMojo(CreateApplicationVersionMojo.class);
-		
+
 		uploadSourceBundleMojo = getMojo(UploadSourceBundleMojo.class);
 
 		createAppMojo = getMojo(CreateApplicationMojo.class);
@@ -90,45 +105,56 @@ public abstract class BeanstalkTestBase extends AbstractMojoTestCase {
 		termEnvMojo = getMojo(TerminateEnvironmentMojo.class);
 
 		updateEnvMojo = getMojo(UpdateEnvironmentMojo.class);
-		
+
 		describeConfigTemplatesMojo = getMojo(DescribeConfigurationTemplatesMojo.class);
 
 		versionLabel = String.format("test-%08X", System.currentTimeMillis());
-		
-		checkAvailabilityMojo = getMojo(CheckAvailabilityMojo.class);
-		
-		createConfigurationTemplateMojo = getMojo(CreateConfigurationTemplateMojo.class);
-  }
 
-	protected File getBasePom() {
-    return new File(getBasedir(),
-  	    "target/test-classes/br/com/ingenieux/mojo/beanstalk/pom.xml");
-  }
+		checkAvailabilityMojo = getMojo(CheckAvailabilityMojo.class);
+
+		createConfigurationTemplateMojo = getMojo(CreateConfigurationTemplateMojo.class);
+	}
+
+	protected File getBasePom(String pomName) {
+		return new File(getBasedir(),
+		    "target/test-classes/br/com/ingenieux/mojo/beanstalk/" + pomName);
+	}
 
 	@SuppressWarnings("unchecked")
 	protected <T extends AbstractBeanstalkMojo> T getMojo(Class<T> mojoClazz)
-      throws Exception {
-      	File testPom = this.getBasePom();
-      
-      	PlexusConfiguration pluginConfiguration = extractPluginConfiguration(
-      	    "beanstalk-maven-plugin", testPom);
-      
-      	return (T) configureMojo(mojoClazz.newInstance(), pluginConfiguration);
-      }
+	    throws Exception {
+		File testPom = this.getBasePom("pom.xml");
+
+		PlexusConfiguration pluginConfiguration = extractPluginConfiguration(
+		    "beanstalk-maven-plugin", testPom);
+
+		return (T) configureMojo(mojoClazz.newInstance(), pluginConfiguration);
+	}
 
 	protected File getWarFile() throws URISyntaxException {
-  	return new File(BeanstalkTestBase.class.getResource("test-war.war").toURI());
-  }
+		return new File(BeanstalkTestBase.class.getResource("test-war.war").toURI());
+	}
 
 	protected String getS3Path() {
-  	properties.put("versionLabel", this.versionLabel);
-  
-  	strSub = new StrSubstitutor(properties);
-  	return strSub.replace(properties.get("s3KeyMask"));
-  }
+		properties.put(PROP_VERSION_LABEL, this.versionLabel);
+
+		strSub = new StrSubstitutor(properties);
+		return strSub.replace(properties.get(PROP_S3_KEY_MASK));
+	}
 
 	protected String getS3Bucket() {
-  	return properties.getProperty("s3Bucket");
-  }
+		return properties.getProperty(PROP_S3_BUCKET);
+	}
+
+	public void clearEnvironments() {
+		DescribeEnvironmentsResult environments = service.describeEnvironments();
+
+		for (EnvironmentDescription d : environments.getEnvironments()) {
+			service
+			    .terminateEnvironment(new TerminateEnvironmentRequest()
+			        .withEnvironmentId(d.getEnvironmentId()).withTerminateResources(
+			            true));
+		}
+	}
 
 }
