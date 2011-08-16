@@ -26,7 +26,7 @@ import com.amazonaws.services.elasticbeanstalk.model.CreateConfigurationTemplate
 /**
  * Describes Available Configuration Templates
  * 
- * @goal describe-configuration-templates
+ * @goal create-configuration-templates
  * 
  * @author Aldrin Leal
  */
