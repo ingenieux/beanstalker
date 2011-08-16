@@ -1,5 +1,8 @@
 package br.com.ingenieux.mojo.beanstalk;
 
+import org.junit.internal.runners.JUnit38ClassRunner;
+import org.junit.runner.RunWith;
+
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.S3Object;
 
@@ -17,6 +20,7 @@ import com.amazonaws.services.s3.model.S3Object;
  * limitations under the License.
  */
 
+@RunWith(JUnit38ClassRunner.class)
 public class BootstrapTest extends BeanstalkTestBase {
 	@Override
 	protected void setUp() throws Exception {
@@ -50,6 +54,5 @@ public class BootstrapTest extends BeanstalkTestBase {
 	}
 
 	public void testDeployment() throws Exception {
-
 	}
 }

@@ -30,11 +30,11 @@ import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
 import com.amazonaws.services.elasticbeanstalk.model.TerminateEnvironmentRequest;
 
 public abstract class BeanstalkTestBase extends AbstractMojoTestCase {
-	private static final String PROP_VERSION_LABEL = "versionLabel";
+	public static final String PROP_VERSION_LABEL = "versionLabel";
 
-	private static final String PROP_S3_KEY_MASK = "s3KeyMask";
+	public static final String PROP_S3_KEY_MASK = "s3KeyMask";
 
-	private static final String PROP_S3_BUCKET = "s3Bucket";
+	public static final String PROP_S3_BUCKET = "s3Bucket";
 
 	Properties properties;
 
