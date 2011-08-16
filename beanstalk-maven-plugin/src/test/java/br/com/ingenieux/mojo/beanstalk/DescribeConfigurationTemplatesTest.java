@@ -1,8 +1,5 @@
 package br.com.ingenieux.mojo.beanstalk;
 
-import java.io.File;
-
-import junit.framework.Assert;
 
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,28 +16,21 @@ import junit.framework.Assert;
  */
 
 public class DescribeConfigurationTemplatesTest extends BeanstalkTestBase {
-	public void testDescribeConfigurationTemplates() throws Exception {
-		setVariableValueToObject(describeConfigTemplatesMojo, "applicationName",
-		    "belemtransito");
+	@Override
+	protected void configureMojos() throws Exception {
+		createAppMojo = getMojo(CreateApplicationMojo.class);
 
-		describeConfigTemplatesMojo.execute();
+		createAppVersionMojo = getMojo(CreateApplicationVersionMojo.class);
 	}
-
-	public void testDescribeConfigurationTemplatesToFile() throws Exception {
-		File outputFile = new File("config-template.test");
-
-		outputFile.delete();
-
-		Assert.assertFalse(outputFile.exists());
-
-		setVariableValueToObject(describeConfigTemplatesMojo, "outputFile",
-		    outputFile);
-
-		setVariableValueToObject(describeConfigTemplatesMojo, "applicationName",
-		    "belemtransito");
-
-		describeConfigTemplatesMojo.execute();
-
-		Assert.assertTrue(outputFile.exists());
+	
+	public void testDescribeConfigurationTemplates() throws Exception {
+		String appName = properties.getProperty("appname");
+		
+		setVariableValueToObject(createAppMojo, "applicationName", appName);
+		setVariableValueToObject(createConfigurationTemplateMojo, "applicationName", appName);
+		
+		createAppMojo.execute();
+		
+		createConfigurationTemplateMojo.execute();
 	}
 }

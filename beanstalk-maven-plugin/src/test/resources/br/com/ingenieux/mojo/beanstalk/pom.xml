@@ -1,25 +1,18 @@
-<!-- 
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
--->
+<!-- /* * Licensed under the Apache License, Version 2.0 (the "License"); 
+  * you may not use this file except in compliance with the License. * You 
+  may obtain a copy of the License at * * http://www.apache.org/licenses/LICENSE-2.0 
+  * * Unless required by applicable law or agreed to in writing, software * 
+  distributed under the License is distributed on an "AS IS" BASIS, * WITHOUT 
+  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. * See the 
+  License for the specific language governing permissions and * limitations 
+  under the License. */ -->
 <project>
   <groupId>br.com.ingenieux</groupId>
   <artifactId>bmp-demo</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  
+
   <packaging>war</packaging>
-  
+
   <build>
     <plugins>
       <plugin>
@@ -28,6 +21,20 @@
         <configuration>
           <accessKey>${aws.accessKey}</accessKey>
           <secretKey>${aws.secretKey}</secretKey>
+          <configurationTemplate>default</configurationTemplate>
+          <configurationTemplates>
+            <configurationTemplate>
+              <id>default</id>
+              <solutionStack>32bit Amazon Linux running Tomcat 7</solutionStack>
+              <optionSettings>
+                <optionSetting>
+                  <namespace>aws:elasticbeanstalk:application</namespace>
+                  <optionName>Application Healthcheck URL</optionName>
+                  <value>/health.html</value>
+                </optionSetting>
+              </optionSettings>
+            </configurationTemplate>
+          </configurationTemplates>
         </configuration>
       </plugin>
     </plugins>

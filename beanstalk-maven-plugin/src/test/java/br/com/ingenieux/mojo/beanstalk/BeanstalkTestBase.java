@@ -28,8 +28,10 @@ public abstract class BeanstalkTestBase extends AbstractMojoTestCase {
 	Properties properties;
 	
 	StrSubstitutor strSub;
-
+	
 	CheckAvailabilityMojo checkAvailabilityMojo;
+
+	CreateApplicationMojo createAppMojo;
 
 	CreateApplicationVersionMojo createAppVersionMojo;
 
@@ -44,6 +46,8 @@ public abstract class BeanstalkTestBase extends AbstractMojoTestCase {
 	UpdateEnvironmentMojo updateEnvMojo;
 	
 	DescribeConfigurationTemplatesMojo describeConfigTemplatesMojo;
+	
+	CreateConfigurationTemplateMojo createConfigurationTemplateMojo;
 
 	String versionLabel;
 	
@@ -63,7 +67,19 @@ public abstract class BeanstalkTestBase extends AbstractMojoTestCase {
 		
 		this.properties = properties;
 
+		configureMojos();
+		
+		this.credentials = uploadSourceBundleMojo.getAWSCredentials();
+	}
+
+	protected void configureMojos() throws Exception {
+		createAppMojo = getMojo(CreateApplicationMojo.class);
+
+		createAppVersionMojo = getMojo(CreateApplicationVersionMojo.class);
+		
 		uploadSourceBundleMojo = getMojo(UploadSourceBundleMojo.class);
+
+		createAppMojo = getMojo(CreateApplicationMojo.class);
 
 		createAppVersionMojo = getMojo(CreateApplicationVersionMojo.class);
 
@@ -81,8 +97,8 @@ public abstract class BeanstalkTestBase extends AbstractMojoTestCase {
 		
 		checkAvailabilityMojo = getMojo(CheckAvailabilityMojo.class);
 		
-		this.credentials = uploadSourceBundleMojo.getAWSCredentials();
-	}
+		createConfigurationTemplateMojo = getMojo(CreateConfigurationTemplateMojo.class);
+  }
 
 	protected File getBasePom() {
     return new File(getBasedir(),
