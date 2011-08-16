@@ -25,6 +25,8 @@ public class BootstrapTest extends BeanstalkTestBase {
 		uploadSourceBundleMojo.artifactFile = getWarFile();
 		uploadSourceBundleMojo.s3Bucket = getS3Bucket();
 		uploadSourceBundleMojo.s3Key = getS3Path();
+		
+		createAppVersionMojo.versionLabel = this.versionLabel;
 	}
 
 	public void testUploadSourceBundle() throws Exception {
@@ -39,8 +41,12 @@ public class BootstrapTest extends BeanstalkTestBase {
 		    uploadSourceBundleMojo.artifactFile.length());
 	}
 
-	public void testCreateApplicationVersion() {
-
+	public void testCreateApplicationVersion() throws Exception {
+		createAppVersionMojo.execute();
+	}
+	
+	public void testCreateConfigurationTemplate() throws Exception {
+		createConfigurationTemplateMojo.execute();
 	}
 
 	public void testDeployment() throws Exception {
