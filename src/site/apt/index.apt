@@ -9,7 +9,9 @@ What is it?
 
 Usage
 
-  See the {{{./usage.html}Usage}} page.
+  See the {{{./usage.html}Usage}} page. It describes the basic usage scenarios for beanstalk usage.
+  
+  Another interesting aspect is being able to deal with the configuration settings in Amazon Elastic Beanstalk. Check the {{./configurations-and-templates.html}Configurations and Templates}} for further information.
   
   Also, check the settings for {{{./continuous-integration.html}Continuous Integration}} docs as well.
   

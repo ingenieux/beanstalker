@@ -1,0 +1,467 @@
+ ------
+ Beanstalker - Configurations and Templates
+ ------
+ ------
+
+WTF?
+
+  Amazon Elastic Beanstalk is an Amalgam of several other AWS Services, specially EC2, S3, Route 53. A key part of its learning curve involves dealing with its configuration.
+  
+  In AWS, when you launch an environment, you can assign settings OR declare a configuration template. 
+  
+  Note we *USED* to declare configurations, but we found it is tricky to keep. So we recommend keeping into your pom files.
+  
++---+
+<build>
+    <plugins>
+      <plugin>
+        <groupId>br.com.ingenieux</groupId>
+        <artifactId>beanstalk-maven-plugin</artifactId>
+        <configuration>
+          (...)
+          <configurationTemplate>default</configurationTemplate>
+          <templateName>default</templateName>
+          <configurationTemplates>
+            <configurationTemplate>
+              <id>default</id>
+              <optionSettings>
+                <optionSetting>
+                  <namespace>aws:elasticbeanstalk:application</namespace>
+                  <optionName>Application Healthcheck URL</optionName>
+                  <value>/health.html</value>
+                </optionSetting>
+                <optionSetting>
+                  <namespace>aws:autoscaling:launchconfiguration</namespace>
+                  <optionName>EC2KeyName</optionName>
+                  <value>w7desktop</value>
+                </optionSetting>
+              </optionSettings>
+            </configurationTemplate>
+          </configurationTemplates>
+        </configuration>
+    </plugin>
+  </plugins>
+</build>
++---+
+
+  First, create the application and application version if you haven't done so:
+  
++---+
+C:\projetos\sources\beanstalker\test-war>mvn beanstalk:upload-source-bundle beanstalk:create-application-version
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] Building test-war 0.2.5-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] --- beanstalk-maven-plugin:0.2.5-SNAPSHOT:upload-source-bundle (default-cli) @ test-war ---
+[WARNING] The POM for org.codehaus.jackson:jackson-core-asl:jar:1.7.0-SNAPSHOT-20101126.221009-1 is missing, no dependency information available
+[INFO] Target Path: s3://ingenieux-beanstalk-apps/test-war/test-war-0.2.5-SNAPSHOT-20110827082541.war
+[INFO] Uploading artifact file: C:\projetos\sources\beanstalker\test-war\target\test-war-0.2.5-SNAPSHOT.war
+log4j:WARN No appenders could be found for logger (org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager).
+log4j:WARN Please initialize the log4j system properly.
+[INFO] Artifact Uploaded
+[INFO] SUCCESS
+[INFO] ETag: e5c920706b4c2d3c6bbfd24159f168ad [class: String]
+[INFO]
+[INFO] --- beanstalk-maven-plugin:0.2.5-SNAPSHOT:create-application-version (default-cli) @ test-war ---
+[INFO] SUCCESS
+[INFO] sourceBundle: {S3Bucket: ingenieux-beanstalk-apps, S3Key: test-war/test-war-0.2.5-SNAPSHOT-20110827082541.war, } [class: S3Location]
+[INFO] versionLabel: 20110827082541 [class: String]
+[INFO] description: test-war [class: String]
+[INFO] applicationName: beanstalker-test [class: String]
+[INFO] dateCreated: Sat Aug 27 08:26:44 GMT-03:00 2011 [class: Date]
+[INFO] dateUpdated: Sat Aug 27 08:26:44 GMT-03:00 2011 [class: Date]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 5.014s
+[INFO] Finished at: Sat Aug 27 08:25:46 GMT-03:00 2011
+[INFO] Final Memory: 6M/15M
+[INFO] ------------------------------------------------------------------------
+C:\projetos\sources\beanstalker\test-war>
++---+
+ 
+  Once you create application and application version, you can create the configuration template and launch an environment:
+  
++---+
+C:\projetos\sources\beanstalker\test-war>mvn beanstalk:create-configuration-templates
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] Building test-war 0.2.5-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] --- beanstalk-maven-plugin:0.2.5-SNAPSHOT:create-configuration-templates
+(default-cli) @ test-war ---
+[WARNING] The POM for org.codehaus.jackson:jackson-core-asl:jar:1.7.0-SNAPSHOT-20101126.221009-1 is missing, no dependency information available
+log4j:WARN No appenders could be found for logger (org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager).
+log4j:WARN Please initialize the log4j system properly.
+[INFO] SUCCESS
+[INFO] solutionStackName: 32bit Amazon Linux running Tomcat 6 [class: String]
+[INFO] optionSettings: [{Namespace: aws:elasticbeanstalk:sns:topics, OptionName: Notification Topic Name, Value: , }, {Namespace: aws:autoscaling:trigger, OptionName: BreachDuration, Value: 5, }, {Namespace: aws:elasticbeanstalk:container:tomcat:jvmoptions, OptionName: XX:MaxPermSize, Value: 64m, }, {Namespace: aws:autoscaling:trigger, OptionName: LowerBreachScaleIncrement, Value: -1, }, {Namespace: aws:elasticbeanstalk:application:environment, OptionName: AWS_ACCESS_KEY_ID,
+Value: , }, {Namespace: aws:elb:healthcheck, OptionName: UnhealthyThreshold, Value: 5, }, {Namespace: aws:elasticbeanstalk:application:environment, OptionName:
+AWS_SECRET_KEY, Value: , }, {Namespace: aws:autoscaling:trigger, OptionName: LowerThreshold, Value: 2000000, }, {Namespace: aws:elasticbeanstalk:sns:topics, OptionName: Notification Endpoint, Value: , }, {Namespace: aws:autoscaling:launchconfiguration, OptionName: SecurityGroups, Value: elasticbeanstalk-default, }, {Namespace: aws:elb:loadbalancer, OptionName: SSLCertificateId, Value: , }, {Namespace: aws:elasticbeanstalk:application:environment, OptionName: PARAM5, Value: ,
+}, {Namespace: aws:elasticbeanstalk:container:tomcat:jvmoptions, OptionName: Xmx, Value: 256m, }, {Namespace: aws:elb:healthcheck, OptionName: Timeout, Value: 5, }, {Namespace: aws:autoscaling:asg, OptionName: Cooldown, Value: 360, }, {Namespace: aws:autoscaling:asg, OptionName: Custom Availability Zones, Value: , }, {Namespace: aws:elasticbeanstalk:monitoring, OptionName: Automatically Terminate
+Unhealthy Instances, Value: true, }, {Namespace: aws:elasticbeanstalk:application:environment, OptionName: JDBC_CONNECTION_STRING, Value: , }, {Namespace: aws:autoscaling:trigger, OptionName: Unit, Value: Bytes, }, {Namespace: aws:elasticbeanstalk:application, OptionName: Application Healthcheck URL, Value: /health.html, }, {Namespace: aws:autoscaling:asg, OptionName: Availability Zones, Value: Any 1, }, {Namespace: aws:autoscaling:launchconfiguration, OptionName: ImageId, Value: ami-39de1f50, }, {Namespace: aws:elasticbeanstalk:sns:topics, OptionName: Notification Topic ARN, Value: , }, {Namespace: aws:elasticbeanstalk:application:environment, OptionName: PARAM1, Value: , }, {Namespace: aws:elb:loadbalancer, OptionName: LoadBalancerHTTPSPort, Value: OFF, }, {Namespace: aws:elb:healthcheck, OptionName: Interval, Value: 30, }, {Namespace: aws:autoscaling:trigger, OptionName: UpperBreachScaleIncrement, Value: 1, }, {Namespace: aws:elasticbeanstalk:container:tomcat:jvmoptions, OptionName: JVM Options, Value: , }, {Namespace: aws:autoscaling:trigger, OptionName: UpperThreshold, Value: 6000000, }, {Namespace: aws:autoscaling:asg, OptionName: MinSize, Value: 1, }, {Namespace: aws:elasticbeanstalk:sns:topics, OptionName: Notification Protocol, Value: email, }, {Namespace: aws:elasticbeanstalk:hostmanager, OptionName: LogPublicationControl, Value: false, }, {Namespace: aws:autoscaling:launchconfiguration, OptionName: MonitoringInterval, Value: 5 minute, }, {Namespace: aws:elasticbeanstalk:application:environment, OptionName: PARAM2, Value: , }, {Namespace: aws:elasticbeanstalk:container:tomcat:jvmoptions, OptionName: Xms, Value: 256m, }, {Namespace: aws:elb:policies, OptionName: Stickiness Cookie Expiration, Value: 0, }, {Namespace: aws:elb:healthcheck, OptionName: HealthyThreshold, Value: 3, }, {Namespace: aws:elasticbeanstalk:application:environment, OptionName: PARAM4, Value: , }, {Namespace: aws:elb:policies, OptionName: Stickiness Policy, Value: false, }, {Namespace: aws:autoscaling:trigger, OptionName: Statistic, Value: Average, }, {Namespace: aws:autoscaling:trigger, OptionName: MeasureName, Value: NetworkOut, }, {Namespace: aws:elasticbeanstalk:application:environment, OptionName: PARAM3, Value: , },
+{Namespace: aws:autoscaling:launchconfiguration, OptionName: EC2KeyName, Value:
+w7desktop, }, {Namespace: aws:autoscaling:asg, OptionName: MaxSize, Value: 4, }, {Namespace: aws:autoscaling:trigger, OptionName: Period, Value: 5, }, {Namespace: aws:elb:loadbalancer, OptionName: LoadBalancerHTTPPort, Value: 80, }, {Namespace: aws:autoscaling:launchconfiguration, OptionName: InstanceType, Value: t1.micro, }] [class: List]
+[INFO] applicationName: beanstalker-test [class: String]
+[INFO] dateCreated: Sat Aug 27 08:28:19 GMT-03:00 2011 [class: Date]
+[INFO] templateName: default [class: String]
+[INFO] dateUpdated: Sat Aug 27 08:28:19 GMT-03:00 2011 [class: Date]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 4.805s
+[INFO] Finished at: Sat Aug 27 08:27:23 GMT-03:00 2011
+[INFO] Final Memory: 5M/15M
+[INFO] ------------------------------------------------------------------------
+C:\projetos\sources\beanstalker\test-war>
++---+
+
+  After, you can either launch from the console (there will be a "Configuration" drop down and default will show up), or simply call create-environment:
+
++---+
+C:\projetos\sources\beanstalker\test-war>mvn beanstalk:upload-source-bundle beanstalk:create-application-version beanstalk:create-environment
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] Building test-war 0.2.5-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] --- beanstalk-maven-plugin:0.2.5-SNAPSHOT:upload-source-bundle (default-cli) @ test-war ---
+[WARNING] The POM for org.codehaus.jackson:jackson-core-asl:jar:1.7.0-SNAPSHOT-20101126.221009-1 is missing, no dependency information available
+[INFO] Target Path: s3://ingenieux-beanstalk-apps/test-war/test-war-0.2.5-SNAPSHOT-20110827083025.war
+[INFO] Uploading artifact file: C:\projetos\sources\beanstalker\test-war\target\test-war-0.2.5-SNAPSHOT.war
+[INFO] Artifact Uploaded
+[INFO] SUCCESS
+[INFO] ETag: e5c920706b4c2d3c6bbfd24159f168ad [class: String]
+[INFO]
+[INFO] --- beanstalk-maven-plugin:0.2.5-SNAPSHOT:create-application-version (default-cli) @ test-war ---
+[INFO] SUCCESS
+[INFO] sourceBundle: {S3Bucket: ingenieux-beanstalk-apps, S3Key: test-war/test-war-0.2.5-SNAPSHOT-20110827083025.war, } [class: S3Location]
+[INFO] versionLabel: 20110827083025 [class: String]
+[INFO] description: test-war [class: String]
+[INFO] applicationName: beanstalker-test [class: String]
+[INFO] dateCreated: Sat Aug 27 08:31:28 GMT-03:00 2011 [class: Date]
+[INFO] dateUpdated: Sat Aug 27 08:31:28 GMT-03:00 2011 [class: Date]
+[INFO]
+[INFO] --- beanstalk-maven-plugin:0.2.5-SNAPSHOT:create-environment (default-cli) @ test-war ---
+[INFO] environmentName / environmentId not defined. Lets try to get one, shall we?
+[INFO] No running environments found. Assigning defaultEnvironmentName
+[INFO] SUCCESS
+[INFO] resources: {LoadBalancer: {LoadBalancerName: awseb-default, Domain: null, Listeners: [{Protocol: http, Port: 80, }], }, } [class: EnvironmentResourcesDescription]
+[INFO] versionLabel: 20110827083025 [class: String]
+[INFO] status: Launching [class: String]
+[INFO] applicationName: beanstalker-test [class: String]
+[INFO] health: Grey [class: String]
+[INFO] dateUpdated: Sat Aug 27 08:31:31 GMT-03:00 2011 [class: Date]
+[INFO] environmentId: e-pq4fv369bm [class: String]
+[INFO] solutionStackName: 32bit Amazon Linux running Tomcat 6 [class: String]
+[INFO] CNAME: test-war.elasticbeanstalk.com [class: String]
+[INFO] description: test-war [class: String]
+[INFO] dateCreated: Sat Aug 27 08:31:31 GMT-03:00 2011 [class: Date]
+[INFO] environmentName: default [class: String]
+[INFO] templateName: default [class: String]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 7.765s
+[INFO] Finished at: Sat Aug 27 08:30:33 GMT-03:00 2011
+[INFO] Final Memory: 6M/15M
+[INFO] ------------------------------------------------------------------------
++---+
+
+  Currently, you can not update the configuration profiles from beanstalker. In fact, you can't do that from AWS Console either, requiring you to save with a new name and using that.
+  
+  You can, however, tweak a live environment configuration from AWS Console, save it into a new template, and either rename the templateName into your pom.xml or (better yet) dump it back for beanstalker usage. In the example below, we edited and saved as 'production-config':
+  
++---+
+C:\projetos\sources\beanstalker\test-war>mvn beanstalk:describe-configuration-templates -Dbeanstalk.configurationTemplate=production-config
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] Building test-war 0.2.5-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] --- beanstalk-maven-plugin:0.2.5-SNAPSHOT:describe-configuration-templates (default-cli) @ test-war ---
+[WARNING] The POM for org.codehaus.jackson:jackson-core-asl:jar:1.7.0-SNAPSHOT-20101126.221009-1 is missing, no dependency information available
+log4j:WARN No appenders could be found for logger (org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager).
+log4j:WARN Please initialize the log4j system properly.
+[INFO] Dumping results to stdout
+[INFO] <optionSettings>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:elasticbeanstalk:sns:topics</namespace>
+[INFO]     <optionName>Notification Topic Name</optionName>
+[INFO]     <value></value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:autoscaling:trigger</namespace>
+[INFO]     <optionName>BreachDuration</optionName>
+[INFO]     <value>5</value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:elasticbeanstalk:container:tomcat:jvmoptions</namespace>
+[INFO]     <optionName>XX:MaxPermSize</optionName>
+[INFO]     <value>64m</value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:autoscaling:trigger</namespace>
+[INFO]     <optionName>LowerBreachScaleIncrement</optionName>
+[INFO]     <value>-1</value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:elasticbeanstalk:application:environment</namespace>
+[INFO]     <optionName>AWS_ACCESS_KEY_ID</optionName>
+[INFO]     <value></value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:elb:healthcheck</namespace>
+[INFO]     <optionName>UnhealthyThreshold</optionName>
+[INFO]     <value>5</value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:elasticbeanstalk:application:environment</namespace>
+[INFO]     <optionName>AWS_SECRET_KEY</optionName>
+[INFO]     <value></value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:autoscaling:trigger</namespace>
+[INFO]     <optionName>LowerThreshold</optionName>
+[INFO]     <value>2000000</value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:elasticbeanstalk:sns:topics</namespace>
+[INFO]     <optionName>Notification Endpoint</optionName>
+[INFO]     <value></value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:autoscaling:launchconfiguration</namespace>
+[INFO]     <optionName>SecurityGroups</optionName>
+[INFO]     <value>elasticbeanstalk-default</value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:elb:loadbalancer</namespace>
+[INFO]     <optionName>SSLCertificateId</optionName>
+[INFO]     <value></value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:elasticbeanstalk:application:environment</namespace>
+[INFO]     <optionName>PARAM5</optionName>
+[INFO]     <value></value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:elasticbeanstalk:container:tomcat:jvmoptions</namespace>
+[INFO]     <optionName>Xmx</optionName>
+[INFO]     <value>256m</value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:elb:healthcheck</namespace>
+[INFO]     <optionName>Timeout</optionName>
+[INFO]     <value>5</value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:autoscaling:asg</namespace>
+[INFO]     <optionName>Cooldown</optionName>
+[INFO]     <value>360</value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:autoscaling:asg</namespace>
+[INFO]     <optionName>Custom Availability Zones</optionName>
+[INFO]     <value></value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:elasticbeanstalk:monitoring</namespace>
+[INFO]     <optionName>Automatically Terminate Unhealthy Instances</optionName>
+[INFO]     <value>true</value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:elasticbeanstalk:application:environment</namespace>
+[INFO]     <optionName>JDBC_CONNECTION_STRING</optionName>
+[INFO]     <value></value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:autoscaling:trigger</namespace>
+[INFO]     <optionName>Unit</optionName>
+[INFO]     <value>Bytes</value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:elasticbeanstalk:application</namespace>
+[INFO]     <optionName>Application Healthcheck URL</optionName>
+[INFO]     <value>/health.html</value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:autoscaling:asg</namespace>
+[INFO]     <optionName>Availability Zones</optionName>
+[INFO]     <value>Any 1</value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:autoscaling:launchconfiguration</namespace>
+[INFO]     <optionName>ImageId</optionName>
+[INFO]     <value>ami-39de1f50</value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:elasticbeanstalk:sns:topics</namespace>
+[INFO]     <optionName>Notification Topic ARN</optionName>
+[INFO]     <value></value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:elasticbeanstalk:application:environment</namespace>
+[INFO]     <optionName>PARAM1</optionName>
+[INFO]     <value></value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:elb:loadbalancer</namespace>
+[INFO]     <optionName>LoadBalancerHTTPSPort</optionName>
+[INFO]     <value>OFF</value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:elb:healthcheck</namespace>
+[INFO]     <optionName>Interval</optionName>
+[INFO]     <value>30</value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:autoscaling:trigger</namespace>
+[INFO]     <optionName>UpperBreachScaleIncrement</optionName>
+[INFO]     <value>1</value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:elasticbeanstalk:container:tomcat:jvmoptions</namespace>
+[INFO]     <optionName>JVM Options</optionName>
+[INFO]     <value></value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:autoscaling:trigger</namespace>
+[INFO]     <optionName>UpperThreshold</optionName>
+[INFO]     <value>6000000</value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:autoscaling:asg</namespace>
+[INFO]     <optionName>MinSize</optionName>
+[INFO]     <value>1</value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:elasticbeanstalk:sns:topics</namespace>
+[INFO]     <optionName>Notification Protocol</optionName>
+[INFO]     <value>email</value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:elasticbeanstalk:hostmanager</namespace>
+[INFO]     <optionName>LogPublicationControl</optionName>
+[INFO]     <value>false</value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:autoscaling:launchconfiguration</namespace>
+[INFO]     <optionName>MonitoringInterval</optionName>
+[INFO]     <value>5 minute</value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:elasticbeanstalk:application:environment</namespace>
+[INFO]     <optionName>PARAM2</optionName>
+[INFO]     <value></value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:elasticbeanstalk:container:tomcat:jvmoptions</namespace>
+[INFO]     <optionName>Xms</optionName>
+[INFO]     <value>256m</value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:elb:policies</namespace>
+[INFO]     <optionName>Stickiness Cookie Expiration</optionName>
+[INFO]     <value>0</value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:elb:healthcheck</namespace>
+[INFO]     <optionName>HealthyThreshold</optionName>
+[INFO]     <value>3</value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:elasticbeanstalk:application:environment</namespace>
+[INFO]     <optionName>PARAM4</optionName>
+[INFO]     <value></value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:elb:policies</namespace>
+[INFO]     <optionName>Stickiness Policy</optionName>
+[INFO]     <value>false</value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:autoscaling:trigger</namespace>
+[INFO]     <optionName>Statistic</optionName>
+[INFO]     <value>Average</value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:autoscaling:trigger</namespace>
+[INFO]     <optionName>MeasureName</optionName>
+[INFO]     <value>NetworkOut</value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:elasticbeanstalk:application:environment</namespace>
+[INFO]     <optionName>PARAM3</optionName>
+[INFO]     <value></value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:autoscaling:launchconfiguration</namespace>
+[INFO]     <optionName>EC2KeyName</optionName>
+[INFO]     <value>w7desktop</value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:autoscaling:asg</namespace>
+[INFO]     <optionName>MaxSize</optionName>
+[INFO]     <value>4</value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:autoscaling:trigger</namespace>
+[INFO]     <optionName>Period</optionName>
+[INFO]     <value>5</value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:elb:loadbalancer</namespace>
+[INFO]     <optionName>LoadBalancerHTTPPort</optionName>
+[INFO]     <value>80</value>
+[INFO]   </optionSetting>
+[INFO]   <optionSetting>
+[INFO]     <namespace>aws:autoscaling:launchconfiguration</namespace>
+[INFO]     <optionName>InstanceType</optionName>
+[INFO]     <value>t1.micro</value>
+[INFO]   </optionSetting>
+[INFO] </optionSettings>
+[INFO] SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 3.601s
+[INFO] Finished at: Sat Aug 27 08:41:09 GMT-03:00 2011
+[INFO] Final Memory: 5M/15M
+[INFO] ------------------------------------------------------------------------
+C:\projetos\sources\beanstalker\test-war>
++---+
+
+  But you can also dump to a text file for review and proper editing:
+  
++---+
+C:\projetos\sources\beanstalker\test-war>mvn beanstalk:describe-configuration-templates -Dbeanstalk.configurationTemplate=production-config -Dbeanstalk.outputFile=production-config.xml
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] Building test-war 0.2.5-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] --- beanstalk-maven-plugin:0.2.5-SNAPSHOT:describe-configuration-templates (default-cli) @ test-war ---
+[WARNING] The POM for org.codehaus.jackson:jackson-core-asl:jar:1.7.0-SNAPSHOT-20101126.221009-1 is missing, no dependency information available
+log4j:WARN No appenders could be found for logger (org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager).
+log4j:WARN Please initialize the log4j system properly.
+[INFO] Dumping results to file: production-config.xml
+[INFO] SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 3.007s
+[INFO] Finished at: Sat Aug 27 08:42:32 GMT-03:00 2011
+[INFO] Final Memory: 5M/15M
+[INFO] ------------------------------------------------------------------------
+C:\projetos\sources\beanstalker\test-war>
++---+
+
+  That ends the part on configuration.

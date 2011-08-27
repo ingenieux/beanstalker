@@ -99,7 +99,7 @@ $ mvn beanstalk:check-availability -Dcname=test-war
 
 Uploading your Application
 
-  Log into the {{{https://console.aws.amazon.com/s3/home}Amazon S3 Console}}, and click on "Create Bucket". 
+  Log into the {{{https://console.aws.amazon.com/s3/home}Amazon S3 Console}}, and click on "Create Bucket". Pick a name and take note. We will need that later on. 
   
   For our needs, use the name of your war ArtifactId, then press the "Create" button.
 
@@ -114,6 +114,33 @@ Uploading your Application
         <version>[plugin version]</version>
         <configuration>
           <s3Bucket>[bucket name]</s3Bucket>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
++---+
+
+  You can also setup versioning, which is a great idea. You can use Maven's own timestamp for this case:
+  
++---+
+  <properties>
+    <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
+    <beanstalk.versionLabel>${maven.build.timestamp}</beanstalk.versionLabel>
+  </properties>
+
+  ...
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>br.com.ingenieux</groupId>
+        <artifactId>beanstalk-maven-plugin</artifactId>
+        <version>[plugin version]</version>
+        <configuration>
+          <applicationName>[name of your application]</applicationName>
+          <s3Bucket>[bucket name]</s3Bucket>
+          <s3Key>${project.artifactId}/${project.build.finalName}-${maven.build.timestamp}.war</s3Key>
+          <!-- will save as s3://[bucket name]/[artifactId]/artifactId-version-TIMESTAMP.war -->
         </configuration>
       </plugin>
     </plugins>
@@ -150,65 +177,61 @@ INFO: Received successful response: 200, AWS Request ID: 23D3343049BE3BB1
 [INFO] ------------------------------------------------------------------------
 +---+
 
-  The the default name of the .war file into the bucket is the name of the war file. If you need to change, modify <<<s3Key>>> configuration parameter.
+  The the default name of the .war file into the bucket is the name of the war file. If you need to change, modify <<<s3Key>>> configuration parameter as shown above.
 
 Creating an Application, Application Version, and Creating an Environment
 
-  In Elastic Beanstalk, you're now creating the application, its version (which points to the s3 bucket we just created), and an environment (which describes a running instance of your application)
-
-Now invoke create-application-version and create-environment:
+  Now we will, in Elastic Beanstalk, upload a new source bundle, create the application, its version (which points to the s3 bucket we just created), and create/launch an environment - which describes a running instance of your application:
 
 +---+
-C:\projetos\sources\beanstalker\test-war>mvn beanstalk:create-application-version beanstalk:create-environment
+C:\projetos\sources\beanstalker\test-war>mvn beanstalk:upload-source-bundle beanstalk:create-application-version beanstalk:create-environment
 [INFO] Scanning for projects...
 [INFO]
 [INFO] ------------------------------------------------------------------------
-[INFO] Building test-war 0.2.0-SNAPSHOT
+[INFO] Building test-war 0.2.5-SNAPSHOT
 [INFO] ------------------------------------------------------------------------
 [INFO]
-[INFO] --- beanstalk-maven-plugin:0.2.0-SNAPSHOT:create-application-version (default-cli) @ test-war ---
-12/06/2011 19:59:08 com.amazonaws.http.AmazonHttpClient executeHelper
-INFO: Sending Request: POST https://elasticbeanstalk.us-east-1.amazonaws.com / Parameters: (ApplicationName: test-war, Description: test-war, 
- VersionLabel: 0.2.0-SNAPSHOT, SignatureMethod: HmacSHA256, AWSAccessKeyId: <access key>, Timestamp: 2011-06-12T22:59:07.937Z, 
- Signature: OcZrVj7PIOCbVBisfmPwBpOLA8p69DuqRCfOUdUWMxM=, SourceBundle.S3Key: test-war-0.2.0-SNAPSHOT.war, Action: CreateApplicationVersion, 
- Version: 2010-12-01, SignatureVersion: 2, SourceBundle.S3Bucket: test-war, AutoCreateApplication: true, )
-12/06/2011 19:59:11 com.amazonaws.http.AmazonHttpClient handleResponse
-INFO: Received successful response: 200, AWS Request ID: 9d57376a-9547-11e0-8676-bd0ab3869520
+[INFO] --- beanstalk-maven-plugin:0.2.5-SNAPSHOT:upload-source-bundle (default-cli) @ test-war ---
+[WARNING] The POM for org.codehaus.jackson:jackson-core-asl:jar:1.7.0-SNAPSHOT-20101126.221009-1 is missing, no dependency information available
+[INFO] Target Path: s3://ingenieux-beanstalk-apps/test-war/test-war-0.2.5-SNAPSHOT-20110827075312.war
+[INFO] Uploading artifact file: C:\projetos\sources\beanstalker\test-war\target\test-war-0.2.5-SNAPSHOT.war
+log4j:WARN No appenders could be found for logger (org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager).
+log4j:WARN Please initialize the log4j system properly.
+[INFO] Artifact Uploaded
 [INFO] SUCCESS
-[INFO] sourceBundle: {S3Bucket: test-war, S3Key: test-war-0.2.0-SNAPSHOT.war, }
-[class: S3Location]
-[INFO] versionLabel: 0.2.0-SNAPSHOT [class: String]
-[INFO] description: test-war [class: String]
-[INFO] applicationName: test-war [class: String]
-[INFO] dateCreated: Sun Jun 12 19:59:24 GMT-03:00 2011 [class: Date]
-[INFO] dateUpdated: Sun Jun 12 19:59:24 GMT-03:00 2011 [class: Date]
+[INFO] ETag: e5c920706b4c2d3c6bbfd24159f168ad [class: String]
 [INFO]
-[INFO] --- beanstalk-maven-plugin:0.2.0-SNAPSHOT:create-environment (default-cli) @ test-war ---
-12/06/2011 19:59:11 com.amazonaws.http.AmazonHttpClient executeHelper
-INFO: Sending Request: POST https://elasticbeanstalk.us-east-1.amazonaws.com / Parameters: (ApplicationName: test-war, 
- Description: test-war, VersionLabel: 0.2.0-SNAPSHOT, SignatureMethod: HmacSHA256, SolutionStackName: 32bit Amazon Linux running Tomcat 7, 
- AWSAccessKeyId: <access key>, Timestamp: 2011-06-12T22:59:11.103Z, Signature: 1kYasV9lhvz5zJ2PMB4hjQz297NMiXKOKJwK4IVw2E8=, 
- CNAMEPrefix: test-war, EnvironmentName: default, Action: CreateEnvironment, Version: 2010-12-01, SignatureVersion: 2, )
-12/06/2011 19:59:14 com.amazonaws.http.AmazonHttpClient handleResponse
-INFO: Received successful response: 200, AWS Request ID: 9f10cd9b-9547-11e0-8986-27f312aaa18a
+[INFO] --- beanstalk-maven-plugin:0.2.5-SNAPSHOT:create-application-version (default-cli) @ test-war ---
 [INFO] SUCCESS
-[INFO] versionLabel: 0.2.0-SNAPSHOT [class: String]
+[INFO] sourceBundle: {S3Bucket: ingenieux-beanstalk-apps, S3Key: test-war/test-war-0.2.5-SNAPSHOT-20110827075312.war, } [class: S3Location]
+[INFO] versionLabel: 20110827075312 [class: String]
+[INFO] description: test-war [class: String]
+[INFO] applicationName: beanstalker-test [class: String]
+[INFO] dateCreated: Sat Aug 27 07:54:15 GMT-03:00 2011 [class: Date]
+[INFO] dateUpdated: Sat Aug 27 07:54:15 GMT-03:00 2011 [class: Date]
+[INFO]
+[INFO] --- beanstalk-maven-plugin:0.2.5-SNAPSHOT:create-environment (default-cli) @ test-war ---
+[INFO] environmentName / environmentId not defined. Lets try to get one, shall we?
+[INFO] No running environments found. Assigning defaultEnvironmentName
+[INFO] SUCCESS
+[INFO] resources: {LoadBalancer: {LoadBalancerName: awseb-default, Domain: null, Listeners: [{Protocol: http, Port: 80, }], }, } [class: EnvironmentResourcesDescription]
+[INFO] versionLabel: 20110827075312 [class: String]
 [INFO] status: Launching [class: String]
-[INFO] applicationName: test-war [class: String]
+[INFO] applicationName: beanstalker-test [class: String]
 [INFO] health: Grey [class: String]
-[INFO] dateUpdated: Sun Jun 12 19:59:27 GMT-03:00 2011 [class: Date]
-[INFO] environmentId: e-ig6jqpcry7 [class: String]
+[INFO] dateUpdated: Sat Aug 27 07:54:18 GMT-03:00 2011 [class: Date]
+[INFO] environmentId: e-rfhb2m8t5w [class: String]
 [INFO] solutionStackName: 32bit Amazon Linux running Tomcat 7 [class: String]
 [INFO] CNAME: test-war.elasticbeanstalk.com [class: String]
 [INFO] description: test-war [class: String]
-[INFO] dateCreated: Sun Jun 12 19:59:27 GMT-03:00 2011 [class: Date]
+[INFO] dateCreated: Sat Aug 27 07:54:18 GMT-03:00 2011 [class: Date]
 [INFO] environmentName: default [class: String]
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time: 7.369s
-[INFO] Finished at: Sun Jun 12 19:59:14 GMT-03:00 2011
-[INFO] Final Memory: 5M/15M
+[INFO] Total time: 8.443s
+[INFO] Finished at: Sat Aug 27 07:53:20 GMT-03:00 2011
+[INFO] Final Memory: 6M/15M
 [INFO] ------------------------------------------------------------------------
 C:\projetos\sources\beanstalker\test-war>
 +---+
@@ -216,10 +239,267 @@ C:\projetos\sources\beanstalker\test-war>
   Now the application has been created. Jump into the the {{{https://console.aws.amazon.com/elasticbeanstalk/home?region=us-east-1}Console}} and see the environment being created.
 
   On completion, the "View Running Version" button will be available for you.
+  
+Updating
+
+  There are two ways to update an application. The most common case will involve some downtime, but it is actually simpler, faster (from a m2 standpoint) and cheaper (as it does not require new environments), and it works directly into the environment you're already been using:
+  
++---+
+C:\projetos\sources\beanstalker\test-war>mvn beanstalk:upload-source-bundle beanstalk:create-application-version beanstalk:update-environment
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] Building test-war 0.2.5-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] --- beanstalk-maven-plugin:0.2.5-SNAPSHOT:upload-source-bundle (default-cli) @ test-war ---
+[WARNING] The POM for org.codehaus.jackson:jackson-core-asl:jar:1.7.0-SNAPSHOT-20101126.221009-1 is missing, no dependency information available
+[INFO] Target Path: s3://ingenieux-beanstalk-apps/test-war/test-war-0.2.5-SNAPSHOT-20110827075731.war
+[INFO] Uploading artifact file: C:\projetos\sources\beanstalker\test-war\target\test-war-0.2.5-SNAPSHOT.war
+log4j:WARN No appenders could be found for logger (org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager).
+log4j:WARN Please initialize the log4j system properly.
+[INFO] Artifact Uploaded
+[INFO] SUCCESS
+[INFO] ETag: e5c920706b4c2d3c6bbfd24159f168ad [class: String]
+[INFO]
+[INFO] --- beanstalk-maven-plugin:0.2.5-SNAPSHOT:create-application-version (default-cli) @ test-war ---
+[INFO] SUCCESS
+[INFO] sourceBundle: {S3Bucket: ingenieux-beanstalk-apps, S3Key: test-war/test-war-0.2.5-SNAPSHOT-20110827075731.war, } [class: S3Location]
+[INFO] versionLabel: 20110827075731 [class: String]
+[INFO] description: test-war [class: String]
+[INFO] applicationName: beanstalker-test [class: String]
+[INFO] dateCreated: Sat Aug 27 07:58:34 GMT-03:00 2011 [class: Date]
+[INFO] dateUpdated: Sat Aug 27 07:58:34 GMT-03:00 2011 [class: Date]
+[INFO]
+[INFO] --- beanstalk-maven-plugin:0.2.5-SNAPSHOT:update-environment (default-cli) @ test-war ---
+[INFO] environmentName / environmentId not defined. Lets try to get one, shall we?
+[INFO] Assigning a environment named default
+[INFO] SUCCESS
+[INFO] resources: {LoadBalancer: {LoadBalancerName: awseb-default, Domain: awseb-default-1658624213.us-east-1.elb.amazonaws.com, Listeners: [{Protocol: http, Port: 80, }], }, } [class: EnvironmentResourcesDescription]
+[INFO] versionLabel: 20110827075731 [class: String]
+[INFO] status: Updating [class: String]
+[INFO] applicationName: beanstalker-test [class: String]
+[INFO] endpointURL: awseb-default-1658624213.us-east-1.elb.amazonaws.com [class: String]
+[INFO] health: Grey [class: String]
+[INFO] dateUpdated: Sat Aug 27 07:58:36 GMT-03:00 2011 [class: Date]
+[INFO] environmentId: e-rfhb2m8t5w [class: String]
+[INFO] solutionStackName: 32bit Amazon Linux running Tomcat 7 [class: String]
+[INFO] CNAME: test-war.elasticbeanstalk.com [class: String]
+[INFO] description: test-war [class: String]
+[INFO] dateCreated: Sat Aug 27 07:54:18 GMT-03:00 2011 [class: Date]
+[INFO] environmentName: default [class: String]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 7.043s
+[INFO] Finished at: Sat Aug 27 07:57:38 GMT-03:00 2011
+[INFO] Final Memory: 6M/15M
+[INFO] ------------------------------------------------------------------------
+C:\projetos\sources\beanstalker\test-war>
++---+
+
+  The second way launches a new environment and takes advantage of the {{{http://docs.amazonwebservices.com/elasticbeanstalk/latest/dg/using-features.CNAMESwap.html}"Zero Downtime" feature}}} of Elastic Beanstalk. It requires launching a new environment. You can invoke it manually, but we actually have a useful shortcut for that: Instead of calling update-environment, call replace-environment instead:
+
++---+
+C:\projetos\sources\beanstalker\test-war>mvn beanstalk:upload-source-bundle beanstalk:create-application-version beanstalk:replace-environment
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] Building test-war 0.2.5-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] --- beanstalk-maven-plugin:0.2.5-SNAPSHOT:upload-source-bundle (default-cli) @ test-war ---
+[WARNING] The POM for org.codehaus.jackson:jackson-core-asl:jar:1.7.0-SNAPSHOT-20101126.221009-1 is missing, no dependency information available
+[INFO] Target Path: s3://ingenieux-beanstalk-apps/test-war/test-war-0.2.5-SNAPSHOT-20110827080130.war
+[INFO] Uploading artifact file: C:\projetos\sources\beanstalker\test-war\target\test-war-0.2.5-SNAPSHOT.war
+log4j:WARN No appenders could be found for logger (org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager).
+log4j:WARN Please initialize the log4j system properly.
+[INFO] Artifact Uploaded
+[INFO] SUCCESS
+[INFO] ETag: e5c920706b4c2d3c6bbfd24159f168ad [class: String]
+[INFO]
+[INFO] --- beanstalk-maven-plugin:0.2.5-SNAPSHOT:create-application-version (default-cli) @ test-war ---
+[INFO] SUCCESS
+[INFO] sourceBundle: {S3Bucket: ingenieux-beanstalk-apps, S3Key: test-war/test-war-0.2.5-SNAPSHOT-20110827080130.war, } [class: S3Location]
+[INFO] versionLabel: 20110827080130 [class: String]
+[INFO] description: test-war [class: String]
+[INFO] applicationName: beanstalker-test [class: String]
+[INFO] dateCreated: Sat Aug 27 08:02:33 GMT-03:00 2011 [class: Date]
+[INFO] dateUpdated: Sat Aug 27 08:02:33 GMT-03:00 2011 [class: Date]
+[INFO]
+[INFO] --- beanstalk-maven-plugin:0.2.5-SNAPSHOT:replace-environment (default-cli) @ test-war ---
+[INFO] environmentName / environmentId not defined. Lets try to get one, shall we?
+[INFO] Assigning a environment named default
+[INFO] Creating a new environment on test-war-0.elasticbeanstalk.com
+[INFO] Waiting for environmentId e-srwnjetvwu to get into Ready state
+[INFO] Will wait until Sat Aug 27 08:06:40 GMT-03:00 2011 for environment e-srwnjetvwu to get into Ready
+[INFO] Swapping environment cnames e-srwnjetvwu and e-rfhb2m8t5w
+[INFO] Will wait until Sat Aug 27 08:08:58 GMT-03:00 2011 for environment e-srwnjetvwu to get into Ready
+[INFO] ... as well as having domain test-war.elasticbeanstalk.com
+[INFO] Terminating environmentId=e-rfhb2m8t5w
+[INFO] Will wait until Sat Aug 27 08:09:14 GMT-03:00 2011 for environment e-rfhb2m8t5w to get into Terminated
+[INFO] SUCCESS
+[INFO] resources: {LoadBalancer: {LoadBalancerName: awseb-default-0, Domain: null, Listeners: [{Protocol: http, Port: 80, }], }, } [class: EnvironmentResourcesDescription]
+[INFO] versionLabel: 20110827080130 [class: String]
+[INFO] status: Launching [class: String]
+[INFO] applicationName: beanstalker-test [class: String]
+[INFO] health: Grey [class: String]
+[INFO] dateUpdated: Sat Aug 27 08:02:37 GMT-03:00 2011 [class: Date]
+[INFO] environmentId: e-srwnjetvwu [class: String]
+[INFO] solutionStackName: 32bit Amazon Linux running Tomcat 7 [class: String]
+[INFO] CNAME: test-war-0.elasticbeanstalk.com [class: String]
+[INFO] description: test-war [class: String]
+[INFO] dateCreated: Sat Aug 27 08:02:37 GMT-03:00 2011 [class: Date]
+[INFO] environmentName: default-0 [class: String]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 5:02.241s
+[INFO] Finished at: Sat Aug 27 08:06:32 GMT-03:00 2011
+[INFO] Final Memory: 5M/15M
+[INFO] ------------------------------------------------------------------------
+C:\projetos\sources\beanstalker\test-war>
++---+
+
+  As a general rule, we recommend you keep an eye on the console. This is a new feature, and it interacts with the Amazon Services in an automated fashion. Certainly, here are some rough edges to take care. 
+
+  OTOH, it is great for Production Deployments.
+
+Rolling Back a Version
+
+  You can also revert an environment to the previous version:
+
++---+
+C:\projetos\sources\beanstalker\test-war>mvn beanstalk:rollback-version
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] Building test-war 0.2.5-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] --- beanstalk-maven-plugin:0.2.5-SNAPSHOT:rollback-version (default-cli)
+@ test-war ---
+[WARNING] The POM for org.codehaus.jackson:jackson-core-asl:jar:1.7.0-SNAPSHOT-20101126.221009-1 is missing, no dependency information available
+[INFO] environmentName / environmentId not defined. Lets try to get one, shall we?
+log4j:WARN No appenders could be found for logger (org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager).
+log4j:WARN Please initialize the log4j system properly.
+[INFO] Assigning a environment named default-0
+[INFO] Changing versionLabel for Environment[name=default-0; environmentId=null] from version 20110827080130 to version 20110827075731
+[INFO] SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 3.543s
+[INFO] Finished at: Sat Aug 27 08:08:59 GMT-03:00 2011
+[INFO] Final Memory: 5M/15M
+[INFO] ------------------------------------------------------------------------
+C:\projetos\sources\beanstalker\test-war>
++---+
+
+Cleaning Up Previous Versions
+
+  As each deploy creates a new version, sometimes it is interesting to cleanup previous versions. Beanstalker does that, via clean-previous-versions.
+
+  There are two options to pick: daysToKeep or versionsToKeep. Either way, first it simulates the execution.
+
++---+
+C:\projetos\sources\beanstalker\test-war>mvn beanstalk:clean-previous-versions -Dbeanstalk.versionsToKeep=1
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] Building test-war 0.2.5-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] --- beanstalk-maven-plugin:0.2.5-SNAPSHOT:clean-previous-versions (default-cli) @ test-war ---
+[WARNING] The POM for org.codehaus.jackson:jackson-core-asl:jar:1.7.0-SNAPSHOT-20101126.221009-1 is missing, no dependency information available
+log4j:WARN No appenders could be found for logger (org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager).
+log4j:WARN Please initialize the log4j system properly.
+[INFO] VersionLabel 20110827080130 is bound to environment default-0 - Skipping
+it
+[INFO] Must delete version: 20110827075312
+[INFO] Deleted 0 versions.
+[INFO] SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 3.204s
+[INFO] Finished at: Sat Aug 27 08:12:41 GMT-03:00 2011
+[INFO] Final Memory: 5M/15M
+[INFO] ------------------------------------------------------------------------
++---+
+
+  In order to actually delete the version, supply dryRun as false:
+
++---+
+C:\projetos\sources\beanstalker\test-war>mvn beanstalk:clean-previous-versions -Dbeanstalk.versionsToKeep=1 -Dbeanstalk.dryRun=false
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] Building test-war 0.2.5-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] --- beanstalk-maven-plugin:0.2.5-SNAPSHOT:clean-previous-versions (default-cli) @ test-war ---
+[WARNING] The POM for org.codehaus.jackson:jackson-core-asl:jar:1.7.0-SNAPSHOT-20101126.221009-1 is missing, no dependency information available
+log4j:WARN No appenders could be found for logger (org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager).
+log4j:WARN Please initialize the log4j system properly.
+[INFO] VersionLabel 20110827080130 is bound to environment default-0 - Skipping
+it
+[INFO] Must delete version: 20110827075312
+[INFO] Deleted 1 versions.
+[INFO] SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 4.249s
+[INFO] Finished at: Sat Aug 27 08:13:31 GMT-03:00 2011
+[INFO] Final Memory: 5M/15M
+[INFO] ------------------------------------------------------------------------
+C:\projetos\sources\beanstalker\test-war>
++---+
 
 Terminating
 
-  In order to terminate, you need the environment id. You can fetch that via describe-environments:
+  In order to terminate, you need the environment id. As a general rule, whenever an environment name/id is needed, but there is only one Active environment, beanstalker will query Amazon and get its id:
+
++---+
+C:\projetos\sources\beanstalker\test-war>mvn beanstalk:terminate-environment
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] Building test-war 0.2.5-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] --- beanstalk-maven-plugin:0.2.5-SNAPSHOT:terminate-environment (default-cli) @ test-war ---
+[WARNING] The POM for org.codehaus.jackson:jackson-core-asl:jar:1.7.0-SNAPSHOT-20101126.221009-1 is missing, no dependency information available
+[INFO] environmentName / environmentId not defined. Lets try to get one, shall we?
+log4j:WARN No appenders could be found for logger (org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager).
+log4j:WARN Please initialize the log4j system properly.
+[INFO] Assigning a environment named default-0
+[INFO] SUCCESS
+[INFO] resources: {LoadBalancer: {LoadBalancerName: awseb-default-0, Domain: awseb-default-0-1933149061.us-east-1.elb.amazonaws.com, Listeners: [{Protocol: http, Port: 80, }], }, } [class: EnvironmentResourcesDescription]
+[INFO] versionLabel: 20110827080130 [class: String]
+[INFO] status: Terminating [class: String]
+[INFO] applicationName: beanstalker-test [class: String]
+[INFO] endpointURL: awseb-default-0-1933149061.us-east-1.elb.amazonaws.com [class: String]
+[INFO] health: Grey [class: String]
+[INFO] dateUpdated: Sat Aug 27 08:15:09 GMT-03:00 2011 [class: Date]
+[INFO] environmentId: e-srwnjetvwu [class: String]
+[INFO] solutionStackName: 32bit Amazon Linux running Tomcat 7 [class: String]
+[INFO] CNAME: test-war.elasticbeanstalk.com [class: String]
+[INFO] description: test-war [class: String]
+[INFO] dateCreated: Sat Aug 27 08:02:37 GMT-03:00 2011 [class: Date]
+[INFO] environmentName: default-0 [class: String]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 3.239s
+[INFO] Finished at: Sat Aug 27 08:14:11 GMT-03:00 2011
+[INFO] Final Memory: 5M/15M
+[INFO] ------------------------------------------------------------------------
+C:\projetos\sources\beanstalker\test-war>
++---+  
+  
+  But if you have multiple environments, you might need to specify that. In order to list environments, invoke describe-environments:
   
 +---+
 C:\projetos\sources\beanstalker\test-war>mvn beanstalk:describe-environments
@@ -230,13 +510,6 @@ C:\projetos\sources\beanstalker\test-war>mvn beanstalk:describe-environments
 [INFO] ------------------------------------------------------------------------
 [INFO]
 [INFO] --- beanstalk-maven-plugin:0.2.0-SNAPSHOT:describe-environments (default-cli) @ test-war ---
-12/06/2011 20:04:51 com.amazonaws.http.AmazonHttpClient executeHelper
-INFO: Sending Request: POST https://elasticbeanstalk.us-east-1.amazonaws.com / Parameters: (ApplicationName: test-war, 
- IncludeDeleted: true, VersionLabel: 0.2.0-SNAPSHOT, Action: DescribeEnvironments, SignatureMethod: HmacSHA256, 
- AWSAccessKeyId: <access key>, SignatureVersion: 2, Version: 2010-12-01, Signature: hcafS6YLL/ydEg0v5pJQWx1oKihCPTSC8F+l95GyLsc=, 
- Timestamp: 2011-06-12T23:04:51.648Z, )
-12/06/2011 20:04:53 com.amazonaws.http.AmazonHttpClient handleResponse
-INFO: Received successful response: 200, AWS Request ID: 6a3de59c-9548-11e0-8c30-75aadb90b540
 [INFO] SUCCESS
 [INFO] environments: [{EnvironmentName: default, EnvironmentId: e-ig6jqpcry7, ApplicationName: test-war, VersionLabel: 0.2.0-SNAPSHOT, 
  SolutionStackName: 32bit Amazon Linux running Tomcat 7, TemplateName: null, Description: test-war, 
