@@ -1,4 +1,4 @@
-package br.com.ingenieux.mojo.beanstalk;
+package br.com.ingenieux.mojo.beanstalk.config;
 
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +16,8 @@ package br.com.ingenieux.mojo.beanstalk;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+
+import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 
 import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationOptionsRequest;
 import com.amazonaws.services.elasticbeanstalk.model.OptionSpecification;

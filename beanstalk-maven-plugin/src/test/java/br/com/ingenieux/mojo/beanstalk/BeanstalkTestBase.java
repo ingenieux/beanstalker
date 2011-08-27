@@ -24,6 +24,8 @@ import org.codehaus.plexus.configuration.PlexusConfiguration;
 
 import br.com.ingenieux.mojo.beanstalk.app.CreateApplicationMojo;
 import br.com.ingenieux.mojo.beanstalk.bundle.UploadSourceBundleMojo;
+import br.com.ingenieux.mojo.beanstalk.config.CreateConfigurationTemplateMojo;
+import br.com.ingenieux.mojo.beanstalk.config.DescribeConfigurationTemplatesMojo;
 import br.com.ingenieux.mojo.beanstalk.dns.CheckAvailabilityMojo;
 import br.com.ingenieux.mojo.beanstalk.env.CreateEnvironmentMojo;
 import br.com.ingenieux.mojo.beanstalk.env.TerminateEnvironmentMojo;
