@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 --%>
-<%@page import="java.util.Map.Entry"--%>
 <%@page import="java.util.*" %>
 <html>
 <body>
@@ -44,7 +43,7 @@ for (Object kObj : systemProperties.keySet()) {
 <%
 Map<String, String> environment = System.getenv();
 
-for (Entry<String, String> entry : environment.entrySet()) {
+for (Map.Entry<String, String> entry : environment.entrySet()) {
   out.println(String.format("%s=%s<br/>", entry.getKey(), entry.getValue())); 
 }
 %>

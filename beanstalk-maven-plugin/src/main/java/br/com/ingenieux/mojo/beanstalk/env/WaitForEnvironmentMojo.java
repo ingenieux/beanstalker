@@ -47,11 +47,20 @@ public class WaitForEnvironmentMojo extends AbstractBeanstalkMojo {
 	 */
 	String statusToWaitFor;
 
+	/**
+	 * DNS CName Prefix
+	 * 
+	 * @parameter expression="${beanstalk.cnamePrefix}"
+	 */
+	String cnamePrefix;
+
 	@Override
 	protected Object executeInternal() throws Exception {
 		WaitForEnvironmentContext context = new WaitForEnvironmentContextBuilder()
-		    .withApplicationName(applicationName)
-		    .withStatusToWaitFor(statusToWaitFor).withTimeoutMins(timeoutMins)
+		    .withApplicationName(applicationName)//
+		    .withStatusToWaitFor(statusToWaitFor)//
+		    .withDomainToWaitFor(cnamePrefix)//
+		    .withTimeoutMins(timeoutMins)
 		    .build();
 
 		WaitForEnvironmentCommand command = new WaitForEnvironmentCommand(this);
