@@ -86,7 +86,7 @@ public abstract class AbstractNeedsEnvironmentMojo extends
 		} else {
 			getLog()
 			    .info(
-			        "Too many running environments found. Will not pick one. Declare -Dbeanstalker.environmentName next time.");
+			        "Too many running environments found. Will not pick one. Declare -Dbeanstalk.environmentName next time.");
 		}
 	}
 
