@@ -61,4 +61,20 @@ public class WaitForEnvironmentContext {
 		this.environmentId = environmentId;
 	}
 
+	String domainToWaitFor;
+
+	/**
+	 * @return the domainToWaitFor
+	 */
+	public String getDomainToWaitFor() {
+		return domainToWaitFor;
+	}
+
+	/**
+	 * @param domainToWaitFor
+	 *          the domainToWaitFor to set
+	 */
+	public void setDomainToWaitFor(String domainToWaitFor) {
+		this.domainToWaitFor = domainToWaitFor;
+	}
 }

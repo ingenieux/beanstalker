@@ -25,9 +25,6 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesContextBuilder;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.terminate.TerminateEnvironmentCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.terminate.TerminateEnvironmentContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.terminate.TerminateEnvironmentContextBuilder;
-import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentCommand;
-import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentContext;
-import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentContextBuilder;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
@@ -104,38 +101,14 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 		 * Swaps
 		 */
 		swapEnvironmentCNames(newEnvDesc.getEnvironmentId(),
-		    curEnv.getEnvironmentId());
+		    curEnv.getEnvironmentId(), cnamePrefix);
 
 		/*
 		 * Terminates the previous environment - and waits for it
 		 */
 		terminateAndWaitForEnvironment(curEnv.getEnvironmentId());
 
-		/*
-		 * Now renames into the expected name
-		 */
-		renameEnvironment(newEnvDesc.getEnvironmentId(),
-		    curEnv.getEnvironmentName());
-
 		return createEnvResult;
-	}
-
-	private void renameEnvironment(String environmentId, String environmentName)
-	    throws MojoFailureException, MojoExecutionException {
-		getLog().info(
-		    "Renaming environmentName from environmentId " + environmentId
-		        + " to environmentName" + environmentName);
-
-		UpdateEnvironmentContext context = UpdateEnvironmentContextBuilder
-		    .updateEnvironmentContext().withEnvironmentId(environmentId)//
-		    .withEnvironmentName(environmentName)//
-		    .withOptionSettings(optionSettings)//
-		    .withTemplateName(templateName)//
-		    .withVersionLabel(versionLabel)//
-		    .build();
-		UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(this);
-
-		command.execute(context);
 	}
 
 	/**
@@ -145,25 +118,41 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 	 *          environment id
 	 * @param curEnvironmentId
 	 *          environment id
+	 * @param cnamePrefix
 	 * @throws MojoFailureException
 	 *           failure
 	 * @throws MojoExecutionException
 	 *           failure
 	 */
 	protected void swapEnvironmentCNames(String newEnvironmentId,
-	    String curEnvironmentId) throws MojoFailureException,
+	    String curEnvironmentId, String cnamePrefix) throws MojoFailureException,
 	    MojoExecutionException {
 		getLog().info(
 		    "Swapping environment cnames " + newEnvironmentId + " and "
 		        + curEnvironmentId);
 
-		SwapCNamesContext context = SwapCNamesContextBuilder.swapCNamesContext()//
-		    .withSourceEnvironmentId(newEnvironmentId)//
-		    .withDestinationEnvironmentId(curEnvironmentId)//
-		    .build();
-		SwapCNamesCommand command = new SwapCNamesCommand(this);
+		{
+			SwapCNamesContext context = SwapCNamesContextBuilder.swapCNamesContext()//
+			    .withSourceEnvironmentId(newEnvironmentId)//
+			    .withDestinationEnvironmentId(curEnvironmentId)//
+			    .build();
+			SwapCNamesCommand command = new SwapCNamesCommand(this);
 
-		command.execute(context);
+			command.execute(context);
+		}
+
+		{
+			WaitForEnvironmentContext context = new WaitForEnvironmentContextBuilder()
+			    .withApplicationName(applicationName)//
+			    .withStatusToWaitFor("Ready")//
+			    .withEnvironmentId(newEnvironmentId)//
+			    .withTimeoutMins(timeoutMins)//
+			    .withDomainToWaitFor(cnamePrefix).build();
+
+			WaitForEnvironmentCommand command = new WaitForEnvironmentCommand(this);
+
+			command.execute(context);
+		}
 	}
 
 	/**
@@ -216,11 +205,13 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 	 */
 	protected EnvironmentDescription waitForEnvironment(String environmentId)
 	    throws MojoFailureException, MojoExecutionException {
-		getLog().info("Waiting for environmentId " + environmentId + " to get into Ready state");
-		
+		getLog().info(
+		    "Waiting for environmentId " + environmentId
+		        + " to get into Ready state");
+
 		WaitForEnvironmentContext context = new WaitForEnvironmentContextBuilder()
-		    .withApplicationName(applicationName).withStatusToWaitFor("Ready").withEnvironmentId(environmentId)
-		    .withTimeoutMins(timeoutMins).build();
+		    .withApplicationName(applicationName).withStatusToWaitFor("Ready")
+		    .withEnvironmentId(environmentId).withTimeoutMins(timeoutMins).build();
 
 		WaitForEnvironmentCommand command = new WaitForEnvironmentCommand(this);
 

@@ -2,6 +2,7 @@ package br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor;
 
 import java.util.Date;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.maven.plugin.MojoExecutionException;
 
@@ -27,7 +28,7 @@ import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
  */
 public class WaitForEnvironmentCommand extends
     BaseCommand<WaitForEnvironmentContext, EnvironmentDescription> {
-	private static final long MINUTE = 60 * 1000;
+	private static final long INTERVAL = 15 * 1000;
 
 	/**
 	 * Constructor
@@ -39,18 +40,28 @@ public class WaitForEnvironmentCommand extends
 		super(parentMojo);
 	}
 
-	public EnvironmentDescription executeInternal(WaitForEnvironmentContext context)
-	    throws Exception {
+	public EnvironmentDescription executeInternal(
+	    WaitForEnvironmentContext context) throws Exception {
 		long timeoutMins = context.getTimeoutMins();
 		String environmentId = context.getEnvironmentId();
 		String applicationName = context.getApplicationName();
 		String statusToWaitFor = context.getStatusToWaitFor();
 
-		Date expiresAt = new Date(System.currentTimeMillis() + MINUTE * timeoutMins);
+		boolean hasDomainToWaitFor = StringUtils.isNotBlank(context
+		    .getDomainToWaitFor());
+
+		String domainToWaitFor = String.format("%s.elasticbeanstalk.com",
+		    context.getDomainToWaitFor());
+
+		Date expiresAt = new Date(System.currentTimeMillis() + INTERVAL * timeoutMins);
 
 		boolean done = false;
 
-		info("Will wait until " + expiresAt);
+		info("Will wait until " + expiresAt + " for environment " + environmentId
+		    + " to get into " + statusToWaitFor);
+
+		if (hasDomainToWaitFor)
+			info("... as well as having domain " + domainToWaitFor);
 
 		do {
 			if (timedOutP(expiresAt))
@@ -67,10 +78,13 @@ public class WaitForEnvironmentCommand extends
 
 				done = d.getStatus().equalsIgnoreCase(statusToWaitFor);
 
+				if (done && hasDomainToWaitFor)
+					done = domainToWaitFor.equals(d.getCNAME());
+
 				if (done)
 					return d;
 			}
-			sleepMinute();
+			sleepInterval();
 		} while (true);
 	}
 
@@ -78,9 +92,9 @@ public class WaitForEnvironmentCommand extends
 		return expiresAt.before(new Date(System.currentTimeMillis()));
 	}
 
-	void sleepMinute() {
+	void sleepInterval() {
 		try {
-			Thread.sleep(MINUTE);
+			Thread.sleep(INTERVAL);
 		} catch (InterruptedException e) {
 		}
 	}

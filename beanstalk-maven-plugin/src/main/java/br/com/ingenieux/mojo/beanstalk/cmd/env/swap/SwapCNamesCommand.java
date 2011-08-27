@@ -41,6 +41,8 @@ public class SwapCNamesCommand extends BaseCommand<SwapCNamesContext, Object> {
 		    .setDestinationEnvironmentName(context.getDestinationEnvironmentName());
 
 		request.setDestinationEnvironmentId(context.getDestinationEnvironmentId());
+		
+		service.swapEnvironmentCNAMEs(request);
 
 		return request;
 	}

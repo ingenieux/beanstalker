@@ -88,4 +88,11 @@ class WaitForEnvironmentContextBuilderBase<GeneratorT extends WaitForEnvironment
 
 		return (GeneratorT) this;
 	}
+
+	@SuppressWarnings("unchecked")
+	public GeneratorT withDomainToWaitFor(String aValue) {
+		instance.setDomainToWaitFor(aValue);
+
+		return (GeneratorT) this;
+	}
 }
