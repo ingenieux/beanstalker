@@ -524,5 +524,5 @@ Next Steps
 
   You sucessfully concluded your first steps in using beanstalker for publishing and deploying and maven app.
   
-  See the {{{./continuous-integration.html}Continuous Integration}} on how to setup for Continuous Integration, and {{{./plugin-info.html}Plugin Docs}} and see the available goals and its arguments.
+  See the {{{./setup-for-ci.html}Setup for Continuous Integration}} on how to setup for Continuous Integration, and {{{./plugin-info.html}Plugin Docs}} and see the available goals and its arguments.
 

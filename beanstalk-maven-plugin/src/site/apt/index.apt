@@ -13,5 +13,5 @@ Usage
   
   Another interesting aspect is being able to deal with the configuration settings in Amazon Elastic Beanstalk. Check {{{./configurations-and-templates.html}Configurations and Configuration Templates}} for further information.
   
-  Also, check the settings for {{{./continuous-integration.html}Continuous Integration}} docs as well.
+  Also, check the settings for {{{./setup-for-ci.html}Setup for Continuous Integration}} docs as well.
   
