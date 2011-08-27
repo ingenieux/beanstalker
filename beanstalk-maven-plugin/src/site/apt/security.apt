@@ -24,7 +24,7 @@ Security Credentials
 </settings>
 +---+
 
-  You can declare domains other than aws.amazon.com - All you need to do is to set beanstalk.serverId as well. For more information, check the Maven docs on {{{http://maven.apache.org/guides/mini/guide-encryption.html}}Password Encryption}.
+  You can declare domains other than aws.amazon.com - All you need to do is to set beanstalk.serverId as well. For more information, check the Maven docs on {{{http://maven.apache.org/guides/mini/guide-encryption.html}Password Encryption}}
   
   It **DOES** support password encryption. In fact, it throws up an alert whenever it finds an unencrypted password. This is going to be the default in 0.4.0 and beyond. 
   
