@@ -22,31 +22,15 @@ import java.util.List;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalkClient;
 import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
 
-public abstract class AbstractBeanstalkMojo extends AbstractMojo {
-	/**
-	 * AWS Access Key
-	 * 
-	 * @parameter expression="${aws.accessKey}"
-	 * @required
-	 */
-	protected String accessKey;
-
-	/**
-	 * AWS Secret Key
-	 * 
-	 * @parameter expression="${aws.secretKey}"
-	 * @required
-	 */
-	protected String secretKey;
+public abstract class AbstractBeanstalkMojo extends AbstractAWSMojo {
+	private static final List<String> LOG4J_LOGGERS = Arrays.asList(
+	    "com.amazonaws", "org.apache.http");
 
 	/**
 	 * Verbose Logging?
@@ -61,11 +45,6 @@ public abstract class AbstractBeanstalkMojo extends AbstractMojo {
 	 * @parameter expression="${beanstalk.ignoreExceptions}" default-value=false
 	 */
 	protected boolean ignoreExceptions;
-
-	/**
-	 * AWS Credentials
-	 */
-	protected AWSCredentials awsCredentials;
 
 	protected AWSElasticBeanstalkClient service;
 
@@ -128,10 +107,11 @@ public abstract class AbstractBeanstalkMojo extends AbstractMojo {
 	}
 
 	protected final void setupLogging() {
-		if (!verbose) {
-			Logger logger = Logger.getLogger("com.amazonaws");
-			logger.setLevel(Level.OFF);
-		}
+		
+		Level levelToSet = (verbose ? Level.DEBUG : Level.OFF);
+
+		for (String logger : LOG4J_LOGGERS)
+			Logger.getLogger(logger).setLevel(levelToSet);
 	}
 
 	protected void displayResults(Object result) {
@@ -169,13 +149,6 @@ public abstract class AbstractBeanstalkMojo extends AbstractMojo {
 	}
 
 	protected abstract Object executeInternal() throws Exception;
-
-	public AWSCredentials getAWSCredentials() {
-		if (null == this.awsCredentials)
-			this.awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
-
-		return this.awsCredentials;
-	}
 
 	protected List<ConfigurationOptionSetting> getOptionSettings(
 	    ConfigurationOptionSetting[] optionSettings) {

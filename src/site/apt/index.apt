@@ -5,13 +5,4 @@
 
 What is it?
 
-  For now, the Maven Beanstalk Plugin {{{./beanstalk-maven-plugin}maven-beanstalk-plugin}} is a wrapper for the Amazon Beanstalk API for usage from Maven Projects.
-
-Usage
-
-  See the {{{./usage.html}Usage}} page. It describes the basic usage scenarios for beanstalk usage.
-  
-  Another interesting aspect is being able to deal with the configuration settings in Amazon Elastic Beanstalk. Check {{{./configurations-and-templates.html}Configurations and Configuration Templates}} for further information.
-  
-  Also, check the settings for {{{./continuous-integration.html}Continuous Integration}} docs as well.
-  
+  Beanstalker is a set of plugins for Java-based AWS Apps. Namely, {{{http://aws.amazon.com/elasticbeanstalk/}Amazon Elastic Beanstalk}} and {{{http://aws.amazon.com/elasticmapreduce/}Amazon Elastic MapReduce}}.

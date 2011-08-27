@@ -38,8 +38,7 @@
       <plugin>
         <groupId>br.com.ingenieux</groupId>
         <artifactId>beanstalk-maven-plugin</artifactId>
-        <version>${project.version}</version>
-        <configuration>
+       <configuration>
           <applicationName>beanstalker-test</applicationName>
           <s3Bucket>ingenieux-beanstalk-apps</s3Bucket>
           <s3Key>${project.artifactId}/${project.build.finalName}-${maven.build.timestamp}.war</s3Key>
