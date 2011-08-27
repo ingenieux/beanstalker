@@ -22,6 +22,15 @@ import org.apache.commons.lang.text.StrSubstitutor;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 
+import br.com.ingenieux.mojo.beanstalk.app.CreateApplicationMojo;
+import br.com.ingenieux.mojo.beanstalk.bundle.UploadSourceBundleMojo;
+import br.com.ingenieux.mojo.beanstalk.dns.CheckAvailabilityMojo;
+import br.com.ingenieux.mojo.beanstalk.env.CreateEnvironmentMojo;
+import br.com.ingenieux.mojo.beanstalk.env.TerminateEnvironmentMojo;
+import br.com.ingenieux.mojo.beanstalk.env.UpdateEnvironmentMojo;
+import br.com.ingenieux.mojo.beanstalk.env.WaitForEnvironmentMojo;
+import br.com.ingenieux.mojo.beanstalk.version.CreateApplicationVersionMojo;
+
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalk;
 import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalkClient;

@@ -1,5 +1,8 @@
 package br.com.ingenieux.mojo.beanstalk;
 
+import br.com.ingenieux.mojo.beanstalk.app.CreateApplicationMojo;
+import br.com.ingenieux.mojo.beanstalk.version.CreateApplicationVersionMojo;
+
 
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");

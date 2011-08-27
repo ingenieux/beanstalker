@@ -17,6 +17,8 @@ import java.io.File;
 
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 
+import br.com.ingenieux.mojo.beanstalk.version.RollbackVersionMojo;
+
 public class RollbackVersionMojoTest extends BeanstalkTestBase {
 	private RollbackVersionMojo mojo;
 

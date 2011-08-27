@@ -28,24 +28,8 @@ import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettin
  * 
  * @goal describe-configuration-settings
  */
-public class DescribeConfigurationSettingsMojo extends AbstractBeanstalkMojo {
-	/**
-	 * Beanstalk Application Name
-	 * 
-	 * @parameter expression="${beanstalk.applicationName}"
-	 *            default-value="${project.artifactId}"
-	 * @required
-	 */
-	String applicationName;
-
-	/**
-	 * Environment Name
-	 * 
-	 * @parameter expression="${beanstalk.environmentName}"
-	 *            default-value="default"
-	 */
-	String environmentName;
-
+public class DescribeConfigurationSettingsMojo extends
+    AbstractNeedsEnvironmentMojo {
 	/**
 	 * Template Name
 	 * 
@@ -56,7 +40,7 @@ public class DescribeConfigurationSettingsMojo extends AbstractBeanstalkMojo {
 	protected Object executeInternal() throws MojoExecutionException,
 	    MojoFailureException {
 		DescribeConfigurationSettingsRequest req = new DescribeConfigurationSettingsRequest()//
-		    .withApplicationName(this.applicationName)//
+		    .withApplicationName(applicationName)//
 		    .withEnvironmentName(environmentName)//
 		    .withTemplateName(templateName)//
 		;

@@ -24,7 +24,7 @@ public class CheckAvailabilityMojoTest extends BeanstalkTestBase {
 	}
 
 	public void testFailWhenExists() throws Exception {
-		checkAvailabilityMojo.failWhenExists = true;
+		setVariableValueToObject(checkAvailabilityMojo, "failWhenExists", true);
 		setVariableValueToObject(checkAvailabilityMojo, "cnamePrefix", "amazon");
 
 		try {

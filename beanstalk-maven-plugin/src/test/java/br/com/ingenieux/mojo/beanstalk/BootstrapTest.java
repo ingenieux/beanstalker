@@ -1,5 +1,7 @@
 package br.com.ingenieux.mojo.beanstalk;
 
+import java.io.File;
+
 import org.junit.internal.runners.JUnit38ClassRunner;
 import org.junit.runner.RunWith;
 
@@ -22,15 +24,25 @@ import com.amazonaws.services.s3.model.S3Object;
 
 @RunWith(JUnit38ClassRunner.class)
 public class BootstrapTest extends BeanstalkTestBase {
+	private String s3Key;
+	private String s3Bucket;
+	private File artifactFile;
+
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 
-		uploadSourceBundleMojo.artifactFile = getWarFile();
-		uploadSourceBundleMojo.s3Bucket = getS3Bucket();
-		uploadSourceBundleMojo.s3Key = getS3Path();
-		
-		createAppVersionMojo.versionLabel = this.versionLabel;
+		artifactFile = getWarFile();
+		s3Bucket = getS3Bucket();
+		s3Key = getS3Path();
+
+		setVariableValueToObject(uploadSourceBundleMojo, "artifactFile",
+		    artifactFile);
+		setVariableValueToObject(uploadSourceBundleMojo, "s3Bucket", s3Bucket);
+		setVariableValueToObject(uploadSourceBundleMojo, "s3Key", s3Key);
+
+		setVariableValueToObject(createAppVersionMojo, "versionLabel",
+		    this.versionLabel);
 	}
 
 	public void testUploadSourceBundle() throws Exception {
@@ -38,17 +50,17 @@ public class BootstrapTest extends BeanstalkTestBase {
 
 		AmazonS3Client s3Client = new AmazonS3Client(this.credentials);
 
-		S3Object object = s3Client.getObject(uploadSourceBundleMojo.s3Bucket, uploadSourceBundleMojo.s3Key);
+		S3Object object = s3Client.getObject(s3Bucket, s3Key);
 
 		assertNotNull(object);
 		assertEquals(object.getObjectMetadata().getContentLength(),
-		    uploadSourceBundleMojo.artifactFile.length());
+		    artifactFile.length());
 	}
 
 	public void testCreateApplicationVersion() throws Exception {
 		createAppVersionMojo.execute();
 	}
-	
+
 	public void testCreateConfigurationTemplate() throws Exception {
 		createConfigurationTemplateMojo.execute();
 	}

@@ -29,30 +29,7 @@ import com.amazonaws.services.elasticbeanstalk.model.OptionSpecification;
  * 
  * @goal describe-configuration-options
  */
-public class DescribeConfigurationOptionsMojo extends AbstractBeanstalkMojo {
-	/**
-	 * Beanstalk Application Name
-	 * 
-	 * @parameter expression="${beanstalk.applicationName}"
-	 *            default-value="${project.artifactId}"
-	 */
-	String applicationName;
-
-	/**
-	 * Environment Name
-	 * 
-	 * @parameter expression="${beanstalk.environmentName}"
-	 *            default-value="default"
-	 */
-	String environmentName;
-
-	/**
-	 * Environment Id
-	 * 
-	 * @parameter expression="${beanstalk.environmentId}"
-	 */
-	String environmentId;
-
+public class DescribeConfigurationOptionsMojo extends AbstractNeedsEnvironmentMojo {
 	/**
 	 * Template Name
 	 * 

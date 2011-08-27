@@ -38,7 +38,7 @@ public abstract class AbstractBeanstalkMojo extends AbstractMojo {
 	 * @parameter expression="${aws.accessKey}"
 	 * @required
 	 */
-	String accessKey;
+	protected String accessKey;
 
 	/**
 	 * AWS Secret Key
@@ -46,25 +46,32 @@ public abstract class AbstractBeanstalkMojo extends AbstractMojo {
 	 * @parameter expression="${aws.secretKey}"
 	 * @required
 	 */
-	String secretKey;
+	protected String secretKey;
 
 	/**
 	 * Verbose Logging?
 	 * 
 	 * @parameter expression="${beanstalk.verbose}" default-value=false
 	 */
-	boolean verbose;
-	
+	protected boolean verbose;
+
 	/**
 	 * Ignore Exceptions?
 	 * 
 	 * @parameter expression="${beanstalk.ignoreExceptions}" default-value=false
 	 */
-	boolean ignoreExceptions;
-	
-	AWSCredentials awsCredentials;
+	protected boolean ignoreExceptions;
 
-	AWSElasticBeanstalkClient service;
+	/**
+	 * AWS Credentials
+	 */
+	protected AWSCredentials awsCredentials;
+
+	protected AWSElasticBeanstalkClient service;
+
+	public AWSElasticBeanstalkClient getService() {
+		return service;
+	}
 
 	@Override
 	public final void execute() throws MojoExecutionException,
@@ -77,41 +84,57 @@ public abstract class AbstractBeanstalkMojo extends AbstractMojo {
 		Object result = null;
 
 		try {
+			configure();
+
 			result = executeInternal();
 
 			getLog().info("SUCCESS");
 		} catch (Exception e) {
 			getLog().warn("FAILURE", e);
-			
-			/*
-			 * This is actually the feature I really didn't want to have written, ever. 
-			 * 
-			 * Thank you for reading this comment.
-			 */
-			if (ignoreExceptions) {
-				getLog().warn("Ok. ignoreExceptions is set to true. No result for you!");
-				
-				return;
-			} else if (MojoExecutionException.class.isAssignableFrom(e.getClass())) {
-				throw (MojoExecutionException) e;
-			} else if (MojoFailureException.class.isAssignableFrom(e.getClass())) {
-				throw (MojoFailureException) e;
-			} else {
-				throw new MojoFailureException("Failed", e);
-			}
+
+			handleException(e);
+			return;
 		}
 
 		displayResults(result);
 	}
 
-	void setupLogging() {
+	/**
+	 * Extension Point - Meant for others to declare and redefine variables as
+	 * needed.
+	 * 
+	 */
+	protected void configure() {
+	}
+
+	public void handleException(Exception e) throws MojoExecutionException,
+	    MojoFailureException {
+		/*
+		 * This is actually the feature I really didn't want to have written, ever.
+		 * 
+		 * Thank you for reading this comment.
+		 */
+		if (ignoreExceptions) {
+			getLog().warn("Ok. ignoreExceptions is set to true. No result for you!");
+
+			return;
+		} else if (MojoExecutionException.class.isAssignableFrom(e.getClass())) {
+			throw (MojoExecutionException) e;
+		} else if (MojoFailureException.class.isAssignableFrom(e.getClass())) {
+			throw (MojoFailureException) e;
+		} else {
+			throw new MojoFailureException("Failed", e);
+		}
+	}
+
+	protected final void setupLogging() {
 		if (!verbose) {
 			Logger logger = Logger.getLogger("com.amazonaws");
 			logger.setLevel(Level.OFF);
 		}
 	}
 
-	void displayResults(Object result) {
+	protected void displayResults(Object result) {
 		if (null == result)
 			return;
 
@@ -145,8 +168,7 @@ public abstract class AbstractBeanstalkMojo extends AbstractMojo {
 		}
 	}
 
-	protected abstract Object executeInternal() throws MojoExecutionException,
-	    MojoFailureException;
+	protected abstract Object executeInternal() throws Exception;
 
 	public AWSCredentials getAWSCredentials() {
 		if (null == this.awsCredentials)
