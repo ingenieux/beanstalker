@@ -10,13 +10,13 @@
   </poweredBy>
   <body>
     <menu name="Overview">
-      <item name="Index" href="./beanstalker-maven-plugin/index.html"/>
+      <item name="Index" href="./beanstalk-maven-plugin/index.html"/>
     </menu>
     <menu name="Other">
-      <item name="Usage" href="./beanstalker-maven-plugin/usage.html" /> 
-      <item name="Security Credentials" href="./beanstalker-maven-plugin/security.html" /> 
-      <item name="Configuration and Configuration Templates" href="./beanstalker-maven-plugin/configurations-and-templates.html" />
-      <item name="Setting Up for your CI Builds" href="./beanstalker-maven-plugin/setup-for-ci.html" /> 
+      <item name="Usage" href="./beanstalk-maven-plugin/usage.html" /> 
+      <item name="Security Credentials" href="./beanstalk-maven-plugin/security.html" /> 
+      <item name="Configuration and Configuration Templates" href="./beanstalk-maven-plugin/configurations-and-templates.html" />
+      <item name="Setting Up for your CI Builds" href="./beanstalk-maven-plugin/setup-for-ci.html" /> 
     </menu>
     <menu ref="reports"/>
   </body>
