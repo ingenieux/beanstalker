@@ -1,5 +1,5 @@
  ------
- Beanstalker Plugin Usage
+ Beanstalker Maven Plugin - Usage
  ------
  ------
 
@@ -21,59 +21,9 @@ Quick Start
 
 Credentials
 
-  Here, you have three options:
-  
-  [[1]] Declare it in your <<<.m2/settings.xml>>>:
+  See {{{./security.html}Security} for an Overview on how to configure Credentials.
 
-+---+
-<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
-                      http://maven.apache.org/xsd/settings-1.0.0.xsd">
-  <profiles>
-    <profile>
-      <id>default</id>
-      <properties>
-        <aws.accessKey>[access key id]</aws.accessKey>
-        <aws.secretKey>[secret access key]</aws.secretKey>
-      </properties>
-    </profile>
-  </profiles>
-  <activeProfiles>
-    <activeProfile>default</activeProfile>
-  </activeProfiles>
-</settings>
-+---+
-
-  If you don't, find your existing keys from {{{https://aws-portal.amazon.com/gp/aws/developer/account/index.html?action=access-key}AWS Security Credentials}} Page, under "Access Keys"
-
-  [[2]] Declaring upon mvn invocation:
-
-+---+
-mvn beanstalk:upload-source-bundle -Daws.accessKey=[access key] -Daws.secretKey=[secret key]
-+---+
-
-  [[3]] Declare on the pom itself (not recommended):
-
-  You can also declare under the plugin configuration.
-
-+---+
-<build>
-  <plugins>
-    <plugin>
-      <groupId>br.com.ingenieux</groupId>
-      <artifactId>beanstalk-maven-plugin</artifactId>
-      <version>[plugin version]</version>
-      <configuration>
-        <accessKey>[access key]</accessKey>
-        <secretKey>[secret key]</secretKey>
-      </configuration>
-    </plugin>
-  </plugins>
-</build>
-+---+
-
-Testing your credentials
+Testing your credentials and DNS Availability
 
   Now it is a good time to see if your app name is available, and your credentials are correct.
   
@@ -574,5 +524,5 @@ Next Steps
 
   You sucessfully concluded your first steps in using beanstalker for publishing and deploying and maven app.
   
-  See the {{{./beanstalk-maven-plugin/plugin-info.html}Plugin Docs}} and see the available goals and its arguments.
+  See the {{{./continuous-integration.html}Continuous Integration}} on how to setup for Continuous Integration, and {{{./plugin-info.html}Plugin Docs}} and see the available goals and its arguments.
 

@@ -12,6 +12,12 @@
     <menu name="Overview">
       <item name="Index" href="./index.html"/>
     </menu>
+    <menu name="Other">
+      <item name="Usage" href="./usage.html" /> 
+      <item name="Security Credentials" href="./security.html" /> 
+      <item name="Configuration and Configuration Templates" href="./configurations-and-templates.html" />
+      <item name="Setting Up for your CI Builds" href="./setup-for-ci.html" /> 
+    </menu>
     <menu ref="reports"/>
   </body>
 </project>
