@@ -1,9 +1,9 @@
  ------
- Beanstalker - Configurations and Templates
+ Beanstalker - Configurations and Configuration Templates
  ------
  ------
 
-WTF?
+Intro
 
   Amazon Elastic Beanstalk is an Amalgam of several other AWS Services, specially EC2, S3, Route 53. A key part of its learning curve involves dealing with its configuration.
   
