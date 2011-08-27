@@ -28,6 +28,7 @@ import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsRequest
  * 
  * @author Aldrin Leal
  * @goal describe-environments
+ * @requiresDirectInvocation
  */
 public class DescribeEnvironmentsMojo extends AbstractBeanstalkMojo {
 	/**
@@ -39,17 +40,9 @@ public class DescribeEnvironmentsMojo extends AbstractBeanstalkMojo {
 	String applicationName;
 
 	/**
-	 * Version Label to use. Defaults to Project Version
-	 * 
-	 * @parameter expression="${beanstalk.versionLabel}"
-	 *            default-value="${project.version}"
-	 */
-	String versionLabel;
-
-	/**
 	 * Include Deleted?
 	 * 
-	 * @parameter expression="${beanstalk.includeDeleted}" default-value=true
+	 * @parameter expression="${beanstalk.includeDeleted}" default-value=false
 	 */
 	boolean includeDeleted;
 
@@ -60,7 +53,6 @@ public class DescribeEnvironmentsMojo extends AbstractBeanstalkMojo {
 
 		req.setApplicationName(applicationName);
 		req.setIncludeDeleted(includeDeleted);
-		req.setVersionLabel(versionLabel);
 
 		// TODO add environmentNames / environmentIds / includeDeletedBackTo
 
