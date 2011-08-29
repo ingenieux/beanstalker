@@ -15,6 +15,8 @@ package br.com.ingenieux.mojo.beanstalk.env;
  */
 
 import java.util.Collection;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -40,6 +42,12 @@ import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
  * @goal replace-environment
  */
 public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
+	/**
+	 * 
+	 */
+	private static final Pattern PATTERN_NUMBERED = Pattern
+	    .compile("^(.*)-(\\d+)$");
+
 	/**
 	 * Minutes until timeout
 	 * 
@@ -273,12 +281,28 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 
 	@Override
 	protected String getEnvironmentName(String environmentName) {
-		String resultingEnvironmentName = environmentName;
+		return getNewEnvironmentName(environmentName);
+	}
+
+	private String getNewEnvironmentName(String newEnvironmentName) {
+		String resultingEnvironmentName = newEnvironmentName;
+		String environmentRadical = resultingEnvironmentName;
 
 		int i = 0;
 
+		{
+			Matcher matcher = PATTERN_NUMBERED.matcher(newEnvironmentName);
+
+			if (matcher.matches()) {
+				environmentRadical = matcher.group(1);
+
+				i = 1 + Integer.valueOf(matcher.group(2));
+			}
+		}
+
 		while (containsNamedEnvironment(resultingEnvironmentName))
-			resultingEnvironmentName = String.format("%s-%d", environmentName, i++);
+			resultingEnvironmentName = String
+			    .format("%s-%d", environmentRadical, i++);
 
 		return resultingEnvironmentName;
 	}
