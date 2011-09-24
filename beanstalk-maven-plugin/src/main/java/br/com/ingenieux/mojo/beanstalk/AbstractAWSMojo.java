@@ -56,7 +56,7 @@ public abstract class AbstractAWSMojo extends AbstractMojo implements
 	 * @required
 	 * @readonly
 	 */
-	private Settings settings;
+	protected Settings settings;
 
 	/**
 	 * AWS Access Key

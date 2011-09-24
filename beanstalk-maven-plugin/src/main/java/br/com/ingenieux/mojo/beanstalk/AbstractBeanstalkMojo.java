@@ -24,7 +24,9 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.settings.Proxy;
 
+import com.amazonaws.ClientConfiguration;
 import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalkClient;
 import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
 
@@ -58,7 +60,7 @@ public abstract class AbstractBeanstalkMojo extends AbstractAWSMojo {
 		setupLogging();
 
 		awsCredentials = getAWSCredentials();
-		service = new AWSElasticBeanstalkClient(awsCredentials);
+		service = createService();
 
 		Object result = null;
 
@@ -77,6 +79,25 @@ public abstract class AbstractBeanstalkMojo extends AbstractAWSMojo {
 
 		displayResults(result);
 	}
+
+	AWSElasticBeanstalkClient createService() {
+	  return new AWSElasticBeanstalkClient(awsCredentials, createClientConfiguration());
+  }
+
+	private ClientConfiguration createClientConfiguration() {
+		ClientConfiguration clientConfiguration = new ClientConfiguration();
+		
+		if (null != super.settings && null != settings.getActiveProxy()) {
+			Proxy proxy = settings.getActiveProxy();
+			
+			clientConfiguration.setProxyHost(proxy.getHost());
+			clientConfiguration.setProxyUsername(proxy.getUsername());
+			clientConfiguration.setProxyPassword(proxy.getPassword());
+			clientConfiguration.setProxyPort(proxy.getPort());
+		}
+		
+		return clientConfiguration;
+  }
 
 	/**
 	 * Extension Point - Meant for others to declare and redefine variables as
