@@ -69,7 +69,7 @@ public class UploadSourceBundleMojo extends AbstractBeanstalkMojo {
 			throw new MojoFailureException("Artifact File does not exists! (file="
 			    + path);
 
-		AmazonS3Client client = new AmazonS3Client(getAWSCredentials());
+		AmazonS3Client client = new AmazonS3Client(getAWSCredentials(), getClientConfiguration());
 
 		getLog().info("Target Path: s3://" + s3Bucket + "/" + s3Key);
 		getLog().info("Uploading artifact file: " + path);

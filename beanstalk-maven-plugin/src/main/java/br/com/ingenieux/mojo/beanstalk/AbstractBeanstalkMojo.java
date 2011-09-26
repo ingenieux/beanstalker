@@ -81,10 +81,10 @@ public abstract class AbstractBeanstalkMojo extends AbstractAWSMojo {
 	}
 
 	AWSElasticBeanstalkClient createService() {
-	  return new AWSElasticBeanstalkClient(awsCredentials, createClientConfiguration());
+	  return new AWSElasticBeanstalkClient(awsCredentials, getClientConfiguration());
   }
 
-	private ClientConfiguration createClientConfiguration() {
+	protected ClientConfiguration getClientConfiguration() {
 		ClientConfiguration clientConfiguration = new ClientConfiguration();
 		
 		if (null != super.settings && null != settings.getActiveProxy()) {
