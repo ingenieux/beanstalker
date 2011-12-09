@@ -1,5 +1,6 @@
 package br.com.ingenieux.mojo.beanstalk.cmd.env.update;
 
+import static org.apache.commons.lang.StringUtils.*;
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.BaseCommand;
 
@@ -38,11 +39,18 @@ public class UpdateEnvironmentCommand extends
 		    .withDescription(context.environmentDescription)//
 		    .withEnvironmentId(context.environmentId)//
 		    .withEnvironmentName(context.environmentName)//
-		    .withOptionSettings(context.optionSettings)//
-		    .withTemplateName(context.templateName)//
-		    .withVersionLabel(context.versionLabel)//
-		;
+		    .withOptionSettings(context.optionSettings);
+		
+		if (isNotBlank(context.versionLabel)) {
+			info("Calling update-environment, and using versionLabel: " + context.versionLabel);
+			
+			req.setVersionLabel(context.versionLabel);
+		} else if (isNotBlank(context.templateName)) {
+			info("Calling update-environment, and using templateName: " + context.templateName);
 
+			req.setTemplateName(context.templateName);
+		}
+		
 		return service.updateEnvironment(req);
 	}
 }
