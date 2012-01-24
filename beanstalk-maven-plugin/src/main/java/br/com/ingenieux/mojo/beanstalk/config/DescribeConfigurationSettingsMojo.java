@@ -28,6 +28,7 @@ import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettin
  * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_DescribeConfigurationSettings.html"
  * >DescribeConfigurationSettings API</a> call.
  * 
+ * @since 0.2.0
  * @goal describe-configuration-settings
  */
 public class DescribeConfigurationSettingsMojo extends

@@ -29,6 +29,7 @@ import com.amazonaws.services.elasticbeanstalk.model.OptionSpecification;
  * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_DescribeConfigurationOptions.html"
  * >DescribeConfigurationOptions API</a> call.
  * 
+ * @since 0.2.0
  * @goal describe-configuration-options
  */
 public class DescribeConfigurationOptionsMojo extends AbstractNeedsEnvironmentMojo {
