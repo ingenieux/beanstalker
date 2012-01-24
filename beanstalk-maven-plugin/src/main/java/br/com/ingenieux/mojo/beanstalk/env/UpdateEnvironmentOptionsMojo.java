@@ -31,8 +31,13 @@ import com.amazonaws.services.elasticbeanstalk.model.UpdateEnvironmentRequest;
  * 
  * @since 0.2.2
  * @goal update-environment-options
+ * @requiresDirectInvocation
  */
 public class UpdateEnvironmentOptionsMojo extends AbstractNeedsEnvironmentMojo {
+	public enum WhatToSet {
+		description, optionSettings, templateName, versionLabel
+	}
+
 	/**
 	 * Configuration Option Settings
 	 * 
@@ -45,7 +50,6 @@ public class UpdateEnvironmentOptionsMojo extends AbstractNeedsEnvironmentMojo {
 	 * 
 	 * @parameter expression="${beanstalk.environmentDescription}"
 	 *            default-value="default"
-	 * @required
 	 */
 	String environmentDescription;
 
@@ -64,16 +68,32 @@ public class UpdateEnvironmentOptionsMojo extends AbstractNeedsEnvironmentMojo {
 	 */
 	String templateName;
 
+	/**
+	 * What to set?
+	 * 
+	 * @parameter expression="${beanstalk.whatToSet}" default-value="versionLabel"
+	 * @required
+	 */
+	WhatToSet whatToSet;
+
 	protected Object executeInternal() throws MojoExecutionException,
 	    MojoFailureException {
 		UpdateEnvironmentRequest req = new UpdateEnvironmentRequest();
 
-		req.setDescription(environmentDescription);
 		req.setEnvironmentId(environmentId);
 		req.setEnvironmentName(environmentName);
-		req.setOptionSettings(getOptionSettings(optionSettings));
-		req.setTemplateName(templateName);
-		req.setVersionLabel(versionLabel);
+
+		if (WhatToSet.versionLabel.equals(whatToSet)) {
+			req.setVersionLabel(versionLabel);
+		} else if (WhatToSet.description.equals(whatToSet)) {
+			req.setDescription(environmentDescription);
+		} else if (WhatToSet.optionSettings.equals(whatToSet)) {
+			req.setOptionSettings(getOptionSettings(optionSettings));
+		} else if (WhatToSet.templateName.equals(whatToSet)) {
+			req.setTemplateName(templateName);
+//		} else if (WhatToSet.optionsToRemove.equals(whatToSet)) {
+//			req.setOptionsToRemove(optionsToRemove)
+		}
 
 		return service.updateEnvironment(req);
 	}
