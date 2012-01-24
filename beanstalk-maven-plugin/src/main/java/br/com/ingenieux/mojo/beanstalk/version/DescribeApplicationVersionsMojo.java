@@ -27,6 +27,7 @@ import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationVersions
  * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_DescribeApplicationVersions.html"
  * >DescribeApplicationVersions API</a> call.
  * 
+ * @since 0.2.4
  * @goal describe-application-versions
  */
 public class DescribeApplicationVersionsMojo extends AbstractBeanstalkMojo {

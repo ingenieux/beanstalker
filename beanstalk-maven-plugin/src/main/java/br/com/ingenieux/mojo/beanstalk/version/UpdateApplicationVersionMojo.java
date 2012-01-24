@@ -28,6 +28,7 @@ import com.amazonaws.services.elasticbeanstalk.model.UpdateApplicationVersionRes
  * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_UpdateApplicationVersion.html"
  * >CreateApplicationVersion API</a> call.
  * 
+ * @since 0.2.1
  * @goal update-application-version
  */
 public class UpdateApplicationVersionMojo extends AbstractBeanstalkMojo {

@@ -29,6 +29,7 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesContextBuilder;
  * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_SwapEnvironmentCNAMEs.html"
  * >SwapEnvironmentCNAMEs API</a> call.
  * 
+ * @since 0.2.3
  * @goal swap-environment-cnames
  * @author Aldrin Leal
  * 

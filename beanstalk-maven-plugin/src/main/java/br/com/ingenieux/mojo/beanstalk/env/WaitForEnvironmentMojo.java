@@ -22,6 +22,7 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext
  * Waits for Environment Status to Change
  * 
  * @goal wait-for-environment
+ * @since 0.2.2
  */
 public class WaitForEnvironmentMojo extends AbstractBeanstalkMojo {
 	/**

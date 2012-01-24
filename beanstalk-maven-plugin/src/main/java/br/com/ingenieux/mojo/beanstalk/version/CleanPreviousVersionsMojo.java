@@ -38,7 +38,7 @@ import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
  * Deletes application versions, either by count and/or by date old
  * 
  * @goal clean-previous-versions
- * 
+ * @since 0.2.2
  * @author Aldrin Leal
  */
 public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {

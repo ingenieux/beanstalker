@@ -29,6 +29,7 @@ import com.amazonaws.services.elasticbeanstalk.model.UpdateEnvironmentRequest;
  * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_UpdateEnvironment.html"
  * >UpdateEnvironment API</a> call.
  * 
+ * @since 0.2.2
  * @goal update-environment-options
  */
 public class UpdateEnvironmentOptionsMojo extends AbstractNeedsEnvironmentMojo {

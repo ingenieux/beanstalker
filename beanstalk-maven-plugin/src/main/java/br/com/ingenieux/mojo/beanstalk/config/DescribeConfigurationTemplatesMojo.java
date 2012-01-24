@@ -41,6 +41,7 @@ import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettin
  * 
  * @goal describe-configuration-templates
  * 
+ * @since 0.2.5
  * @author Aldrin Leal
  */
 public class DescribeConfigurationTemplatesMojo extends AbstractBeanstalkMojo {

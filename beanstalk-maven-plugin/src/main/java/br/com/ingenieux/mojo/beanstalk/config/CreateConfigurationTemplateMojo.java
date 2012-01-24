@@ -32,6 +32,7 @@ import com.amazonaws.services.elasticbeanstalk.model.CreateConfigurationTemplate
  * @goal create-configuration-templates
  * 
  * @author Aldrin Leal
+ * @since 0.2.5
  */
 public class CreateConfigurationTemplateMojo extends AbstractBeanstalkMojo {
 	/**
