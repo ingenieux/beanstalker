@@ -29,6 +29,7 @@ import com.amazonaws.services.elasticbeanstalk.model.RestartAppServerRequest;
  * >RestartAppServer API</a> call.
  * 
  * @goal restart-application-server
+ * @since 0.1.0
  * @author Aldrin Leal
  * 
  */

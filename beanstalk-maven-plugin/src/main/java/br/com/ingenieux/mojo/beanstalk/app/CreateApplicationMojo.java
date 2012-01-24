@@ -28,6 +28,7 @@ import com.amazonaws.services.elasticbeanstalk.model.CreateApplicationResult;
  * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_CreateApplication.html"
  * >CreateApplication API</a> call.
  * 
+ * @since 0.1.0
  * @goal create-application
  */
 public class CreateApplicationMojo extends AbstractBeanstalkMojo {

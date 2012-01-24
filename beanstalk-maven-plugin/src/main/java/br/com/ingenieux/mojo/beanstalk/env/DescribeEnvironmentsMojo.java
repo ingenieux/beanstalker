@@ -30,6 +30,7 @@ import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsRequest
  * 
  * @author Aldrin Leal
  * @goal describe-environments
+ * @since 0.1.0
  * @requiresDirectInvocation
  */
 public class DescribeEnvironmentsMojo extends AbstractBeanstalkMojo {

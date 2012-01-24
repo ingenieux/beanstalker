@@ -29,7 +29,7 @@ import com.amazonaws.services.elasticbeanstalk.model.CreateStorageLocationResult
  * >CreateStorageLocation API</a> call.
  * 
  * @goal create-storage-location
- * 
+ * @since 0.1.0
  * @author Aldrin Leal
  * 
  */

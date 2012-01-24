@@ -29,7 +29,7 @@ import com.amazonaws.services.elasticbeanstalk.model.DeleteApplicationVersionReq
  * >DeleteApplicationVersion API</a> call.
  * 
  * @goal delete-application-version
- * 
+ * @since 0.1.0
  * @author Aldrin Leal
  */
 public class DeleteApplicationVersionMojo extends AbstractBeanstalkMojo {

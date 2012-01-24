@@ -33,6 +33,7 @@ import com.amazonaws.services.elasticbeanstalk.model.CreateEnvironmentResult;
  * >CreateEnvironment API</a> call.
  * 
  * @goal create-environment
+ * @since 0.1.0
  */
 public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 	/**

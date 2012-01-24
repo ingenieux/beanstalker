@@ -27,6 +27,7 @@ import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
  * >ListAvailableSolutionStacks API</a> call.
  * 
  * @goal list-stacks
+ * @since 0.1.0
  * @requiresDirectInvocation
  * @author Aldrin Leal
  * 

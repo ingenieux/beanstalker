@@ -32,6 +32,7 @@ import com.amazonaws.services.elasticbeanstalk.model.S3Location;
  * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_CreateApplicationVersion.html"
  * >CreateApplicationVersion API</a> call.
  * 
+ * @since 0.1.0
  * @goal create-application-version
  */
 public class CreateApplicationVersionMojo extends AbstractBeanstalkMojo {

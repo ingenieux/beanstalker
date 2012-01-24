@@ -29,6 +29,7 @@ import com.amazonaws.services.elasticbeanstalk.model.RebuildEnvironmentRequest;
  * >RebuildEnvironment API</a> call.
  * 
  * @author Aldrin Leal
+ * @since 0.1.0
  * @goal rebuild-environment
  */
 public class RebuildEnvironmentMojo extends AbstractNeedsEnvironmentMojo {

@@ -27,6 +27,7 @@ import com.amazonaws.services.s3.model.PutObjectResult;
 /**
  * Uploads a packed war file to Amazon S3 for further Deployment.
  * 
+ * @since 0.1.0
  * @goal upload-source-bundle
  */
 public class UploadSourceBundleMojo extends AbstractBeanstalkMojo {

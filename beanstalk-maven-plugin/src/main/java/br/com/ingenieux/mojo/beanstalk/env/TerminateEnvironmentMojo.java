@@ -30,6 +30,7 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.terminate.TerminateEnvironmentCon
  * >TerminateEnvironment API</a> call.
  * 
  * @author Aldrin Leal
+ * @since 0.1.0
  * @goal terminate-environment
  */
 public class TerminateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {

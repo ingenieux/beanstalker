@@ -29,6 +29,7 @@ import com.amazonaws.services.elasticbeanstalk.model.CheckDNSAvailabilityResult;
  * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_CheckDNSAvailability.html"
  * >CheckDNSAvailability API</a> call.
  * 
+ * @since 0.1.0
  * @goal check-availability
  * @requiresDirectInvocation
  */

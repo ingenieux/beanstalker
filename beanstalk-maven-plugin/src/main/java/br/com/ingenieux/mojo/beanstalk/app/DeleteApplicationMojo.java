@@ -28,6 +28,7 @@ import com.amazonaws.services.elasticbeanstalk.model.DeleteApplicationRequest;
  * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_DeleteApplication.html"
  * >DeleteApplication API</a> call.
  * 
+ * @since 0.1.0
  * @goal delete-application
  * @author Aldrin Leal
  * 
