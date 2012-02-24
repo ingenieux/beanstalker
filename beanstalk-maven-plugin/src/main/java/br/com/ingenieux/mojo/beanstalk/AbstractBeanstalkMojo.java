@@ -14,12 +14,15 @@ package br.com.ingenieux.mojo.beanstalk;
  * limitations under the License.
  */
 
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.commons.beanutils.BeanMap;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -49,6 +52,28 @@ public abstract class AbstractBeanstalkMojo extends AbstractAWSMojo {
 	protected boolean ignoreExceptions;
 
 	protected AWSElasticBeanstalkClient service;
+	
+	protected String version = "?";
+
+	protected AbstractBeanstalkMojo() {
+		InputStream is = null;
+		
+		try {
+			Properties properties = new Properties();
+			
+			is = AbstractBeanstalkMojo.class.getResourceAsStream("beanstalker.properties");
+			
+			if (null != is) {
+				properties.load(is);
+				
+				this.version = properties.getProperty("beanstalker.version");
+			}
+		} catch (Exception exc) {
+
+		} finally {
+			IOUtils.closeQuietly(is);
+		}
+	}
 
 	public AWSElasticBeanstalkClient getService() {
 		return service;
@@ -81,22 +106,28 @@ public abstract class AbstractBeanstalkMojo extends AbstractAWSMojo {
 	}
 
 	AWSElasticBeanstalkClient createService() {
-	  return new AWSElasticBeanstalkClient(awsCredentials, getClientConfiguration());
-  }
+		return new AWSElasticBeanstalkClient(awsCredentials,
+		    getClientConfiguration());
+	}
 
 	protected ClientConfiguration getClientConfiguration() {
-		ClientConfiguration clientConfiguration = new ClientConfiguration();
-		
+		ClientConfiguration clientConfiguration = new ClientConfiguration()
+		    .withUserAgent(getUserAgent());
+
 		if (null != super.settings && null != settings.getActiveProxy()) {
 			Proxy proxy = settings.getActiveProxy();
-			
+
 			clientConfiguration.setProxyHost(proxy.getHost());
 			clientConfiguration.setProxyUsername(proxy.getUsername());
 			clientConfiguration.setProxyPassword(proxy.getPassword());
 			clientConfiguration.setProxyPort(proxy.getPort());
 		}
-		
+
 		return clientConfiguration;
+	}
+
+	String getUserAgent() {
+	  return String.format("Apache Maven/3.0 (ingenieux beanstalker/%s; http://beanstalker.ingenieux.com.br)", version);
   }
 
 	/**
@@ -128,7 +159,7 @@ public abstract class AbstractBeanstalkMojo extends AbstractAWSMojo {
 	}
 
 	protected final void setupLogging() {
-		
+
 		Level levelToSet = (verbose ? Level.DEBUG : Level.OFF);
 
 		for (String logger : LOG4J_LOGGERS)
