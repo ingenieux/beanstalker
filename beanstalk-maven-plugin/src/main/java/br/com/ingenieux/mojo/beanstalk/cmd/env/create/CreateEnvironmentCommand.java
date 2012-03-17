@@ -3,6 +3,7 @@ package br.com.ingenieux.mojo.beanstalk.cmd.env.create;
 import java.util.Arrays;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.maven.plugin.AbstractMojoExecutionException;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.BaseCommand;
@@ -30,8 +31,9 @@ public class CreateEnvironmentCommand extends
 	 * 
 	 * @param parentMojo
 	 *          parent mojo
+	 * @throws AbstractMojoExecutionException 
 	 */
-	public CreateEnvironmentCommand(AbstractBeanstalkMojo parentMojo) {
+	public CreateEnvironmentCommand(AbstractBeanstalkMojo parentMojo) throws AbstractMojoExecutionException {
 		super(parentMojo);
 	}
 

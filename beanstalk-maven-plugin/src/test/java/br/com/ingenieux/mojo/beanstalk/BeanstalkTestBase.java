@@ -133,7 +133,7 @@ public abstract class BeanstalkTestBase extends AbstractMojoTestCase {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected <T extends AbstractAWSMojo> T getMojo(Class<T> mojoClazz)
+	protected <T extends AbstractAWSMojo<?>> T getMojo(Class<T> mojoClazz)
 	    throws Exception {
 		File testPom = this.getBasePom("pom.xml");
 

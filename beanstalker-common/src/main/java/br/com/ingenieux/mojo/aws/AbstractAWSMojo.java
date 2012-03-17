@@ -1,13 +1,17 @@
 package br.com.ingenieux.mojo.aws;
 
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.settings.Proxy;
 import org.apache.maven.settings.Server;
@@ -18,6 +22,9 @@ import org.codehaus.plexus.context.Context;
 import org.codehaus.plexus.context.ContextException;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Contextualizable;
 
+import br.com.ingenieux.mojo.aws.util.TypeUtil;
+
+import com.amazonaws.AmazonWebServiceClient;
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -43,8 +50,8 @@ import com.amazonaws.auth.BasicAWSCredentials;
  * href="http://code.google.com/p/maven-gae-plugin">maven-gae-plugin</a>'s
  * source code.
  */
-public abstract class AbstractAWSMojo extends AbstractMojo implements
-		Contextualizable {
+public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
+		AbstractMojo implements Contextualizable {
 	private static final String SECURITY_DISPATCHER_CLASS_NAME = "org.sonatype.plexus.components.sec.dispatcher.SecDispatcher";
 
 	private static final List<String> LOG4J_LOGGERS = Arrays.asList(
@@ -248,4 +255,50 @@ public abstract class AbstractAWSMojo extends AbstractMojo implements
 	 * @parameter expression="${aws.secretKey}"
 	 */
 	protected abstract String getSecretKey();
+
+	protected void setupVersion() {
+		InputStream is = null;
+
+		try {
+			Properties properties = new Properties();
+
+			is = getClass().getResourceAsStream("/beanstalker-core.properties");
+
+			if (null != is) {
+				properties.load(is);
+
+				this.version = properties.getProperty("beanstalker.version");
+			}
+		} catch (Exception exc) {
+
+		} finally {
+			IOUtils.closeQuietly(is);
+		}
+	}
+
+	protected AbstractAWSMojo() {
+		setupVersion();
+	}
+
+	private void setupService() throws MojoExecutionException {
+		@SuppressWarnings("unchecked")
+		Class<S> serviceClass = (Class<S>) TypeUtil.getTypes(getClass())[0];
+
+		try {
+			this.service = serviceClass.getConstructor(AWSCredentials.class,
+					ClientConfiguration.class).newInstance(getAWSCredentials(),
+					getClientConfiguration());
+		} catch (Exception exc) {
+			throw new MojoExecutionException("Unable to create service", exc);
+		}
+	}
+
+	protected S service;
+	
+	public S getService() throws MojoExecutionException {
+		if (null == service)
+			setupService();
+		
+		return service;
+	}
 }

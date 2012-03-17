@@ -1,5 +1,7 @@
 package br.com.ingenieux.mojo.beanstalk.cmd.env.terminate;
 
+import org.apache.maven.plugin.AbstractMojoExecutionException;
+
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.BaseCommand;
 
@@ -26,8 +28,9 @@ public class TerminateEnvironmentCommand extends
 	 * 
 	 * @param parentMojo
 	 *          parent mojo
+	 * @throws AbstractMojoExecutionException 
 	 */
-	public TerminateEnvironmentCommand(AbstractBeanstalkMojo parentMojo) {
+	public TerminateEnvironmentCommand(AbstractBeanstalkMojo parentMojo) throws AbstractMojoExecutionException {
 		super(parentMojo);
 	}
 

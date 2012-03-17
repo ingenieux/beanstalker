@@ -1,6 +1,9 @@
 package br.com.ingenieux.mojo.beanstalk.cmd.env.update;
 
 import static org.apache.commons.lang.StringUtils.*;
+
+import org.apache.maven.plugin.AbstractMojoExecutionException;
+
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.BaseCommand;
 
@@ -27,8 +30,9 @@ public class UpdateEnvironmentCommand extends
 	 * 
 	 * @param parentMojo
 	 *          parent mojo
+	 * @throws AbstractMojoExecutionException 
 	 */
-	public UpdateEnvironmentCommand(AbstractBeanstalkMojo parentMojo) {
+	public UpdateEnvironmentCommand(AbstractBeanstalkMojo parentMojo) throws AbstractMojoExecutionException {
 		super(parentMojo);
 	}
 

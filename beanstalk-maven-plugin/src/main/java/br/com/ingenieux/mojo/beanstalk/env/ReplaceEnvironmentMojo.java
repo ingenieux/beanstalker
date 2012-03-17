@@ -18,8 +18,7 @@ import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.AbstractMojoExecutionException;
 
 import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesContext;
@@ -56,8 +55,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 	Integer timeoutMins;
 
 	@Override
-	protected Object executeInternal() throws MojoExecutionException,
-	    MojoFailureException {
+	protected Object executeInternal() throws AbstractMojoExecutionException {
 		/*
 		 * Is the desired cname not being used by other environments? If so, just
 		 * launch the environment
@@ -127,14 +125,10 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 	 * @param curEnvironmentId
 	 *          environment id
 	 * @param cnamePrefix
-	 * @throws MojoFailureException
-	 *           failure
-	 * @throws MojoExecutionException
-	 *           failure
+	 * @throws AbstractMojoExecutionException 
 	 */
 	protected void swapEnvironmentCNames(String newEnvironmentId,
-	    String curEnvironmentId, String cnamePrefix) throws MojoFailureException,
-	    MojoExecutionException {
+	    String curEnvironmentId, String cnamePrefix) throws AbstractMojoExecutionException {
 		getLog().info(
 		    "Swapping environment cnames " + newEnvironmentId + " and "
 		        + curEnvironmentId);
@@ -168,13 +162,10 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 	 * 
 	 * @param environmentId
 	 *          environment id to terminate
-	 * @throws MojoFailureException
-	 *           Failure
-	 * @throws MojoExecutionException
-	 *           Failure
+	 * @throws AbstractMojoExecutionException 
 	 */
 	protected void terminateAndWaitForEnvironment(String environmentId)
-	    throws MojoFailureException, MojoExecutionException {
+	    throws AbstractMojoExecutionException {
 		{
 			getLog().info("Terminating environmentId=" + environmentId);
 
@@ -206,13 +197,10 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 	 * @param environmentId
 	 *          environmentId to wait for
 	 * @return EnvironmentDescription in Ready state
-	 * @throws MojoFailureException
-	 *           Failure
-	 * @throws MojoExecutionException
-	 *           Failure
+	 * @throws AbstractMojoExecutionException 
 	 */
 	protected EnvironmentDescription waitForEnvironment(String environmentId)
-	    throws MojoFailureException, MojoExecutionException {
+	    throws AbstractMojoExecutionException {
 		getLog().info(
 		    "Waiting for environmentId " + environmentId
 		        + " to get into Ready state");

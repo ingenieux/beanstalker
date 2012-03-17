@@ -14,8 +14,7 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.AbstractMojoExecutionException;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.create.CreateEnvironmentCommand;
@@ -83,15 +82,14 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 	String templateName;
 
 	@Override
-	protected Object executeInternal() throws MojoExecutionException,
-	    MojoFailureException {
+	protected Object executeInternal() throws AbstractMojoExecutionException {
 		CreateEnvironmentResult result = createEnvironment(cnamePrefix);
 
 		return result;
 	}
 
 	protected CreateEnvironmentResult createEnvironment(String cnameToCreate)
-	    throws MojoFailureException, MojoExecutionException {
+	    throws AbstractMojoExecutionException {
 		String newEnvironmentName = getEnvironmentName(environmentName);
 
 		CreateEnvironmentContextBuilder builder = CreateEnvironmentContextBuilder

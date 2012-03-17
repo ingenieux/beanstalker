@@ -4,6 +4,7 @@ import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.maven.plugin.AbstractMojoExecutionException;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
@@ -35,8 +36,9 @@ public class WaitForEnvironmentCommand extends
 	 * 
 	 * @param parentMojo
 	 *          parent mojo
+	 * @throws AbstractMojoExecutionException 
 	 */
-	public WaitForEnvironmentCommand(AbstractBeanstalkMojo parentMojo) {
+	public WaitForEnvironmentCommand(AbstractBeanstalkMojo parentMojo) throws AbstractMojoExecutionException {
 		super(parentMojo);
 	}
 

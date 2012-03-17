@@ -1,5 +1,7 @@
 package br.com.ingenieux.mojo.beanstalk.cmd.env.swap;
 
+import org.apache.maven.plugin.AbstractMojoExecutionException;
+
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.BaseCommand;
 
@@ -24,8 +26,9 @@ public class SwapCNamesCommand extends BaseCommand<SwapCNamesContext, Object> {
 	 * 
 	 * @param parentMojo
 	 *          parent mojo
+	 * @throws AbstractMojoExecutionException 
 	 */
-	public SwapCNamesCommand(AbstractBeanstalkMojo parentMojo) {
+	public SwapCNamesCommand(AbstractBeanstalkMojo parentMojo) throws AbstractMojoExecutionException {
 		super(parentMojo);
 	}
 

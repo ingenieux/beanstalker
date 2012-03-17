@@ -14,8 +14,7 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.AbstractMojoExecutionException;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentCommand;
@@ -64,8 +63,7 @@ public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 	 */
 	String templateName;
 
-	protected Object executeInternal() throws MojoExecutionException,
-	    MojoFailureException {
+	protected Object executeInternal() throws AbstractMojoExecutionException {
 		UpdateEnvironmentContext context = UpdateEnvironmentContextBuilder
 		    .updateEnvironmentContext().withEnvironmentId(environmentId)//
 		    .withEnvironmentDescription(environmentDescription)//

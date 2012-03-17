@@ -14,8 +14,7 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.AbstractMojoExecutionException;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesCommand;
@@ -64,8 +63,7 @@ public class SwapEnvironmentCnamesMojo extends AbstractBeanstalkMojo {
 	String destinationEnvironmentId;
 
 	@Override
-	protected Object executeInternal() throws MojoExecutionException,
-	    MojoFailureException {
+	protected Object executeInternal() throws AbstractMojoExecutionException {
 		SwapCNamesContext context = SwapCNamesContextBuilder.swapCNamesContext()//
 		    .withSourceEnvironmentId(sourceEnvironmentId)//
 		    .withSourceEnvironmentName(sourceEnvironmentName)//

@@ -14,8 +14,7 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.AbstractMojoExecutionException;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.terminate.TerminateEnvironmentCommand;
@@ -42,8 +41,7 @@ public class TerminateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 	boolean terminateResources;
 
 	@Override
-	protected Object executeInternal() throws MojoExecutionException,
-	    MojoFailureException {
+	protected Object executeInternal() throws AbstractMojoExecutionException {
 		TerminateEnvironmentContext context = TerminateEnvironmentContextBuilder
 		    .terminateEnvironmentContext().withEnvironmentId(environmentId)
 		    .withEnvironmentName(environmentName)

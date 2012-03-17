@@ -1,5 +1,6 @@
 package br.com.ingenieux.mojo.beanstalk.cmd;
 
+import org.apache.maven.plugin.AbstractMojoExecutionException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
@@ -43,7 +44,7 @@ public abstract class BaseCommand<I, O> implements Command<I, O> {
 	 * @param parentMojo
 	 *          parent mojo
 	 */
-	protected BaseCommand(AbstractBeanstalkMojo parentMojo) {
+	protected BaseCommand(AbstractBeanstalkMojo parentMojo) throws AbstractMojoExecutionException {
 		this.parentMojo = parentMojo;
 
 		this.service = parentMojo.getService();

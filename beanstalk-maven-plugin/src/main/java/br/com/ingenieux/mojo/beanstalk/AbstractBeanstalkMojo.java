@@ -14,15 +14,12 @@ package br.com.ingenieux.mojo.beanstalk;
  * limitations under the License.
  */
 
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 
 import org.apache.commons.beanutils.BeanMap;
-import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
@@ -31,9 +28,7 @@ import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
 import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalkClient;
 import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
 
-public abstract class AbstractBeanstalkMojo extends AbstractAWSMojo {
-	protected AWSElasticBeanstalkClient service;
-	
+public abstract class AbstractBeanstalkMojo extends AbstractAWSMojo<AWSElasticBeanstalkClient> {
 	/**
 	 * AWS Access Key
 	 * 
@@ -57,30 +52,6 @@ public abstract class AbstractBeanstalkMojo extends AbstractAWSMojo {
 	protected String getSecretKey() {
 		return secretKey;
 	}
-	
-	protected AbstractBeanstalkMojo() {
-		InputStream is = null;
-		
-		try {
-			Properties properties = new Properties();
-			
-			is = AbstractBeanstalkMojo.class.getResourceAsStream("beanstalker.properties");
-			
-			if (null != is) {
-				properties.load(is);
-				
-				this.version = properties.getProperty("beanstalker.version");
-			}
-		} catch (Exception exc) {
-
-		} finally {
-			IOUtils.closeQuietly(is);
-		}
-	}
-
-	public AWSElasticBeanstalkClient getService() {
-		return service;
-	}
 
 	@Override
 	public final void execute() throws MojoExecutionException,
@@ -88,7 +59,6 @@ public abstract class AbstractBeanstalkMojo extends AbstractAWSMojo {
 		setupLogging();
 
 		awsCredentials = getAWSCredentials();
-		service = createService();
 
 		Object result = null;
 
@@ -106,11 +76,6 @@ public abstract class AbstractBeanstalkMojo extends AbstractAWSMojo {
 		}
 
 		displayResults(result);
-	}
-
-	AWSElasticBeanstalkClient createService() {
-		return new AWSElasticBeanstalkClient(awsCredentials,
-		    getClientConfiguration());
 	}
 
 	/**
