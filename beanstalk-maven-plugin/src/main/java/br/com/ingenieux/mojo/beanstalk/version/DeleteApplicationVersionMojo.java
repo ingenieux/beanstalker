@@ -16,6 +16,9 @@ package br.com.ingenieux.mojo.beanstalk.version;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.jfrog.maven.annomojo.annotations.MojoGoal;
+import org.jfrog.maven.annomojo.annotations.MojoParameter;
+import org.jfrog.maven.annomojo.annotations.MojoSince;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
@@ -28,33 +31,21 @@ import com.amazonaws.services.elasticbeanstalk.model.DeleteApplicationVersionReq
  * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_DeleteApplicationVersion.html"
  * >DeleteApplicationVersion API</a> call.
  * 
- * @goal delete-application-version
- * @since 0.1.0
  * @author Aldrin Leal
  */
+@MojoGoal("delete-application-version")
+@MojoSince("0.1.0")
 public class DeleteApplicationVersionMojo extends AbstractBeanstalkMojo {
-	/**
-	 * Beanstalk Application Name
-	 * 
-	 * @parameter expression="${beanstalk.applicationName}"
-	 *            default-value="${project.artifactId}"
-	 * @required
-	 */
-	String applicationName;
+	@MojoParameter(expression="${beanstalk.applicationName}", defaultValue="${project.artifactId}", required=true, description="Beanstalk Application Name")
+	protected String applicationName;
 
-	/**
-	 * Version Label to use. Defaults to Project Version
-	 * 
-	 * @parameter expression="${beanstalk.versionLabel}"
-	 *            default-value="${project.version}"
-	 */
+	@MojoParameter(expression="${beanstalk.versionLabel}", defaultValue="${project.version}")
 	String versionLabel;
 
 	/**
 	 * Delete the source bundle?
-	 * 
-	 * @parameter expression="${beanstalk.deleteSourceBundle}" default-value=false
 	 */
+	@MojoParameter(expression="${beanstalk.deleteSourceBundle}", defaultValue="false")
 	private boolean deleteSourceBundle;
 
 	@Override
@@ -66,7 +57,7 @@ public class DeleteApplicationVersionMojo extends AbstractBeanstalkMojo {
 		req.setDeleteSourceBundle(deleteSourceBundle);
 		req.setVersionLabel(versionLabel);
 
-		service.deleteApplicationVersion(req);
+		getService().deleteApplicationVersion(req);
 
 		return null;
 	}

@@ -16,6 +16,9 @@ package br.com.ingenieux.mojo.beanstalk.version;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.jfrog.maven.annomojo.annotations.MojoGoal;
+import org.jfrog.maven.annomojo.annotations.MojoParameter;
+import org.jfrog.maven.annomojo.annotations.MojoSince;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
@@ -32,66 +35,50 @@ import com.amazonaws.services.elasticbeanstalk.model.S3Location;
  * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_CreateApplicationVersion.html"
  * >CreateApplicationVersion API</a> call.
  * 
- * @since 0.1.0
- * @goal create-application-version
  */
+@MojoGoal("create-application-version")
+@MojoSince("0.1.0")
 public class CreateApplicationVersionMojo extends AbstractBeanstalkMojo {
 	/**
 	 * Beanstalk Application Name
-	 * 
-	 * @parameter expression="${beanstalk.applicationName}"
-	 *            default-value="${project.artifactId}"
-	 * @required
 	 */
+	@MojoParameter(expression="${beanstalk.applicationName}", defaultValue="${project.artifactId}", required=true)
 	String applicationName;
 
 	/**
 	 * Application Description
-	 * 
-	 * @parameter expression="${beanstalk.applicationDescription}"
-	 *            default-value="${project.name}"
 	 */
+	@MojoParameter(expression="${beanstalk.applicationDescription}", defaultValue="${project.name}")
 	String applicationDescription;
 
 	/**
 	 * Auto-Create Application? Defaults to true
-	 * 
-	 * @parameter expression="${beanstalk.autoCreate}" default-value=true
 	 */
+	@MojoParameter(expression="${beanstalk.autoCreateApplication}", defaultValue="true")
 	boolean autoCreateApplication;
 
 	/**
 	 * S3 Bucket
-	 * 
-	 * @parameter expression="${beanstalk.s3Bucket}"
-	 *            default-value="${project.artifactId}"
-	 * @required
 	 */
+	@MojoParameter(expression="${beanstalk.s3Bucket}", defaultValue="${project.artifactId}", required=true)
 	String s3Bucket;
 
 	/**
 	 * S3 Key
-	 * 
-	 * @parameter expression="${beanstalk.s3Key}"
-	 *            default-value="${project.build.finalName}.${project.packaging}"
-	 * @required
 	 */
+	@MojoParameter(expression="${beanstalk.s3Key}", defaultValue="${project.build.finalName}.${project.packaging}", required=true)
 	String s3Key;
 
 	/**
 	 * Version Label to use. Defaults to Project Version
-	 * 
-	 * @parameter expression="${beanstalk.versionLabel}"
-	 *            default-value="${project.version}"
-	 * @required
 	 */
+	@MojoParameter(expression="${beanstalk.versionLabel}", defaultValue="${project.version}", required=true)
 	String versionLabel;
 
 	/**
 	 * Skip when this versionLabel already exists?
-	 * 
-	 * @parameter expression="${beanstalk.skipExisting}" default-value=true
 	 */
+	@MojoParameter(expression="${beanstalk.skipExisting}", defaultValue="true")
 	boolean skipExisting;
 
 	protected Object executeInternal() throws MojoExecutionException {
@@ -119,7 +106,7 @@ public class CreateApplicationVersionMojo extends AbstractBeanstalkMojo {
 
 		request.setVersionLabel(versionLabel);
 
-		CreateApplicationVersionResult result = service
+		CreateApplicationVersionResult result = getService()
 				.createApplicationVersion(request);
 
 		return result.getApplicationVersion();
@@ -136,7 +123,7 @@ public class CreateApplicationVersionMojo extends AbstractBeanstalkMojo {
 		/*
 		 * Sends the request
 		 */
-		DescribeApplicationVersionsResult result = service
+		DescribeApplicationVersionsResult result = getService()
 				.describeApplicationVersions(davRequest);
 
 		/*

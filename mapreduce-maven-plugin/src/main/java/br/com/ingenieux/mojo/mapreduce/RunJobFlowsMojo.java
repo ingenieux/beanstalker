@@ -119,7 +119,7 @@ public class RunJobFlowsMojo extends AbstractMapreduceMojo {
 	@Override
 	protected Object executeInternal() throws MojoExecutionException,
 	    MojoFailureException {
-		return service.runJobFlow(getRequest());
+		return getService().runJobFlow(getRequest());
 	}
 
 	private RunJobFlowRequest getRequest() {

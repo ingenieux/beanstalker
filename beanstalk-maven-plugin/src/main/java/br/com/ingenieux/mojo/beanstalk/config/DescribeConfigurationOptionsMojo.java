@@ -16,6 +16,9 @@ package br.com.ingenieux.mojo.beanstalk.config;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.jfrog.maven.annomojo.annotations.MojoGoal;
+import org.jfrog.maven.annomojo.annotations.MojoParameter;
+import org.jfrog.maven.annomojo.annotations.MojoSince;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 
@@ -29,30 +32,26 @@ import com.amazonaws.services.elasticbeanstalk.model.OptionSpecification;
  * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_DescribeConfigurationOptions.html"
  * >DescribeConfigurationOptions API</a> call.
  * 
- * @since 0.2.0
- * @goal describe-configuration-options
  */
+@MojoGoal("describe-configuration-options")
+@MojoSince("0.2.0")
 public class DescribeConfigurationOptionsMojo extends AbstractNeedsEnvironmentMojo {
 	/**
 	 * Template Name
-	 * 
-	 * @parameter expression="${beanstalk.templateName}"
 	 */
+	@MojoParameter(expression="${beanstalk.templateName}", description="Template Name")
 	String templateName;
 
 	/**
 	 * Solution Stack Name
-	 * 
-	 * @parameter expression="${beanstalk.solutionStack}"
-	 *            default-value="32bit Amazon Linux running Tomcat 7"
 	 */
+	@MojoParameter(expression="${beanstalk.solutionStack}", defaultValue="32bit Amazon Linux running Tomcat 7")
 	String solutionStack;
 
 	/**
 	 * Option Specifications
-	 * 
-	 * @parameter
 	 */
+	@MojoParameter
 	OptionSpecification[] optionSpecifications;
 
 	protected Object executeInternal() throws MojoExecutionException,
@@ -65,6 +64,6 @@ public class DescribeConfigurationOptionsMojo extends AbstractNeedsEnvironmentMo
 		    .withTemplateName(templateName)//
 		;
 
-		return service.describeConfigurationOptions(req);
+		return getService().describeConfigurationOptions(req);
 	}
 }

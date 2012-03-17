@@ -16,6 +16,8 @@ package br.com.ingenieux.mojo.beanstalk.bundle;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.jfrog.maven.annomojo.annotations.MojoGoal;
+import org.jfrog.maven.annomojo.annotations.MojoSince;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
@@ -28,16 +30,16 @@ import com.amazonaws.services.elasticbeanstalk.model.CreateStorageLocationResult
  * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_CreateStorageLocation.html"
  * >CreateStorageLocation API</a> call.
  * 
- * @goal create-storage-location
- * @since 0.1.0
  * @author Aldrin Leal
  * 
  */
+@MojoGoal("create-storage-location")
+@MojoSince("0.1.0")
 public class CreateStorageLocationMojo extends AbstractBeanstalkMojo {
 	@Override
 	protected Object executeInternal() throws MojoExecutionException,
 	    MojoFailureException {
-		CreateStorageLocationResult result = service.createStorageLocation();
+		CreateStorageLocationResult result = getService().createStorageLocation();
 
 		return result;
 	}

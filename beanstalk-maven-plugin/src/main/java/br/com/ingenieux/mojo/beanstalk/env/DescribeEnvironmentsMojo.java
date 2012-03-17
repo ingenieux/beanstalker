@@ -16,6 +16,10 @@ package br.com.ingenieux.mojo.beanstalk.env;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.jfrog.maven.annomojo.annotations.MojoGoal;
+import org.jfrog.maven.annomojo.annotations.MojoParameter;
+import org.jfrog.maven.annomojo.annotations.MojoRequiresDirectInvocation;
+import org.jfrog.maven.annomojo.annotations.MojoSince;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
@@ -29,24 +33,18 @@ import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsRequest
  * >DescribeEnvironments API</a> call.
  * 
  * @author Aldrin Leal
- * @goal describe-environments
- * @since 0.1.0
- * @requiresDirectInvocation
  */
+@MojoGoal("describe-environments")
+@MojoSince("0.1.0")
+@MojoRequiresDirectInvocation
 public class DescribeEnvironmentsMojo extends AbstractBeanstalkMojo {
-	/**
-	 * Beanstalk Application Name
-	 * 
-	 * @parameter expression="${beanstalk.applicationName}"
-	 *            default-value="${project.artifactId}"
-	 */
-	String applicationName;
+	@MojoParameter(expression="${beanstalk.applicationName}", defaultValue="${project.artifactId}", required=true, description="Beanstalk Application Name")
+	protected String applicationName;
 
 	/**
 	 * Include Deleted?
-	 * 
-	 * @parameter expression="${beanstalk.includeDeleted}" default-value=false
 	 */
+	@MojoParameter(expression="${beanstalk.includeDeleted}")
 	boolean includeDeleted;
 
 	@Override
@@ -59,6 +57,6 @@ public class DescribeEnvironmentsMojo extends AbstractBeanstalkMojo {
 
 		// TODO add environmentNames / environmentIds / includeDeletedBackTo
 
-		return service.describeEnvironments(req);
+		return getService().describeEnvironments(req);
 	}
 }

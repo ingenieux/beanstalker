@@ -16,6 +16,10 @@ package br.com.ingenieux.mojo.beanstalk.env;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.jfrog.maven.annomojo.annotations.MojoGoal;
+import org.jfrog.maven.annomojo.annotations.MojoParameter;
+import org.jfrog.maven.annomojo.annotations.MojoRequiresDirectInvocation;
+import org.jfrog.maven.annomojo.annotations.MojoSince;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 
@@ -29,10 +33,10 @@ import com.amazonaws.services.elasticbeanstalk.model.UpdateEnvironmentRequest;
  * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_UpdateEnvironment.html"
  * >UpdateEnvironment API</a> call.
  * 
- * @since 0.2.2
- * @goal update-environment-options
- * @requiresDirectInvocation
  */
+@MojoGoal("update-environment-options")
+@MojoSince("0.2.2")
+@MojoRequiresDirectInvocation
 public class UpdateEnvironmentOptionsMojo extends AbstractNeedsEnvironmentMojo {
 	public enum WhatToSet {
 		description, optionSettings, templateName, versionLabel
@@ -40,9 +44,8 @@ public class UpdateEnvironmentOptionsMojo extends AbstractNeedsEnvironmentMojo {
 
 	/**
 	 * Configuration Option Settings
-	 * 
-	 * @parameter
 	 */
+	@MojoParameter
 	ConfigurationOptionSetting[] optionSettings;
 
 	/**
@@ -55,25 +58,20 @@ public class UpdateEnvironmentOptionsMojo extends AbstractNeedsEnvironmentMojo {
 
 	/**
 	 * Version Label to use. Defaults to Project Version
-	 * 
-	 * @parameter expression="${beanstalk.versionLabel}"
-	 *            default-value="${project.version}"
 	 */
+	@MojoParameter(expression="${beanstalk.versionLabel}", defaultValue="${project.version}")
 	String versionLabel;
 
 	/**
 	 * Template Name
-	 * 
-	 * @parameter expression="${beanstalk.templateName}"
 	 */
+	@MojoParameter(expression="${beanstalk.templateName}")
 	String templateName;
 
 	/**
 	 * What to set?
-	 * 
-	 * @parameter expression="${beanstalk.whatToSet}" default-value="versionLabel"
-	 * @required
 	 */
+	@MojoParameter(expression="${beanstalk.whatToSet}", defaultValue="versionLabel", required=true)
 	WhatToSet whatToSet;
 
 	protected Object executeInternal() throws MojoExecutionException,
@@ -95,6 +93,6 @@ public class UpdateEnvironmentOptionsMojo extends AbstractNeedsEnvironmentMojo {
 //			req.setOptionsToRemove(optionsToRemove)
 		}
 
-		return service.updateEnvironment(req);
+		return getService().updateEnvironment(req);
 	}
 }

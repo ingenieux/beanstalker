@@ -16,6 +16,10 @@ package br.com.ingenieux.mojo.beanstalk.dns;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.jfrog.maven.annomojo.annotations.MojoGoal;
+import org.jfrog.maven.annomojo.annotations.MojoParameter;
+import org.jfrog.maven.annomojo.annotations.MojoRequiresDirectInvocation;
+import org.jfrog.maven.annomojo.annotations.MojoSince;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
@@ -29,36 +33,24 @@ import com.amazonaws.services.elasticbeanstalk.model.CheckDNSAvailabilityResult;
  * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_CheckDNSAvailability.html"
  * >CheckDNSAvailability API</a> call.
  * 
- * @since 0.1.0
- * @goal check-availability
- * @requiresDirectInvocation
  */
+@MojoGoal("check-availability")
+@MojoSince("0.1.0")
+@MojoRequiresDirectInvocation
 public class CheckAvailabilityMojo extends AbstractBeanstalkMojo {
 	/**
 	 * DNS CName Prefix
-	 * 
-	 * @parameter expression="${beanstalk.cnamePrefix}"
-	 *            default-value="${project.artifactId}"
 	 */
+	@MojoParameter(expression="${beanstalk.cnamePrefix}", required=true)
 	String cnamePrefix;
-
-	/**
-	 * Issue a failure when existing?
-	 * 
-	 * @parameter expression="${failWhenExists}"
-	 */
-	boolean failWhenExists = false;
 
 	protected Object executeInternal() throws MojoExecutionException,
 	    MojoFailureException {
 		CheckDNSAvailabilityRequest checkDNSAvailabilityRequest = new CheckDNSAvailabilityRequest(
 		    cnamePrefix);
 
-		CheckDNSAvailabilityResult result = service
+		CheckDNSAvailabilityResult result = getService()
 		    .checkDNSAvailability(checkDNSAvailabilityRequest);
-
-		if (failWhenExists && !result.isAvailable())
-			throw new MojoFailureException("CNAME exists: " + cnamePrefix);
 
 		return result;
 	}

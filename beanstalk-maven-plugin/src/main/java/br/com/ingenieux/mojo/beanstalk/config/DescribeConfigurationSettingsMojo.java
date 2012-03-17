@@ -16,6 +16,9 @@ package br.com.ingenieux.mojo.beanstalk.config;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.jfrog.maven.annomojo.annotations.MojoGoal;
+import org.jfrog.maven.annomojo.annotations.MojoParameter;
+import org.jfrog.maven.annomojo.annotations.MojoSince;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 
@@ -28,16 +31,15 @@ import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettin
  * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_DescribeConfigurationSettings.html"
  * >DescribeConfigurationSettings API</a> call.
  * 
- * @since 0.2.0
- * @goal describe-configuration-settings
  */
+@MojoGoal("describe-configuration-settings")
+@MojoSince("0.2.0")
 public class DescribeConfigurationSettingsMojo extends
     AbstractNeedsEnvironmentMojo {
 	/**
 	 * Template Name
-	 * 
-	 * @parameter expression="${beanstalk.templateName}"
 	 */
+	@MojoParameter(expression="${beanstalk.templateName}", description="Template Name")
 	String templateName;
 
 	protected Object executeInternal() throws MojoExecutionException,
@@ -56,6 +58,6 @@ public class DescribeConfigurationSettingsMojo extends
 		    .withTemplateName(templateName)//
 		;
 
-		return service.describeConfigurationSettings(req);
+		return getService().describeConfigurationSettings(req);
 	}
 }

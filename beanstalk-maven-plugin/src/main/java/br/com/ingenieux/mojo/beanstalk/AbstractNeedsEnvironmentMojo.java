@@ -2,6 +2,8 @@ package br.com.ingenieux.mojo.beanstalk;
 
 import java.util.Collection;
 
+import org.jfrog.maven.annomojo.annotations.MojoParameter;
+
 import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsRequest;
 import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
 
@@ -21,35 +23,16 @@ import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
 
 public abstract class AbstractNeedsEnvironmentMojo extends
     AbstractBeanstalkMojo {
-	/**
-	 * Beanstalk Application Name
-	 * 
-	 * @parameter expression="${beanstalk.applicationName}"
-	 *            default-value="${project.artifactId}"
-	 * @required
-	 */
+	@MojoParameter(expression="${beanstalk.applicationName}", defaultValue="${project.artifactId}", required=true, description="Beanstalk Application Name")
 	protected String applicationName;
 
-	/**
-	 * Environment Name
-	 * 
-	 * @parameter expression="${beanstalk.environmentName}"
-	 */
+	@MojoParameter(expression="${beanstalk.environmentName}", description="Environment Name")
 	protected String environmentName;
 
-	/**
-	 * Environment Id
-	 * 
-	 * @parameter expression="${beanstalk.environmentId}"
-	 */
+	@MojoParameter(expression="${beanstalk.environmentId}", description="Environment Id")
 	protected String environmentId;
 
-	/**
-	 * Default Environment Name
-	 * 
-	 * @parameter expression="${beanstalk.defaultEnvironmentName}"
-	 *            default-value="default"
-	 */
+	@MojoParameter(expression="${beanstalk.defaultEnvironmentName}", defaultValue="default", description="Default Environment Name")
 	protected String defaultEnvironmentName;
 
 	@Override
@@ -105,6 +88,6 @@ public abstract class AbstractNeedsEnvironmentMojo extends
 		DescribeEnvironmentsRequest req = new DescribeEnvironmentsRequest()
 		    .withApplicationName(applicationName).withIncludeDeleted(false);
 
-		return service.describeEnvironments(req).getEnvironments();
+		return getService().describeEnvironments(req).getEnvironments();
 	}
 }

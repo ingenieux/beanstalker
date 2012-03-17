@@ -15,6 +15,9 @@ package br.com.ingenieux.mojo.beanstalk.version;
  */
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.jfrog.maven.annomojo.annotations.MojoGoal;
+import org.jfrog.maven.annomojo.annotations.MojoParameter;
+import org.jfrog.maven.annomojo.annotations.MojoSince;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
@@ -27,24 +30,23 @@ import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationVersions
  * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_DescribeApplicationVersions.html"
  * >DescribeApplicationVersions API</a> call.
  * 
- * @since 0.2.4
- * @goal describe-application-versions
  */
+@MojoGoal("describe-application-versions")
+@MojoSince("0.2.4")
 public class DescribeApplicationVersionsMojo extends AbstractBeanstalkMojo {
 	/**
 	 * Beanstalk Application Name
 	 * 
-	 * @parameter expression="${beanstalk.applicationName}"
-	 *            default-value="${project.artifactId}"
 	 */
-	String applicationName;
+	@MojoParameter(expression="${beanstalk.applicationName}", defaultValue="${project.artifactId}", required=true, description="Beanstalk Application Name")
+	protected String applicationName;
 
 	protected Object executeInternal() throws MojoExecutionException {
 		DescribeApplicationVersionsRequest describeApplicationVersionsRequest = new DescribeApplicationVersionsRequest();
 
 		describeApplicationVersionsRequest.setApplicationName(applicationName);
 
-		return service
+		return getService()
 		    .describeApplicationVersions(describeApplicationVersionsRequest);
 	}
 }

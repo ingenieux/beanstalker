@@ -16,6 +16,9 @@ package br.com.ingenieux.mojo.beanstalk.config;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.jfrog.maven.annomojo.annotations.MojoGoal;
+import org.jfrog.maven.annomojo.annotations.MojoRequiresDirectInvocation;
+import org.jfrog.maven.annomojo.annotations.MojoSince;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
@@ -26,17 +29,17 @@ import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
  * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_ListAvailableSolutionStacks.html"
  * >ListAvailableSolutionStacks API</a> call.
  * 
- * @goal list-stacks
- * @since 0.1.0
- * @requiresDirectInvocation
  * @author Aldrin Leal
  * 
  */
+@MojoGoal("list-stacks")
+@MojoSince("0.1.0")
+@MojoRequiresDirectInvocation
 public class ListStacksMojo extends AbstractBeanstalkMojo {
 	@Override
 	protected Object executeInternal() throws MojoExecutionException,
 	    MojoFailureException {
-		return service.listAvailableSolutionStacks();
+		return getService().listAvailableSolutionStacks();
 	}
 
 }

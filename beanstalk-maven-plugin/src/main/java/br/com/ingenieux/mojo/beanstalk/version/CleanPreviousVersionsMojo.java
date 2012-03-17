@@ -24,6 +24,8 @@ import java.util.ListIterator;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.jfrog.maven.annomojo.annotations.MojoGoal;
+import org.jfrog.maven.annomojo.annotations.MojoSince;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
@@ -36,11 +38,9 @@ import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
 
 /**
  * Deletes application versions, either by count and/or by date old
- * 
- * @goal clean-previous-versions
- * @since 0.2.2
- * @author Aldrin Leal
  */
+@MojoGoal("clean-previous-versions")
+@MojoSince("0.2.2")
 public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
 	/**
 	 * Beanstalk Application Name
@@ -95,10 +95,10 @@ public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
 		DescribeApplicationVersionsRequest describeApplicationVersionsRequest = new DescribeApplicationVersionsRequest()
 				.withApplicationName(applicationName);
 
-		DescribeApplicationVersionsResult appVersions = service
+		DescribeApplicationVersionsResult appVersions = getService()
 				.describeApplicationVersions(describeApplicationVersionsRequest);
 
-		DescribeEnvironmentsResult environments = service
+		DescribeEnvironmentsResult environments = getService()
 				.describeEnvironments();
 
 		List<ApplicationVersionDescription> appVersionList = new ArrayList<ApplicationVersionDescription>(
@@ -182,7 +182,7 @@ public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
 				.withVersionLabel(versionToRemove.getVersionLabel());
 
 		if (!dryRun) {
-			service.deleteApplicationVersion(req);
+			getService().deleteApplicationVersion(req);
 			deletedVersionsCount++;
 		}
 	}

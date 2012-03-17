@@ -19,6 +19,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.maven.plugin.AbstractMojoExecutionException;
+import org.jfrog.maven.annomojo.annotations.MojoGoal;
+import org.jfrog.maven.annomojo.annotations.MojoParameter;
+import org.jfrog.maven.annomojo.annotations.MojoSince;
 
 import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesContext;
@@ -38,8 +41,9 @@ import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
  * terminating when needed. It combines both create-environment,
  * wait-for-environment, swap-environment-cnames, and terminate-environment
  * 
- * @goal replace-environment
  */
+@MojoGoal("replace-environment")
+@MojoSince("0.2.0") // Best Guess Evar
 public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 	/**
 	 * 
@@ -49,9 +53,8 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 
 	/**
 	 * Minutes until timeout
-	 * 
-	 * @parameter expression="${beanstalk.timeoutMins}" default-value="20"
 	 */
+	@MojoParameter(expression="${beanstalk.timeoutMins}", defaultValue="20")
 	Integer timeoutMins;
 
 	@Override

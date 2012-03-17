@@ -15,6 +15,9 @@ package br.com.ingenieux.mojo.beanstalk.version;
  */
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.jfrog.maven.annomojo.annotations.MojoGoal;
+import org.jfrog.maven.annomojo.annotations.MojoParameter;
+import org.jfrog.maven.annomojo.annotations.MojoSince;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
@@ -28,33 +31,20 @@ import com.amazonaws.services.elasticbeanstalk.model.UpdateApplicationVersionRes
  * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_UpdateApplicationVersion.html"
  * >CreateApplicationVersion API</a> call.
  * 
- * @since 0.2.1
- * @goal update-application-version
  */
+@MojoGoal("update-application-version")
+@MojoSince("0.2.1")
 public class UpdateApplicationVersionMojo extends AbstractBeanstalkMojo {
-	/**
-	 * Beanstalk Application Name
-	 * 
-	 * @parameter expression="${beanstalk.applicationName}"
-	 *            default-value="${project.artifactId}"
-	 * @required
-	 */
+	@MojoParameter(expression="${beanstalk.applicationName}", defaultValue="${project.artifactId}", required=true, description="Beanstalk Application Name")
 	String applicationName;
 
 	/**
 	 * Application Description
-	 * 
-	 * @parameter expression="${beanstalk.applicationDescription}"
-	 *            default-value="${project.name}"
 	 */
+	@MojoParameter(expression="${beanstalk.applicationDescription}", defaultValue="${project.name}")
 	String applicationDescription;
 
-	/**
-	 * Version Label to use. Defaults to Project Version
-	 * 
-	 * @parameter expression="${beanstalk.versionLabel}"
-	 *            default-value="${project.version}"
-	 */
+	@MojoParameter(expression="${beanstalk.versionLabel}", defaultValue="${project.version}")
 	String versionLabel;
 
 	protected Object executeInternal() throws MojoExecutionException {
@@ -64,7 +54,7 @@ public class UpdateApplicationVersionMojo extends AbstractBeanstalkMojo {
 		request.setDescription(applicationDescription);
 		request.setVersionLabel(versionLabel);
 
-		UpdateApplicationVersionResult result = service
+		UpdateApplicationVersionResult result = getService()
 		    .updateApplicationVersion(request);
 
 		return result.getApplicationVersion();

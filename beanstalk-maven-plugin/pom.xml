@@ -23,6 +23,11 @@
 			<artifactId>beanstalker-common</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.jfrog.maven.annomojo</groupId>
+			<artifactId>maven-plugin-anno</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
@@ -69,7 +74,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-plugin-plugin</artifactId>
-				<version>2.6</version>
+				<version>2.9</version>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

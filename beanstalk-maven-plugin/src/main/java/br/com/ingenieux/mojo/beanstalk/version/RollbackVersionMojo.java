@@ -23,6 +23,9 @@ import java.util.ListIterator;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.jfrog.maven.annomojo.annotations.MojoGoal;
+import org.jfrog.maven.annomojo.annotations.MojoParameter;
+import org.jfrog.maven.annomojo.annotations.MojoSince;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 
@@ -37,24 +40,22 @@ import com.amazonaws.services.elasticbeanstalk.model.UpdateEnvironmentRequest;
 /**
  * Deletes application versions, either by count and/or by date old
  * 
- * @goal rollback-version
- * 
  * @author Aldrin Leal
  */
+@MojoGoal("rollback-version")
+@MojoSince("0.2.3")
 public class RollbackVersionMojo extends AbstractNeedsEnvironmentMojo {
 	/**
 	 * Simulate deletion changing algorithm?
 	 * 
-	 * @parameter expression="${beanstalk.dryRun}" default-value=true
 	 */
+	@MojoParameter(expression="${beanstalk.dryRun}", defaultValue="true")
 	boolean dryRun;
 
 	/**
 	 * Updates to the latest version instead?
-	 * 
-	 * @parameter expression="${beanstalk.latestVersionInstead}"
-	 *            default-value=false
 	 */
+	@MojoParameter(expression="${beanstalk.latestVersionInstead}")
 	boolean latestVersionInstead;
 
 	@Override
@@ -64,14 +65,14 @@ public class RollbackVersionMojo extends AbstractNeedsEnvironmentMojo {
 		DescribeApplicationVersionsRequest describeApplicationVersionsRequest = new DescribeApplicationVersionsRequest()
 		    .withApplicationName(applicationName);
 
-		DescribeApplicationVersionsResult appVersions = service
+		DescribeApplicationVersionsResult appVersions = getService()
 		    .describeApplicationVersions(describeApplicationVersionsRequest);
 
 		DescribeEnvironmentsRequest describeEnvironmentsRequest = new DescribeEnvironmentsRequest()
 		    .withApplicationName(applicationName).withEnvironmentIds(environmentId)
 		    .withEnvironmentNames(environmentName).withIncludeDeleted(false);
 
-		DescribeEnvironmentsResult environments = service
+		DescribeEnvironmentsResult environments = getService()
 		    .describeEnvironments(describeEnvironmentsRequest);
 
 		List<ApplicationVersionDescription> appVersionList = new ArrayList<ApplicationVersionDescription>(
@@ -139,6 +140,6 @@ public class RollbackVersionMojo extends AbstractNeedsEnvironmentMojo {
 		if (dryRun)
 			return null;
 
-		return service.updateEnvironment(request);
+		return getService().updateEnvironment(request);
 	}
 }

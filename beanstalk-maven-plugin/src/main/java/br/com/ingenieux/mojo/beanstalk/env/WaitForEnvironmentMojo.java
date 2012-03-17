@@ -13,6 +13,10 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import org.jfrog.maven.annomojo.annotations.MojoGoal;
+import org.jfrog.maven.annomojo.annotations.MojoParameter;
+import org.jfrog.maven.annomojo.annotations.MojoSince;
+
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext;
@@ -21,38 +25,32 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext
 /**
  * Waits for Environment Status to Change
  * 
- * @goal wait-for-environment
- * @since 0.2.2
  */
+@MojoGoal("wait-for-environment")
+@MojoSince("0.2.2")
 public class WaitForEnvironmentMojo extends AbstractBeanstalkMojo {
 	/**
 	 * Beanstalk Application Name
-	 * 
-	 * @parameter expression="${beanstalk.applicationName}"
-	 *            default-value="${project.artifactId}"
-	 * @required
-	 */
+	 */ 
+	@MojoParameter(expression="${beanstalk.applicationName}", defaultValue="${project.artifactId}", required=true, description="Beanstalk Application Name")
 	String applicationName;
 
 	/**
 	 * Minutes until timeout
-	 * 
-	 * @parameter expression="${beanstalk.timeoutMins}" default-value="20"
 	 */
+	@MojoParameter(expression="${beanstalk.timeoutMins}", defaultValue="20")
 	Integer timeoutMins;
 
 	/**
 	 * Status to Wait For
-	 * 
-	 * @parameter expression="${beanstalk.statusToWaitFor}" default-value="Ready"
 	 */
+	@MojoParameter(expression="${beanstalk.statusToWaitFor}", defaultValue="Ready")
 	String statusToWaitFor;
 
 	/**
 	 * DNS CName Prefix
-	 * 
-	 * @parameter expression="${beanstalk.cnamePrefix}"
 	 */
+	@MojoParameter(expression="${beanstalk.cnamePrefix}", defaultValue="${project.artifactId}")
 	String cnamePrefix;
 
 	@Override

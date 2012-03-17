@@ -15,6 +15,9 @@ package br.com.ingenieux.mojo.beanstalk.env;
  */
 
 import org.apache.maven.plugin.AbstractMojoExecutionException;
+import org.jfrog.maven.annomojo.annotations.MojoGoal;
+import org.jfrog.maven.annomojo.annotations.MojoParameter;
+import org.jfrog.maven.annomojo.annotations.MojoSince;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.create.CreateEnvironmentCommand;
@@ -31,54 +34,44 @@ import com.amazonaws.services.elasticbeanstalk.model.CreateEnvironmentResult;
  * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_CreateEnvironment.html"
  * >CreateEnvironment API</a> call.
  * 
- * @goal create-environment
- * @since 0.1.0
  */
+@MojoGoal("create-environment")
+@MojoSince("0.1.0")
 public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 	/**
 	 * DNS CName Prefix
-	 * 
-	 * @parameter expression="${beanstalk.cnamePrefix}"
-	 *            default-value="${project.artifactId}"
 	 */
+	@MojoParameter(expression="${beanstalk.cnamePrefix}", defaultValue="${project.artifactId}")
 	String cnamePrefix;
 
 	/**
 	 * Application Description
-	 * 
-	 * @parameter expression="${beanstalk.applicationDescription}"
-	 *            default-value="${project.name}"
 	 */
+	@MojoParameter(expression="${beanstalk.applicationDescription}", defaultValue="${project.name}")
 	String applicationDescription;
 
 	/**
 	 * Configuration Option Settings
-	 * 
-	 * @parameter
 	 */
+	@MojoParameter
 	ConfigurationOptionSetting[] optionSettings;
 
 	/**
 	 * Version Label to use. Defaults to Project Version
-	 * 
-	 * @parameter expression="${beanstalk.versionLabel}"
-	 *            default-value="${project.version}"
 	 */
+	@MojoParameter(expression="${beanstalk.versionLabel}", defaultValue="${project.version}", required=true)
 	String versionLabel;
 
 	/**
 	 * Solution Stack Name
-	 * 
-	 * @parameter expression="${beanstalk.solutionStack}"
-	 *            default-value="32bit Amazon Linux running Tomcat 7"
 	 */
+	@MojoParameter(expression="${beanstalk.solutionStack}", defaultValue="32bit Amazon Linux running Tomcat 7")
 	String solutionStack;
 
 	/**
 	 * Template Name
-	 * 
-	 * @parameter expression="${beanstalk.templateName}"
 	 */
+	@MojoParameter(expression="${beanstalk.templateName}")
 	String templateName;
 
 	@Override

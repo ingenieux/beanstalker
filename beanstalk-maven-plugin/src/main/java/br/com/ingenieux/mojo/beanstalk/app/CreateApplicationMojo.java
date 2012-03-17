@@ -15,6 +15,9 @@ package br.com.ingenieux.mojo.beanstalk.app;
  */
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.jfrog.maven.annomojo.annotations.MojoGoal;
+import org.jfrog.maven.annomojo.annotations.MojoParameter;
+import org.jfrog.maven.annomojo.annotations.MojoSince;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
@@ -28,25 +31,14 @@ import com.amazonaws.services.elasticbeanstalk.model.CreateApplicationResult;
  * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_CreateApplication.html"
  * >CreateApplication API</a> call.
  * 
- * @since 0.1.0
- * @goal create-application
  */
+@MojoGoal("create-application")
+@MojoSince("0.1.0")
 public class CreateApplicationMojo extends AbstractBeanstalkMojo {
-	/**
-	 * Beanstalk Application Name
-	 * 
-	 * @parameter expression="${beanstalk.applicationName}"
-	 *            default-value="${project.artifactId}"
-	 * @required
-	 */
+	@MojoParameter(expression="${beanstalk.applicationName}", defaultValue="${project.artifactId}", required=true, description="Beanstalk Application Name")
 	String applicationName;
 
-	/**
-	 * Application Description
-	 * 
-	 * @parameter expression="${beanstalk.applicationDescription}"
-	 *            default-value="${project.name}"
-	 */
+	@MojoParameter(expression="${beanstalk.applicationDescription}", defaultValue="${project.name}", description="Application Description")
 	String applicationDescription;
 
 	protected Object executeInternal() throws MojoExecutionException {
@@ -55,7 +47,7 @@ public class CreateApplicationMojo extends AbstractBeanstalkMojo {
 
 		request.setDescription(applicationDescription);
 
-		CreateApplicationResult result = service.createApplication(request);
+		CreateApplicationResult result = getService().createApplication(request);
 
 		return result;
 	}

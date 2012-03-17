@@ -15,6 +15,9 @@ package br.com.ingenieux.mojo.beanstalk.env;
  */
 
 import org.apache.maven.plugin.AbstractMojoExecutionException;
+import org.jfrog.maven.annomojo.annotations.MojoGoal;
+import org.jfrog.maven.annomojo.annotations.MojoParameter;
+import org.jfrog.maven.annomojo.annotations.MojoSince;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesCommand;
@@ -28,38 +31,35 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesContextBuilder;
  * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_SwapEnvironmentCNAMEs.html"
  * >SwapEnvironmentCNAMEs API</a> call.
  * 
- * @since 0.2.3
- * @goal swap-environment-cnames
  * @author Aldrin Leal
  * 
  */
+@MojoGoal("swap-environment-cnames")
+@MojoSince("0.2.3")
 public class SwapEnvironmentCnamesMojo extends AbstractBeanstalkMojo {
 	/**
 	 * Source Environment Name
-	 * 
-	 * @parameter expression="${beanstalk.sourceEnvironmentName}"
+	 * 	 
 	 */
+	@MojoParameter(expression="${beanstalk.sourceEnvironmentName}")
 	String sourceEnvironmentName;
 
 	/**
 	 * Source Environment Id
-	 * 
-	 * @parameter expression="${beanstalk.sourceEnvironmentId}"
 	 */
+	@MojoParameter(expression="${beanstalk.sourceEnvironmentId}")
 	String sourceEnvironmentId;
 
 	/**
 	 * Destination Environment Name
-	 * 
-	 * @parameter expression="${beanstalk.destinationEnvironmentName}"
 	 */
+	@MojoParameter(expression="${beanstalk.destinationEnvironmentName}")
 	String destinationEnvironmentName;
 
 	/**
 	 * Destination Environment Id
-	 * 
-	 * @parameter expression="${beanstalk.destinationEnvironmentId}"
 	 */
+	@MojoParameter(expression="${beanstalk.destinationEnvironmentId}")
 	String destinationEnvironmentId;
 
 	@Override

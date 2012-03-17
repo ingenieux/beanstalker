@@ -16,6 +16,10 @@ package br.com.ingenieux.mojo.beanstalk.env;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.jfrog.maven.annomojo.annotations.MojoGoal;
+import org.jfrog.maven.annomojo.annotations.MojoParameter;
+import org.jfrog.maven.annomojo.annotations.MojoRequiresDirectInvocation;
+import org.jfrog.maven.annomojo.annotations.MojoSince;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 
@@ -29,17 +33,15 @@ import com.amazonaws.services.elasticbeanstalk.model.RequestEnvironmentInfoReque
  * >RequestEnvironmentInfo API</a> call.
  * 
  * @author Aldrin Leal
- * @since 0.2.6
- * @goal request-environment-info
- * @requiresDirectInvocation
  */
+@MojoGoal("request-environment-info")
+@MojoRequiresDirectInvocation
+@MojoSince("0.2.6")
 public class RequestEnvironmentInfoMojo extends AbstractNeedsEnvironmentMojo {
 	/**
 	 * Type of information ro retrieve. Accepted: <code>tail</code>
-	 * 
-	 * @parameter expression="${beanstalk.infoType}" default-value="tail"
-	 * @required
 	 */
+	@MojoParameter(expression="${beanstalk.infoType}", defaultValue="tail", required=true)
 	private String infoType;
 
 	@Override
@@ -49,7 +51,7 @@ public class RequestEnvironmentInfoMojo extends AbstractNeedsEnvironmentMojo {
 		    .withEnvironmentId(environmentId).withEnvironmentName(environmentName)
 		    .withInfoType(infoType);
 
-		service.requestEnvironmentInfo(request);
+		getService().requestEnvironmentInfo(request);
 
 		return null;
 	}

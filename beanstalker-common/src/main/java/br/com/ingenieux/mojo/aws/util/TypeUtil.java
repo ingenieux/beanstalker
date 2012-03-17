@@ -1,22 +1,28 @@
 package br.com.ingenieux.mojo.aws.util;
 
 import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 
 public class TypeUtil {
-        private TypeUtil() {
-        }
+	private TypeUtil() {
+	}
 
-        public static Class<?> getRealClass(Class<?> c) {
-                while (c.getName().contains("$$"))
-                        c = c.getSuperclass();
-                return c;
-        }
+	public static Class<?> getRealClass(Class<?> c) {
+		while (c.getName().contains("$$"))
+			c = c.getSuperclass();
+		
+		return c;
+	}
 
-        public static Type[] getTypes(Class<?> c) {
-                Class<?> realClass = getRealClass(c);
+	public static Class<?> getServiceClass(Class<?> c) {
+		c = getRealClass(c);
+		Class<?> prevClass = c;
 
-                return ((ParameterizedType) realClass.getGenericSuperclass()).getActualTypeArguments();
-        }
+		while (0 == c.getTypeParameters().length) {
+			prevClass = c;
+			c = c.getSuperclass();
+		}
+		
+		return (Class<?>) ((ParameterizedType) prevClass.getGenericSuperclass()).getActualTypeArguments()[0];
+	}
 
 }

@@ -25,6 +25,9 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.jfrog.maven.annomojo.annotations.MojoGoal;
+import org.jfrog.maven.annomojo.annotations.MojoParameter;
+import org.jfrog.maven.annomojo.annotations.MojoSince;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
@@ -39,35 +42,26 @@ import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettin
 /**
  * Describes Available Configuration Templates
  * 
- * @goal describe-configuration-templates
- * 
- * @since 0.2.5
  * @author Aldrin Leal
  */
+@MojoGoal("describe-configuration-templates")
+@MojoSince("0.2.5")
 public class DescribeConfigurationTemplatesMojo extends AbstractBeanstalkMojo {
 	private static final String ENDL = System.getProperty("line.separator");
 
-	/**
-	 * Beanstalk Application Name
-	 * 
-	 * @parameter expression="${beanstalk.applicationName}"
-	 *            default-value="${project.artifactId}"
-	 * @required
-	 */
-	String applicationName;
+	@MojoParameter(expression="${beanstalk.applicationName}", defaultValue="${project.artifactId}", required=true, description="Beanstalk Application Name")
+	protected String applicationName;
 
 	/**
 	 * Configuration Template Name (Optional)
-	 * 
-	 * @parameter expression="${beanstalk.configurationTemplate}"
 	 */
+	@MojoParameter(expression="${beanstalk.configurationTemplate}")
 	String configurationTemplate;
 	
 	/**
 	 * Output file (Optional)
-	 * 
-	 * @parameter expression="${beanstalk.outputFile}"
 	 */
+	@MojoParameter(expression="${beanstalk.outputFile}")
 	File outputFile;
 
 	@Override
@@ -78,7 +72,7 @@ public class DescribeConfigurationTemplatesMojo extends AbstractBeanstalkMojo {
 		boolean bConfigurationTemplateDefined = StringUtils
 		    .isNotBlank(configurationTemplate);
 
-		DescribeApplicationsResult apps = service.describeApplications(req);
+		DescribeApplicationsResult apps = getService().describeApplications(req);
 
 		List<ApplicationDescription> applications = apps.getApplications();
 
@@ -110,7 +104,7 @@ public class DescribeConfigurationTemplatesMojo extends AbstractBeanstalkMojo {
 		    .withApplicationName(applicationName).withTemplateName(
 		        configTemplateName);
 
-		DescribeConfigurationSettingsResult configSettings = service.describeConfigurationSettings(req);
+		DescribeConfigurationSettingsResult configSettings = getService().describeConfigurationSettings(req);
 		
 		List<String> buf = new ArrayList<String>();
 		

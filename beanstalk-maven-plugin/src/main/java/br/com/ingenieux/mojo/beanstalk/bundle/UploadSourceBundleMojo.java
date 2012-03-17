@@ -18,6 +18,9 @@ import java.io.File;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.jfrog.maven.annomojo.annotations.MojoGoal;
+import org.jfrog.maven.annomojo.annotations.MojoParameter;
+import org.jfrog.maven.annomojo.annotations.MojoSince;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
@@ -26,34 +29,27 @@ import com.amazonaws.services.s3.model.PutObjectResult;
 
 /**
  * Uploads a packed war file to Amazon S3 for further Deployment.
- * 
- * @since 0.1.0
- * @goal upload-source-bundle
  */
+@MojoGoal("upload-source-bundle")
+@MojoSince("0.1.0")
 public class UploadSourceBundleMojo extends AbstractBeanstalkMojo {
 	/**
 	 * S3 Bucket
 	 * 
-	 * @parameter expression="${s3Bucket}" default-value="${project.artifactId}"
-	 * @required
 	 */
+	@MojoParameter(expression="${beanstalk.s3Bucket}", defaultValue="${project.artifactId}", required=true)
 	String s3Bucket;
 
 	/**
 	 * S3 Key
-	 * 
-	 * @parameter expression="${beanstalk.s3Key}"
-	 *            default-value="${project.build.finalName}.${project.packaging}"
-	 * @required
 	 */
+	@MojoParameter(expression="${beanstalk.s3Key}", defaultValue="${project.build.finalName}.${project.packaging}", required=true)
 	String s3Key;
 
 	/**
 	 * Artifact to Deploy
-	 * 
-	 * @parameter expression=
-	 *            "${project.build.directory}/${project.build.finalName}.${project.packaging}"
 	 */
+	@MojoParameter(expression="${project.build.directory}/${project.build.finalName}.${project.packaging}")
 	File artifactFile;
 
 	protected Object executeInternal() throws MojoExecutionException,

@@ -3,9 +3,11 @@ package br.com.ingenieux.mojo.aws;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
@@ -21,6 +23,7 @@ import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.context.Context;
 import org.codehaus.plexus.context.ContextException;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Contextualizable;
+import org.jfrog.maven.annomojo.annotations.MojoParameter;
 
 import br.com.ingenieux.mojo.aws.util.TypeUtil;
 
@@ -65,13 +68,7 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 	 */
 	private PlexusContainer container;
 
-	/**
-	 * The Maven settings reference.
-	 * 
-	 * @parameter expression="${settings}"
-	 * @required
-	 * @readonly
-	 */
+	@MojoParameter(expression="${settings}", required=true, readonly=true, description="Maven Settings Reference")
 	protected Settings settings;
 
 	/**
@@ -79,29 +76,13 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 	 */
 	protected AWSCredentials awsCredentials;
 
-	/**
-	 * The server id in maven settings.xml to use for AWS Services Credentials
-	 * (accessKey / secretKey)
-	 * 
-	 * If password present in settings "--passin" is set automatically.
-	 * 
-	 * @parameter expression="${beanstalk.serverId}"
-	 *            default-value="aws.amazon.com"
-	 */
+	@MojoParameter(expression="${beanstalk.serverId}", defaultValue="aws.amazon.com", description="The server id in maven settings.xml to use for AWS Services Credentials (accessKey / secretKey)")
 	protected String serverId;
 
-	/**
-	 * Verbose Logging?
-	 * 
-	 * @parameter expression="${beanstalk.verbose}" default-value=false
-	 */
+	@MojoParameter(expression="${beanstalk.verbose}", defaultValue="false", description="Verbose Logging?")
 	protected boolean verbose;
 
-	/**
-	 * Ignore Exceptions?
-	 * 
-	 * @parameter expression="${beanstalk.ignoreExceptions}" default-value=false
-	 */
+	@MojoParameter(expression="${beanstalk.ignoreExceptions}", defaultValue="false", description="Ignore Exceptions?")
 	protected boolean ignoreExceptions;
 
 	protected String version = "?";
@@ -242,19 +223,19 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 			Logger.getLogger(logger).setLevel(levelToSet);
 	}
 
-	/**
-	 * AWS Access Key
-	 * 
-	 * @parameter expression="${aws.accessKey}"
-	 */
-	protected abstract String getAccessKey();
+	@MojoParameter(expression="${aws.accessKey}", description="AWS Access Key")
+	private String accessKey;
 
-	/**
-	 * AWS Secret Key
-	 * 
-	 * @parameter expression="${aws.secretKey}"
-	 */
-	protected abstract String getSecretKey();
+	protected String getAccessKey() {
+		return accessKey;
+	}
+
+	@MojoParameter(expression="${aws.secretKey}", description="AWS Secret Key")
+	private String secretKey;
+
+	protected String getSecretKey() {
+		return secretKey;
+	}
 
 	protected void setupVersion() {
 		InputStream is = null;
@@ -282,8 +263,8 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 
 	private void setupService() throws MojoExecutionException {
 		@SuppressWarnings("unchecked")
-		Class<S> serviceClass = (Class<S>) TypeUtil.getTypes(getClass())[0];
-
+		Class<S> serviceClass = (Class<S>) TypeUtil.getServiceClass(getClass());
+		
 		try {
 			this.service = serviceClass.getConstructor(AWSCredentials.class,
 					ClientConfiguration.class).newInstance(getAWSCredentials(),
@@ -293,12 +274,109 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 		}
 	}
 
-	protected S service;
+	private S service;
 	
-	public S getService() throws MojoExecutionException {
-		if (null == service)
-			setupService();
+	public S getService() {
+		if (null == service) {
+			try {
+				setupService();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
 		
 		return service;
 	}
+
+	@Override
+	public final void execute() throws MojoExecutionException,
+			MojoFailureException {
+		setupLogging();
+
+		Object result = null;
+
+		try {
+
+			configure();
+
+			result = executeInternal();
+
+			getLog().info("SUCCESS");
+		} catch (Exception e) {
+			getLog().warn("FAILURE", e);
+
+			handleException(e);
+			return;
+		}
+
+		displayResults(result);
+	}
+
+	/**
+	 * Extension Point - Meant for others to declare and redefine variables as
+	 * needed.
+	 * 
+	 */
+	protected void configure() {
+	}
+
+	public void handleException(Exception e) throws MojoExecutionException,
+			MojoFailureException {
+		/*
+		 * This is actually the feature I really didn't want to have written,
+		 * ever.
+		 * 
+		 * Thank you for reading this comment.
+		 */
+		if (ignoreExceptions) {
+			getLog().warn(
+					"Ok. ignoreExceptions is set to true. No result for you!");
+
+			return;
+		} else if (MojoExecutionException.class.isAssignableFrom(e.getClass())) {
+			throw (MojoExecutionException) e;
+		} else if (MojoFailureException.class.isAssignableFrom(e.getClass())) {
+			throw (MojoFailureException) e;
+		} else {
+			throw new MojoFailureException("Failed", e);
+		}
+	}
+
+	protected void displayResults(Object result) {
+		if (null == result)
+			return;
+
+		BeanMap beanMap = new BeanMap(result);
+
+		for (Iterator<?> itProperty = beanMap.keyIterator(); itProperty
+				.hasNext();) {
+			String propertyName = "" + itProperty.next();
+			Object propertyValue = beanMap.get(propertyName);
+
+			if ("class".equals(propertyName))
+				continue;
+
+			if (null == propertyValue)
+				continue;
+
+			Class<?> propertyClass = null;
+
+			try {
+				propertyClass = beanMap.getType(propertyName);
+			} catch (Exception e) {
+				getLog().warn("Failure on property " + propertyName, e);
+			}
+
+			if (null == propertyClass) {
+				getLog().info(propertyName + ": " + propertyValue);
+			} else {
+				getLog().info(
+						propertyName + ": " + propertyValue + " [class: "
+								+ propertyClass.getSimpleName() + "]");
+			}
+		}
+	}
+
+	protected abstract Object executeInternal() throws Exception;
+
 }

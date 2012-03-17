@@ -15,6 +15,9 @@ package br.com.ingenieux.mojo.beanstalk.env;
  */
 
 import org.apache.maven.plugin.AbstractMojoExecutionException;
+import org.jfrog.maven.annomojo.annotations.MojoGoal;
+import org.jfrog.maven.annomojo.annotations.MojoParameter;
+import org.jfrog.maven.annomojo.annotations.MojoSince;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentCommand;
@@ -30,37 +33,32 @@ import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
  * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_UpdateEnvironment.html"
  * >UpdateEnvironment API</a> call.
  * 
- * @since 0.2.0
- * @goal update-environment
  */
+@MojoGoal("update-environment")
+@MojoSince("0.2.0")
 public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 	/**
 	 * Version Label to use. Defaults to Project Version
-	 * 
-	 * @parameter expression="${beanstalk.versionLabel}"
-	 *            default-value="${project.version}"
 	 */
+	@MojoParameter(expression="${beanstalk.versionLabel}", defaultValue="${project.version}")
 	String versionLabel;
 
 	/**
 	 * Application Description
-	 * 
-	 * @parameter expression="${beanstalk.environmentDescription}"
 	 */
+	@MojoParameter(expression="${beanstalk.environmentDescription}")
 	String environmentDescription;
 
 	/**
 	 * Configuration Option Settings
-	 * 
-	 * @parameter
 	 */
+	@MojoParameter
 	ConfigurationOptionSetting[] optionSettings;
 
 	/**
 	 * Template Name
-	 * 
-	 * @parameter expression="${beanstalk.templateName}"
 	 */
+	@MojoParameter(expression="${beanstalk.templateName}")
 	String templateName;
 
 	protected Object executeInternal() throws AbstractMojoExecutionException {

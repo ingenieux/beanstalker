@@ -43,9 +43,9 @@ public class DescribeJobFlowsMojo extends AbstractMapreduceMojo {
 		DescribeJobFlowsRequest req = getRequest();
 
 		if (null != req)
-			return service.describeJobFlows(req);
+			return getService().describeJobFlows(req);
 
-		return service.describeJobFlows();
+		return getService().describeJobFlows();
 	}
 
 	DescribeJobFlowsRequest getRequest() {

@@ -19,6 +19,9 @@ import java.util.Arrays;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.jfrog.maven.annomojo.annotations.MojoGoal;
+import org.jfrog.maven.annomojo.annotations.MojoParameter;
+import org.jfrog.maven.annomojo.annotations.MojoSince;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 import br.com.ingenieux.mojo.beanstalk.ConfigurationTemplate;
@@ -29,33 +32,27 @@ import com.amazonaws.services.elasticbeanstalk.model.CreateConfigurationTemplate
 /**
  * Describes Available Configuration Templates
  * 
- * @goal create-configuration-templates
- * 
  * @author Aldrin Leal
- * @since 0.2.5
  */
+@MojoGoal("create-configuration-templates")
+@MojoSince("0.2.5")
 public class CreateConfigurationTemplateMojo extends AbstractBeanstalkMojo {
 	/**
 	 * Beanstalk Application Name
-	 * 
-	 * @parameter expression="${beanstalk.applicationName}"
-	 *            default-value="${project.artifactId}"
-	 * @required
 	 */
+	@MojoParameter(expression="${beanstalk.applicationName}", defaultValue="${project.artifactId}", required=true, description="Beanstalk Application Name")
 	String applicationName;
 
 	/**
 	 * Configuration Template Name (Optional)
-	 * 
-	 * @parameter expression="${beanstalk.configurationTemplate}"
 	 */
+	@MojoParameter(expression="${beanstalk.configurationTemplate}")
 	String configurationTemplate;
 	
 	/**
 	 * Configuration Templates
-	 * 
-	 * @parameter
 	 */
+	@MojoParameter
 	ConfigurationTemplate[] configurationTemplates;
 	
 	@Override
@@ -84,7 +81,7 @@ public class CreateConfigurationTemplateMojo extends AbstractBeanstalkMojo {
 		req.setSolutionStackName(template.getSolutionStack());
 		req.setOptionSettings(Arrays.asList(template.getOptionSettings()));
 		
-		return service.createConfigurationTemplate(req);
+		return getService().createConfigurationTemplate(req);
   }
 
 	private ConfigurationTemplate getConfigurationTemplate(String id) {
