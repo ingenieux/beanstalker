@@ -22,6 +22,7 @@ import org.apache.commons.lang.text.StrSubstitutor;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 
+import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
 import br.com.ingenieux.mojo.beanstalk.app.CreateApplicationMojo;
 import br.com.ingenieux.mojo.beanstalk.bundle.UploadSourceBundleMojo;
 import br.com.ingenieux.mojo.beanstalk.config.CreateConfigurationTemplateMojo;
@@ -132,7 +133,7 @@ public abstract class BeanstalkTestBase extends AbstractMojoTestCase {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected <T extends AbstractBeanstalkMojo> T getMojo(Class<T> mojoClazz)
+	protected <T extends AbstractAWSMojo> T getMojo(Class<T> mojoClazz)
 	    throws Exception {
 		File testPom = this.getBasePom("pom.xml");
 

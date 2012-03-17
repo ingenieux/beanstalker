@@ -23,38 +23,41 @@ import java.util.Properties;
 
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.settings.Proxy;
 
-import com.amazonaws.ClientConfiguration;
+import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
+
 import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalkClient;
 import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
 
 public abstract class AbstractBeanstalkMojo extends AbstractAWSMojo {
-	private static final List<String> LOG4J_LOGGERS = Arrays.asList(
-	    "com.amazonaws", "org.apache.http");
-
-	/**
-	 * Verbose Logging?
-	 * 
-	 * @parameter expression="${beanstalk.verbose}" default-value=false
-	 */
-	protected boolean verbose;
-
-	/**
-	 * Ignore Exceptions?
-	 * 
-	 * @parameter expression="${beanstalk.ignoreExceptions}" default-value=false
-	 */
-	protected boolean ignoreExceptions;
-
 	protected AWSElasticBeanstalkClient service;
 	
-	protected String version = "?";
+	/**
+	 * AWS Access Key
+	 * 
+	 * @parameter expression="${aws.accessKey}"
+	 */
+	private String accessKey;
+	
+	@Override
+	protected String getAccessKey() {
+		return accessKey;
+	}
 
+	/**
+	 * AWS Secret Key
+	 * 
+	 * @parameter expression="${aws.secretKey}"
+	 */
+	private String secretKey;
+	
+	@Override
+	protected String getSecretKey() {
+		return secretKey;
+	}
+	
 	protected AbstractBeanstalkMojo() {
 		InputStream is = null;
 		
@@ -110,26 +113,6 @@ public abstract class AbstractBeanstalkMojo extends AbstractAWSMojo {
 		    getClientConfiguration());
 	}
 
-	protected ClientConfiguration getClientConfiguration() {
-		ClientConfiguration clientConfiguration = new ClientConfiguration()
-		    .withUserAgent(getUserAgent());
-
-		if (null != super.settings && null != settings.getActiveProxy()) {
-			Proxy proxy = settings.getActiveProxy();
-
-			clientConfiguration.setProxyHost(proxy.getHost());
-			clientConfiguration.setProxyUsername(proxy.getUsername());
-			clientConfiguration.setProxyPassword(proxy.getPassword());
-			clientConfiguration.setProxyPort(proxy.getPort());
-		}
-
-		return clientConfiguration;
-	}
-
-	String getUserAgent() {
-	  return String.format("Apache Maven/3.0 (ingenieux beanstalker/%s; http://beanstalker.ingenieux.com.br)", version);
-  }
-
 	/**
 	 * Extension Point - Meant for others to declare and redefine variables as
 	 * needed.
@@ -156,14 +139,6 @@ public abstract class AbstractBeanstalkMojo extends AbstractAWSMojo {
 		} else {
 			throw new MojoFailureException("Failed", e);
 		}
-	}
-
-	protected final void setupLogging() {
-
-		Level levelToSet = (verbose ? Level.DEBUG : Level.OFF);
-
-		for (String logger : LOG4J_LOGGERS)
-			Logger.getLogger(logger).setLevel(levelToSet);
 	}
 
 	protected void displayResults(Object result) {
