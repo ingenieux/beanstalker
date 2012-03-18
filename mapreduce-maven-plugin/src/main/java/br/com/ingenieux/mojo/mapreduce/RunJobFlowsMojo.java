@@ -15,6 +15,8 @@ package br.com.ingenieux.mojo.mapreduce;
  */
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.jfrog.maven.annomojo.annotations.MojoGoal;
+import org.jfrog.maven.annomojo.annotations.MojoParameter;
 
 import com.amazonaws.services.elasticmapreduce.model.HadoopJarStepConfig;
 import com.amazonaws.services.elasticmapreduce.model.JobFlowInstancesConfig;
@@ -24,96 +26,80 @@ import com.amazonaws.services.elasticmapreduce.model.StepConfig;
 /**
  * Launches a new Job Flow
  * 
- * @goal run-job-flow
  * @author Aldrin Leal
  */
+@MojoGoal("run-job-flow")
 public class RunJobFlowsMojo extends AbstractMapreduceMojo {
 	/**
 	 * Job Name
-	 * 
-	 * @parameter expr ="${mapreduce.jobName}"
-	 *            default-value="${project.artifactId}"
 	 */
+	@MojoParameter(expression="${mapreduce.jobName}", defaultValue="${project.artifactId}")
 	String jobName;
 
 	/**
 	 * Log URI (S3 Bucket Location. Starts with "s3://bucket/[path]")
-	 * 
-	 * @parameter expr ="${mapreduce.logUri}"
 	 */
+	@MojoParameter(expression="${mapreduce.logUri}")
 	String logUri;
 
 	/**
 	 * Termination Protected?
-	 * 
-	 * @parameter expr ="${mapreduce.terminationProtected}" default-value=false
 	 */
+	@MojoParameter(expression="${mapreduce.terminationProtected}", defaultValue="false")
 	Boolean terminationProtected;
 
 	/**
 	 * Slave Type
-	 * 
-	 * @parameter expr ="${mapreduce.slaveType}" default-value="m1.small"
 	 */
+	@MojoParameter(expression="${mapreduce.slaveType}", defaultValue="m1.small")
 	String slaveType;
 
 	/**
 	 * Master Type
-	 * 
-	 * @parameter expr ="${mapreduce.masterType}" default-value="m1.small"
 	 */
+	@MojoParameter(expression="${mapreduce.masterType}", defaultValue="m1.small")
 	String masterType;
 
 	/**
 	 * Keep Job Flow Alive?
-	 * 
-	 * @parameter expr ="${mapreduce.keepJobFlowAlive}" default-value=false
 	 */
+	@MojoParameter(expression="${mapreduce.keepJobFlowAlive}", defaultValue="false")
 	Boolean keepJobFlowAlive;
 
 	/**
 	 * Instance count
-	 * 
-	 * @parameter expr ="${mapreduce.instances}" default-value=2
 	 */
+	@MojoParameter(expression="${mapreduce.instances}", defaultValue="2")
 	Integer instances;
 
 	/**
 	 * Hadoop Version
-	 * 
-	 * @parameter expr ="${mapreduce.hadoopVersion}" default-value="0.20"
 	 */
+	@MojoParameter(expression="${mapreduce.hadoopVersion}", defaultValue="0.20")
 	String hadoopVersion;
 
 	/**
 	 * EC2 Key name
-	 * 
-	 * @parameter expr ="${mapreduce.ec2KeyName}"
 	 */
+	@MojoParameter(expression="${mapreduce.ec2KeyName}")
 	String ec2KeyName;
 
 	/**
 	 * Path
-	 * 
-	 * @parameter
-	 * @required
 	 */
+	@MojoParameter(required=true)
 	String path;
 
 	/**
 	 * Jar Arguments
-	 * 
-	 * @parameter
-	 * @required
 	 */
+	@MojoParameter(required=true)
 	String[] args;
 
 	/**
 	 * Hadoop Main Class
-	 * 
-	 * @parameter expr ="${mapreduce.mainClass}"
-	 * @required
 	 */
+	@MojoParameter(expression="${mapreduce.mainClass}", required=true)
 	String mainClass;
 
 	@Override

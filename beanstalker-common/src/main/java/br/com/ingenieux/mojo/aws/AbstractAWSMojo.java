@@ -49,6 +49,8 @@ import com.amazonaws.auth.BasicAWSCredentials;
 /**
  * Represents a Mojo which keeps AWS passwords
  * 
+ * TODO: Refactor into tiny, delegated classes. Currently its a huge bloat, but it works, right?
+ * 
  * Parts of this class come from <a
  * href="http://code.google.com/p/maven-gae-plugin">maven-gae-plugin</a>'s
  * source code.
@@ -216,7 +218,6 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 	}
 
 	protected final void setupLogging() {
-
 		Level levelToSet = (verbose ? Level.DEBUG : Level.OFF);
 
 		for (String logger : LOG4J_LOGGERS)

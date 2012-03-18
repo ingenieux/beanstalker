@@ -152,8 +152,8 @@
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.jfrog.maven.annomojo</groupId>
-				<artifactId>maven-plugin-anno</artifactId>
+				<groupId>br.com.ingenieux.maven.annomojo</groupId>
+				<artifactId>org.jfrog.maven.maven-plugin-anno</artifactId>
 				<version>1.4.1</version>
 			</dependency>
 			<dependency>
@@ -193,10 +193,16 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-plugin-plugin</artifactId>
 					<version>2.9</version>
+					<inherited>true</inherited>
+					<configuration>
+						<extractors>
+							<extractor>javaanno</extractor>
+						</extractors>
+					</configuration>
 					<dependencies>
 						<dependency>
-							<groupId>org.jfrog.maven.annomojo</groupId>
-							<artifactId>maven-plugin-tools-anno</artifactId>
+							<groupId>br.com.ingenieux.maven.annomojo</groupId>
+							<artifactId>org.jfrog.maven.maven-plugin-tools-anno</artifactId>
 							<version>1.4.1</version>
 							<scope>runtime</scope>
 						</dependency>
