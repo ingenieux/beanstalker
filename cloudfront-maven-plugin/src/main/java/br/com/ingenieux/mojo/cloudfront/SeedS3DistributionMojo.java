@@ -54,7 +54,8 @@ public class SeedS3DistributionMojo extends AbstractCloudfrontMojo {
 	protected void fireDistributionExecuted(Distribution d) {
 	}
 
-	protected void executeOnCustomDistribution(Distribution d) {
+	protected void executeOnCustomDistribution(Distribution d)
+			throws IOException {
 		getLog().warn(
 				"Distribution id "
 						+ d.id
