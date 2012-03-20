@@ -9,7 +9,9 @@
 		<version>0.2.7-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
+	
 	<artifactId>simpledb-maven-plugin</artifactId>
+	<packaging>maven-plugin</packaging>
 
 	<scm>
 		<connection>scm:hg:http://bitbucket.org/aldrinleal/beanstalker</connection>
