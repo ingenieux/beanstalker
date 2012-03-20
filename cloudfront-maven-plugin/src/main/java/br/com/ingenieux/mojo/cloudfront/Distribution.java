@@ -1,5 +1,7 @@
 package br.com.ingenieux.mojo.cloudfront;
 
+import static org.apache.commons.lang.StringUtils.isNotBlank;
+
 
 public class Distribution {
 	String id;
@@ -10,5 +12,13 @@ public class Distribution {
 
 	String includes;
 
-	String excludes;
+	String excludes = "**/.svn/**";
+
+	public boolean isCustomDistribution() {
+		return !isS3Distribution();
+	}
+
+	public boolean isS3Distribution() {
+		return isNotBlank(s3Bucket);
+	}
 }

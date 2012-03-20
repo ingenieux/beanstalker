@@ -18,19 +18,44 @@ import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
 import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
 import com.amazonaws.services.s3.AmazonS3Client;
 
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * An Abstract Mojo for Cloudfront
+ **/
 public abstract class AbstractCloudfrontMojo extends
 		AbstractAWSMojo<AmazonCloudFrontClient> {
-
+	/**
+	 * Declares which distributions this mojo will address.
+	 */
 	@MojoParameter
 	protected Distribution[] distributions;
+
+	/**
+	 * In which directory where to look for resources to upload (s3
+	 * distributions) or compare against (custom)?
+	 */
 	@MojoParameter(expression = "${project.build.directory}/${project.build.finalName}", required = true)
 	protected File webappDirectory;
+
 	protected AmazonS3Client s3Client;
 
 	@Override
 	protected void configure() {
 		super.configure();
-	
+
 		try {
 			this.s3Client = new AmazonS3Client(getAWSCredentials(),
 					getClientConfiguration());
@@ -40,22 +65,24 @@ public abstract class AbstractCloudfrontMojo extends
 	}
 
 	@SuppressWarnings("unchecked")
-	protected List<String> fetchLocalDistributionFiles(Distribution d) throws IOException {
+	protected List<String> fetchLocalDistributionFiles(Distribution d)
+			throws IOException {
 		List<String> filenames = FileUtils.getFileNames(webappDirectory,
 				d.includes, d.excludes, false);
 
 		if (filenames.size() > 1000)
 			getLog().warn(
 					"Wait! We still don't support > 1000 files. **USE AT YOUR OWN PERIL**");
-	
+
 		ListIterator<String> listIterator = filenames.listIterator();
 		while (listIterator.hasNext()) {
 			String f = listIterator.next();
 			String normalized = stripStart(
 					FileUtils.normalize(f).replace('\\', '/'), "/");
-	
+
 			listIterator.set(normalized);
 		}
+
 		return filenames;
 	}
 

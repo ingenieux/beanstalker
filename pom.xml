@@ -84,9 +84,7 @@
 		<module>mapreduce-maven-plugin</module>
 		<module>beanstalker-common</module>
 		<module>cloudfront-maven-plugin</module>
-		<!-- 
 		<module>simpledb-maven-plugin</module>
-		-->
 	</modules>
 
 	<dependencyManagement>

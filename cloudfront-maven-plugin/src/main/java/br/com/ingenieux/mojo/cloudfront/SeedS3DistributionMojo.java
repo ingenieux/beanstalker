@@ -1,7 +1,5 @@
 package br.com.ingenieux.mojo.cloudfront;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -38,9 +36,7 @@ public class SeedS3DistributionMojo extends AbstractCloudfrontMojo {
 	}
 
 	protected void executeDistribution(Distribution d) throws Exception {
-		boolean s3P = isNotBlank(d.s3Bucket);
-
-		if (s3P) {
+		if (d.isS3Distribution()) {
 			executeOnS3Distribution(d);
 		} else {
 			executeOnCustomDistribution(d);

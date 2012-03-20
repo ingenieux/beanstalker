@@ -30,8 +30,6 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 public class UpdateDistributionMojo extends SeedS3DistributionMojo {
 	private final HttpClient httpClient = new DefaultHttpClient();
 
-	// TODO: Handle Compressed Resources
-
 	@Override
 	protected void fireDistributionExecuted(Distribution d) {
 		if (results.isEmpty())
