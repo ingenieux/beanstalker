@@ -55,5 +55,6 @@
 			</plugin>
 		</plugins>
 	</reporting>
-	<description>The cloudfront-maven-plugin is a plugin to automate CDN care and handling in .war-based projects. It does by specifying sets or resources to be deployed into distributions</description>
+	<description>The cloudfront-maven-plugin is a plugin to automate SimpleDB care and handling, in particular for integration testing. It lets you automate domain creation, loading, deletion and dumping.</description>
+	<packaging>maven-plugin</packaging>
 </project>
