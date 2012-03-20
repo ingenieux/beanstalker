@@ -64,8 +64,8 @@
 	</developers>
 
 	<issueManagement>
-		<system>bitbucket</system>
-		<url>http://hg.modafocas.org/beanstalker</url>
+		<system>github</system>
+		<url>https://github.com/ingenieux/beanstalker/issues</url>
 	</issueManagement>
 
 	<properties>

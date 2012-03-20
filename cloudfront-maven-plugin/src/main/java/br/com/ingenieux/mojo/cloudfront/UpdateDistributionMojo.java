@@ -91,13 +91,16 @@ public class UpdateDistributionMojo extends SeedS3DistributionMojo {
 
 		HttpResponse result = httpClient.execute(new HttpHead(assetUrl));
 
-		if ("404".equals(result.getStatusLine().getStatusCode()))
-			return "";
+		getLog().info("Status Code:" + result.getStatusLine().getStatusCode());
 
-		if (!"200".equals(result.getStatusLine().getStatusCode()))
-			return "";
+		if (result.containsHeader("ETag")) {
+			String eTag = strip(result.getFirstHeader("ETag").getValue(), "\"");
+			getLog().info("ETag is " + eTag);
 
-		return strip(result.getFirstHeader("ETag").getValue(), "\"");
+			return eTag;
+		}
+
+		return "";
 	}
 
 	@Override

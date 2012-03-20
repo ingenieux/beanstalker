@@ -2,16 +2,12 @@ package br.com.ingenieux.mojo.aws;
 
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -59,9 +55,6 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 		AbstractMojo implements Contextualizable {
 	private static final String SECURITY_DISPATCHER_CLASS_NAME = "org.sonatype.plexus.components.sec.dispatcher.SecDispatcher";
 
-	private static final List<String> LOG4J_LOGGERS = Arrays.asList(
-			"com.amazonaws", "org.apache.http");
-
 	/**
 	 * Plexus container, needed to manually lookup components.
 	 * 
@@ -98,17 +91,9 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 			String awsAccessKey = null;
 
 			/*
-			 * Are you using aws.accessKey and aws.secretKey? j'accuser!
+			 * Are you using aws.accessKey and aws.secretKey? j'accuse!
 			 */
-			if (StringUtils.isNotBlank(getAccessKey())
-					|| StringUtils.isNotBlank(getSecretKey())) {
-				getLog().warn(
-						"Warning! Usage of accessKey and secretKey is being "
-								+ "deprecated! "
-								+ "See http://beanstalker.ingenieux.com.br/usage.html for more information");
-				awsAccessKey = getAccessKey();
-				awsSecretKey = getDecryptedAwsKey(getSecretKey());
-			} else if (hasServerSettings()) {
+			if (hasServerSettings()) {
 				/*
 				 * This actually is the right way...
 				 */
@@ -116,6 +101,14 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 
 				awsAccessKey = server.getUsername();
 				awsSecretKey = getDecryptedAwsKey(server.getPassword().trim());
+			} else if (StringUtils.isNotBlank(getAccessKey())
+					|| StringUtils.isNotBlank(getSecretKey())) {
+				getLog().warn(
+						"Warning! Usage of accessKey and secretKey is being "
+								+ "deprecated! "
+								+ "See http://beanstalker.ingenieux.com.br/usage.html for more information");
+				awsAccessKey = getAccessKey();
+				awsSecretKey = getDecryptedAwsKey(getSecretKey());
 			} else {
 				/*
 				 * Throws up. We have nowhere to get our credentials...
@@ -217,13 +210,6 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 						version);
 	}
 
-	protected final void setupLogging() {
-		Level levelToSet = (verbose ? Level.DEBUG : Level.OFF);
-
-		for (String logger : LOG4J_LOGGERS)
-			Logger.getLogger(logger).setLevel(levelToSet);
-	}
-
 	@MojoParameter(expression="${aws.accessKey}", description="AWS Access Key")
 	private String accessKey;
 
@@ -292,8 +278,6 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 	@Override
 	public final void execute() throws MojoExecutionException,
 			MojoFailureException {
-		setupLogging();
-
 		Object result = null;
 
 		try {

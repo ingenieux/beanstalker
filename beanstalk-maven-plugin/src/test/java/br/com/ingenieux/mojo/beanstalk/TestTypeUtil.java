@@ -1,12 +1,10 @@
 package br.com.ingenieux.mojo.beanstalk;
 
-import java.lang.reflect.TypeVariable;
-
-import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalkClient;
-
+import junit.framework.TestCase;
 import br.com.ingenieux.mojo.aws.util.TypeUtil;
 import br.com.ingenieux.mojo.beanstalk.bundle.CreateStorageLocationMojo;
-import junit.framework.TestCase;
+
+import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalkClient;
 
 public class TestTypeUtil extends TestCase {
 	public void testTypeUtil() {
