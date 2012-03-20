@@ -1,6 +1,7 @@
 package br.com.ingenieux.mojo.cloudfront;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang.StringUtils.strip;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -86,12 +87,17 @@ public class UpdateDistributionMojo extends SeedS3DistributionMojo {
 
 		String assetUrl = String.format("http://%s/%s", d.domainName, path);
 
+		getLog().info("Checking for eTag on " + assetUrl);
+
 		HttpResponse result = httpClient.execute(new HttpHead(assetUrl));
 
 		if ("404".equals(result.getStatusLine().getStatusCode()))
 			return "";
 
-		return result.getFirstHeader("ETag").getValue();
+		if (!"200".equals(result.getStatusLine().getStatusCode()))
+			return "";
+
+		return strip(result.getFirstHeader("ETag").getValue(), "\"");
 	}
 
 	@Override
