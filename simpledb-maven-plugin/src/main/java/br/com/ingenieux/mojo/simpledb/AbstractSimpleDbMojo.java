@@ -1,7 +1,5 @@
 package br.com.ingenieux.mojo.simpledb;
 
-import org.jfrog.maven.annomojo.annotations.MojoParameter;
-
 import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
 
 import com.amazonaws.services.simpledb.AmazonSimpleDBClient;
@@ -28,11 +26,6 @@ import com.amazonaws.services.simpledb.AmazonSimpleDBClient;
  */
 public abstract class AbstractSimpleDbMojo extends
 		AbstractAWSMojo<AmazonSimpleDBClient> {
-    /**
-     * Ignore Exceptions?
-     */
-	@MojoParameter(expression = "${simpledb.ignoreExceptions}", defaultValue = "false")
-    protected boolean ignoreExceptions;
 
 	protected void validate(String message, boolean condition) {
         if (!condition)

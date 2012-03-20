@@ -71,13 +71,13 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 	 */
 	protected AWSCredentials awsCredentials;
 
-	@MojoParameter(expression="${beanstalk.serverId}", defaultValue="aws.amazon.com", description="The server id in maven settings.xml to use for AWS Services Credentials (accessKey / secretKey)")
+	@MojoParameter(expression = "${beanstalker.serverId}", defaultValue = "aws.amazon.com", description = "The server id in maven settings.xml to use for AWS Services Credentials (accessKey / secretKey)")
 	protected String serverId;
 
-	@MojoParameter(expression="${beanstalk.verbose}", defaultValue="false", description="Verbose Logging?")
+	@MojoParameter(expression = "${beanstalker.verbose}", defaultValue = "false", description = "Verbose Logging?")
 	protected boolean verbose;
 
-	@MojoParameter(expression="${beanstalk.ignoreExceptions}", defaultValue="false", description="Ignore Exceptions?")
+	@MojoParameter(expression = "${beanstalker.ignoreExceptions}", defaultValue = "false", description = "Ignore Exceptions?")
 	protected boolean ignoreExceptions;
 
 	protected String version = "?";
