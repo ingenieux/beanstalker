@@ -39,9 +39,9 @@ public abstract class AbstractBeanstalkMojo extends
 
 	@Override
 	protected String getEndpoint() {
-		if (StringUtils.isNotBlank(serviceRegion))
+		if (StringUtils.isNotBlank(region))
 			return String.format("elasticbeanstalk.%s.amazonaws.com",
-					serviceRegion);
+					region);
 
 		return null;
 	}

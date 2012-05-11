@@ -36,8 +36,8 @@ public abstract class AbstractSimpleDbMojo extends
 
 	@Override
 	protected String getEndpoint() {
-		if (StringUtils.isNotBlank(serviceRegion))
-			return String.format("sdb.%s.amazonaws.com", serviceRegion);
+		if (StringUtils.isNotBlank(region))
+			return String.format("sdb.%s.amazonaws.com", region);
 
 		return null;
 	}

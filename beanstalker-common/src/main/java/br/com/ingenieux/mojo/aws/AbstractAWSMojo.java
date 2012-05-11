@@ -205,8 +205,28 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 		return clientConfiguration;
 	}
 
+	/**
+	 * <p>
+	 * Service region e.g. &quot;us-east-1&quot;
+	 * </p>
+	 * 
+	 * <p>
+	 * <b>Note: Does not apply to all services.</b>
+	 * </p>
+	 * 
+	 * <p>
+	 * <i>&quot;-Cloudfront, I'm talking to you! Look at me when I do
+	 * that!&quot;</i>
+	 * </p>
+	 * 
+	 * <p>
+	 * See <a
+	 * href="http://docs.amazonwebservices.com/general/latest/gr/rande.html"
+	 * >this list</a> for reference.
+	 * </p>
+	 */
 	@MojoParameter(expression = "${beanstalk.region}", description = "AWS Service Region")
-	protected String serviceRegion;
+	protected String region;
 
 	protected String getEndpoint() {
 		return "";

@@ -22,9 +22,9 @@ import com.amazonaws.services.elasticmapreduce.AmazonElasticMapReduceClient;
 public abstract class AbstractMapreduceMojo extends AbstractAWSMojo<AmazonElasticMapReduceClient> {
 	@Override
 	protected String getEndpoint() {
-		if (StringUtils.isNotBlank(serviceRegion))
+		if (StringUtils.isNotBlank(region))
 			return String.format("elasticmapreduce.%s.amazonaws.com",
-					serviceRegion);
+					region);
 
 		return null;
 	}
