@@ -13,22 +13,9 @@ package br.com.ingenieux.mojo.mapreduce;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import org.jfrog.maven.annomojo.annotations.MojoParameter;
-
 import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
 
 import com.amazonaws.services.elasticmapreduce.AmazonElasticMapReduceClient;
 
 public abstract class AbstractMapreduceMojo extends AbstractAWSMojo<AmazonElasticMapReduceClient> {
-	/**
-	 * S3 Bucket
-	 */
-	@MojoParameter(expression="${s3Bucket}", defaultValue="${project.artifactId}", required=true)
-	protected String s3Bucket;
-
-	/**
-	 * S3 Key
-	 */
-	@MojoParameter(expression="${project.build.finalName}.${project.packaging}", required=true)
-	protected String s3Key;
 }

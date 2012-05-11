@@ -1,5 +1,7 @@
 package br.com.ingenieux.mojo.simpledb;
 
+import org.apache.commons.lang.StringUtils;
+
 import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
 
 import com.amazonaws.services.simpledb.AmazonSimpleDBClient;
@@ -31,4 +33,12 @@ public abstract class AbstractSimpleDbMojo extends
         if (!condition)
 			throw new RuntimeException(message);
     }
+
+	@Override
+	protected String getEndpoint() {
+		if (StringUtils.isNotBlank(serviceRegion))
+			return String.format("sdb.%s.amazonaws.com", serviceRegion);
+
+		return null;
+	}
 }

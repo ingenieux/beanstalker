@@ -18,6 +18,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
 
 import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalkClient;
@@ -33,5 +35,14 @@ public abstract class AbstractBeanstalkMojo extends
 			return Collections.emptyList();
 
 		return Arrays.asList(arrOptionSettings);
+	}
+
+	@Override
+	protected String getEndpoint() {
+		if (StringUtils.isNotBlank(serviceRegion))
+			return String.format("elasticbeanstalk.%s.amazonaws.com",
+					serviceRegion);
+
+		return null;
 	}
 }

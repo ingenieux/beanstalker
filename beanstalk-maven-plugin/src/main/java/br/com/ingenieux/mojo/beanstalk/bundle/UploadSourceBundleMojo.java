@@ -16,6 +16,7 @@ package br.com.ingenieux.mojo.beanstalk.bundle;
 
 import java.io.File;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.jfrog.maven.annomojo.annotations.MojoGoal;
@@ -24,6 +25,8 @@ import org.jfrog.maven.annomojo.annotations.MojoSince;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.PutObjectResult;
 
@@ -37,23 +40,36 @@ public class UploadSourceBundleMojo extends AbstractBeanstalkMojo {
 	 * S3 Bucket
 	 * 
 	 */
-	@MojoParameter(expression="${beanstalk.s3Bucket}", defaultValue="${project.artifactId}", required=true)
+	@MojoParameter(expression = "${beanstalk.s3Bucket}", defaultValue = "${project.artifactId}", required = true)
 	String s3Bucket;
 
 	/**
 	 * S3 Key
 	 */
-	@MojoParameter(expression="${beanstalk.s3Key}", defaultValue="${project.build.finalName}.${project.packaging}", required=true)
+	@MojoParameter(expression = "${beanstalk.s3Key}", defaultValue = "${project.build.finalName}.${project.packaging}", required = true)
 	String s3Key;
+
+	/**
+	 * S3 Service Region.
+	 * 
+	 * <p>
+	 * See <a href=
+	 * "http://docs.amazonwebservices.com/general/latest/gr/rande.html#s3_region"
+	 * >this list</a> for reference.
+	 * </p>
+	 */
+	@MojoParameter(expression = "${beanstalk.s3Region}")
+	String s3Region;
 
 	/**
 	 * Artifact to Deploy
 	 */
-	@MojoParameter(expression="${project.build.directory}/${project.build.finalName}.${project.packaging}")
+	@MojoParameter(expression = "${project.build.directory}/${project.build.finalName}.${project.packaging}")
 	File artifactFile;
 
 	protected Object executeInternal() throws MojoExecutionException,
-	    MojoFailureException {
+			MojoFailureException, AmazonServiceException,
+			AmazonClientException, InterruptedException {
 		String path = artifactFile.getPath();
 
 		if (!(path.endsWith(".war") || path.endsWith(".jar"))) {
@@ -63,10 +79,14 @@ public class UploadSourceBundleMojo extends AbstractBeanstalkMojo {
 		}
 
 		if (!artifactFile.exists())
-			throw new MojoFailureException("Artifact File does not exists! (file="
-			    + path);
+			throw new MojoFailureException(
+					"Artifact File does not exists! (file=" + path);
 
-		AmazonS3Client client = new AmazonS3Client(getAWSCredentials(), getClientConfiguration());
+		AmazonS3Client client = new AmazonS3Client(getAWSCredentials(),
+				getClientConfiguration());
+
+		if (StringUtils.isNotBlank(s3Region))
+			client.setEndpoint(String.format("s3-%s.amazonaws.com", s3Region));
 
 		getLog().info("Target Path: s3://" + s3Bucket + "/" + s3Key);
 		getLog().info("Uploading artifact file: " + path);

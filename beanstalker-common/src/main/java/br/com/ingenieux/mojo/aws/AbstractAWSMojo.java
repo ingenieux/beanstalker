@@ -45,7 +45,8 @@ import com.amazonaws.auth.BasicAWSCredentials;
 /**
  * Represents a Mojo which keeps AWS passwords
  * 
- * TODO: Refactor into tiny, delegated classes. Currently its a huge bloat, but it works, right?
+ * TODO: Refactor into tiny, delegated classes. Currently its a huge bloat, but
+ * it works, right?
  * 
  * Parts of this class come from <a
  * href="http://code.google.com/p/maven-gae-plugin">maven-gae-plugin</a>'s
@@ -63,7 +64,7 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 	 */
 	private PlexusContainer container;
 
-	@MojoParameter(expression="${settings}", required=true, readonly=true, description="Maven Settings Reference")
+	@MojoParameter(expression = "${settings}", required = true, readonly = true, description = "Maven Settings Reference")
 	protected Settings settings;
 
 	/**
@@ -204,20 +205,27 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 		return clientConfiguration;
 	}
 
-	protected String getUserAgent() {
+	@MojoParameter(expression = "${beanstalk.region}", description = "AWS Service Region")
+	protected String serviceRegion;
+
+	protected String getEndpoint() {
+		return "";
+	}
+
+	protected final String getUserAgent() {
 		return String
 				.format("Apache Maven/3.0 (ingenieux beanstalker/%s; http://beanstalker.ingenieux.com.br)",
 						version);
 	}
 
-	@MojoParameter(expression="${aws.accessKey}", description="AWS Access Key")
+	@MojoParameter(expression = "${aws.accessKey}", description = "AWS Access Key")
 	private String accessKey;
 
 	protected String getAccessKey() {
 		return accessKey;
 	}
 
-	@MojoParameter(expression="${aws.secretKey}", description="AWS Secret Key")
+	@MojoParameter(expression = "${aws.secretKey}", description = "AWS Secret Key")
 	private String secretKey;
 
 	protected String getSecretKey() {
@@ -251,18 +259,22 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 	private void setupService() throws MojoExecutionException {
 		@SuppressWarnings("unchecked")
 		Class<S> serviceClass = (Class<S>) TypeUtil.getServiceClass(getClass());
-		
+
 		try {
 			this.service = serviceClass.getConstructor(AWSCredentials.class,
 					ClientConfiguration.class).newInstance(getAWSCredentials(),
 					getClientConfiguration());
+
+			if (StringUtils.isNotBlank(getEndpoint()))
+				((AmazonWebServiceClient) this.service)
+						.setEndpoint(getEndpoint());
 		} catch (Exception exc) {
 			throw new MojoExecutionException("Unable to create service", exc);
 		}
 	}
 
 	private S service;
-	
+
 	public S getService() {
 		if (null == service) {
 			try {
@@ -271,7 +283,7 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 				throw new RuntimeException(e);
 			}
 		}
-		
+
 		return service;
 	}
 
