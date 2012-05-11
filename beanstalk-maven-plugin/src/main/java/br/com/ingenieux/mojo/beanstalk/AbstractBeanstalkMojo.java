@@ -18,6 +18,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.codehaus.plexus.util.StringUtils;
+import org.jfrog.maven.annomojo.annotations.MojoParameter;
+
 import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
 
 import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalkClient;
@@ -25,6 +28,10 @@ import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
 
 public abstract class AbstractBeanstalkMojo extends
 		AbstractAWSMojo<AWSElasticBeanstalkClient> {
+	
+	@MojoParameter(expression="${beanstalk.endpoint}", description="API endpoint")
+	protected String endpoint;
+	
 	protected List<ConfigurationOptionSetting> getOptionSettings(
 			ConfigurationOptionSetting[] optionSettings) {
 		ConfigurationOptionSetting[] arrOptionSettings = optionSettings;
@@ -33,5 +40,12 @@ public abstract class AbstractBeanstalkMojo extends
 			return Collections.emptyList();
 
 		return Arrays.asList(arrOptionSettings);
+	}
+	
+	@Override
+	protected void configure() {
+		if (StringUtils.isEmpty(endpoint) == false) {
+			getService().setEndpoint(endpoint);
+		}
 	}
 }
