@@ -70,8 +70,8 @@ public class UploadSourceBundleMojo extends AbstractBeanstalkMojo {
 	 * Enable to get progress reporting (warning: you'll be billed twice on your upload)
 	 * </p>
 	 */
-	@MojoParameter(expression = "${beanstalk.multiPartUpload", defaultValue = "false")
-	boolean multiPartUpload = false;
+	@MojoParameter(expression = "${beanstalk.multipartUpload", defaultValue = "false")
+	boolean multipartUpload = false;
 
 	/**
 	 * Artifact to Deploy
@@ -97,7 +97,7 @@ public class UploadSourceBundleMojo extends AbstractBeanstalkMojo {
 		BeanstalkerS3Client client = new BeanstalkerS3Client(getAWSCredentials(),
 				getClientConfiguration());
 		
-		client.setMultiPartUpload(multiPartUpload);
+		client.setMultipartUpload(multipartUpload);
 
 		if (StringUtils.isNotBlank(s3Region))
 			client.setEndpoint(String.format("s3-%s.amazonaws.com", s3Region));

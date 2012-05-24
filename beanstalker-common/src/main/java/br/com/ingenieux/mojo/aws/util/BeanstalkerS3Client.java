@@ -40,7 +40,7 @@ import com.amazonaws.services.s3.transfer.internal.ProgressListenerChain;
 import com.amazonaws.services.s3.transfer.internal.TransferManagerUtils;
 
 public class BeanstalkerS3Client extends AmazonS3Client {
-	private boolean multiPartUpload;
+	private boolean multipartUpload;
 	
 	private final class XProgressListener implements ProgressListener {
 		private long contentLen;
@@ -92,15 +92,16 @@ public class BeanstalkerS3Client extends AmazonS3Client {
 	
 	
 
-	public boolean isMultiPartUpload() {
-		return multiPartUpload;
+	public boolean isMultipartUpload() {
+		return multipartUpload;
 	}
 
-	public void setMultiPartUpload(boolean multiPartUploadP) {
-		this.multiPartUpload = multiPartUploadP;
+	public void setMultipartUpload(boolean multipartUploadP) {
+		this.multipartUpload = multipartUploadP;
 	}
 
 	private static final String BLANK_LINE = StringUtils.repeat(" ", 24);
+	
 	private TransferManager transferManager;
 
 	public BeanstalkerS3Client() {
@@ -150,7 +151,7 @@ public class BeanstalkerS3Client extends AmazonS3Client {
 	@Override
 	public PutObjectResult putObject(PutObjectRequest req)
 			throws AmazonClientException, AmazonServiceException {
-		if (!multiPartUpload)
+		if (!multipartUpload)
 			return super.putObject(req);
 
 		final long contentLen = TransferManagerUtils.getContentLength(req);
