@@ -14,6 +14,7 @@ import org.codehaus.plexus.util.FileUtils;
 import org.jfrog.maven.annomojo.annotations.MojoParameter;
 
 import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
+import br.com.ingenieux.mojo.aws.util.BeanstalkerS3Client;
 
 import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
 import com.amazonaws.services.s3.AmazonS3Client;
@@ -57,7 +58,7 @@ public abstract class AbstractCloudfrontMojo extends
 		super.configure();
 
 		try {
-			this.s3Client = new AmazonS3Client(getAWSCredentials(),
+			this.s3Client = new BeanstalkerS3Client(getAWSCredentials(),
 					getClientConfiguration());
 		} catch (MojoFailureException e) {
 			throw new RuntimeException(e);

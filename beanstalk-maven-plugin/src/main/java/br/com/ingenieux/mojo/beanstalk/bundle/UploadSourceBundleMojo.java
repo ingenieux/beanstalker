@@ -23,6 +23,7 @@ import org.jfrog.maven.annomojo.annotations.MojoGoal;
 import org.jfrog.maven.annomojo.annotations.MojoParameter;
 import org.jfrog.maven.annomojo.annotations.MojoSince;
 
+import br.com.ingenieux.mojo.aws.util.BeanstalkerS3Client;
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
 import com.amazonaws.AmazonClientException;
@@ -82,7 +83,7 @@ public class UploadSourceBundleMojo extends AbstractBeanstalkMojo {
 			throw new MojoFailureException(
 					"Artifact File does not exists! (file=" + path);
 
-		AmazonS3Client client = new AmazonS3Client(getAWSCredentials(),
+		AmazonS3Client client = new BeanstalkerS3Client(getAWSCredentials(),
 				getClientConfiguration());
 
 		if (StringUtils.isNotBlank(s3Region))
