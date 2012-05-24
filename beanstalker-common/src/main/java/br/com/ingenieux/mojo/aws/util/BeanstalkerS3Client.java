@@ -109,7 +109,7 @@ public class BeanstalkerS3Client extends AmazonS3Client {
 			throws AmazonClientException, AmazonServiceException {
 		TransferManager xManager = new TransferManager(this);
 		TransferManagerConfiguration configuration = new TransferManagerConfiguration();
-		configuration.setMultipartUploadThreshold(100 * Constants.KB);
+		configuration.setMultipartUploadThreshold(Integer.MAX_VALUE);
 		final long contentLen = TransferManagerUtils.getContentLength(req);
 
 		XProgressListener progressListener = new XProgressListener();
