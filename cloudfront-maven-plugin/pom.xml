@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>beanstalker</artifactId>
 		<groupId>br.com.ingenieux</groupId>
-		<version>0.2.7-SNAPSHOT</version>
+		<version>0.2.7-RC4-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
