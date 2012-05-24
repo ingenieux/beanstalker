@@ -14,6 +14,7 @@ package br.com.ingenieux.mojo.beanstalk.bundle;
  * limitations under the License.
  */
 
+import java.util.Calendar;
 import java.util.Date;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -53,13 +54,26 @@ public class DeleteMultipartsMojo extends AbstractBeanstalkMojo {
 	@MojoParameter(expression = "${beanstalk.s3Region}")
 	String s3Region;
 	
+	/**
+	 * How many delete to delete? Defaults to 365 days
+	 * 
+	 */
+	@MojoParameter(expression="${beanstalk.daysToDelete}", defaultValue="365")
+	Integer daysToDelete;
+
 	protected Object executeInternal() throws MojoExecutionException,
 			MojoFailureException, AmazonServiceException,
 			AmazonClientException, InterruptedException {
 		BeanstalkerS3Client client = new BeanstalkerS3Client(getAWSCredentials(),
 				getClientConfiguration());
 		
-		client.deleteMultiparts(s3Bucket, new Date());
+		Calendar c = Calendar.getInstance();
+		
+		c.add(Calendar.DAY_OF_YEAR, -daysToDelete);
+		
+		Date since = c.getTime();
+		
+		client.deleteMultiparts(s3Bucket, since);
 		
 		return null;
 	}
