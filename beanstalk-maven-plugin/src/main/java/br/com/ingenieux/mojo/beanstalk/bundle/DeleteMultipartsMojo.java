@@ -14,9 +14,8 @@ package br.com.ingenieux.mojo.beanstalk.bundle;
  * limitations under the License.
  */
 
-import java.io.File;
+import java.util.Date;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.jfrog.maven.annomojo.annotations.MojoGoal;
@@ -28,27 +27,19 @@ import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.PutObjectResult;
 
 /**
  * Uploads a packed war file to Amazon S3 for further Deployment.
  */
-@MojoGoal("upload-source-bundle")
-@MojoSince("0.1.0")
-public class UploadSourceBundleMojo extends AbstractBeanstalkMojo {
+@MojoGoal("delete-multiparts")
+@MojoSince("0.2.7")
+public class DeleteMultipartsMojo extends AbstractBeanstalkMojo {
 	/**
 	 * S3 Bucket
 	 * 
 	 */
 	@MojoParameter(expression = "${beanstalk.s3Bucket}", defaultValue = "${project.artifactId}", required = true)
 	String s3Bucket;
-
-	/**
-	 * S3 Key
-	 */
-	@MojoParameter(expression = "${beanstalk.s3Key}", defaultValue = "${project.build.finalName}.${project.packaging}", required = true)
-	String s3Key;
 
 	/**
 	 * S3 Service Region.
@@ -62,53 +53,14 @@ public class UploadSourceBundleMojo extends AbstractBeanstalkMojo {
 	@MojoParameter(expression = "${beanstalk.s3Region}")
 	String s3Region;
 	
-	/**
-	 * <p>
-	 * Should we do a multipart upload? Defaults to false
-	 * </p>
-	 * <p>
-	 * Enable to get progress reporting (warning: you'll be billed twice on your upload)
-	 * </p>
-	 */
-	@MojoParameter(expression = "${beanstalk.multiPartUpload", defaultValue = "false")
-	boolean multiPartUpload = false;
-
-	/**
-	 * Artifact to Deploy
-	 */
-	@MojoParameter(expression = "${project.build.directory}/${project.build.finalName}.${project.packaging}")
-	File artifactFile;
-
 	protected Object executeInternal() throws MojoExecutionException,
 			MojoFailureException, AmazonServiceException,
 			AmazonClientException, InterruptedException {
-		String path = artifactFile.getPath();
-
-		if (!(path.endsWith(".war") || path.endsWith(".jar"))) {
-			getLog().warn("Not a war/jar file. Skipping");
-
-			return null;
-		}
-
-		if (!artifactFile.exists())
-			throw new MojoFailureException(
-					"Artifact File does not exists! (file=" + path);
-
 		BeanstalkerS3Client client = new BeanstalkerS3Client(getAWSCredentials(),
 				getClientConfiguration());
 		
-		client.setMultiPartUpload(multiPartUpload);
-
-		if (StringUtils.isNotBlank(s3Region))
-			client.setEndpoint(String.format("s3-%s.amazonaws.com", s3Region));
-
-		getLog().info("Target Path: s3://" + s3Bucket + "/" + s3Key);
-		getLog().info("Uploading artifact file: " + path);
-
-		PutObjectResult result = client.putObject(new PutObjectRequest(s3Bucket, s3Key, artifactFile));
+		client.deleteMultiparts(s3Bucket, new Date());
 		
-		getLog().info("Artifact Uploaded");
-
-		return result;
+		return null;
 	}
 }
