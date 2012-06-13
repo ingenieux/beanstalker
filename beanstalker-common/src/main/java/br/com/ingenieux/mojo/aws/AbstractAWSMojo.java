@@ -49,6 +49,12 @@ import com.amazonaws.auth.BasicAWSCredentials;
  * TODO: Refactor into tiny, delegated classes. Currently its a huge bloat, but
  * it works, right?
  * 
+ * <p>
+ * <b>NOTE:</b> Settings in this class use properties based in "beanstalker", which is
+ * the project. The beanstalk module, though, prefixes then as "beanstalk"
+ * instead
+ * </p>
+ * 
  * Parts of this class come from <a
  * href="http://code.google.com/p/maven-gae-plugin">maven-gae-plugin</a>'s
  * source code.
@@ -240,7 +246,7 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 	 * >this list</a> for reference.
 	 * </p>
 	 */
-	@MojoParameter(expression = "${beanstalk.region}", description = "AWS Service Region")
+	@MojoParameter(expression = "${beanstalker.region}", description = "AWS Service Region")
 	protected String region;
 
 	protected String getEndpoint() {
