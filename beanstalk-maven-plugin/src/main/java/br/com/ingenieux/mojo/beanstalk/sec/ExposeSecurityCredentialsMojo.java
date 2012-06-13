@@ -40,7 +40,7 @@ import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
  * &lt;configuration&gt;
  * &nbsp;&nbsp;&lt;exposes&gt;
  * &nbsp;&nbsp;&nbsp;&nbsp;&lt;expose&gt;
- * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;serverId&gt;aws.amazon.com&lt;/serverId&gt;
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;serverId&gt;${beanstalk.serverId}&lt;/serverId&gt;
  * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;accessKey&gt;aws.accessKey&lt;/accessKey&gt;
  * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;secretKey&gt;aws.accessKey&lt;/secretKey&gt;
  * &nbsp;&nbsp;&nbsp;&nbsp;&lt;/expose&gt;
@@ -73,7 +73,7 @@ public class ExposeSecurityCredentialsMojo extends AbstractBeanstalkMojo {
 		if (0 == exposes.length) {
 			exposes = new Expose[1];
 			exposes[0] = new Expose();
-			exposes[0].setServerId("aws.amazon.com");
+			exposes[0].setServerId(this.serverId);
 			exposes[0].setAccessKey("aws.accessKey");
 			exposes[0].setSharedKey("aws.secretKey");
 		} else {
@@ -95,7 +95,7 @@ public class ExposeSecurityCredentialsMojo extends AbstractBeanstalkMojo {
 
 			getLog().info(
 					String.format(
-							"Writing Security Settings from serverId ('%s') into property '%s' (accessKey) and '%s' (secretKey)",
+							"Writing Security Settings from serverId ('%s') into properties '%s' (accessKey) and '%s' (secretKey)",
 							e.getServerId(), e.getAccessKey(), e.getSharedKey()));
 
 			project.getProperties().put(e.getAccessKey(),
