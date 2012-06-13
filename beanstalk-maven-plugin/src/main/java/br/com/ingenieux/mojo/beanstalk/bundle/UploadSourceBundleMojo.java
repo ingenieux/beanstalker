@@ -64,14 +64,14 @@ public class UploadSourceBundleMojo extends AbstractBeanstalkMojo {
 	
 	/**
 	 * <p>
-	 * Should we do a multipart upload? Defaults to false
+	 * Should we do a multipart upload? Defaults to true
 	 * </p>
 	 * <p>
-	 * Enable to get progress reporting (warning: you'll be billed twice on your upload)
+	 * Disable when you want to be charged slightly less :)
 	 * </p>
 	 */
-	@MojoParameter(expression = "${beanstalk.multipartUpload", defaultValue = "false")
-	boolean multipartUpload = false;
+	@MojoParameter(expression = "${beanstalk.multipartUpload", defaultValue = "true")
+	boolean multipartUpload = true;
 
 	/**
 	 * Artifact to Deploy

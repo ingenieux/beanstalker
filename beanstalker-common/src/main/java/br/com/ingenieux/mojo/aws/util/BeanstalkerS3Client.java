@@ -40,7 +40,7 @@ import com.amazonaws.services.s3.transfer.internal.ProgressListenerChain;
 import com.amazonaws.services.s3.transfer.internal.TransferManagerUtils;
 
 public class BeanstalkerS3Client extends AmazonS3Client {
-	private boolean multipartUpload;
+	private boolean multipartUpload = true;
 	
 	private final class XProgressListener implements ProgressListener {
 		private long contentLen;

@@ -8,6 +8,7 @@ import java.util.Properties;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.Validate;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -98,16 +99,16 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 				/*
 				 * This actually is the right way...
 				 */
-				Server server = settings.getServer(serverId);
-
-				awsAccessKey = server.getUsername();
-				awsSecretKey = getDecryptedAwsKey(server.getPassword().trim());
+				Expose expose = exposeSettings(serverId);
+				
+				awsAccessKey = expose.getAccessKey();
+				awsSecretKey = expose.getSharedKey();
 			} else if (StringUtils.isNotBlank(getAccessKey())
 					|| StringUtils.isNotBlank(getSecretKey())) {
 				getLog().warn(
 						"Warning! Usage of accessKey and secretKey is being "
 								+ "deprecated! "
-								+ "See http://beanstalker.ingenieux.com.br/usage.html for more information");
+								+ "See http://beanstalker.ingenieux.com.br/beanstalk-maven-plugin/security.html for more information");
 				awsAccessKey = getAccessKey();
 				awsSecretKey = getDecryptedAwsKey(getSecretKey());
 			} else {
@@ -116,7 +117,7 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 				 */
 				String errorMessage = "Entries in settings.xml for server "
 						+ serverId
-						+ " not defined. See http://beanstalker.ingenieux.com.br/usage.html for more information";
+						+ " not defined. See http://beanstalker.ingenieux.com.br/beanstalk-maven-plugin/usage.html for more information";
 				getLog().error(errorMessage);
 
 				throw new MojoFailureException(errorMessage);
@@ -127,6 +128,20 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 		}
 
 		return this.awsCredentials;
+	}
+
+	protected Expose exposeSettings(String serverId) {
+		Server server = settings.getServer(serverId);
+		
+		Validate.notNull(server, "Settings for serverId ('" + serverId + "') not found. See http://beanstalker.ingenieux.com.br/beanstalk-maven-plugin/security.html for more information");
+
+		Expose expose = new Expose();
+		
+		expose.setServerId(serverId);
+		expose.setAccessKey(server.getUsername());
+		expose.setSharedKey(getDecryptedAwsKey(server.getPassword().trim()));
+
+		return expose;
 	}
 
 	/**

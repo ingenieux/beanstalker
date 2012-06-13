@@ -17,7 +17,6 @@ import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
 import br.com.ingenieux.mojo.aws.util.BeanstalkerS3Client;
 
 import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
-import com.amazonaws.services.s3.AmazonS3Client;
 
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -51,7 +50,7 @@ public abstract class AbstractCloudfrontMojo extends
 	@MojoParameter(expression = "${project.build.directory}/${project.build.finalName}", required = true)
 	protected File webappDirectory;
 
-	protected AmazonS3Client s3Client;
+	protected BeanstalkerS3Client s3Client;
 
 	@Override
 	protected void configure() {
@@ -60,6 +59,11 @@ public abstract class AbstractCloudfrontMojo extends
 		try {
 			this.s3Client = new BeanstalkerS3Client(getAWSCredentials(),
 					getClientConfiguration());
+			
+			/*
+			 * While we actually love multipart upload, and are not concerned about billing, we're not playing with cloudfront (yegor, I'm talking to you)
+			 */
+			this.s3Client.setMultipartUpload(false);
 		} catch (MojoFailureException e) {
 			throw new RuntimeException(e);
 		}
