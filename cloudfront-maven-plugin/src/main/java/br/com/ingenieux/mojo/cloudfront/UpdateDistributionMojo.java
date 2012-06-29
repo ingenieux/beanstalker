@@ -23,6 +23,7 @@ import org.jfrog.maven.annomojo.annotations.MojoRequiresProject;
 
 import com.amazonaws.services.cloudfront.model.CreateInvalidationRequest;
 import com.amazonaws.services.cloudfront.model.InvalidationBatch;
+import com.amazonaws.services.cloudfront.model.Paths;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
 @MojoGoal("update-distribution")
@@ -53,7 +54,7 @@ public class UpdateDistributionMojo extends SeedS3DistributionMojo {
 		}
 
 		if (!paths.isEmpty()) {
-			batch.setPaths(paths);
+			batch.setPaths(new Paths().withItems(paths));
 
 			invalidationRequest.withInvalidationBatch(batch);
 
