@@ -26,6 +26,7 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesContextBuilder;
 import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsRequest;
 import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
 import java.util.Collection;
+import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 
 /**
@@ -89,11 +90,11 @@ public class SwapEnvironmentCnamesMojo extends AbstractBeanstalkMojo {
 	@Override
 	protected Object executeInternal() throws AbstractMojoExecutionException {
                 
-                if (sourceCname != null && !sourceCname.trim().isEmpty()) {
-                    if (sourceEnvironmentName != null && !sourceEnvironmentName.trim().isEmpty()) {
+                if (!StringUtils.isBlank(sourceCname)) {
+                    if (!StringUtils.isBlank(sourceEnvironmentName)) {
                         throw new MojoExecutionException("Both {beanstalk.sourceEnvironmentName} and {beanstalk.sourceCname} were specified. Only one or the other may be defined.");
                     }
-                    if (sourceEnvironmentId != null && !sourceEnvironmentId.trim().isEmpty()) {
+                    if (!StringUtils.isBlank(sourceEnvironmentId)) {
                         throw new MojoExecutionException("Both {beanstalk.sourceEnvironmentId} and {beanstalk.sourceCname} were specified. Only one or the other may be defined.");
                     }
                     final EnvironmentDescription sourceEnv = getEnvironmentFor(applicationName, sourceCname);
@@ -105,11 +106,11 @@ public class SwapEnvironmentCnamesMojo extends AbstractBeanstalkMojo {
                     }
                 }
 
-                if (destinationCname != null && !destinationCname.trim().isEmpty()) {
-                    if (destinationEnvironmentName != null && !destinationEnvironmentName.trim().isEmpty()) {
+                if (!StringUtils.isBlank(destinationCname)) {
+                    if (!StringUtils.isBlank(destinationEnvironmentName)) {
                         throw new MojoExecutionException("Both {beanstalk.destinationEnvironmentName} and {beanstalk.destinationCname} were specified. Only one or the other may be defined.");
                     }
-                    if (destinationEnvironmentId != null && !destinationEnvironmentId.trim().isEmpty()) {
+                    if (!StringUtils.isBlank(destinationEnvironmentId)) {
                         throw new MojoExecutionException("Both {beanstalk.destinationEnvironmentId} and {beanstalk.destinationCname} were specified. Only one or the other may be defined.");
                     }
                     final EnvironmentDescription destEnv = getEnvironmentFor(applicationName, destinationCname);
