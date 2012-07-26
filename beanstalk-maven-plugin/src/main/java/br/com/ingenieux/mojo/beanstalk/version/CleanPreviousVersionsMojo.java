@@ -25,6 +25,7 @@ import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.jfrog.maven.annomojo.annotations.MojoGoal;
+import org.jfrog.maven.annomojo.annotations.MojoParameter;
 import org.jfrog.maven.annomojo.annotations.MojoSince;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
@@ -44,40 +45,32 @@ import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
 public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
 	/**
 	 * Beanstalk Application Name
-	 * 
-	 * @parameter expression="${beanstalk.applicationName}"
-	 *            default-value="${project.artifactId}"
-	 * @required
 	 */
+	@MojoParameter(expression="${beanstalk.applicationName}", defaultValue="${project.artifactId}", required=true)
 	String applicationName;
 
 	/**
 	 * Delete the source bundle?
-	 * 
-	 * @parameter expression="${beanstalk.deleteSourceBundle}"
-	 *            default-value=false
 	 */
+	@MojoParameter(expression="${beanstalk.deleteSourceBundle}", defaultValue="false")
 	boolean deleteSourceBundle;
 
 	/**
 	 * How many versions to keep?
-	 * 
-	 * @parameter default-value="${beanstalk.versionsToKeep}"
 	 */
+	@MojoParameter(expression="${beanstalk.versionsToKeep}")
 	Integer versionsToKeep;
 
 	/**
 	 * How many versions to keep?
-	 * 
-	 * @parameter default-value="${beanstalk.daysToKeep}"
 	 */
+	@MojoParameter(expression="${beanstalk.daysToKeep}")
 	Integer daysToKeep;
 
 	/**
 	 * Simulate deletion changing algorithm?
-	 * 
-	 * @parameter expression="${beanstalk.dryRun}" default-value=true
 	 */
+	@MojoParameter(expression="${beanstalk.dryRun}", defaultValue="true")
 	boolean dryRun;
 
 	private int deletedVersionsCount;
