@@ -14,6 +14,8 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
+
+
 import org.apache.maven.plugin.AbstractMojoExecutionException;
 import org.jfrog.maven.annomojo.annotations.MojoGoal;
 import org.jfrog.maven.annomojo.annotations.MojoParameter;
@@ -23,11 +25,8 @@ import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesContextBuilder;
-import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsRequest;
+
 import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
-import java.util.Collection;
-import org.apache.commons.lang.StringUtils;
-import org.apache.maven.plugin.MojoExecutionException;
 
 /**
  * Lists the available solution stacks
@@ -42,132 +41,73 @@ import org.apache.maven.plugin.MojoExecutionException;
 @MojoGoal("swap-environment-cnames")
 @MojoSince("0.2.3")
 public class SwapEnvironmentCnamesMojo extends AbstractBeanstalkMojo {
-    
-        
 	/**
 	 * Source Environment Name
-	 * 	 
+	 * 
 	 */
-	@MojoParameter(expression="${beanstalk.sourceEnvironmentName}")
+	@MojoParameter(expression = "${beanstalk.sourceEnvironmentName}")
 	String sourceEnvironmentName;
 
 	/**
 	 * Source Environment Id
 	 */
-	@MojoParameter(expression="${beanstalk.sourceEnvironmentId}")
+	@MojoParameter(expression = "${beanstalk.sourceEnvironmentId}")
 	String sourceEnvironmentId;
 
 	/**
 	 * Destination Environment Name
 	 */
-	@MojoParameter(expression="${beanstalk.destinationEnvironmentName}")
-	String destinationEnvironmentName;
+	@MojoParameter(expression = "${beanstalk.targetEnvironmentName}")
+	String targetEnvironmentName;
 
 	/**
 	 * Destination Environment Id
 	 */
-	@MojoParameter(expression="${beanstalk.destinationEnvironmentId}")
-	String destinationEnvironmentId;
-        
-        /**
-         * Required to specify sourceCname or destinationCname
-         */
-        @MojoParameter(expression="${beanstalk.applicationName}", defaultValue="${project.artifactId}", required=true, description="Beanstalk Application Name")
+	@MojoParameter(expression = "${beanstalk.targetEnvironmentId}")
+	String targetEnvironmentId;
+
+	/**
+	 * Required to specify sourceCname or targetCname
+	 */
+	@MojoParameter(expression = "${beanstalk.applicationName}", defaultValue = "${project.artifactId}", required = true, description = "Beanstalk Application Name")
 	String applicationName;
-        
-        /**
-         * Allows specification of the source environment by looking it up by it's applicationName and cname
-         */
-        @MojoParameter(expression="${beanstalk.sourceCname}", description="Cname of source environment")
-        String sourceCname;
-        
-        /**
-         * Allows specification of the destination environment by looking it up by it's applicationName and cname
-         */
-        @MojoParameter(expression="${beanstalk.destinationCname}", description="Cname of destination environment")
-        String destinationCname;
+
+	/**
+	 * Allows specification of the source environment by looking it up by it's
+	 * applicationName and CName
+	 */
+	@MojoParameter(expression = "${beanstalk.sourceEnvironmentCNamePrefix}", description = "CName of source environment")
+	String sourceEnvironmentCNamePrefix;
+
+	/**
+	 * Allows specification of the target environment by looking it up by it's
+	 * applicationName and CName
+	 */
+	@MojoParameter(expression = "${beanstalk.targetEnvironmentCNamePrefix}", description = "CName of target environment")
+	String targetEnvironmentCNamePrefix;
 
 	@Override
 	protected Object executeInternal() throws AbstractMojoExecutionException {
-                
-                if (!StringUtils.isBlank(sourceCname)) {
-                    if (!StringUtils.isBlank(sourceEnvironmentName)) {
-                        throw new MojoExecutionException("Both {beanstalk.sourceEnvironmentName} and {beanstalk.sourceCname} were specified. Only one or the other may be defined.");
-                    }
-                    if (!StringUtils.isBlank(sourceEnvironmentId)) {
-                        throw new MojoExecutionException("Both {beanstalk.sourceEnvironmentId} and {beanstalk.sourceCname} were specified. Only one or the other may be defined.");
-                    }
-                    final EnvironmentDescription sourceEnv = getEnvironmentFor(applicationName, sourceCname);
-                    if (sourceEnv != null) {
-                        sourceEnvironmentId = sourceEnv.getEnvironmentId();
-                        sourceEnvironmentName = sourceEnv.getEnvironmentName();
-                    } else {
-                        throw new MojoExecutionException("Unable to find an environment with cname = '" + sourceCname + "' for the application '" + applicationName + "'");
-                    }
-                }
+		EnvironmentDescription sourceEnvironment = lookupEnvironment(applicationName,
+				"source", sourceEnvironmentId,
+				sourceEnvironmentName, sourceEnvironmentCNamePrefix);
+		EnvironmentDescription targetEnvironment = lookupEnvironment(applicationName,
+				"target", targetEnvironmentId,
+				targetEnvironmentName, targetEnvironmentCNamePrefix);
 
-                if (!StringUtils.isBlank(destinationCname)) {
-                    if (!StringUtils.isBlank(destinationEnvironmentName)) {
-                        throw new MojoExecutionException("Both {beanstalk.destinationEnvironmentName} and {beanstalk.destinationCname} were specified. Only one or the other may be defined.");
-                    }
-                    if (!StringUtils.isBlank(destinationEnvironmentId)) {
-                        throw new MojoExecutionException("Both {beanstalk.destinationEnvironmentId} and {beanstalk.destinationCname} were specified. Only one or the other may be defined.");
-                    }
-                    final EnvironmentDescription destEnv = getEnvironmentFor(applicationName, destinationCname);
-                    if (destEnv != null) {
-                        destinationEnvironmentId = destEnv.getEnvironmentId();
-                        destinationEnvironmentName = destEnv.getEnvironmentName();
-                    } else {
-                        throw new MojoExecutionException("Unable to find an environment with cname = '" + destinationCname + "' for the application '" + applicationName + "'");
-                    }
-                }
-                                                        
-            
-		SwapCNamesContext context = SwapCNamesContextBuilder.swapCNamesContext()//
-		    .withSourceEnvironmentId(sourceEnvironmentId)//
-		    .withSourceEnvironmentName(sourceEnvironmentName)//
-		    .withDestinationEnvironmentId(destinationEnvironmentId)//
-		    .withDestinationEnvironmentName(destinationEnvironmentName)//
-		    .build();
+		SwapCNamesContext context = SwapCNamesContextBuilder
+				.swapCNamesContext()//
+				.withSourceEnvironmentId(sourceEnvironment.getEnvironmentId())//
+				.withSourceEnvironmentName(
+						sourceEnvironment.getEnvironmentName())//
+				.withDestinationEnvironmentId(
+						targetEnvironment.getEnvironmentId())//
+				.withDestinationEnvironmentName(
+						targetEnvironment.getEnvironmentName())//
+				.build();
 		SwapCNamesCommand command = new SwapCNamesCommand(this);
 
 		return command.execute(context);
-                               
-	}
-        
-        protected Collection<EnvironmentDescription> getEnvironmentsFor(
-	    String applicationName) {
-		/*
-		 * Requests
-		 */
-		DescribeEnvironmentsRequest req = new DescribeEnvironmentsRequest()
-		    .withApplicationName(applicationName).withIncludeDeleted(false);
 
-		return getService().describeEnvironments(req).getEnvironments();
-	}
-        
-        /**
-	 * Returns the environment description matching applicationName and
-	 * cnamePrefix
-	 * 
-	 * @param applicationName
-	 *          application name
-	 * @param cnamePrefix
-	 *          cname prefix
-	 * @return environment description
-	 */
-	protected EnvironmentDescription getEnvironmentFor(String applicationName,
-	    String cnamePrefix) {
-		Collection<EnvironmentDescription> environments = getEnvironmentsFor(applicationName);
-		String cnameToMatch = String.format("%s.elasticbeanstalk.com", cnamePrefix);
-
-		/*
-		 * Finds a matching environment
-		 */
-		for (EnvironmentDescription envDesc : environments)
-			if (envDesc.getCNAME().equals(cnameToMatch))
-				return envDesc;
-
-		return null;
 	}
 }

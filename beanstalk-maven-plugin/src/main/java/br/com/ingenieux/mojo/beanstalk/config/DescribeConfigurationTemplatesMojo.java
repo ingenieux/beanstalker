@@ -49,36 +49,37 @@ import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettin
 public class DescribeConfigurationTemplatesMojo extends AbstractBeanstalkMojo {
 	private static final String ENDL = System.getProperty("line.separator");
 
-	@MojoParameter(expression="${beanstalk.applicationName}", defaultValue="${project.artifactId}", required=true, description="Beanstalk Application Name")
+	@MojoParameter(expression = "${beanstalk.applicationName}", defaultValue = "${project.artifactId}", required = true, description = "Beanstalk Application Name")
 	protected String applicationName;
 
 	/**
 	 * Configuration Template Name (Optional)
 	 */
-	@MojoParameter(expression="${beanstalk.configurationTemplate}")
+	@MojoParameter(expression = "${beanstalk.configurationTemplate}")
 	String configurationTemplate;
-	
+
 	/**
 	 * Output file (Optional)
 	 */
-	@MojoParameter(expression="${beanstalk.outputFile}")
+	@MojoParameter(expression = "${beanstalk.outputFile}")
 	File outputFile;
 
 	@Override
 	protected Object executeInternal() throws MojoExecutionException,
-	    MojoFailureException {
+			MojoFailureException {
 		DescribeApplicationsRequest req = new DescribeApplicationsRequest()
-		    .withApplicationNames(applicationName);
+				.withApplicationNames(applicationName);
 		boolean bConfigurationTemplateDefined = StringUtils
-		    .isNotBlank(configurationTemplate);
+				.isNotBlank(configurationTemplate);
 
-		DescribeApplicationsResult apps = getService().describeApplications(req);
+		DescribeApplicationsResult apps = getService()
+				.describeApplications(req);
 
 		List<ApplicationDescription> applications = apps.getApplications();
 
 		if (applications.isEmpty()) {
 			String errorMessage = "Application ('" + applicationName
-			    + "') not found!";
+					+ "') not found!";
 
 			getLog().warn(errorMessage);
 
@@ -101,21 +102,27 @@ public class DescribeConfigurationTemplatesMojo extends AbstractBeanstalkMojo {
 
 	void describeConfigurationTemplate(String configTemplateName) {
 		DescribeConfigurationSettingsRequest req = new DescribeConfigurationSettingsRequest()
-		    .withApplicationName(applicationName).withTemplateName(
-		        configTemplateName);
+				.withApplicationName(applicationName).withTemplateName(
+						configTemplateName);
 
-		DescribeConfigurationSettingsResult configSettings = getService().describeConfigurationSettings(req);
-		
+		DescribeConfigurationSettingsResult configSettings = getService()
+				.describeConfigurationSettings(req);
+
 		List<String> buf = new ArrayList<String>();
-		
+
 		buf.add("<optionSettings>");
 
-		for (ConfigurationSettingsDescription configSetting : configSettings.getConfigurationSettings()) {
-			for (ConfigurationOptionSetting setting : configSetting.getOptionSettings()) {
+		for (ConfigurationSettingsDescription configSetting : configSettings
+				.getConfigurationSettings()) {
+			for (ConfigurationOptionSetting setting : configSetting
+					.getOptionSettings()) {
 				buf.add("  <optionSetting>");
-				buf.add(String.format("    <%s>%s</%1$s>", "namespace", setting.getNamespace()));
-				buf.add(String.format("    <%s>%s</%1$s>", "optionName", setting.getOptionName()));
-				buf.add(String.format("    <%s>%s</%1$s>", "value", setting.getValue()));
+				buf.add(String.format("    <%s>%s</%1$s>", "namespace",
+						setting.getNamespace()));
+				buf.add(String.format("    <%s>%s</%1$s>", "optionName",
+						setting.getOptionName()));
+				buf.add(String.format("    <%s>%s</%1$s>", "value",
+						setting.getValue()));
 				buf.add("  </optionSetting>");
 			}
 		}
@@ -124,22 +131,23 @@ public class DescribeConfigurationTemplatesMojo extends AbstractBeanstalkMojo {
 
 		if (null != outputFile) {
 			getLog().info("Dumping results to file: " + outputFile.getName());
-			
+
 			String bufChars = StringUtils.join(buf.iterator(), ENDL);
 			FileWriter writer = null;
-			
+
 			try {
 				writer = new FileWriter(outputFile);
 
 				IOUtils.copy(new StringReader(bufChars), writer);
-      } catch (IOException e) {
-      	throw new RuntimeException("Failure when writing to file: " + outputFile.getName(), e);
-      } finally {
-      	IOUtils.closeQuietly(writer);
-      }
+			} catch (IOException e) {
+				throw new RuntimeException("Failure when writing to file: "
+						+ outputFile.getName(), e);
+			} finally {
+				IOUtils.closeQuietly(writer);
+			}
 		} else {
 			getLog().info("Dumping results to stdout");
-			
+
 			for (String e : buf)
 				getLog().info(e);
 		}

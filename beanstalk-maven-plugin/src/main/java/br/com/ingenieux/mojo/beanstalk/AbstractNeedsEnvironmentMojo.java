@@ -2,6 +2,7 @@ package br.com.ingenieux.mojo.beanstalk;
 
 import java.util.Collection;
 
+import org.apache.maven.plugin.MojoExecutionException;
 import org.jfrog.maven.annomojo.annotations.MojoParameter;
 
 import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsRequest;
@@ -32,74 +33,41 @@ public abstract class AbstractNeedsEnvironmentMojo extends
 	@MojoParameter(expression="${beanstalk.environmentId}", description="Environment Id")
 	protected String environmentId;
 
-	@MojoParameter(expression="${beanstalk.defaultEnvironmentName}", defaultValue="default", description="Default Environment Name")
+	@MojoParameter(expression="${beanstalk.defaultEnvironmentName}", description="Default Environment Name")
 	protected String defaultEnvironmentName;
         
-        @MojoParameter(expression="${beanstalk.cnamePrefix}", description = "")
-        protected String cnamePrefix;
+    @MojoParameter(expression="${beanstalk.cnamePrefix}", description = "cnamePrefix")
+    protected String cnamePrefix;
 
 	@Override
 	protected void configure() {
-		boolean bNameDefined = org.apache.commons.lang.StringUtils
-		    .isNotBlank(environmentName);
-		boolean bIdDefined = org.apache.commons.lang.StringUtils
-		    .isNotBlank(environmentId);
-                boolean bCnameDefined = org.apache.commons.lang.StringUtils
-                    .isNotBlank(cnamePrefix);
-
-		if (bNameDefined ^ bIdDefined)
-			return;
-
-		if (bNameDefined == true && bIdDefined == true)
-			return;
-
-		getLog()
-		    .info(
-		        "environmentName / environmentId not defined. Lets try to get one, shall we?");
-
-		Collection<EnvironmentDescription> environmentsFor = getEnvironmentsFor(applicationName);
-
-		if (environmentsFor.isEmpty()) {
-			getLog().info(
-			    "No running environments found. Assigning defaultEnvironmentName");
-			this.environmentName = defaultEnvironmentName;
-		} else if (1 == environmentsFor.size()) {
-			EnvironmentDescription env = environmentsFor.iterator().next();
-			if (bCnameDefined) {
-                            if (!env.getEnvironmentName().startsWith(cnamePrefix)) {
-                                
-                                getLog().info(
-                                        "Not assigning any {beanstalk.environmentName} since the only available environment doesn't match the {beanstalk.cnamePrefix}");
-                                return;
-                            }
-                        }
-			getLog().info(
-			    "Assigning a environment named " + env.getEnvironmentName());
-			
-			//this.environmentId = envId;
-			this.environmentName = env.getEnvironmentName();
-		} else {
-                        if (bCnameDefined) {
-                            for (final EnvironmentDescription env : environmentsFor) {
-                                final String cnameToMatch = cnamePrefix + ".elasticbeanstalk.com";
-                                if (env.getCNAME().equalsIgnoreCase(cnameToMatch)) {
-                                    this.environmentName = env.getEnvironmentName();
-                                    this.environmentId = env.getEnvironmentId();
-                                    
-                                    getLog()
-                                            .info(
-                                                "Assigning a environment named " + env.getEnvironmentName() + " because it matched the 'cnamePrefix' = '" + cnamePrefix + "'");
-                                    return;
-                                }
-                            }
-                            getLog()
-                                    .info("Unable to find a running environment matching cnamePrefix: " + cnamePrefix);
-                            return;
-                        }
-			getLog()
-			    .info(
-			        "Too many running environments found. Will not pick one. Declare -Dbeanstalk.environmentName next time.");
+		EnvironmentDescription envSpec = null;
+		
+		try {
+			envSpec = super.lookupEnvironment(applicationName, "", environmentId, environmentName, cnamePrefix);
+		} catch (MojoExecutionException e) {
+			throw new RuntimeException(e);
 		}
+		
+		this.environmentId = envSpec.getEnvironmentId();
+		this.environmentName = envSpec.getEnvironmentName();
+	}
+
+	/**
+	 * Returns a list of environments for current application name
+	 * @param cnamePrefix cname prefix to match
+	 * @return found environment, if any. null otherwise
+	 */
+	protected EnvironmentDescription getEnvironmentForCNamePrefix(
+			String applicationName, String cnamePrefix) {
+		for (final EnvironmentDescription env : getEnvironmentsFor(applicationName)) {
+			final String cnameToMatch = cnamePrefix
+					+ ".elasticbeanstalk.com";
+			if (env.getCNAME().equalsIgnoreCase(cnameToMatch))
+				return env;
+		}
+		
+		return null;
 	}
 
 	/**

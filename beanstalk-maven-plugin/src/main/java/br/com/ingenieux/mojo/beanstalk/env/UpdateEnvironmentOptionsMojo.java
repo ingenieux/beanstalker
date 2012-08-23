@@ -50,10 +50,8 @@ public class UpdateEnvironmentOptionsMojo extends AbstractNeedsEnvironmentMojo {
 
 	/**
 	 * Environment Name
-	 * 
-	 * @parameter expression="${beanstalk.environmentDescription}"
-	 *            default-value="default"
 	 */
+	@MojoParameter(expression="${beanstalk.environmentDescription}", defaultValue="default")
 	String environmentDescription;
 
 	/**

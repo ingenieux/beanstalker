@@ -14,8 +14,12 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
+import java.io.File;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectWriter;
 import org.jfrog.maven.annomojo.annotations.MojoGoal;
 import org.jfrog.maven.annomojo.annotations.MojoParameter;
 import org.jfrog.maven.annomojo.annotations.MojoRequiresDirectInvocation;
@@ -24,6 +28,7 @@ import org.jfrog.maven.annomojo.annotations.MojoSince;
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
 import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsRequest;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsResult;
 
 /**
  * Describe running environments
@@ -46,6 +51,12 @@ public class DescribeEnvironmentsMojo extends AbstractBeanstalkMojo {
 	 */
 	@MojoParameter(expression="${beanstalk.includeDeleted}")
 	boolean includeDeleted;
+	
+	/**
+	 * Output file (Optional)
+	 */
+	@MojoParameter(expression = "${beanstalk.outputFile}")
+	File outputFile;
 
 	@Override
 	protected Object executeInternal() throws MojoExecutionException,
@@ -57,6 +68,24 @@ public class DescribeEnvironmentsMojo extends AbstractBeanstalkMojo {
 
 		// TODO add environmentNames / environmentIds / includeDeletedBackTo
 
-		return getService().describeEnvironments(req);
+		DescribeEnvironmentsResult result = getService().describeEnvironments(req);
+		
+		if (null != outputFile) {
+			getLog().info("Writing results into " + outputFile.getName());
+			
+			try {
+				ObjectMapper objectMapper = new ObjectMapper();
+				
+				ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
+				
+				writer.writeValue(outputFile, result.getEnvironments());
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+			
+			return null;
+		}
+		
+		return result;
 	}
 }

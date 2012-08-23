@@ -39,12 +39,6 @@ import com.amazonaws.services.elasticbeanstalk.model.CreateEnvironmentResult;
 @MojoSince("0.1.0")
 public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 	/**
-	 * DNS CName Prefix
-	 */
-	@MojoParameter(expression="${beanstalk.cnamePrefix}", defaultValue="${project.artifactId}")
-	String cnamePrefix;
-
-	/**
 	 * Application Description
 	 */
 	@MojoParameter(expression="${beanstalk.applicationDescription}", defaultValue="${project.name}")
