@@ -19,7 +19,7 @@
   <parent>
     <artifactId>beanstalker</artifactId>
     <groupId>br.com.ingenieux</groupId>
-    <version>0.2.7-RC6-SNAPSHOT</version>
+    <version>0.2.7-RC6</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
