@@ -14,14 +14,9 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import org.apache.maven.plugin.AbstractMojoExecutionException;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.jfrog.maven.annomojo.annotations.MojoGoal;
 import org.jfrog.maven.annomojo.annotations.MojoParameter;
 import org.jfrog.maven.annomojo.annotations.MojoSince;
@@ -31,8 +26,6 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesContextBuilder;
 
-import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsRequest;
-import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsResult;
 import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
 
 /**
@@ -95,12 +88,12 @@ public class SwapEnvironmentCnamesMojo extends AbstractBeanstalkMojo {
 
 	@Override
 	protected Object executeInternal() throws AbstractMojoExecutionException {
-		EnvironmentDescription sourceEnvironment = lookupEnvironment("source",
-				sourceEnvironmentId, sourceEnvironmentName,
-				sourceEnvironmentCNamePrefix);
-		EnvironmentDescription targetEnvironment = lookupEnvironment("target",
-				targetEnvironmentId, targetEnvironmentName,
-				targetEnvironmentCNamePrefix);
+		EnvironmentDescription sourceEnvironment = lookupEnvironment(applicationName,
+				"source", sourceEnvironmentId,
+				sourceEnvironmentName, sourceEnvironmentCNamePrefix);
+		EnvironmentDescription targetEnvironment = lookupEnvironment(applicationName,
+				"target", targetEnvironmentId,
+				targetEnvironmentName, targetEnvironmentCNamePrefix);
 
 		SwapCNamesContext context = SwapCNamesContextBuilder
 				.swapCNamesContext()//
@@ -116,80 +109,5 @@ public class SwapEnvironmentCnamesMojo extends AbstractBeanstalkMojo {
 
 		return command.execute(context);
 
-	}
-
-	protected EnvironmentDescription lookupEnvironment(String kind,
-			String environmentId, String environmentName,
-			String environmentCNamePrefix) throws MojoExecutionException {
-		boolean bIdDefined = isNotBlank(environmentId);
-		boolean bNameDefined = isNotBlank(environmentName);
-		boolean bCNamePrefixDefined = isNotBlank(environmentCNamePrefix);
-
-		boolean bIdOrNameDefined = bIdDefined ^ bNameDefined;
-		
-		if (!(bIdOrNameDefined ^ bCNamePrefixDefined)) {
-			String message = "You must declare either _EnvironmentId or _EnvironmentName or _EnvironmentCNamePrefix"
-					.replaceAll("_", kind);
-			throw new MojoExecutionException(message);
-		}
-
-		DescribeEnvironmentsRequest req = new DescribeEnvironmentsRequest()
-				.withApplicationName(applicationName);
-		DescribeEnvironmentsResult result = null;
-
-		if (bIdOrNameDefined) {
-			if (bIdDefined) {
-				req.setEnvironmentIds(Arrays.asList(environmentId));
-			} else if (bNameDefined) {
-				req.setEnvironmentNames(Arrays.asList(environmentName));
-			}
-
-			result = getService().describeEnvironments(req);
-
-			List<EnvironmentDescription> environments = result.getEnvironments();
-			
-			return handleResults(kind, environments);
-		}
-		
-		result = getService().describeEnvironments(req);
-		
-		List<EnvironmentDescription> environments = new ArrayList<EnvironmentDescription>();
-		
-		String cNameToFind = String.format("%s.elasticbeanstalk.com", environmentCNamePrefix);
-		
-		for (EnvironmentDescription d : result.getEnvironments())
-			if (cNameToFind.equals(d.getCNAME()))
-				environments.add(d);
-		
-		handleResults(kind, environments);
-
-		return null;
-	}
-
-	private EnvironmentDescription handleResults(String kind,
-			List<EnvironmentDescription> environments)
-			throws MojoExecutionException {
-		int len = environments.size();
-		
-		if (1 == len)
-			return environments.get(0);
-		
-		handleNonSingle(kind, len);
-		
-		return null;
-	}
-
-	private void handleNonSingle(String kind, int len) throws MojoExecutionException {
-		if (0 == len) {
-			String message = "No _ environments found matching the supplied parameters"
-					.replaceAll("_", kind);
-
-			throw new MojoExecutionException(message);
-		} else {
-			String message = "Multiple _ environments found matching the supplied parameters (may you file a bug report?)"
-					.replaceAll("_", kind);
-
-			throw new MojoExecutionException(message);
-		}
 	}
 }

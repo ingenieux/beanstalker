@@ -44,19 +44,18 @@ public class DescribeConfigurationSettingsMojo extends
 
 	protected Object executeInternal() throws MojoExecutionException,
 	    MojoFailureException {
-		boolean bNameDefined = org.apache.commons.lang.StringUtils
-		    .isNotBlank(environmentName);
 		boolean bTemplateNameDefined = org.apache.commons.lang.StringUtils
 		    .isNotBlank(templateName);
 
-		if (bNameDefined ^ bTemplateNameDefined)
-			throw new MojoFailureException("You can define either environmentName or templateName, but not both");
-
 		DescribeConfigurationSettingsRequest req = new DescribeConfigurationSettingsRequest()//
-		    .withApplicationName(applicationName)//
-		    .withEnvironmentName(environmentName)//
-		    .withTemplateName(templateName)//
-		;
+	    .withApplicationName(applicationName);
+	    
+		if (bTemplateNameDefined) {
+			req.withTemplateName(templateName);
+		} else {
+			req.withEnvironmentName(environmentName)//
+		    .withTemplateName(templateName);
+		}
 
 		return getService().describeConfigurationSettings(req);
 	}
