@@ -8,6 +8,11 @@
     <logo name="Built By Maven" href="http://maven.apache.org"
           img="http://maven.apache.org/images/logos/maven-feather.png" />
   </poweredBy>
+  <skin>
+    <groupId>org.apache.maven.skins</groupId>
+    <artifactId>maven-fluido-skin</artifactId>
+    <version>1.3.0</version>
+  </skin>
   <body>
     <menu name="Overview">
       <item name="Index" href="./index.html"/>
