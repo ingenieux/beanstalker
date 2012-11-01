@@ -29,7 +29,16 @@ import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
  */
 public class WaitForEnvironmentCommand extends
     BaseCommand<WaitForEnvironmentContext, EnvironmentDescription> {
-	private static final long INTERVAL = 15 * 1000;
+	
+	/**
+	 * Poll Interval
+	 */
+	private static final long POLL_INTERVAL = 15 * 1000;
+	
+	/**
+	 * Magic Constant for Mins to MSEC
+	 */
+	private static final long MINS_TO_MSEC = 60 * 1000;
 
 	/**
 	 * Constructor
@@ -55,7 +64,7 @@ public class WaitForEnvironmentCommand extends
 		String domainToWaitFor = String.format("%s.elasticbeanstalk.com",
 		    context.getDomainToWaitFor());
 
-		Date expiresAt = new Date(System.currentTimeMillis() + INTERVAL * timeoutMins);
+		Date expiresAt = new Date(System.currentTimeMillis() + MINS_TO_MSEC * timeoutMins);
 
 		boolean done = false;
 
@@ -96,7 +105,7 @@ public class WaitForEnvironmentCommand extends
 
 	void sleepInterval() {
 		try {
-			Thread.sleep(INTERVAL);
+			Thread.sleep(POLL_INTERVAL);
 		} catch (InterruptedException e) {
 		}
 	}
