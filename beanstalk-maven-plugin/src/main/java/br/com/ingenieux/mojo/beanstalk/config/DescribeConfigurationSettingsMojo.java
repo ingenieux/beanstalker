@@ -53,7 +53,7 @@ public class DescribeConfigurationSettingsMojo extends
 		if (bTemplateNameDefined) {
 			req.withTemplateName(templateName);
 		} else {
-			req.withEnvironmentName(environmentName)//
+			req.withEnvironmentName(curEnv.getEnvironmentName())//
 		    .withTemplateName(templateName);
 		}
 

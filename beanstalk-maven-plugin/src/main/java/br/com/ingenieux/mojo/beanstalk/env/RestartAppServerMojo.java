@@ -41,8 +41,8 @@ public class RestartAppServerMojo extends AbstractNeedsEnvironmentMojo {
 	    MojoFailureException {
 		RestartAppServerRequest req = new RestartAppServerRequest();
 
-		req.setEnvironmentId(environmentId);
-		req.setEnvironmentName(environmentName);
+		req.setEnvironmentId(curEnv.getEnvironmentId());
+		req.setEnvironmentName(curEnv.getEnvironmentName());
 
 		getService().restartAppServer(req);
 

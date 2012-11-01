@@ -77,7 +77,7 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 
 	protected CreateEnvironmentResult createEnvironment(String cnameToCreate)
 	    throws AbstractMojoExecutionException {
-		String newEnvironmentName = getEnvironmentName(environmentName);
+		String newEnvironmentName = getEnvironmentName(defaultEnvironmentName);
 
 		CreateEnvironmentContextBuilder builder = CreateEnvironmentContextBuilder
 		    .createEnvironmentContext() //

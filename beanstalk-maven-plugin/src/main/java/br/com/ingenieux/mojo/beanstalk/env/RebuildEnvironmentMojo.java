@@ -40,8 +40,8 @@ public class RebuildEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 	    MojoFailureException {
 		RebuildEnvironmentRequest req = new RebuildEnvironmentRequest();
 
-		req.setEnvironmentId(environmentId);
-		req.setEnvironmentName(environmentName);
+		req.setEnvironmentId(curEnv.getEnvironmentId());
+		req.setEnvironmentName(curEnv.getEnvironmentName());
 
 		getService().rebuildEnvironment(req);
 

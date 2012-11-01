@@ -58,7 +58,7 @@ public class DescribeConfigurationOptionsMojo extends AbstractNeedsEnvironmentMo
 	    MojoFailureException {
 		DescribeConfigurationOptionsRequest req = new DescribeConfigurationOptionsRequest()//
 		    .withApplicationName(this.applicationName)//
-		    .withEnvironmentName(environmentName)//
+		    .withEnvironmentName(curEnv.getEnvironmentName())//
 		    .withOptions(optionSpecifications)//
 		    .withSolutionStackName(solutionStack)//
 		    .withTemplateName(templateName)//

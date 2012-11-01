@@ -69,8 +69,8 @@ public class RollbackVersionMojo extends AbstractNeedsEnvironmentMojo {
 		    .describeApplicationVersions(describeApplicationVersionsRequest);
 
 		DescribeEnvironmentsRequest describeEnvironmentsRequest = new DescribeEnvironmentsRequest()
-		    .withApplicationName(applicationName).withEnvironmentIds(environmentId)
-		    .withEnvironmentNames(environmentName).withIncludeDeleted(false);
+		    .withApplicationName(applicationName).withEnvironmentIds(curEnv.getEnvironmentId())
+		    .withEnvironmentNames(curEnv.getEnvironmentName()).withIncludeDeleted(false);
 
 		DescribeEnvironmentsResult environments = getService()
 		    .describeEnvironments(describeEnvironmentsRequest);
@@ -133,8 +133,8 @@ public class RollbackVersionMojo extends AbstractNeedsEnvironmentMojo {
 		    .withEnvironmentId(d.getEnvironmentId()).withVersionLabel(versionLabel);
 
 		getLog().info(
-		    "Changing versionLabel for Environment[name=" + environmentName
-		        + "; environmentId=" + environmentId + "] from version "
+		    "Changing versionLabel for Environment[name=" + curEnv.getEnvironmentName()
+		        + "; environmentId=" + curEnv.getEnvironmentId() + "] from version "
 		        + curVersionLabel + " to version " + latestVersionDescription.getVersionLabel());
 
 		if (dryRun)

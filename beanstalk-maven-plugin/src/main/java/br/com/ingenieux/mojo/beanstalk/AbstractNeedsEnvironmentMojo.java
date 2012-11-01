@@ -27,30 +27,24 @@ public abstract class AbstractNeedsEnvironmentMojo extends
 	@MojoParameter(expression="${beanstalk.applicationName}", defaultValue="${project.artifactId}", required=true, description="Beanstalk Application Name")
 	protected String applicationName;
 
-	@MojoParameter(expression="${beanstalk.environmentName}", description="Environment Name")
-	protected String environmentName;
-
-	@MojoParameter(expression="${beanstalk.environmentId}", description="Environment Id")
-	protected String environmentId;
-
-	@MojoParameter(expression="${beanstalk.defaultEnvironmentName}", description="Default Environment Name")
+	@MojoParameter(expression="${beanstalk.defaultEnvironmentName}", description="Default Environment Name", defaultValue="default")
 	protected String defaultEnvironmentName;
         
     @MojoParameter(expression="${beanstalk.cnamePrefix}", description = "cnamePrefix")
     protected String cnamePrefix;
 
+    /**
+     * Current Environment
+     */
+	protected EnvironmentDescription curEnv;
+
 	@Override
 	protected void configure() {
-		EnvironmentDescription envSpec = null;
-		
 		try {
-			envSpec = super.lookupEnvironment(applicationName, "", environmentId, environmentName, cnamePrefix);
+			curEnv = super.lookupEnvironment(applicationName, "", null, null, cnamePrefix);
 		} catch (MojoExecutionException e) {
 			throw new RuntimeException(e);
 		}
-		
-		this.environmentId = envSpec.getEnvironmentId();
-		this.environmentName = envSpec.getEnvironmentName();
 	}
 
 	/**

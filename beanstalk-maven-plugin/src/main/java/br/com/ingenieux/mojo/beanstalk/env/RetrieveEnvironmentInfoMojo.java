@@ -49,7 +49,7 @@ public class RetrieveEnvironmentInfoMojo extends AbstractNeedsEnvironmentMojo {
 	protected Object executeInternal() throws MojoExecutionException,
 	    MojoFailureException {
 		RetrieveEnvironmentInfoRequest request = new RetrieveEnvironmentInfoRequest()
-		    .withEnvironmentId(environmentId).withEnvironmentName(environmentName)
+		    .withEnvironmentId(curEnv.getEnvironmentId()).withEnvironmentName(curEnv.getEnvironmentName())
 		    .withInfoType(infoType);
 
 		RetrieveEnvironmentInfoResult result = getService()

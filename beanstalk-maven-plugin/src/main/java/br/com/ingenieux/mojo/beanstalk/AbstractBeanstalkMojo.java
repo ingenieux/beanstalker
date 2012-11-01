@@ -96,13 +96,13 @@ public abstract class AbstractBeanstalkMojo extends
 		List<EnvironmentDescription> environments = new ArrayList<EnvironmentDescription>();
 
 		for (EnvironmentDescription d : result.getEnvironments())
-			if (cNameToFind.equals(d.getCNAME()))
+			if (cNameToFind.equals(d.getCNAME())&& (!d.getStatus().startsWith("Termin")))
 				environments.add(d);
 
 		return handleResults(kind, environments);
 	}
 
-	private EnvironmentDescription handleResults(String kind,
+	protected EnvironmentDescription handleResults(String kind,
 			List<EnvironmentDescription> environments)
 			throws MojoExecutionException {
 		int len = environments.size();
@@ -115,7 +115,7 @@ public abstract class AbstractBeanstalkMojo extends
 		return null;
 	}
 
-	private void handleNonSingle(String kind, int len)
+	protected void handleNonSingle(String kind, int len)
 			throws MojoExecutionException {
 		if (0 == len) {
 			String message = "No _ environments found matching the supplied parameters"

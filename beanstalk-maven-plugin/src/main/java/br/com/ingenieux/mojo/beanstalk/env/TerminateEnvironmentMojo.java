@@ -45,8 +45,8 @@ public class TerminateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 	@Override
 	protected Object executeInternal() throws AbstractMojoExecutionException {
 		TerminateEnvironmentContext context = TerminateEnvironmentContextBuilder
-		    .terminateEnvironmentContext().withEnvironmentId(environmentId)
-		    .withEnvironmentName(environmentName)
+		    .terminateEnvironmentContext().withEnvironmentId(curEnv.getEnvironmentId())
+		    .withEnvironmentName(curEnv.getEnvironmentName())
 		    .withTerminateResources(terminateResources).build();
 		TerminateEnvironmentCommand command = new TerminateEnvironmentCommand(this);
 

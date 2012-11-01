@@ -14,11 +14,17 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
+import static org.apache.commons.lang.StringUtils.isBlank;
+
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.maven.plugin.AbstractMojoExecutionException;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.jfrog.maven.annomojo.annotations.MojoGoal;
 import org.jfrog.maven.annomojo.annotations.MojoParameter;
 import org.jfrog.maven.annomojo.annotations.MojoSince;
@@ -33,7 +39,10 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentCommand
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
 
+import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
 import com.amazonaws.services.elasticbeanstalk.model.CreateEnvironmentResult;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettingsRequest;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettingsResult;
 import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
 
 /**
@@ -56,6 +65,15 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 	 */
 	@MojoParameter(expression="${beanstalk.timeoutMins}", defaultValue="20")
 	Integer timeoutMins;
+	
+	@Override
+	protected EnvironmentDescription handleResults(String kind,
+			List<EnvironmentDescription> environments)
+			throws MojoExecutionException {
+		// Don't care - We're an exception to the rule, you know.
+		
+		return null;
+	}
 
 	@Override
 	protected Object executeInternal() throws AbstractMojoExecutionException {
@@ -86,6 +104,8 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 			    "Creating a new environment on " + cnamePrefixToCreate
 			        + ".elasticbeanstalk.com");
 
+		copyOptionSettings(curEnv);
+		
 		CreateEnvironmentResult createEnvResult = createEnvironment(cnamePrefixToCreate);
 
 		/*
@@ -118,6 +138,39 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 		terminateAndWaitForEnvironment(curEnv.getEnvironmentId());
 
 		return createEnvResult;
+	}
+
+	private void copyOptionSettings(EnvironmentDescription curEnv) {
+		if (null != this.optionSettings && this.optionSettings.length > 0)
+			return;
+		
+		DescribeConfigurationSettingsResult configSettings = getService()
+				.describeConfigurationSettings(
+						new DescribeConfigurationSettingsRequest()
+								.withApplicationName(applicationName)
+								.withEnvironmentName(
+										curEnv.getEnvironmentName()));
+		
+		List<ConfigurationOptionSetting> newOptionSettings = new ArrayList<ConfigurationOptionSetting>(configSettings.getConfigurationSettings().get(0).getOptionSettings());
+		
+		ListIterator<ConfigurationOptionSetting> listIterator = newOptionSettings.listIterator();
+		
+		while (listIterator.hasNext()) {
+			ConfigurationOptionSetting curOptionSetting = listIterator.next();
+			
+			boolean bInvalid = isBlank(curOptionSetting.getValue());
+			
+			if (! bInvalid)
+				bInvalid |= (curOptionSetting.getNamespace().equals("aws:cloudformation:template:parameter") && curOptionSetting.getOptionName().equals("AppSource"));
+			
+			if (! bInvalid)
+				bInvalid |= (curOptionSetting.getValue().contains(curEnv.getEnvironmentId()));
+			
+			if (bInvalid)
+				listIterator.remove();
+		}
+		
+		this.optionSettings = newOptionSettings.toArray(new ConfigurationOptionSetting[newOptionSettings.size()]);
 	}
 
 	/**

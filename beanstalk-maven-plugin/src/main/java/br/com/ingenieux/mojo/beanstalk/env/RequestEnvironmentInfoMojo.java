@@ -48,7 +48,7 @@ public class RequestEnvironmentInfoMojo extends AbstractNeedsEnvironmentMojo {
 	protected Object executeInternal() throws MojoExecutionException,
 	    MojoFailureException {
 		RequestEnvironmentInfoRequest request = new RequestEnvironmentInfoRequest()
-		    .withEnvironmentId(environmentId).withEnvironmentName(environmentName)
+		    .withEnvironmentId(curEnv.getEnvironmentId()).withEnvironmentName(curEnv.getEnvironmentName())
 		    .withInfoType(infoType);
 
 		getService().requestEnvironmentInfo(request);

@@ -76,8 +76,8 @@ public class UpdateEnvironmentOptionsMojo extends AbstractNeedsEnvironmentMojo {
 	    MojoFailureException {
 		UpdateEnvironmentRequest req = new UpdateEnvironmentRequest();
 
-		req.setEnvironmentId(environmentId);
-		req.setEnvironmentName(environmentName);
+		req.setEnvironmentId(curEnv.getEnvironmentId());
+		req.setEnvironmentName(curEnv.getEnvironmentName());
 
 		if (WhatToSet.versionLabel.equals(whatToSet)) {
 			req.setVersionLabel(versionLabel);

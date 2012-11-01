@@ -41,7 +41,7 @@ public class DescribeEnvironmentResourcesMojo extends
 	    MojoFailureException {
 		return getService()
 		    .describeEnvironmentResources(new DescribeEnvironmentResourcesRequest()
-		        .withEnvironmentId(environmentId).withEnvironmentName(
-		            environmentName));
+		        .withEnvironmentId(curEnv.getEnvironmentId()).withEnvironmentName(
+		            curEnv.getEnvironmentName()));
 	}
 }

@@ -63,9 +63,9 @@ public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 
 	protected Object executeInternal() throws AbstractMojoExecutionException {
 		UpdateEnvironmentContext context = UpdateEnvironmentContextBuilder
-		    .updateEnvironmentContext().withEnvironmentId(environmentId)//
+		    .updateEnvironmentContext().withEnvironmentId(curEnv.getEnvironmentId())//
 		    .withEnvironmentDescription(environmentDescription)//
-		    .withEnvironmentName(environmentName)//
+		    .withEnvironmentName(curEnv.getEnvironmentName())//
 		    .withOptionSettings(optionSettings)//
 		    .withTemplateName(templateName)//
 		    .withVersionLabel(versionLabel)//

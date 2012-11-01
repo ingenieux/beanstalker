@@ -81,13 +81,20 @@ public class WaitForEnvironmentCommand extends
 			DescribeEnvironmentsRequest req = new DescribeEnvironmentsRequest()
 			    .withApplicationName(applicationName).withEnvironmentIds(
 			        environmentId);
+			
+			if (statusToWaitFor.startsWith("Terminat"))
+				req.withIncludeDeleted(true);
 
 			DescribeEnvironmentsResult result = service.describeEnvironments(req);
+			
+			boolean covered = false;
 
 			for (EnvironmentDescription d : result.getEnvironments()) {
 				debug("Environment Detail:" + ToStringBuilder.reflectionToString(d));
 
 				done = d.getStatus().equalsIgnoreCase(statusToWaitFor);
+				
+				covered |= d.getEnvironmentId().equals(environmentId);
 
 				if (done && hasDomainToWaitFor)
 					done = domainToWaitFor.equals(d.getCNAME());
@@ -95,6 +102,12 @@ public class WaitForEnvironmentCommand extends
 				if (done)
 					return d;
 			}
+			
+			if (! covered && "Terminated".equals(statusToWaitFor)) {
+				info(String.format("Environment id %s not even returned. Probably gone", environmentId));
+				return null;
+			}
+			
 			sleepInterval();
 		} while (true);
 	}
