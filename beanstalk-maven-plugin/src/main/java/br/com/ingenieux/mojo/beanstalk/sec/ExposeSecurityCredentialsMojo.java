@@ -15,7 +15,6 @@ package br.com.ingenieux.mojo.beanstalk.sec;
  */
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.Validate;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
@@ -23,6 +22,7 @@ import org.jfrog.maven.annomojo.annotations.MojoGoal;
 import org.jfrog.maven.annomojo.annotations.MojoParameter;
 import org.jfrog.maven.annomojo.annotations.MojoRequiresProject;
 import org.jfrog.maven.annomojo.annotations.MojoSince;
+import org.sonatype.plexus.build.incremental.BuildContext;
 
 import br.com.ingenieux.mojo.aws.Expose;
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
@@ -80,13 +80,17 @@ public class ExposeSecurityCredentialsMojo extends AbstractBeanstalkMojo {
 			/**
 			 * Validate parameters, for gods sake
 			 */
-			for (Expose e : exposes) {
-				Validate.isTrue(StringUtils.isNotBlank(e.getServerId()),
-						"serverId must not supplied");
-				Validate.isTrue(StringUtils.isNotBlank(e.getAccessKey()),
-						"accessKey must not supplied");
-				Validate.isTrue(StringUtils.isNotBlank(e.getSharedKey()),
-						"sharedKey must not supplied");
+			try {
+				for (Expose e : exposes) {
+					assertOrWarn(StringUtils.isNotBlank(e.getServerId()),
+							"serverId must be supplied");
+					assertOrWarn(StringUtils.isNotBlank(e.getAccessKey()),
+							"accessKey must be supplied");
+					assertOrWarn(StringUtils.isNotBlank(e.getSharedKey()),
+							"sharedKey must be supplied");
+				}
+			} catch (IllegalStateException e) {
+				return null;
 			}
 		}
 
@@ -100,11 +104,30 @@ public class ExposeSecurityCredentialsMojo extends AbstractBeanstalkMojo {
 
 			project.getProperties().put(e.getAccessKey(),
 					realExpose.getAccessKey());
-			
+
 			project.getProperties().put(e.getSharedKey(),
 					realExpose.getSharedKey());
 		}
 
 		return null;
+	}
+
+	/**
+	 * @component
+	 */
+	BuildContext buildContext;
+
+	private void assertOrWarn(boolean condition, String message) {
+		if (condition)
+			return;
+
+		if (null != buildContext) {
+			buildContext.addMessage(project.getFile(), 1, 1, message,
+					BuildContext.SEVERITY_WARNING, null);
+		} else {
+			getLog().warn(message);
+		}
+		
+		throw new IllegalStateException(message);
 	}
 }
