@@ -28,7 +28,7 @@ Testing your credentials and DNS Availability
   Now it is a good time to see if your app name is available, and your credentials are correct.
   
 +---+
-$ mvn beanstalk:check-availability -Dcname=test-war
+$ mvn beanstalk:check-availability -Dbeanstalk.cnamePrefix=test-war
 +---+
 
   If it is available, here is the expected output:

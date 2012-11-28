@@ -27,9 +27,6 @@ public abstract class AbstractNeedsEnvironmentMojo extends
 	@MojoParameter(expression="${beanstalk.applicationName}", defaultValue="${project.artifactId}", required=true, description="Beanstalk Application Name")
 	protected String applicationName;
 
-	@MojoParameter(expression="${beanstalk.defaultEnvironmentName}", description="Default Environment Name", defaultValue="default")
-	protected String defaultEnvironmentName;
-        
     @MojoParameter(expression="${beanstalk.cnamePrefix}", description = "cnamePrefix")
     protected String cnamePrefix;
 

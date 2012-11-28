@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Beanstalk Maven Plugin">
+<project name="ingenieux Beanstalker">
   <bannerRight>
     <name>ingenieux Beanstalker</name>
     <href>index.html</href>
@@ -18,13 +18,6 @@
       <item name="mapreduce-maven-plugin" href="mapreduce-maven-plugin" />
       <item name="simpledb-maven-plugin" href="simpledb-maven-plugin" /> 
     </menu>
-    <menu name="Other">
-      <item name="Usage" href="beanstalk-maven-plugin/usage.html" /> 
-      <item name="Security Credentials" href="beanstalk-maven-plugin/security.html" /> 
-      <item name="Configuration and Configuration Templates" href="beanstalk-maven-plugin/configurations-and-templates.html" />
-      <item name="Setting Up for your CI Builds" href="beanstalk-maven-plugin/setup-for-ci.html" /> 
-    </menu>
-    <menu ref="reports"/>
   </body>
 </project>
 

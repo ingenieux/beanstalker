@@ -52,34 +52,40 @@ import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
  * 
  */
 @MojoGoal("replace-environment")
-@MojoSince("0.2.0") // Best Guess Evar
+@MojoSince("0.2.0")
+// Best Guess Evar
 public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 	/**
 	 * 
 	 */
 	private static final Pattern PATTERN_NUMBERED = Pattern
-	    .compile("^(.*)-(\\d+)$");
+			.compile("^(.*)-(\\d+)$");
+
+	/**
+	 * Max Environment Name
+	 */
+	private static final int MAX_ENVNAME_LEN = 23;
 
 	/**
 	 * Minutes until timeout
 	 */
-	@MojoParameter(expression="${beanstalk.timeoutMins}", defaultValue="20")
+	@MojoParameter(expression = "${beanstalk.timeoutMins}", defaultValue = "20")
 	Integer timeoutMins;
-	
+
 	@Override
 	protected EnvironmentDescription handleResults(String kind,
 			List<EnvironmentDescription> environments)
 			throws MojoExecutionException {
 		// Don't care - We're an exception to the rule, you know.
-		
+
 		return null;
 	}
 
 	@Override
 	protected Object executeInternal() throws AbstractMojoExecutionException {
 		/*
-		 * Is the desired cname not being used by other environments? If so, just
-		 * launch the environment
+		 * Is the desired cname not being used by other environments? If so,
+		 * just launch the environment
 		 */
 		if (!hasEnvironmentFor(applicationName, cnamePrefix)) {
 			if (getLog().isInfoEnabled())
@@ -92,7 +98,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 		 * Gets the current environment using this cname
 		 */
 		EnvironmentDescription curEnv = getEnvironmentFor(applicationName,
-		    cnamePrefix);
+				cnamePrefix);
 
 		/*
 		 * Decides on a cnamePrefix, and launches a new environment
@@ -101,12 +107,18 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 
 		if (getLog().isInfoEnabled())
 			getLog().info(
-			    "Creating a new environment on " + cnamePrefixToCreate
-			        + ".elasticbeanstalk.com");
+					"Creating a new environment on " + cnamePrefixToCreate
+							+ ".elasticbeanstalk.com");
 
 		copyOptionSettings(curEnv);
-		
-		CreateEnvironmentResult createEnvResult = createEnvironment(cnamePrefixToCreate);
+
+		String newEnvironmentName = getNewEnvironmentName(this.environmentName);
+
+		if (getLog().isInfoEnabled())
+			getLog().info("And it'll be named " + newEnvironmentName);
+
+		CreateEnvironmentResult createEnvResult = createEnvironment(
+				cnamePrefixToCreate, newEnvironmentName);
 
 		/*
 		 * Waits for completion
@@ -130,7 +142,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 		 * Swaps
 		 */
 		swapEnvironmentCNames(newEnvDesc.getEnvironmentId(),
-		    curEnv.getEnvironmentId(), cnamePrefix);
+				curEnv.getEnvironmentId(), cnamePrefix);
 
 		/*
 		 * Terminates the previous environment - and waits for it
@@ -140,60 +152,91 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 		return createEnvResult;
 	}
 
+	/**
+	 * Prior to Launching a New Environment, lets look and copy the most we can
+	 * 
+	 * @param curEnv
+	 *            current environment
+	 */
 	private void copyOptionSettings(EnvironmentDescription curEnv) {
+		/**
+		 * Skip if we don't have anything
+		 */
 		if (null != this.optionSettings && this.optionSettings.length > 0)
 			return;
-		
+
 		DescribeConfigurationSettingsResult configSettings = getService()
 				.describeConfigurationSettings(
 						new DescribeConfigurationSettingsRequest()
 								.withApplicationName(applicationName)
 								.withEnvironmentName(
 										curEnv.getEnvironmentName()));
-		
-		List<ConfigurationOptionSetting> newOptionSettings = new ArrayList<ConfigurationOptionSetting>(configSettings.getConfigurationSettings().get(0).getOptionSettings());
-		
-		ListIterator<ConfigurationOptionSetting> listIterator = newOptionSettings.listIterator();
-		
+
+		List<ConfigurationOptionSetting> newOptionSettings = new ArrayList<ConfigurationOptionSetting>(
+				configSettings.getConfigurationSettings().get(0)
+						.getOptionSettings());
+
+		ListIterator<ConfigurationOptionSetting> listIterator = newOptionSettings
+				.listIterator();
+
 		while (listIterator.hasNext()) {
 			ConfigurationOptionSetting curOptionSetting = listIterator.next();
-			
+
+			/*
+			 * Filters out harmful options
+			 * 
+			 * I really mean harmful - If you mention a terminated environment
+			 * settings, Elastic Beanstalk will accept, but this might lead to
+			 * inconsistent states, specially when creating / listing environments. 
+			 * 
+			 * Trust me on this one.
+			 */
 			boolean bInvalid = isBlank(curOptionSetting.getValue());
-			
-			if (! bInvalid)
-				bInvalid |= (curOptionSetting.getNamespace().equals("aws:cloudformation:template:parameter") && curOptionSetting.getOptionName().equals("AppSource"));
-			
-			if (! bInvalid)
-				bInvalid |= (curOptionSetting.getValue().contains(curEnv.getEnvironmentId()));
-			
+
+			if (!bInvalid)
+				bInvalid |= (curOptionSetting.getNamespace().equals(
+						"aws:cloudformation:template:parameter") && curOptionSetting
+						.getOptionName().equals("AppSource"));
+
+			if (!bInvalid)
+				bInvalid |= (curOptionSetting.getValue().contains(curEnv
+						.getEnvironmentId()));
+
 			if (bInvalid)
 				listIterator.remove();
 		}
-		
-		this.optionSettings = newOptionSettings.toArray(new ConfigurationOptionSetting[newOptionSettings.size()]);
+
+		/*
+		 * Then copy it back
+		 */
+		this.optionSettings = newOptionSettings
+				.toArray(new ConfigurationOptionSetting[newOptionSettings
+						.size()]);
 	}
 
 	/**
 	 * Swaps environment cnames
 	 * 
 	 * @param newEnvironmentId
-	 *          environment id
+	 *            environment id
 	 * @param curEnvironmentId
-	 *          environment id
+	 *            environment id
 	 * @param cnamePrefix
-	 * @throws AbstractMojoExecutionException 
+	 * @throws AbstractMojoExecutionException
 	 */
 	protected void swapEnvironmentCNames(String newEnvironmentId,
-	    String curEnvironmentId, String cnamePrefix) throws AbstractMojoExecutionException {
+			String curEnvironmentId, String cnamePrefix)
+			throws AbstractMojoExecutionException {
 		getLog().info(
-		    "Swapping environment cnames " + newEnvironmentId + " and "
-		        + curEnvironmentId);
+				"Swapping environment cnames " + newEnvironmentId + " and "
+						+ curEnvironmentId);
 
 		{
-			SwapCNamesContext context = SwapCNamesContextBuilder.swapCNamesContext()//
-			    .withSourceEnvironmentId(newEnvironmentId)//
-			    .withDestinationEnvironmentId(curEnvironmentId)//
-			    .build();
+			SwapCNamesContext context = SwapCNamesContextBuilder
+					.swapCNamesContext()//
+					.withSourceEnvironmentId(newEnvironmentId)//
+					.withDestinationEnvironmentId(curEnvironmentId)//
+					.build();
 			SwapCNamesCommand command = new SwapCNamesCommand(this);
 
 			command.execute(context);
@@ -201,13 +244,14 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 
 		{
 			WaitForEnvironmentContext context = new WaitForEnvironmentContextBuilder()
-			    .withApplicationName(applicationName)//
-			    .withStatusToWaitFor("Ready")//
-			    .withEnvironmentId(newEnvironmentId)//
-			    .withTimeoutMins(timeoutMins)//
-			    .withDomainToWaitFor(cnamePrefix).build();
+					.withApplicationName(applicationName)//
+					.withStatusToWaitFor("Ready")//
+					.withEnvironmentId(newEnvironmentId)//
+					.withTimeoutMins(timeoutMins)//
+					.withDomainToWaitFor(cnamePrefix).build();
 
-			WaitForEnvironmentCommand command = new WaitForEnvironmentCommand(this);
+			WaitForEnvironmentCommand command = new WaitForEnvironmentCommand(
+					this);
 
 			command.execute(context);
 		}
@@ -217,30 +261,32 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 	 * Terminates and waits for an environment
 	 * 
 	 * @param environmentId
-	 *          environment id to terminate
-	 * @throws AbstractMojoExecutionException 
+	 *            environment id to terminate
+	 * @throws AbstractMojoExecutionException
 	 */
 	protected void terminateAndWaitForEnvironment(String environmentId)
-	    throws AbstractMojoExecutionException {
+			throws AbstractMojoExecutionException {
 		{
 			getLog().info("Terminating environmentId=" + environmentId);
 
 			TerminateEnvironmentContext terminatecontext = new TerminateEnvironmentContextBuilder()
-			    .withEnvironmentId(environmentId).withTerminateResources(true)
-			    .build();
+					.withEnvironmentId(environmentId)
+					.withTerminateResources(true).build();
 			TerminateEnvironmentCommand command = new TerminateEnvironmentCommand(
-			    this);
+					this);
 
 			command.execute(terminatecontext);
 		}
 
 		{
 			WaitForEnvironmentContext context = new WaitForEnvironmentContextBuilder()
-			    .withApplicationName(applicationName)
-			    .withEnvironmentId(environmentId).withStatusToWaitFor("Terminated")
-			    .withTimeoutMins(timeoutMins).build();
+					.withApplicationName(applicationName)
+					.withEnvironmentId(environmentId)
+					.withStatusToWaitFor("Terminated")
+					.withTimeoutMins(timeoutMins).build();
 
-			WaitForEnvironmentCommand command = new WaitForEnvironmentCommand(this);
+			WaitForEnvironmentCommand command = new WaitForEnvironmentCommand(
+					this);
 
 			command.execute(context);
 		}
@@ -251,19 +297,20 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 	 * environment couldn't get into Ready state or there was a timeout
 	 * 
 	 * @param environmentId
-	 *          environmentId to wait for
+	 *            environmentId to wait for
 	 * @return EnvironmentDescription in Ready state
-	 * @throws AbstractMojoExecutionException 
+	 * @throws AbstractMojoExecutionException
 	 */
 	protected EnvironmentDescription waitForEnvironment(String environmentId)
-	    throws AbstractMojoExecutionException {
+			throws AbstractMojoExecutionException {
 		getLog().info(
-		    "Waiting for environmentId " + environmentId
-		        + " to get into Ready state");
+				"Waiting for environmentId " + environmentId
+						+ " to get into Ready state");
 
 		WaitForEnvironmentContext context = new WaitForEnvironmentContextBuilder()
-		    .withApplicationName(applicationName).withStatusToWaitFor("Ready")
-		    .withEnvironmentId(environmentId).withTimeoutMins(timeoutMins).build();
+				.withApplicationName(applicationName)
+				.withStatusToWaitFor("Ready").withEnvironmentId(environmentId)
+				.withTimeoutMins(timeoutMins).build();
 
 		WaitForEnvironmentCommand command = new WaitForEnvironmentCommand(this);
 
@@ -289,12 +336,13 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 	 * Boolean predicate for environment existence
 	 * 
 	 * @param applicationName
-	 *          application name
+	 *            application name
 	 * @param cnamePrefix
-	 *          cname prefix
+	 *            cname prefix
 	 * @return true if the application name has this cname prefix
 	 */
-	protected boolean hasEnvironmentFor(String applicationName, String cnamePrefix) {
+	protected boolean hasEnvironmentFor(String applicationName,
+			String cnamePrefix) {
 		return null != getEnvironmentFor(applicationName, cnamePrefix);
 	}
 
@@ -303,15 +351,16 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 	 * cnamePrefix
 	 * 
 	 * @param applicationName
-	 *          application name
+	 *            application name
 	 * @param cnamePrefix
-	 *          cname prefix
+	 *            cname prefix
 	 * @return environment description
 	 */
 	protected EnvironmentDescription getEnvironmentFor(String applicationName,
-	    String cnamePrefix) {
+			String cnamePrefix) {
 		Collection<EnvironmentDescription> environments = getEnvironmentsFor(applicationName);
-		String cnameToMatch = String.format("%s.elasticbeanstalk.com", cnamePrefix);
+		String cnameToMatch = String.format("%s.elasticbeanstalk.com",
+				cnamePrefix);
 
 		/*
 		 * Finds a matching environment
@@ -323,14 +372,9 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 		return null;
 	}
 
-	@Override
-	protected String getEnvironmentName(String environmentName) {
-		return getNewEnvironmentName(environmentName);
-	}
-
 	private String getNewEnvironmentName(String newEnvironmentName) {
-		String resultingEnvironmentName = newEnvironmentName;
-		String environmentRadical = resultingEnvironmentName;
+		String result = newEnvironmentName;
+		String environmentRadical = result;
 
 		int i = 0;
 
@@ -344,18 +388,40 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 			}
 		}
 
-		while (containsNamedEnvironment(resultingEnvironmentName))
-			resultingEnvironmentName = String
-			    .format("%s-%d", environmentRadical, i++);
+		while (containsNamedEnvironment(result))
+			result = formatAndTruncate("%s-%d", MAX_ENVNAME_LEN,
+					environmentRadical, i++);
 
-		return resultingEnvironmentName;
+		return result;
+	}
+
+	/**
+	 * Elastic Beanstalk Contains a Max EnvironmentName Limit. Lets truncate it,
+	 * shall we?
+	 * 
+	 * @param mask
+	 *            String.format Mask
+	 * @param maxLen
+	 *            Maximum Length
+	 * @param args
+	 *            String.format args
+	 * @return formatted String, or maxLen rightmost characters
+	 */
+	protected String formatAndTruncate(String mask, int maxLen, Object... args) {
+		String result = String.format(mask, args);
+
+		if (result.length() > maxLen)
+			result = result
+					.substring(result.length() - maxLen, result.length());
+
+		return result;
 	}
 
 	/**
 	 * Boolean predicate for named environment
 	 * 
 	 * @param environmentName
-	 *          environment name
+	 *            environment name
 	 * @return true if environment name exists
 	 */
 	protected boolean containsNamedEnvironment(String environmentName) {

@@ -14,6 +14,9 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
+import static org.apache.commons.lang.StringUtils.isNotBlank;
+
+import org.apache.commons.lang.Validate;
 import org.apache.maven.plugin.AbstractMojoExecutionException;
 import org.jfrog.maven.annomojo.annotations.MojoGoal;
 import org.jfrog.maven.annomojo.annotations.MojoParameter;
@@ -38,6 +41,9 @@ import com.amazonaws.services.elasticbeanstalk.model.CreateEnvironmentResult;
 @MojoGoal("create-environment")
 @MojoSince("0.1.0")
 public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
+	@MojoParameter(expression="${beanstalk.environmentName}", description="Environment Name", defaultValue="default")
+	protected String environmentName;
+        
 	/**
 	 * Application Description
 	 */
@@ -68,17 +74,28 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 	@MojoParameter(expression="${beanstalk.templateName}")
 	String templateName;
 
+	/**
+	 * Overrides parent in order to avoid a thrown exception as there's not an environment to lookup
+	 */
+	@Override
+	protected void configure() {
+		// Disable parent lookup - We're CREATING, mind that!
+	}
+	
 	@Override
 	protected Object executeInternal() throws AbstractMojoExecutionException {
-		CreateEnvironmentResult result = createEnvironment(cnamePrefix);
+		CreateEnvironmentResult result = createEnvironment(cnamePrefix, this.environmentName);
 
 		return result;
 	}
 
-	protected CreateEnvironmentResult createEnvironment(String cnameToCreate)
+	protected CreateEnvironmentResult createEnvironment(String cnameToCreate, String newEnvironmentName)
 	    throws AbstractMojoExecutionException {
-		String newEnvironmentName = getEnvironmentName(defaultEnvironmentName);
-
+		/*
+		 * Hey Aldrin, have you ever noticed we're getting pedantic on those validations?
+		 */
+		Validate.isTrue(isNotBlank(newEnvironmentName), "No New Environment Name Supplied");
+		
 		CreateEnvironmentContextBuilder builder = CreateEnvironmentContextBuilder
 		    .createEnvironmentContext() //
 		    .withApplicationName(applicationName)//
@@ -95,9 +112,5 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 		CreateEnvironmentCommand command = new CreateEnvironmentCommand(this);
 
 		return command.execute(context);
-	}
-
-	protected String getEnvironmentName(String environmentName) {
-		return environmentName;
 	}
 }

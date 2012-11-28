@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Beanstalk Maven Plugin">
+  <bannerRight>
+    <name>Beanstalk Maven Plugin</name>
+    <href>index.html</href>
+  </bannerRight>
+  <poweredBy>
+    <logo name="Built By Maven" href="http://maven.apache.org"
+          img="http://maven.apache.org/images/logos/maven-feather.png" />
+  </poweredBy>
+  <body>
+    <menu name="Overview">
+      <item name="Index" href="./index.html"/>
+    </menu>
+    <menu name="Guides">
+      <item name="Usage" href="beanstalk-maven-plugin/usage.html" /> 
+      <item name="Security Credentials" href="beanstalk-maven-plugin/security.html" /> 
+      <item name="Configuration and Configuration Templates" href="beanstalk-maven-plugin/configurations-and-templates.html" />
+      <item name="Setting Up for your CI Builds" href="beanstalk-maven-plugin/setup-for-ci.html" /> 
+    </menu>
+    <menu ref="reports"/>
+  </body>
+</project>

@@ -56,6 +56,9 @@ public class CreateEnvironmentCommand extends
 		}
 
 		request.setVersionLabel(context.getVersionLabel());
+		
+		if (parentMojo.isVerbose())
+			parentMojo.getLog().info("Requesting createEnvironment w/ request: " + request);
 
 		return service.createEnvironment(request);
 	}
