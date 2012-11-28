@@ -416,5 +416,8 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 	}
 
 	protected abstract Object executeInternal() throws Exception;
-
+	
+	public boolean isVerbose() {
+		return verbose;
+	}
 }
