@@ -10,13 +10,13 @@
   </poweredBy>
   <body>
     <menu name="Overview">
-      <item name="Index" href="./index.html"/>
+      <item name="Index" href="index.html"/>
     </menu>
     <menu name="Guides">
-      <item name="Usage" href="beanstalk-maven-plugin/usage.html" /> 
-      <item name="Security Credentials" href="beanstalk-maven-plugin/security.html" /> 
-      <item name="Configuration and Configuration Templates" href="beanstalk-maven-plugin/configurations-and-templates.html" />
-      <item name="Setting Up for your CI Builds" href="beanstalk-maven-plugin/setup-for-ci.html" /> 
+      <item name="Usage" href="usage.html" /> 
+      <item name="Security Credentials" href="security.html" /> 
+      <item name="Configuration and Configuration Templates" href="configurations-and-templates.html" />
+      <item name="Setting Up for your CI Builds" href="setup-for-ci.html" /> 
     </menu>
     <menu ref="reports"/>
   </body>

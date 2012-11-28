@@ -213,10 +213,11 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-plugin-plugin</artifactId>
-					<version>3.1</version>
+					<version>3.2</version>
 					<inherited>true</inherited>
 					<configuration>
 						<extractors>
+							<extractor>java</extractor>
 							<extractor>javaanno</extractor>
 						</extractors>
 					</configuration>
@@ -228,14 +229,6 @@
 							<scope>runtime</scope>
 						</dependency>
 					</dependencies>
-					<executions>
-						<execution>
-							<id>generated-helpmojo</id>
-							<goals>
-								<goal>helpmojo</goal>
-							</goals>
-						</execution>
-					</executions>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
