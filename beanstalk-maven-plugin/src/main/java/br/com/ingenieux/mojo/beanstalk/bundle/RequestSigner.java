@@ -1,5 +1,7 @@
 package br.com.ingenieux.mojo.beanstalk.bundle;
 
+import static org.apache.commons.lang.StringUtils.isNotBlank;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.SimpleTimeZone;
@@ -60,9 +62,11 @@ public class RequestSigner {
 		String host = String.format("git.elasticbeanstalk.%s.amazonaws.com",
 				region);
 
-		String path = String.format("/v1/repos/%s/commitid/%s/environment/%s",
-				hexEncode(applicationId), hexEncode(commitId),
-				hexEncode(environmentName));
+		String path = String.format("/v1/repos/%s/commitid/%s",
+				hexEncode(applicationId), hexEncode(commitId));
+		
+		if (isNotBlank(environmentName))
+			path += String.format("/environment/%s", hexEncode(environmentName));
 
 		String scope = String.format("%s/%s/%s/%s", strDate,
 				region, service, TERMINATOR);

@@ -1,16 +1,16 @@
 package br.com.ingenieux.mojo.beanstalk.bundle;
 
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
-import static org.apache.commons.lang.StringUtils.isBlank;
 
 import java.io.File;
 import java.util.Date;
 
-import org.apache.commons.lang.SystemUtils;
-import org.apache.commons.lang.Validate;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.dircache.DirCache;
+import org.eclipse.jgit.api.PushCommand;
+import org.eclipse.jgit.api.RmCommand;
+import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.TextProgressMonitor;
 import org.eclipse.jgit.transport.RefSpec;
 import org.jfrog.maven.annomojo.annotations.MojoGoal;
 import org.jfrog.maven.annomojo.annotations.MojoParameter;
@@ -32,9 +32,12 @@ public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
 
 	@Override
 	protected void configure() {
-		region = defaultIfBlank(region, "us-east-1");
+		try {
+			super.configure();
+		} catch (Exception exc) {
+		}
 
-		super.configure();
+		region = defaultIfBlank(region, "us-east-1");
 	}
 
 	@Override
@@ -48,21 +51,53 @@ public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
 		} else {
 			git = Git.init().setDirectory(sourceDirectory).call();
 		}
+		
+		Status status = git.status().call();
+		
+		if (status.isClean()) {
+			getLog().info("No Changes");
+			
+			return null;
+		}
+		
+		if (!status.getMissing().isEmpty()) {
+			RmCommand rmCommand = git.rm();
 
-		DirCache dirCache = git.add().addFilepattern(".").call();
+			for (String path : status.getMissing()) {
+				rmCommand.addFilepattern(path);
+			}
 
-		if (dirCache.isOutdated())
-			git.commit().setMessage("Update from fast-deploy").call();
+			rmCommand.call();
+		}
+		
+		git.add().addFilepattern(".").call();
+		
+		git.commit().setMessage("Update from fast-deploy").call();
 
 		String commitId = ObjectId.toString(git.getRepository()
 				.getRef("master").getObjectId());
 
-		String remote = new RequestSigner(getAWSCredentials(), applicationName,
-				region, commitId, curEnv.getEnvironmentName(), new Date())
-				.getPushUrl();
+		String environmentName = null;
 
-		git.push().setRefSpecs(new RefSpec("HEAD:refs/heads/master"))
-				.setRemote(remote).call();
+		if (null != curEnv)
+			environmentName = curEnv.getEnvironmentName();
+
+		String remote = new RequestSigner(getAWSCredentials(), applicationName,
+				region, commitId, environmentName, new Date()).getPushUrl();
+
+		PushCommand cmd = git.//
+				push();
+		
+		cmd.setProgressMonitor(new TextProgressMonitor());
+
+		cmd.setRefSpecs(new RefSpec("HEAD:refs/heads/master")).//
+				setForce(true).//
+				setRemote(remote).//
+				call();
+		
+		String gitVersion = "git-" + commitId;
+
+		getLog().info("Deployed version " + gitVersion);
 
 		return null;
 	}
