@@ -5,10 +5,9 @@ import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 import java.io.File;
 import java.util.Date;
 
+import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PushCommand;
-import org.eclipse.jgit.api.RmCommand;
-import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.TextProgressMonitor;
 import org.eclipse.jgit.transport.RefSpec;
@@ -44,34 +43,13 @@ public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
 	protected Object executeInternal() throws Exception {
 		File gitRepo = new File(sourceDirectory, ".git");
 
-		Git git = null;
+		if (gitRepo.exists())
+			FileUtils.cleanDirectory(gitRepo);
 
-		if (gitRepo.exists()) {
-			git = Git.open(sourceDirectory);
-		} else {
-			git = Git.init().setDirectory(sourceDirectory).call();
-		}
-		
-		Status status = git.status().call();
-		
-		if (status.isClean()) {
-			getLog().info("No Changes");
-			
-			return null;
-		}
-		
-		if (!status.getMissing().isEmpty()) {
-			RmCommand rmCommand = git.rm();
+		Git git = Git.init().setDirectory(sourceDirectory).call();
 
-			for (String path : status.getMissing()) {
-				rmCommand.addFilepattern(path);
-			}
-
-			rmCommand.call();
-		}
-		
 		git.add().addFilepattern(".").call();
-		
+
 		git.commit().setMessage("Update from fast-deploy").call();
 
 		String commitId = ObjectId.toString(git.getRepository()
@@ -87,14 +65,18 @@ public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
 
 		PushCommand cmd = git.//
 				push();
-		
+
 		cmd.setProgressMonitor(new TextProgressMonitor());
 
-		cmd.setRefSpecs(new RefSpec("HEAD:refs/heads/master")).//
-				setForce(true).//
-				setRemote(remote).//
-				call();
-		
+		try {
+			cmd.setRefSpecs(new RefSpec("HEAD:refs/heads/master")).//
+					setForce(true).//
+					setRemote(remote).//
+					call();
+		} catch (Exception exc) {
+			// Ignore
+		}
+
 		String gitVersion = "git-" + commitId;
 
 		getLog().info("Deployed version " + gitVersion);
