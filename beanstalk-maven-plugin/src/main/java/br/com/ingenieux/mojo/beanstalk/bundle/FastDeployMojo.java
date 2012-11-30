@@ -5,9 +5,9 @@ import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 import java.io.File;
 import java.util.Date;
 
-import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PushCommand;
+import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.TextProgressMonitor;
 import org.eclipse.jgit.transport.RefSpec;
@@ -42,15 +42,26 @@ public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
 	@Override
 	protected Object executeInternal() throws Exception {
 		File gitRepo = new File(sourceDirectory, ".git");
+		
+		Git git = null;
+		
+		if (! gitRepo.exists()) {
+			git = Git.init().setDirectory(sourceDirectory).call();
+		} else {
+			git = Git.open(gitRepo);
+		}
+		
+		Status status = git.status().call();
+		
+		if (status.isClean()) {
+			getLog().info("No Changes");
+			
+			return null;
+		}
 
-		if (gitRepo.exists())
-			FileUtils.cleanDirectory(gitRepo);
+		git.add().addFilepattern(".").setUpdate(true).call();
 
-		Git git = Git.init().setDirectory(sourceDirectory).call();
-
-		git.add().addFilepattern(".").call();
-
-		git.commit().setMessage("Update from fast-deploy").call();
+		git.commit().setAll(true).setMessage("Update from fast-deploy").call();
 
 		String commitId = ObjectId.toString(git.getRepository()
 				.getRef("master").getObjectId());
