@@ -5,6 +5,7 @@ import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 import java.io.File;
 import java.util.Date;
 
+import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.Status;
@@ -42,24 +43,38 @@ public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
 	@Override
 	protected Object executeInternal() throws Exception {
 		File gitRepo = new File(sourceDirectory, ".git");
-		
+
 		Git git = null;
-		
-		if (! gitRepo.exists()) {
+
+		if (!gitRepo.exists()) {
 			git = Git.init().setDirectory(sourceDirectory).call();
 		} else {
 			git = Git.open(gitRepo);
 		}
-		
+
 		Status status = git.status().call();
-		
+
 		if (status.isClean()) {
 			getLog().info("No Changes");
-			
+
 			return null;
 		}
+		
+		// Asks for Existing Files to get added
+		git.add().setUpdate(true).addFilepattern(".").call();
 
-		git.add().addFilepattern(".").setUpdate(true).call();
+		// Now as for any new files (untracked)
+		
+		AddCommand addCommand = git.add();
+
+		if (!status.getUntracked().isEmpty()) {
+			for (String s : status.getUntracked()) {
+				getLog().info("Adding file " + s);
+				addCommand.addFilepattern(s);
+			}
+
+			addCommand.call();
+		}
 
 		git.commit().setAll(true).setMessage("Update from fast-deploy").call();
 
