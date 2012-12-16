@@ -63,7 +63,9 @@ But wait, there's more:
 
 	* Build your SSH Command to connect (ssh -i <ssh key> <user>@<host>)
 
-	If you have a short attention span just like me, remotely connecting is an error prone and boring process, right?
+	[]
+
+	If you have a short attention span just like me, you'll notice that remotely connecting to EC2 is an error prone and boring process, right?
 
 Enter ekaterminal
   
