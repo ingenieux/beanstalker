@@ -5,4 +5,10 @@
 
 What is it?
 
-  Beanstalker is a set of plugins for Java-based AWS Apps. Namely, {{{http://aws.amazon.com/elasticbeanstalk/}Amazon Elastic Beanstalk}} and {{{http://aws.amazon.com/elasticmapreduce/}Amazon Elastic MapReduce}}.
+  Beanstalker is a set of plugins for Java-based AWS Apps. 
+  
+  Namely, {{{http://aws.amazon.com/elasticbeanstalk/}Amazon Elastic Beanstalk}} and {{{http://aws.amazon.com/elasticmapreduce/}Amazon Elastic MapReduce}}.
+
+We need your support!
+
+  Your help is needed! Please see the {{donate.html}Donate} Page to find out how

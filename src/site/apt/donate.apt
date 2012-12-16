@@ -1,0 +1,71 @@
+ ------
+ Donate to Beanstalker
+ ------
+ ------
+
+Why?
+
+  Beanstalker is mostly a personal project, and it was developed in my spare time in order to achieve a vision where:
+  
+  * You don't need nothing more than Maven (and Java) to Use it
+  * Its portable (no need for any binaries beyond the reasonable)
+  * Features try, at the very least, to reproduce what the AWS API Expects
+  * OTOH, Users want more features, so we've devised extra features for added-value (like Encryption and Replace-Environment, as well as Git-based fast-deploy mojo)
+
+  Also, using my personal account was good, but once my Free Tier passed out, it makes more sense to turn to Consolidated Billing and create a separate account just for IT. This means more cost, and no Free Tier.
+
+  In order for you to get some insight, in some cases, I needed to have AWS Support (a USD 49/mo cost), and bring machines in order to reproduce features. In some extreme cases, we've had to reverse-engineer source code which AWS simply didn't release (fast-deploy comes to mind), even when asked to push (so, its not truly open source)
+
+  While it ranges, monthly, 200 new installations, this is the time to ask for donations in order to keep on working in beanstalker.
+
+A Personal Pledge, and a small roadmap for beanstalker
+
+  Let me make public some of my thoughts about beanstalker:
+  
+  * I care too much about tests, or the lack of. Your donations will help me make regressions easier by provisioning newer servers and processes for testing
+  * I'd like to make it easier for new users to 'jump in'. This means, at the very least, both newer archetypes for basic application patterns, as well as more documents.
+  * It needs some internal refactoring. In particular, switching to the new mojo metadata infrastructure. Having the IT Tests done will make it easier
+  * More docs. You might have not noticed, but we do have a cloudfront plugin, but there are no documents. Your donation will make it a primary goal. Same applies to elastic-mapreduce and simpledb as well
+  
+So here's the deal:
+
+  We've set up a {{donations page}https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Y8KNQS86NP9CC} so you could show your support for beanstalker and help me make it better.
+
+But wait, there's more:
+
+  In order to bring you some more than simply some intrinsecal motivation, we're making a deal: Until January 31 2013, donations more than USD 30 will give free beta access to ekaterminal builds.
+  
+  ekaterminal, just like beanstalker, came from my own frustration with AWS Tooling. In particular, accessing AWS Instances.
+  
+  Think about it: If you have more than one username / IAM Account / SSH Key, mostly, accessing EC2 involves:
+  
+  * Finding (and opening) your IAM / AWS Account Page and login with your password
+  * Identifying the Instance to login
+  * Identify the SSH Key to Login (in particular, there are 2 different kinds of SSH Key hashes in AWS which makes it harder to rely on fingerprints, for instance)
+  * Copy its IP Address (which is a bit tricky)
+  * Opening necessary Security Groups Access if needed
+  * Guess what the username is (its not always ec-user)
+  * Build your SSH Command to connect (ssh -i <ssh key> <user>@<host>)
+
+  If you have a short attention span just like me, remotely connecting is an error prone and boring process, right?
+
+  Enter ekaterminal: From ekaterminal, you can manage:
+  
+  * IAM Account, as well as passwords and account keys
+  * SSH Keys, with import / export between .pem and .ppk file formats
+  * Common Users for a Machine, as well as the right key for each one
+  * Workspaces, where you save the information above
+  * A "Instances" panel for a given AWS Account, from where you could login (both Putty and openssh are supported, in Windows / Mac / Linux Environments)
+
+  The Keys you manage from ekaterminal are persisted into a single .json file, suitable for sharing in Dropbox (we're considering encryption and advanced access sharing features), and the feedback we're getting is that people really want it badly. Its a good sign, but we'd like to turn this into an opportunity to value our existing users and improve our mutual knowledge.
+  
+  By donating more than USD 30, you'll gain access to the latest beta builds of ekaterminal and, once released, you'll get Access to its Professional Version. The free version will be limited for non-commercial use and will have some feature limitations which you'll not see in Pro Version.
+
+  Besides that, your Pro Version will enable you for Basic Support via email, and access to a solution forum with tips and ideas - There a few "surprise" featuers we will announce in the upcoming weeks. :)
+  
+  I consider it to be a steal. But besides that, its a fair deal, right?
+  
+  Don't think twice, and donate to beanstalker to get {{https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Y8KNQS86NP9CC}your beta ekaterminal Pro access}!
+
+  Thanks  
+    
