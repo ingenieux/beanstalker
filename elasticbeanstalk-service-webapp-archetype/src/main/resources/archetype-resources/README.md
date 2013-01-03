@@ -34,13 +34,17 @@ This project, as is, supports modes 1-2 (settings.xml), and it looks by default 
 
 ## Configuring your Project
 
-We suggest convention over configuration, but anyway. The only setting you're likely to set is your ```cnamePrefix`` value in your pom.xml file. 
+We suggest convention over configuration, but anyway. The only setting you're likely to set is your ```cnamePrefix``` value in your pom.xml file. 
 
 Make sure you pick something unique and unlikely to conflict with other users.
 
 ## Deploying
 
 Simply call ```mvn deploy -Pdeploy```
+
+If your environment is Ready (Green or Red), it will deploy. If not, a new version will get published. 
+
+*You can always launch a new environment...*
 
 ## Launching an Environment
 
