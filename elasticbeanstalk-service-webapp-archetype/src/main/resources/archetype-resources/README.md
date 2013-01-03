@@ -19,7 +19,7 @@ It also includes some tips and tricks we've learned over the past years when usi
   - A [Simple Notification Service (SNS)](http://aws.amazon.com/sns/) Notification JAX-RS Resource on ```BaseSNSResource``` and ```SNSResource``` (useful if you need to plug-in notifications)
   - A Basic Health Code Check (handy!)
 
-In fact, this archetype was derived from an internal ingenieux project (a backend for [ekaterminal](http://www.ingenieux.com.br/products/ekaterminal/), 
+In fact, this archetype was derived from an internal ingenieux project - a backend for [ekaterminal](http://www.ingenieux.com.br/products/ekaterminal/), 
 which is another piece of software we are fairly confident you'll love it if you do elastic beanstalk/mapreduce too often.
 
 We hope you like it. If you run into any problems, please let us know by the [mailing list](http://groups.google.com/group/beanstalker-users) or the [issue tracker](http://github.com/ingenieux/beanstalker/issues) 
