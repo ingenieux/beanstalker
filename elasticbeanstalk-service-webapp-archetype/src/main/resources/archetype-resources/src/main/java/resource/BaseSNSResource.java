@@ -80,20 +80,7 @@ public class BaseSNSResource extends BaseResource {
 				ObjectNode bodyNode = (ObjectNode) objectMapper.readTree(body);
 			
 				if (SUBSCRIPTION_CONFIRMATION_MESSAGE_TYPE.equals(messageType)) {
-					String token = bodyNode.get("Token").getTextValue();
-			
-					if (logger.isInfoEnabled())
-						logger.info(
-								"Received SNS Subscription Confirmation (topicArn: {}, endpointId: {}, token: {})",
-								new Object[] { topicArn, token });
-			
-					ConfirmSubscriptionResult subscriptionResult = snsClient
-							.confirmSubscription(new ConfirmSubscriptionRequest(
-									topicArn, token));
-			
-					if (logger.isInfoEnabled())
-						logger.info("Subscription Result: {}",
-								new Object[] { subscriptionResult });
+					handleSubscribe(endpointId, topicArn, bodyNode);
 				} else if (NOTIFICATION_MESSAGE_TYPE.equals(messageType)) {
 					handleNotification(endpointId, bodyNode);
 				} else if (UNSUBSCRIBE_CONFIRMATION_MESSAGE_TYPE.equals(messageType)) {
@@ -101,6 +88,23 @@ public class BaseSNSResource extends BaseResource {
 				}
 			
 			}
+	
+	public void handleSubscribe(String endpointId, String topicArn, ObjectNode bodyNode) {
+		String token = bodyNode.get("Token").getTextValue();
+		
+		if (logger.isInfoEnabled())
+			logger.info(
+					"Received SNS Subscription Confirmation (topicArn: {}, endpointId: {}, token: {})",
+					new Object[] { topicArn, token });
+
+		ConfirmSubscriptionResult subscriptionResult = snsClient
+				.confirmSubscription(new ConfirmSubscriptionRequest(
+						topicArn, token));
+
+		if (logger.isInfoEnabled())
+			logger.info("Subscription Result: {}",
+					new Object[] { subscriptionResult });
+	}
 
 	/**
 	 * Here you receive a message whenever you get unsubscribed to a topic

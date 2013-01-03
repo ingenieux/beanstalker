@@ -7,13 +7,13 @@
 	We actually love papertrail so much we're already put a configuration ready for you.
 	
 	See https://papertrailapp.com/?thank=cffa7e if you'd like to try :) 
-	-->
 	<appender name="PAPERTRAIL" class="ch.qos.logback.classic.net.SyslogAppender">
 		<syslogHost>logs.papertrailapp.com</syslogHost>
 		<port>PORT</port>
 		<facility>USER</facility>
 		<suffixPattern>[%thread] %logger %msg</suffixPattern>
 	</appender>
+	-->
 
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<layout class="ch.qos.logback.classic.PatternLayout">
@@ -28,6 +28,8 @@
 
 	<root level="INFO">
 		<appender-ref ref="STDOUT" />
+		<!-- 
 		<appender-ref ref="PAPERTRAIL" />
+		-->
 	</root>
 </configuration>

@@ -1,10 +1,13 @@
+#set( $symbol_pound = '#' )
+#set( $symbol_dollar = '%' )
+#set( $symbol_escape = '\' )
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>${groupId}</groupId>
-	<artifactId>${artifactId}</artifactId>
-	<version>${version}</version>
+	<groupId>\${groupId}</groupId>
+	<artifactId>\${artifactId}</artifactId>
+	<version>\${version}</version>
 
 	<packaging>war</packaging>
 
@@ -12,7 +15,7 @@
 		<jetty.version>7.0.2.v20100331</jetty.version>
 		<slf4j.version>1.7.2</slf4j.version>
 		<guice.version>3.1.2</guice.version>
-		<jersey.version>1.15</jersey.version>
+		<jersey.version>1.16</jersey.version>
 		<jackson.version>1.9.10</jackson.version>
 	</properties>
 
@@ -20,13 +23,13 @@
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-server</artifactId>
-			<version>${jetty.version}</version>
+			<version>\${jetty.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-webapp</artifactId>
-			<version>${jetty.version}</version>
+			<version>\${jetty.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -43,17 +46,17 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>${slf4j.version}</version>
+			<version>\${slf4j.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>jcl-over-slf4j</artifactId>
-			<version>${slf4j.version}</version>
+			<version>\${slf4j.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>log4j-over-slf4j</artifactId>
-			<version>${slf4j.version}</version>
+			<version>\${slf4j.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
@@ -63,7 +66,7 @@
 		<dependency>
 			<groupId>org.sonatype.sisu.inject</groupId>
 			<artifactId>guice-servlet</artifactId>
-			<version>${guice.version}</version>
+			<version>\${guice.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.amazonaws</groupId>
@@ -78,32 +81,32 @@
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-core</artifactId>
-			<version>${jersey.version}</version>
+			<version>\${jersey.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.jersey.contribs</groupId>
 			<artifactId>jersey-guice</artifactId>
-			<version>${jersey.version}</version>
+			<version>\${jersey.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-xc</artifactId>
-			<version>${jackson.version}</version>
+			<version>\${jackson.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-jaxrs</artifactId>
-			<version>${jackson.version}</version>
+			<version>\${jackson.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-jaxrs</artifactId>
-			<version>${jackson.version}</version>
+			<version>\${jackson.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-mapper-asl</artifactId>
-			<version>${jackson.version}</version>
+			<version>\${jackson.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jayway.restassured</groupId>
@@ -157,7 +160,7 @@
 			<plugin>
 				<groupId>org.mortbay.jetty</groupId>
 				<artifactId>jetty-maven-plugin</artifactId>
-				<version>${jetty.version}</version>
+				<version>\${jetty.version}</version>
 				<configuration>
 					<scanIntervalSeconds>0</scanIntervalSeconds>
 					<useTestClasspath>true</useTestClasspath>
@@ -170,11 +173,11 @@
 				<plugin>
 					<groupId>br.com.ingenieux</groupId>
 					<artifactId>beanstalk-maven-plugin</artifactId>
-					<version>0.2.7-RC8-SNAPSHOT</version>
 					<inherited>true</inherited>
+					<version>${project.version}</version>
 					<configuration>
-						<applicationName>${artifactId}</applicationName>
-						<cnamePrefix>${artifactId}</cnamePrefix>
+						<applicationName>\${artifactId}</applicationName>
+						<cnamePrefix>\${artifactId}</cnamePrefix>
 						<useStagingDirectory>true</useStagingDirectory>
 					</configuration>
 				</plugin>

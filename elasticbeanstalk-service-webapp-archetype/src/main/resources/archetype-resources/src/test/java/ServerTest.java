@@ -35,14 +35,6 @@ public class ServerTest {
 	}
 	
 	@Test
-	public void failedHealthCheckTest() {
-		expect().
-			statusCode(405).
-		when().
-			get("/health/check");
-	}
-	
-	@Test
 	public void properHealthCheckTest() {
 		expect().
 			statusCode(200).

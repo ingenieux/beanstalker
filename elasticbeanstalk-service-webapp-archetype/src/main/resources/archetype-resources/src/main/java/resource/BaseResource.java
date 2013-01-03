@@ -21,7 +21,7 @@ import com.google.inject.Injector;
  * Use this as a suitable Extension Point :)
  */
 public class BaseResource {
-	public static final String ID_MASK = "{ id: ${symbol_escape}${symbol_escape}w+ }";
+	public static final String ID_MASK = "{ id: [^/]+ }";
 	
 	protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
