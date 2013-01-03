@@ -80,9 +80,10 @@
 	</scm>
 
 	<modules>
-		<module>beanstalk-maven-plugin</module>
-		<module>mapreduce-maven-plugin</module>
 		<module>beanstalker-common</module>
+		<module>beanstalk-maven-plugin</module>
+		<module>beanstalk-maven-archetype</module>
+		<module>mapreduce-maven-plugin</module>
 		<module>cloudfront-maven-plugin</module>
 		<module>simpledb-maven-plugin</module>
 	</modules>
@@ -92,7 +93,7 @@
 			<dependency>
 				<groupId>com.amazonaws</groupId>
 				<artifactId>aws-java-sdk</artifactId>
-				<version>1.3.12</version>
+				<version>1.3.25</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.maven</groupId>

@@ -2,16 +2,12 @@ package br.com.ingenieux.mojo.beanstalk.bundle;
 
 import static org.junit.Assert.assertEquals;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.SimpleTimeZone;
 
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.BasicAWSCredentials;
 
 @Ignore
 public class RequestBuilderTest {
