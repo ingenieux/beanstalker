@@ -1,4 +1,4 @@
-# Welcome to your beanstalk-webapp Archetype Project
+# Welcome to your beanstalk-maven-plugin archetype project!
 
 ## About
 
