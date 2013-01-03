@@ -36,6 +36,31 @@ This project, as is, supports modes 1-2 (settings.xml), and it looks by default 
 
 Simply call ```mvn deploy -Pdeploy```
 
+## Launching an Environment
+
+If you did the previous step, it will create a new elastic beanstalk application for you in AWS Console. 
+
+From the console, click in "Launch New Environment". In this dialog, not all options are available, so initially set the ```Health Check URL``` to the /debug handler:
+
+```/services/api/v1/debug```
+
+Don't launch it yet, though. We have some tips...
+
+## Environment / Configuration Tips:
+
+  - We suggest you save your environment into a configuration template once you're happy. We suggest ```envname-yyyymmdd-nn```, where NN is a number which gets incremented.
+  - Also, AWS told us its a bad idea to have matching environment names / applications, and even have the same environment named across different regions. In fact, they suggest you to add the ```-env``` suffix to make it easier to spot environments, environmentIds, and other oddly-named things. 
+
+## Setting the Proper Health Check URL
+
+Besides that, make sure you can map to an SSH Key you already have, so you are able to log into your EC2 Instance and troubleshoot any problems (unlikely, but better safe than sorry).
+
+Ok, now you can launch.
+
+Once the application is launched (and there's a Green Icon), click in "Edit Configuration" and set your applications AWS Access Key / Shared Key, then you can set set the proper Health Check URL:
+
+```/services/api/v1/health/check```
+
 ## SCM Notes
 
 ### Git Fast-Deploy
@@ -44,7 +69,7 @@ Please never commit the contents of your ```tmp-git-staging``` directory.
 
 Its there to cache locally and enable fast deployments into elastic beanstalk via the git backend.
 
-(if you looked, thats the reason for both .gitignore and .hgignore files)
+(if you look closely, thats the reason for both .gitignore and .hgignore files)
 
 # Code Notes
 
