@@ -65,7 +65,7 @@ This project has a few particular details. If you want to rename your root resou
  - Check [the plugin page](http://beanstalker.ingenieux.com.br/beanstalk-maven-plugin/) for General Reference and Usage Instructions.
  - Subscribe to the beanstalker-users list at [[http://groups.google.com/group/beanstalker-users]] to get up-to-date information
  - Problems? Let us know, on the lists or [the issue tracker](http://github.com/ingenieux/beanstalker/issues)
- - I <3 feedback!
+ - Feedback please!
 
 We hope beanstalk-maven-plugin helps your life easier, and find it fun and easy as much as we do.
 
