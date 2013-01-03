@@ -67,7 +67,7 @@ This project has a few particular details. If you want to rename your root resou
  - Problems? Let us know, on the lists or [the issue tracker](http://github.com/ingenieux/beanstalker/issues)
  - I <3 feedback!
 
-We hope beanstalk-maven-plugin made your life easier, and find it fun and easy as much as we do.
+We hope beanstalk-maven-plugin helps your life easier, and find it fun and easy as much as we do.
 
 btw, why not [donate to beanstalker](http://beanstalker.ingenieux.com.br/donate.html)?
 
