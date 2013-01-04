@@ -52,11 +52,9 @@ public class PutEnvironmentMojo extends CreateEnvironmentMojo {
 			UpdateEnvironmentContext context = UpdateEnvironmentContextBuilder
 					.updateEnvironmentContext()
 					.withEnvironmentId(curEnv.getEnvironmentId())//
-					.withEnvironmentName(curEnv.getEnvironmentName())//
-					.withOptionSettings(optionSettings)//
-					.withTemplateName(templateName)//
 					.withVersionLabel(versionLabel)//
 					.build();
+			
 			UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(
 					this);
 
