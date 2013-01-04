@@ -46,10 +46,12 @@ public class CreateApplicationVersionMojo extends AbstractBeanstalkMojo {
 	String applicationName;
 
 	/**
-	 * Application Description
+	 * Version Description
+	 * 
+	 * Unfortunately, this is incorrectly named. Anyway...
 	 */
-	@MojoParameter(expression="${beanstalk.applicationDescription}", defaultValue="${project.name}")
-	String applicationDescription;
+	@MojoParameter(expression="${beanstalk.versionDescription}", defaultValue="Update from beanstalk-maven-plugin")
+	String versionDescription;
 
 	/**
 	 * Auto-Create Application? Defaults to true
@@ -96,13 +98,13 @@ public class CreateApplicationVersionMojo extends AbstractBeanstalkMojo {
 		CreateApplicationVersionRequest request = new CreateApplicationVersionRequest();
 
 		request.setApplicationName(applicationName);
-		request.setDescription(applicationDescription);
+		request.setDescription(versionDescription);
 		request.setAutoCreateApplication(autoCreateApplication);
 
 		if (StringUtils.isNotBlank(s3Bucket) && StringUtils.isNotBlank(s3Key))
 			request.setSourceBundle(new S3Location(s3Bucket, s3Key));
 
-		request.setDescription(applicationDescription);
+		request.setDescription(versionDescription);
 
 		request.setVersionLabel(versionLabel);
 

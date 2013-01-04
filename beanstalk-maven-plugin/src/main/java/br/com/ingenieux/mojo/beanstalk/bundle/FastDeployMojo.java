@@ -42,6 +42,14 @@ public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
 
 	@MojoParameter(expression = "${beanstalk.useStagingDirectory}", description = "Use Staging Directory?", defaultValue = "false")
 	boolean useStagingDirectory = false;
+	
+	/**
+	 * Version Description
+	 * 
+	 * Unfortunately, this is incorrectly named. Anyway...
+	 */
+	@MojoParameter(expression="${beanstalk.versionDescription}", defaultValue="Update from fast-deploy")
+	String versionDescription;
 
 	@Override
 	protected void configure() {
@@ -81,7 +89,7 @@ public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
 			addCommand.call();
 		}
 
-		git.commit().setAll(true).setMessage("Update from fast-deploy").call();
+		git.commit().setAll(true).setMessage(versionDescription).call();
 
 		String commitId = ObjectId.toString(git.getRepository()
 				.getRef("master").getObjectId());

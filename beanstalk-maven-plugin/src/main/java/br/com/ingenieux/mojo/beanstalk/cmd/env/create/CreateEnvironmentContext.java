@@ -47,7 +47,7 @@ public class CreateEnvironmentContext {
 	}
 
 	/**
-	 * @return the applicationDescription
+	 * @return the versionDescription
 	 */
 	public String getApplicationDescription() {
 		return applicationDescription;
@@ -105,8 +105,8 @@ public class CreateEnvironmentContext {
 	}
 
 	/**
-	 * @param applicationDescription
-	 *          the applicationDescription to set
+	 * @param versionDescription
+	 *          the versionDescription to set
 	 */
 	public void setApplicationDescription(String applicationDescription) {
 		this.applicationDescription = applicationDescription;
