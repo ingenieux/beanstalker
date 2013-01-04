@@ -45,8 +45,6 @@ public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
 	
 	/**
 	 * Version Description
-	 * 
-	 * Unfortunately, this is incorrectly named. Anyway...
 	 */
 	@MojoParameter(expression="${beanstalk.versionDescription}", defaultValue="Update from fast-deploy")
 	String versionDescription;
@@ -116,7 +114,7 @@ public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
 			// Ignore
 		}
 
-		String applicationVersionId = null;
+		String applicationVersionId = "Unknown";
 
 		{
 			String gitVersionBase = "git-" + commitId;
