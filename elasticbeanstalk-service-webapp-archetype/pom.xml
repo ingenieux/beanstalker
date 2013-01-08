@@ -17,8 +17,6 @@
 		<developerConnection>scm:hg:https://bitbucket.org/aldrinleal/beanstalker</developerConnection>
 	</scm>
 
-	<name>beanstalk-webapp-archetype</name>
-
 	<description>A Maven Archetype Encompassing RestAssured, Jetty, Jackson, Guice and Jersey for Publishing JAX-RS-based Services on AWS' Elastic Beanstalk Service</description>
 
 	<build>
