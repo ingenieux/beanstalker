@@ -16,8 +16,7 @@ package br.com.ingenieux.mojo.beanstalk.env;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.jfrog.maven.annomojo.annotations.MojoGoal;
-import org.jfrog.maven.annomojo.annotations.MojoSince;
+import org.apache.maven.plugins.annotations.Mojo;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 
@@ -31,9 +30,9 @@ import com.amazonaws.services.elasticbeanstalk.model.RebuildEnvironmentRequest;
  * >RebuildEnvironment API</a> call.
  * 
  * @author Aldrin Leal
+ * @since 0.1.0
  */
-@MojoGoal("rebuild-environment")
-@MojoSince("0.1.0")
+@Mojo(name="rebuild-environment")
 public class RebuildEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 	@Override
 	protected Object executeInternal() throws MojoExecutionException,

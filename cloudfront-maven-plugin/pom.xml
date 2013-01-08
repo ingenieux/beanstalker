@@ -11,6 +11,15 @@
 	<artifactId>cloudfront-maven-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
 
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-plugin-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
 	<scm>
 		<connection>scm:hg:http://bitbucket.org/aldrinleal/beanstalker</connection>
 		<developerConnection>scm:hg:https://bitbucket.org/aldrinleal/beanstalker</developerConnection>
@@ -22,9 +31,12 @@
 			<artifactId>beanstalker-common</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.maven.plugin-tools</groupId>
+			<artifactId>maven-plugin-annotations</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>javax.activation</groupId>
 			<artifactId>activation</artifactId>
-			<version>1.1.1</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>

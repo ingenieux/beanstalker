@@ -3,7 +3,7 @@ package br.com.ingenieux.mojo.beanstalk;
 import java.util.Collection;
 
 import org.apache.maven.plugin.MojoExecutionException;
-import org.jfrog.maven.annomojo.annotations.MojoParameter;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsRequest;
 import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
@@ -24,10 +24,16 @@ import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
 
 public abstract class AbstractNeedsEnvironmentMojo extends
     AbstractBeanstalkMojo {
-	@MojoParameter(expression="${beanstalk.applicationName}", defaultValue="${project.artifactId}", required=true, description="Beanstalk Application Name")
+	/** 
+	 * Beanstalk Application Name 
+	 **/
+	@Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}", required = true)
 	protected String applicationName;
 
-    @MojoParameter(expression="${beanstalk.cnamePrefix}", description = "cnamePrefix", defaultValue="${project.artifactId}")
+	/**
+	 *  cnamePrefix 
+	 **/
+	@Parameter(property = "beanstalk.cnamePrefix", defaultValue = "${project.artifactId}")
     protected String cnamePrefix;
 
     /**

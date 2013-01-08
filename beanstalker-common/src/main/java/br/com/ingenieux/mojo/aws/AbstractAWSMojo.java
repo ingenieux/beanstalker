@@ -12,6 +12,7 @@ import org.apache.commons.lang.Validate;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.settings.Proxy;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
@@ -20,7 +21,6 @@ import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.context.Context;
 import org.codehaus.plexus.context.ContextException;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Contextualizable;
-import org.jfrog.maven.annomojo.annotations.MojoParameter;
 
 import br.com.ingenieux.mojo.aws.util.TypeUtil;
 
@@ -71,7 +71,10 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 	 */
 	private PlexusContainer container;
 
-	@MojoParameter(expression = "${settings}", required = true, readonly = true, description = "Maven Settings Reference")
+	/**
+	 * Maven Settings Reference
+	 */
+	@Parameter(property="settings", required = true, readonly = true)
 	protected Settings settings;
 
 	/**
@@ -79,13 +82,22 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 	 */
 	protected AWSCredentials awsCredentials;
 
-	@MojoParameter(expression = "${beanstalker.serverId}", defaultValue = "aws.amazon.com", description = "The server id in maven settings.xml to use for AWS Services Credentials (accessKey / secretKey)")
+	/**
+	 * The server id in maven settings.xml to use for AWS Services Credentials (accessKey / secretKey)
+	 */
+	@Parameter(property="beanstalker.serverId", defaultValue = "aws.amazon.com")
 	protected String serverId;
 
-	@MojoParameter(expression = "${beanstalker.verbose}", defaultValue = "false", description = "Verbose Logging?")
+	/**
+	 * Verbose Logging?
+	 */
+	@Parameter(property="beanstalker.verbose", defaultValue = "false")
 	protected boolean verbose;
 
-	@MojoParameter(expression = "${beanstalker.ignoreExceptions}", defaultValue = "false", description = "Ignore Exceptions?")
+	/**
+	 * Ignore Exceptions?
+	 */
+	@Parameter(property="beanstalker.ignoreExceptions", defaultValue = "false")
 	protected boolean ignoreExceptions;
 
 	protected String version = "?";
@@ -246,7 +258,7 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 	 * >this list</a> for reference.
 	 * </p>
 	 */
-	@MojoParameter(expression = "${beanstalker.region}", description = "AWS Service Region")
+	@Parameter(property="beanstalker.region")
 	protected String region;
 
 	protected String getEndpoint() {
@@ -259,14 +271,20 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 						version);
 	}
 
-	@MojoParameter(expression = "${aws.accessKey}", description = "AWS Access Key")
+	/**
+	 * AWS Access Key
+	 */
+	@Parameter(property="aws.accessKey")
 	private String accessKey;
 
 	protected String getAccessKey() {
 		return accessKey;
 	}
 
-	@MojoParameter(expression = "${aws.secretKey}", description = "AWS Secret Key")
+	/**
+	 * AWS Secret Key
+	 */
+	@Parameter(property="aws.secretKey")
 	private String secretKey;
 
 	protected String getSecretKey() {

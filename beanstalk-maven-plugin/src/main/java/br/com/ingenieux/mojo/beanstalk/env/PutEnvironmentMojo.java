@@ -15,8 +15,7 @@ package br.com.ingenieux.mojo.beanstalk.env;
  */
 
 import org.apache.maven.plugin.AbstractMojoExecutionException;
-import org.jfrog.maven.annomojo.annotations.MojoGoal;
-import org.jfrog.maven.annomojo.annotations.MojoSince;
+import org.apache.maven.plugins.annotations.Mojo;
 
 import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentContext;
@@ -29,9 +28,9 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentContextBu
  * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_CreateEnvironment.html"
  * >CreateEnvironment API</a> call.
  * 
+ * @since 0.2.8
  */
-@MojoGoal("put-environment")
-@MojoSince("0.2.8")
+@Mojo(name="put-environment")
 public class PutEnvironmentMojo extends CreateEnvironmentMojo {
 	@Override
 	protected void configure() {

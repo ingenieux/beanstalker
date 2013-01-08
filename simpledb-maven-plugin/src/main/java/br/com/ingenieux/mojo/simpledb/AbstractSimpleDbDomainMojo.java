@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 
-import org.jfrog.maven.annomojo.annotations.MojoParameter;
+import org.apache.maven.plugins.annotations.Parameter;
 
 public abstract class AbstractSimpleDbDomainMojo extends AbstractSimpleDbMojo {
     public static final Pattern PATTERN_DOMAIN = Pattern.compile("^[-a-z0-9._]{3,255}$", Pattern.CASE_INSENSITIVE);
@@ -30,7 +30,7 @@ public abstract class AbstractSimpleDbDomainMojo extends AbstractSimpleDbMojo {
     /**
      * Domains to Create, comma-separated
      */
-	@MojoParameter(expression = "${simpledb.domains}", required = true)
+	@Parameter(property="simpledb.domains", required = true)
     String domains;
     
     /**

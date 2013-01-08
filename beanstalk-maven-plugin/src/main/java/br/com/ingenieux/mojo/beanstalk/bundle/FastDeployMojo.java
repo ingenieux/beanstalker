@@ -6,6 +6,8 @@ import java.io.File;
 import java.util.Date;
 import java.util.ListIterator;
 
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PushCommand;
@@ -15,9 +17,6 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryBuilder;
 import org.eclipse.jgit.lib.TextProgressMonitor;
 import org.eclipse.jgit.transport.RefSpec;
-import org.jfrog.maven.annomojo.annotations.MojoGoal;
-import org.jfrog.maven.annomojo.annotations.MojoParameter;
-import org.jfrog.maven.annomojo.annotations.MojoSince;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 
@@ -27,26 +26,33 @@ import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationVersions
 
 /**
  * Uploads a packed war file to Amazon S3 for further Deployment.
+ * 
+ * @since 0.2.8
  */
-@MojoGoal("fast-deploy")
-@MojoSince("0.2.8")
+@Mojo(name="fast-deploy")
 public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
 	/**
 	 * Artifact to Deploy
 	 */
-	@MojoParameter(expression = "${project.build.directory}/${project.build.finalName}")
+	@Parameter(defaultValue="${project.build.directory}/${project.build.finalName}")
 	File sourceDirectory;
 
-	@MojoParameter(expression = "${beanstalk.stagingDirectory}", description = "Git Staging Dir (should not be under target/)", defaultValue = "${project.basedir}/tmp-git-deployment-staging")
+	/**
+	 * Git Staging Dir (should not be under target/)
+	 */
+	@Parameter(property="beanstalk.stagingDirectory", defaultValue = "${project.basedir}/tmp-git-deployment-staging")
 	File stagingDirectory;
 
-	@MojoParameter(expression = "${beanstalk.useStagingDirectory}", description = "Use Staging Directory?", defaultValue = "false")
+	/**
+	 * Use Staging Directory?
+	 */
+	@Parameter(property="beanstalk.useStagingDirectory", defaultValue = "false")
 	boolean useStagingDirectory = false;
 	
 	/**
 	 * Version Description
 	 */
-	@MojoParameter(expression="${beanstalk.versionDescription}", defaultValue="Update from fast-deploy")
+	@Parameter(property="beanstalk.versionDescription", defaultValue="Update from fast-deploy")
 	String versionDescription;
 
 	@Override

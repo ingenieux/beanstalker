@@ -18,10 +18,9 @@ import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.StringUtils;
-import org.jfrog.maven.annomojo.annotations.MojoGoal;
-import org.jfrog.maven.annomojo.annotations.MojoParameter;
-import org.jfrog.maven.annomojo.annotations.MojoRequiresDirectInvocation;
 
 import com.amazonaws.services.elasticmapreduce.model.DescribeJobFlowsRequest;
 
@@ -30,13 +29,12 @@ import com.amazonaws.services.elasticmapreduce.model.DescribeJobFlowsRequest;
  * 
  * @author Aldrin Leal
  */
-@MojoGoal("describe-job-flows")
-@MojoRequiresDirectInvocation
+@Mojo(name="describe-job-flows", requiresDirectInvocation=true)
 public class DescribeJobFlowsMojo extends AbstractMapreduceMojo {
 	/**
 	 * Comma-Separated List of Job Flow Ids
 	 */
-	@MojoParameter(expression="${mapreduce.jobFlowIds}")
+	@Parameter(property="mapreduce.jobFlowIds")
 	String jobFlowIds;
 
 	@Override

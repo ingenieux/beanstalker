@@ -16,10 +16,8 @@ package br.com.ingenieux.mojo.beanstalk.env;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.jfrog.maven.annomojo.annotations.MojoGoal;
-import org.jfrog.maven.annomojo.annotations.MojoParameter;
-import org.jfrog.maven.annomojo.annotations.MojoRequiresDirectInvocation;
-import org.jfrog.maven.annomojo.annotations.MojoSince;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 
@@ -33,10 +31,9 @@ import com.amazonaws.services.elasticbeanstalk.model.UpdateEnvironmentRequest;
  * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_UpdateEnvironment.html"
  * >UpdateEnvironment API</a> call.
  * 
+ * @since 0.2.2
  */
-@MojoGoal("update-environment-options")
-@MojoSince("0.2.2")
-@MojoRequiresDirectInvocation
+@Mojo(name="update-environment-options", requiresDirectInvocation=true)
 public class UpdateEnvironmentOptionsMojo extends AbstractNeedsEnvironmentMojo {
 	public enum WhatToSet {
 		description, optionSettings, templateName, versionLabel
@@ -45,31 +42,31 @@ public class UpdateEnvironmentOptionsMojo extends AbstractNeedsEnvironmentMojo {
 	/**
 	 * Configuration Option Settings
 	 */
-	@MojoParameter
+	@Parameter
 	ConfigurationOptionSetting[] optionSettings;
 
 	/**
 	 * Environment Name
 	 */
-	@MojoParameter(expression="${beanstalk.environmentDescription}", defaultValue="default")
+	@Parameter(property="beanstalk.environmentDescription", defaultValue="default")
 	String environmentDescription;
 
 	/**
 	 * Version Label to use. Defaults to Project Version
 	 */
-	@MojoParameter(expression="${beanstalk.versionLabel}", defaultValue="${project.version}")
+	@Parameter(property="beanstalk.versionLabel", defaultValue="${project.version}")
 	String versionLabel;
 
 	/**
 	 * Template Name
 	 */
-	@MojoParameter(expression="${beanstalk.templateName}")
+	@Parameter(property="beanstalk.templateName")
 	String templateName;
 
 	/**
 	 * What to set?
 	 */
-	@MojoParameter(expression="${beanstalk.whatToSet}", defaultValue="versionLabel", required=true)
+	@Parameter(property="beanstalk.whatToSet", defaultValue="versionLabel", required=true)
 	WhatToSet whatToSet;
 
 	protected Object executeInternal() throws MojoExecutionException,

@@ -19,9 +19,8 @@ import java.io.File;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.jfrog.maven.annomojo.annotations.MojoGoal;
-import org.jfrog.maven.annomojo.annotations.MojoParameter;
-import org.jfrog.maven.annomojo.annotations.MojoSince;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import br.com.ingenieux.mojo.aws.util.BeanstalkerS3Client;
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
@@ -33,21 +32,22 @@ import com.amazonaws.services.s3.model.PutObjectResult;
 
 /**
  * Uploads a packed war file to Amazon S3 for further Deployment.
+ * 
+ * @since 0.1.0
  */
-@MojoGoal("upload-source-bundle")
-@MojoSince("0.1.0")
+@Mojo(name="upload-source-bundle")
 public class UploadSourceBundleMojo extends AbstractBeanstalkMojo {
 	/**
 	 * S3 Bucket
 	 * 
 	 */
-	@MojoParameter(expression = "${beanstalk.s3Bucket}", defaultValue = "${project.artifactId}", required = true)
+	@Parameter(property="beanstalk.s3Bucket", defaultValue = "${project.artifactId}", required = true)
 	String s3Bucket;
 
 	/**
 	 * S3 Key
 	 */
-	@MojoParameter(expression = "${beanstalk.s3Key}", defaultValue = "${project.build.finalName}.${project.packaging}", required = true)
+	@Parameter(property="beanstalk.s3Key", defaultValue = "${project.build.finalName}.${project.packaging}", required = true)
 	String s3Key;
 
 	/**
@@ -59,7 +59,7 @@ public class UploadSourceBundleMojo extends AbstractBeanstalkMojo {
 	 * >this list</a> for reference.
 	 * </p>
 	 */
-	@MojoParameter(expression = "${beanstalk.s3Region}")
+	@Parameter(property="beanstalk.s3Region")
 	String s3Region;
 	
 	/**
@@ -70,13 +70,13 @@ public class UploadSourceBundleMojo extends AbstractBeanstalkMojo {
 	 * Disable when you want to be charged slightly less :)
 	 * </p>
 	 */
-	@MojoParameter(expression = "${beanstalk.multipartUpload", defaultValue = "true")
+	@Parameter(property = "beanstalk.multipartUpload", defaultValue = "true")
 	boolean multipartUpload = true;
 
 	/**
 	 * Artifact to Deploy
 	 */
-	@MojoParameter(expression = "${project.build.directory}/${project.build.finalName}.${project.packaging}")
+	@Parameter(defaultValue="${project.build.directory}/${project.build.finalName}.${project.packaging}")
 	File artifactFile;
 
 	protected Object executeInternal() throws MojoExecutionException,

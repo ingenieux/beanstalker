@@ -17,9 +17,8 @@ package br.com.ingenieux.mojo.beanstalk.env;
 
 
 import org.apache.maven.plugin.AbstractMojoExecutionException;
-import org.jfrog.maven.annomojo.annotations.MojoGoal;
-import org.jfrog.maven.annomojo.annotations.MojoParameter;
-import org.jfrog.maven.annomojo.annotations.MojoSince;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesCommand;
@@ -36,54 +35,51 @@ import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
  * >SwapEnvironmentCNAMEs API</a> call.
  * 
  * @author Aldrin Leal
- * 
+ * @since 0.2.3
  */
-@MojoGoal("swap-environment-cnames")
-@MojoSince("0.2.3")
+@Mojo(name="swap-environment-cnames")
 public class SwapEnvironmentCnamesMojo extends AbstractBeanstalkMojo {
 	/**
 	 * Source Environment Name
 	 * 
 	 */
-	@MojoParameter(expression = "${beanstalk.sourceEnvironmentName}")
+	@Parameter(property="beanstalk.sourceEnvironmentName")
 	String sourceEnvironmentName;
 
 	/**
 	 * Source Environment Id
 	 */
-	@MojoParameter(expression = "${beanstalk.sourceEnvironmentId}")
+	@Parameter(property="beanstalk.sourceEnvironmentId")
 	String sourceEnvironmentId;
 
 	/**
 	 * Destination Environment Name
 	 */
-	@MojoParameter(expression = "${beanstalk.targetEnvironmentName}")
+	@Parameter(property="beanstalk.targetEnvironmentName")
 	String targetEnvironmentName;
 
 	/**
 	 * Destination Environment Id
 	 */
-	@MojoParameter(expression = "${beanstalk.targetEnvironmentId}")
+	@Parameter(property="beanstalk.targetEnvironmentId")
 	String targetEnvironmentId;
 
 	/**
-	 * Required to specify sourceCname or targetCname
+	 * Beanstalk Application Name
 	 */
-	@MojoParameter(expression = "${beanstalk.applicationName}", defaultValue = "${project.artifactId}", required = true, description = "Beanstalk Application Name")
+	@Parameter(property="beanstalk.applicationName", defaultValue = "${project.artifactId}", required = true)
 	String applicationName;
 
 	/**
-	 * Allows specification of the source environment by looking it up by it's
-	 * applicationName and CName
+	 * cname of source environment
 	 */
-	@MojoParameter(expression = "${beanstalk.sourceEnvironmentCNamePrefix}", description = "CName of source environment")
+	@Parameter(property="beanstalk.sourceEnvironmentCNamePrefix")
 	String sourceEnvironmentCNamePrefix;
 
 	/**
-	 * Allows specification of the target environment by looking it up by it's
-	 * applicationName and CName
+	 * cname of target environment
 	 */
-	@MojoParameter(expression = "${beanstalk.targetEnvironmentCNamePrefix}", description = "CName of target environment")
+	@Parameter(property="beanstalk.targetEnvironmentCNamePrefix")
 	String targetEnvironmentCNamePrefix;
 
 	@Override

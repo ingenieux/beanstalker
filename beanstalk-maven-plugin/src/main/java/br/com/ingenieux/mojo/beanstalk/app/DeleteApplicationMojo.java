@@ -16,9 +16,8 @@ package br.com.ingenieux.mojo.beanstalk.app;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.jfrog.maven.annomojo.annotations.MojoGoal;
-import org.jfrog.maven.annomojo.annotations.MojoParameter;
-import org.jfrog.maven.annomojo.annotations.MojoSince;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
@@ -32,12 +31,14 @@ import com.amazonaws.services.elasticbeanstalk.model.DeleteApplicationRequest;
  * >DeleteApplication API</a> call.
  * 
  * @author Aldrin Leal
- * 
+ * @since 0.1.0
  */
-@MojoGoal("delete-application")
-@MojoSince("0.1.0")
+@Mojo(name="delete-application")
 public class DeleteApplicationMojo extends AbstractBeanstalkMojo {
-	@MojoParameter(expression="${beanstalk.applicationName}", defaultValue="${project.artifactId}", required=true, description="Beanstalk Application Name")
+	/**
+	 * Beanstalk Application Name
+	 **/
+	@Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}", required = true)
 	String applicationName;
 
 	@Override

@@ -8,17 +8,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.jfrog.maven.annomojo.annotations.MojoGoal;
-import org.jfrog.maven.annomojo.annotations.MojoRequiresDirectInvocation;
-import org.jfrog.maven.annomojo.annotations.MojoRequiresProject;
+import org.apache.maven.plugins.annotations.Mojo;
 
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
-@MojoGoal("seed-s3-distribution")
-@MojoRequiresProject
-@MojoRequiresDirectInvocation
+@Mojo(name="seed-s3-distribution", requiresProject=true, requiresDirectInvocation=true)
 public class SeedS3DistributionMojo extends AbstractCloudfrontMojo {
 	protected Map<String, PutObjectRequest> results;
 

@@ -17,9 +17,8 @@ package br.com.ingenieux.mojo.beanstalk.config;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.jfrog.maven.annomojo.annotations.MojoGoal;
-import org.jfrog.maven.annomojo.annotations.MojoParameter;
-import org.jfrog.maven.annomojo.annotations.MojoSince;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 import br.com.ingenieux.mojo.beanstalk.ConfigurationTemplate;
@@ -30,26 +29,26 @@ import com.amazonaws.services.elasticbeanstalk.model.DeleteConfigurationTemplate
  * Delete Configuration Template
  * 
  * @author Aldrin Leal
+ * @since 0.2.7
  */
-@MojoGoal("delete-configuration-templates")
-@MojoSince("0.2.7")
+@Mojo(name="delete-configuration-templates")
 public class DeleteConfigurationTemplateMojo extends AbstractBeanstalkMojo {
 	/**
 	 * Beanstalk Application Name
 	 */
-	@MojoParameter(expression="${beanstalk.applicationName}", defaultValue="${project.artifactId}", required=true, description="Beanstalk Application Name")
+	@Parameter(property="beanstalk.applicationName", defaultValue="${project.artifactId}", required=true)
 	String applicationName;
 
 	/**
 	 * Configuration Template Name (Optional)
 	 */
-	@MojoParameter(expression="${beanstalk.configurationTemplate}")
+	@Parameter(property="beanstalk.configurationTemplate")
 	String configurationTemplate;
 	
 	/**
 	 * Configuration Templates
 	 */
-	@MojoParameter
+	@Parameter
 	ConfigurationTemplate[] configurationTemplates;
 	
 	@Override

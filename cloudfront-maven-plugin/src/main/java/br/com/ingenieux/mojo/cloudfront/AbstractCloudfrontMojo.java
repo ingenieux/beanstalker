@@ -10,8 +10,8 @@ import java.util.ListIterator;
 import javax.activation.MimetypesFileTypeMap;
 
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.FileUtils;
-import org.jfrog.maven.annomojo.annotations.MojoParameter;
 
 import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
 import br.com.ingenieux.mojo.aws.util.BeanstalkerS3Client;
@@ -40,14 +40,14 @@ public abstract class AbstractCloudfrontMojo extends
 	/**
 	 * Declares which distributions this mojo will address.
 	 */
-	@MojoParameter
+	@Parameter
 	protected Distribution[] distributions;
 
 	/**
 	 * In which directory where to look for resources to upload (s3
 	 * distributions) or compare against (custom)?
 	 */
-	@MojoParameter(expression = "${project.build.directory}/${project.build.finalName}", required = true)
+	@Parameter(defaultValue= "${project.build.directory}/${project.build.finalName}", required = true)
 	protected File webappDirectory;
 
 	protected BeanstalkerS3Client s3Client;

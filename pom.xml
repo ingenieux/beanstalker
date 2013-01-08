@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- /* * Licensed under the Apache License, Version 2.0 (the "License"); 
-	* you may not use this file except in compliance with the License. * You 
-	may obtain a copy of the License at * * http://www.apache.org/licenses/LICENSE-2.0 
-	* * Unless required by applicable law or agreed to in writing, software * 
-	distributed under the License is distributed on an "AS IS" BASIS, * WITHOUT 
-	WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. * See the 
-	License for the specific language governing permissions and * limitations 
-	under the License. */ -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<parent>
 		<groupId>org.sonatype.oss</groupId>
 		<artifactId>oss-parent</artifactId>
@@ -98,7 +91,7 @@
 			<dependency>
 				<groupId>org.apache.maven</groupId>
 				<artifactId>maven-plugin-api</artifactId>
-				<version>3.0.1</version>
+				<version>3.0.4</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-lang</groupId>
@@ -135,28 +128,22 @@
 			<dependency>
 				<groupId>org.apache.maven</groupId>
 				<artifactId>maven-settings</artifactId>
-				<version>3.0.1</version>
+				<version>3.0.4</version>
 			</dependency>
 			<dependency>
-			    <groupId>org.apache.maven</groupId>
-			    <artifactId>maven-core</artifactId>
-			    <version>3.0.1</version>
-			</dependency>
-			<dependency>
-				<groupId>org.twdata.maven</groupId>
-				<artifactId>mojo-executor</artifactId>
-				<version>2.0</version>
-				<scope>test</scope>
+				<groupId>org.apache.maven</groupId>
+				<artifactId>maven-core</artifactId>
+				<version>3.0.4</version>
 			</dependency>
 			<dependency>
 				<groupId>org.codehaus.jackson</groupId>
 				<artifactId>jackson-core-asl</artifactId>
-				<version>1.9.4</version>
+				<version>1.9.10</version>
 			</dependency>
 			<dependency>
 				<groupId>org.codehaus.jackson</groupId>
 				<artifactId>jackson-mapper-asl</artifactId>
-				<version>1.9.4</version>
+				<version>1.9.10</version>
 			</dependency>
 			<dependency>
 				<groupId>br.com.ingenieux</groupId>
@@ -164,9 +151,10 @@
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>br.com.ingenieux.maven.annomojo</groupId>
-				<artifactId>org.jfrog.maven.maven-plugin-anno</artifactId>
-				<version>1.4.1</version>
+				<groupId>org.apache.maven.plugin-tools</groupId>
+				<artifactId>maven-plugin-annotations</artifactId>
+				<version>3.2</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>commons-io</groupId>
@@ -187,6 +175,21 @@
 				<groupId>org.eclipse.jgit</groupId>
 				<artifactId>org.eclipse.jgit</artifactId>
 				<version>2.1.0.201209190230-r</version>
+			</dependency>
+			<dependency>
+				<groupId>javax.activation</groupId>
+				<artifactId>activation</artifactId>
+				<version>1.1.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>jcl-over-slf4j</artifactId>
+				<version>1.6.4</version>
+			</dependency>
+			<dependency>
+				<groupId>org.codehaus.plexus</groupId>
+				<artifactId>plexus-utils</artifactId>
+				<version>3.0.1</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -222,19 +225,23 @@
 					<version>3.2</version>
 					<inherited>true</inherited>
 					<configuration>
-						<extractors>
-							<extractor>java</extractor>
-							<extractor>javaanno</extractor>
-						</extractors>
+						<skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
 					</configuration>
-					<dependencies>
-						<dependency>
-							<groupId>br.com.ingenieux.maven.annomojo</groupId>
-							<artifactId>org.jfrog.maven.maven-plugin-tools-anno</artifactId>
-							<version>1.4.1</version>
-							<scope>runtime</scope>
-						</dependency>
-					</dependencies>
+					<executions>
+						<execution>
+							<id>mojo-descriptor</id>
+							<goals>
+								<goal>descriptor</goal>
+							</goals>
+						</execution>
+						<!-- if you want to generate help goal -->
+						<execution>
+							<id>help-goal</id>
+							<goals>
+								<goal>helpmojo</goal>
+							</goals>
+						</execution>
+					</executions>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>

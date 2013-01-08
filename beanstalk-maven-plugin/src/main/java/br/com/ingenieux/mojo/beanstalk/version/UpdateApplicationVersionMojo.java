@@ -15,9 +15,8 @@ package br.com.ingenieux.mojo.beanstalk.version;
  */
 
 import org.apache.maven.plugin.MojoExecutionException;
-import org.jfrog.maven.annomojo.annotations.MojoGoal;
-import org.jfrog.maven.annomojo.annotations.MojoParameter;
-import org.jfrog.maven.annomojo.annotations.MojoSince;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
@@ -31,20 +30,23 @@ import com.amazonaws.services.elasticbeanstalk.model.UpdateApplicationVersionRes
  * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_UpdateApplicationVersion.html"
  * >CreateApplicationVersion API</a> call.
  * 
+ * @since 0.2.1
  */
-@MojoGoal("update-application-version")
-@MojoSince("0.2.1")
+@Mojo(name="update-application-version")
 public class UpdateApplicationVersionMojo extends AbstractBeanstalkMojo {
-	@MojoParameter(expression="${beanstalk.applicationName}", defaultValue="${project.artifactId}", required=true, description="Beanstalk Application Name")
+	/**
+	 * Beanstalk Application Name
+	 */
+	@Parameter(property="beanstalk.applicationName", defaultValue="${project.artifactId}", required=true)
 	String applicationName;
 
 	/**
 	 * Application Description
 	 */
-	@MojoParameter(expression="${beanstalk.applicationDescription}", defaultValue="${project.name}")
+	@Parameter(property="beanstalk.applicationDescription", defaultValue="${project.name}")
 	String applicationDescription;
 
-	@MojoParameter(expression="${beanstalk.versionLabel}", defaultValue="${project.version}")
+	@Parameter(property="beanstalk.versionLabel", defaultValue="${project.version}")
 	String versionLabel;
 
 	protected Object executeInternal() throws MojoExecutionException {
