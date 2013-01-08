@@ -16,8 +16,7 @@ package br.com.ingenieux.mojo.beanstalk.env;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.jfrog.maven.annomojo.annotations.MojoGoal;
-import org.jfrog.maven.annomojo.annotations.MojoSince;
+import org.apache.maven.plugins.annotations.Mojo;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 
@@ -31,9 +30,9 @@ import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentResource
  * >DescribeEnvironmentResources API</a> call.
  * 
  * @author Aldrin Leal
+ * @since 0.2.6
  */
-@MojoGoal("describe-environment-resources")
-@MojoSince("0.2.6")
+@Mojo(name="describe-environment-resources")
 public class DescribeEnvironmentResourcesMojo extends
     AbstractNeedsEnvironmentMojo {
 	@Override

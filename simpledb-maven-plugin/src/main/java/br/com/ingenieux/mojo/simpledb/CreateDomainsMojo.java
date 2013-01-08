@@ -2,7 +2,7 @@ package br.com.ingenieux.mojo.simpledb;
 
 
 import org.apache.commons.lang.StringUtils;
-import org.jfrog.maven.annomojo.annotations.MojoGoal;
+import org.apache.maven.plugins.annotations.Mojo;
 
 import com.amazonaws.services.simpledb.model.CreateDomainRequest;
 
@@ -24,7 +24,7 @@ import com.amazonaws.services.simpledb.model.CreateDomainRequest;
 /**
  * Goal which creates domains
  */
-@MojoGoal("create-domains")
+@Mojo(name="create-domains")
 public class CreateDomainsMojo extends AbstractSimpleDbDomainMojo {
     @Override
     protected Object executeInternal() throws Exception {

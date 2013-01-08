@@ -5,8 +5,8 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 import java.io.File;
 import java.io.FileReader;
 
-import org.jfrog.maven.annomojo.annotations.MojoGoal;
-import org.jfrog.maven.annomojo.annotations.MojoParameter;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import br.com.ingenieux.mojo.simpledb.cmd.PutAttributesCommand;
 import br.com.ingenieux.mojo.simpledb.cmd.PutAttributesContext;
@@ -28,18 +28,18 @@ import br.com.ingenieux.mojo.simpledb.cmd.PutAttributesContext;
 /**
  * Goal which deletes (drops) domains
  */
-@MojoGoal("put-attributes")
+@Mojo(name="put-attributes")
 public class PutAttributesMojo extends AbstractSimpleDbMojo {
     /**
      * Relation of Attributes to Put, comma-separated
      */
-	@MojoParameter(expression = "${simpledb.file}", required = true)
+	@Parameter(property="simpledb.file", required = true)
     private File file;
 
     /**
      * Name of Domain to Put
      */
-	@MojoParameter(expression = "${simpledb.domain}", required = true)
+	@Parameter(property="simpledb.domain", required = true)
     private String domain;
 
     @Override

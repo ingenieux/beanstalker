@@ -2,7 +2,7 @@ package br.com.ingenieux.mojo.simpledb;
 
 import java.io.File;
 
-import org.jfrog.maven.annomojo.annotations.MojoGoal;
+import org.apache.maven.plugins.annotations.Mojo;
 
 import br.com.ingenieux.mojo.simpledb.cmd.DumpDomainCommand;
 import br.com.ingenieux.mojo.simpledb.cmd.DumpDomainContext;
@@ -25,7 +25,7 @@ import br.com.ingenieux.mojo.simpledb.cmd.DumpDomainContext;
  * Goal which creates domains
  * 
  */
-@MojoGoal("dump-domains")
+@Mojo(name="dump-domains")
 public class DumpDomainsMojo extends AbstractSimpleDbDomainMojo {
     @Override
     protected Object executeInternal() throws Exception {

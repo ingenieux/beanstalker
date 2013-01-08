@@ -15,9 +15,8 @@ package br.com.ingenieux.mojo.beanstalk.env;
  */
 
 import org.apache.maven.plugin.AbstractMojoExecutionException;
-import org.jfrog.maven.annomojo.annotations.MojoGoal;
-import org.jfrog.maven.annomojo.annotations.MojoParameter;
-import org.jfrog.maven.annomojo.annotations.MojoSince;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.terminate.TerminateEnvironmentCommand;
@@ -32,14 +31,14 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.terminate.TerminateEnvironmentCon
  * >TerminateEnvironment API</a> call.
  * 
  * @author Aldrin Leal
+ * @since 0.1.0
  */
-@MojoGoal("terminate-environment")
-@MojoSince("0.1.0")
+@Mojo(name="terminate-environment")
 public class TerminateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 	/**
 	 * Terminate resources as well?
 	 */
-	@MojoParameter(expression="${beanstalk.terminateResources}", defaultValue="true")
+	@Parameter(property="beanstalk.terminateResources", defaultValue="true")
 	boolean terminateResources;
 
 	@Override

@@ -16,8 +16,7 @@ package br.com.ingenieux.mojo.beanstalk.env;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.jfrog.maven.annomojo.annotations.MojoGoal;
-import org.jfrog.maven.annomojo.annotations.MojoSince;
+import org.apache.maven.plugins.annotations.Mojo;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 
@@ -31,10 +30,9 @@ import com.amazonaws.services.elasticbeanstalk.model.RestartAppServerRequest;
  * >RestartAppServer API</a> call.
  * 
  * @author Aldrin Leal
- * 
+ * @since 0.1.0
  */
-@MojoGoal("restart-application-server")
-@MojoSince("0.1.0")
+@Mojo(name="restart-application-server")
 public class RestartAppServerMojo extends AbstractNeedsEnvironmentMojo {
 	@Override
 	protected Object executeInternal() throws MojoExecutionException,

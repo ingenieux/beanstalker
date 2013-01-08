@@ -17,11 +17,9 @@ package br.com.ingenieux.mojo.beanstalk.sec;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.jfrog.maven.annomojo.annotations.MojoGoal;
-import org.jfrog.maven.annomojo.annotations.MojoParameter;
-import org.jfrog.maven.annomojo.annotations.MojoRequiresProject;
-import org.jfrog.maven.annomojo.annotations.MojoSince;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
 import br.com.ingenieux.mojo.aws.Expose;
@@ -54,15 +52,18 @@ import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
  * href="http://mojo.codehaus.org/properties-maven-plugin/">Properties Maven
  * Plugin</a>
  * </p>
+ * 
+ * @since 0.2.7-RC4
  */
-@MojoGoal("expose-security-credentials")
-@MojoSince("0.2.7-RC4")
-@MojoRequiresProject
+@Mojo(name="expose-security-credentials", requiresProject=true)
 public class ExposeSecurityCredentialsMojo extends AbstractBeanstalkMojo {
-	@MojoParameter(description = "Which Server Settings to Expose?")
+	/**
+	 * Which Server Settings to Expose?
+	 */
+	@Parameter
 	Expose[] exposes = new Expose[0];
 
-	@MojoParameter(defaultValue = "${project}")
+	@Parameter(defaultValue = "${project}")
 	MavenProject project;
 
 	protected Object executeInternal() throws MojoExecutionException,

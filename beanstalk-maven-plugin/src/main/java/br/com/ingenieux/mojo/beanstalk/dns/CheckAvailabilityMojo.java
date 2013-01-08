@@ -16,10 +16,8 @@ package br.com.ingenieux.mojo.beanstalk.dns;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.jfrog.maven.annomojo.annotations.MojoGoal;
-import org.jfrog.maven.annomojo.annotations.MojoParameter;
-import org.jfrog.maven.annomojo.annotations.MojoRequiresDirectInvocation;
-import org.jfrog.maven.annomojo.annotations.MojoSince;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
@@ -33,15 +31,14 @@ import com.amazonaws.services.elasticbeanstalk.model.CheckDNSAvailabilityResult;
  * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_CheckDNSAvailability.html"
  * >CheckDNSAvailability API</a> call.
  * 
+ * @since 0.1.0
  */
-@MojoGoal("check-availability")
-@MojoSince("0.1.0")
-@MojoRequiresDirectInvocation
+@Mojo(name="check-availability", requiresDirectInvocation=true)
 public class CheckAvailabilityMojo extends AbstractBeanstalkMojo {
 	/**
 	 * DNS CName Prefix
 	 */
-	@MojoParameter(expression="${beanstalk.cnamePrefix}", required=true)
+	@Parameter(property="beanstalk.cnamePrefix", required=true)
 	String cnamePrefix;
 
 	protected Object executeInternal() throws MojoExecutionException,

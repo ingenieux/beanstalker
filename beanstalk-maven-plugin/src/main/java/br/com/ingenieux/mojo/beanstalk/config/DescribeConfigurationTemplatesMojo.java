@@ -25,9 +25,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.jfrog.maven.annomojo.annotations.MojoGoal;
-import org.jfrog.maven.annomojo.annotations.MojoParameter;
-import org.jfrog.maven.annomojo.annotations.MojoSince;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
@@ -43,25 +42,28 @@ import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettin
  * Describes Available Configuration Templates
  * 
  * @author Aldrin Leal
+ * @since 0.2.5
  */
-@MojoGoal("describe-configuration-templates")
-@MojoSince("0.2.5")
+@Mojo(name="describe-configuration-templates")
 public class DescribeConfigurationTemplatesMojo extends AbstractBeanstalkMojo {
 	private static final String ENDL = System.getProperty("line.separator");
 
-	@MojoParameter(expression = "${beanstalk.applicationName}", defaultValue = "${project.artifactId}", required = true, description = "Beanstalk Application Name")
+	/**
+	 * Beanstalk Application Name
+	 */
+	@Parameter(property="beanstalk.applicationName", defaultValue = "${project.artifactId}", required = true)
 	protected String applicationName;
 
 	/**
 	 * Configuration Template Name (Optional)
 	 */
-	@MojoParameter(expression = "${beanstalk.configurationTemplate}")
+	@Parameter(property="beanstalk.configurationTemplate")
 	String configurationTemplate;
 
 	/**
 	 * Output file (Optional)
 	 */
-	@MojoParameter(expression = "${beanstalk.outputFile}")
+	@Parameter(property="beanstalk.outputFile")
 	File outputFile;
 
 	@Override

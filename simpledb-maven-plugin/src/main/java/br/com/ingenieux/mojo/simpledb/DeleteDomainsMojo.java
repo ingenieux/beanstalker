@@ -1,8 +1,7 @@
 package br.com.ingenieux.mojo.simpledb;
 
 import org.apache.commons.lang.StringUtils;
-import org.jfrog.maven.annomojo.annotations.MojoGoal;
-import org.jfrog.maven.annomojo.annotations.MojoRequiresDirectInvocation;
+import org.apache.maven.plugins.annotations.Mojo;
 
 import com.amazonaws.services.simpledb.model.DeleteDomainRequest;
 
@@ -24,8 +23,7 @@ import com.amazonaws.services.simpledb.model.DeleteDomainRequest;
  * Goal which deletes (drops) domains
  * 
  */
-@MojoGoal("delete-domains")
-@MojoRequiresDirectInvocation
+@Mojo(name="delete-domains", requiresDirectInvocation=true)
 public class DeleteDomainsMojo extends AbstractSimpleDbDomainMojo {
     @Override
 	protected void configure() {

@@ -18,12 +18,10 @@ import java.io.File;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectWriter;
-import org.jfrog.maven.annomojo.annotations.MojoGoal;
-import org.jfrog.maven.annomojo.annotations.MojoParameter;
-import org.jfrog.maven.annomojo.annotations.MojoRequiresDirectInvocation;
-import org.jfrog.maven.annomojo.annotations.MojoSince;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
@@ -38,24 +36,26 @@ import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsResult;
  * >DescribeEnvironments API</a> call.
  * 
  * @author Aldrin Leal
+ * @since 0.1.0
  */
-@MojoGoal("describe-environments")
-@MojoSince("0.1.0")
-@MojoRequiresDirectInvocation
+@Mojo(name="describe-environments", requiresDirectInvocation=true)
 public class DescribeEnvironmentsMojo extends AbstractBeanstalkMojo {
-	@MojoParameter(expression="${beanstalk.applicationName}", defaultValue="${project.artifactId}", required=true, description="Beanstalk Application Name")
+	/**
+	 * Beanstalk Application Name
+	 */
+	@Parameter(property="beanstalk.applicationName", defaultValue="${project.artifactId}", required=true)
 	protected String applicationName;
 
 	/**
 	 * Include Deleted?
 	 */
-	@MojoParameter(expression="${beanstalk.includeDeleted}")
+	@Parameter(property="beanstalk.includeDeleted")
 	boolean includeDeleted;
 	
 	/**
 	 * Output file (Optional)
 	 */
-	@MojoParameter(expression = "${beanstalk.outputFile}")
+	@Parameter(property="beanstalk.outputFile")
 	File outputFile;
 
 	@Override

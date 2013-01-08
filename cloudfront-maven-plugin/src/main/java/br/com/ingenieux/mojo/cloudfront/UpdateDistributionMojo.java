@@ -18,16 +18,14 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.jfrog.maven.annomojo.annotations.MojoGoal;
-import org.jfrog.maven.annomojo.annotations.MojoRequiresProject;
+import org.apache.maven.plugins.annotations.Mojo;
 
 import com.amazonaws.services.cloudfront.model.CreateInvalidationRequest;
 import com.amazonaws.services.cloudfront.model.InvalidationBatch;
 import com.amazonaws.services.cloudfront.model.Paths;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
-@MojoGoal("update-distribution")
-@MojoRequiresProject
+@Mojo(name="update-distribution", requiresProject=true)
 public class UpdateDistributionMojo extends SeedS3DistributionMojo {
 	private final HttpClient httpClient = new DefaultHttpClient();
 

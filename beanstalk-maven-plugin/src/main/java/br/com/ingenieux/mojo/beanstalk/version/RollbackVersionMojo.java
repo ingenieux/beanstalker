@@ -23,9 +23,8 @@ import java.util.ListIterator;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.jfrog.maven.annomojo.annotations.MojoGoal;
-import org.jfrog.maven.annomojo.annotations.MojoParameter;
-import org.jfrog.maven.annomojo.annotations.MojoSince;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 
@@ -41,21 +40,21 @@ import com.amazonaws.services.elasticbeanstalk.model.UpdateEnvironmentRequest;
  * Deletes application versions, either by count and/or by date old
  * 
  * @author Aldrin Leal
+ * @since 0.2.3
  */
-@MojoGoal("rollback-version")
-@MojoSince("0.2.3")
+@Mojo(name="rollback-version")
 public class RollbackVersionMojo extends AbstractNeedsEnvironmentMojo {
 	/**
 	 * Simulate deletion changing algorithm?
 	 * 
 	 */
-	@MojoParameter(expression="${beanstalk.dryRun}", defaultValue="true")
+	@Parameter(property="beanstalk.dryRun", defaultValue="true")
 	boolean dryRun;
 
 	/**
 	 * Updates to the latest version instead?
 	 */
-	@MojoParameter(expression="${beanstalk.latestVersionInstead}")
+	@Parameter(property="beanstalk.latestVersionInstead")
 	boolean latestVersionInstead;
 
 	@Override

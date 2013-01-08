@@ -16,9 +16,8 @@ package br.com.ingenieux.mojo.beanstalk.version;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.jfrog.maven.annomojo.annotations.MojoGoal;
-import org.jfrog.maven.annomojo.annotations.MojoParameter;
-import org.jfrog.maven.annomojo.annotations.MojoSince;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
@@ -35,14 +34,14 @@ import com.amazonaws.services.elasticbeanstalk.model.S3Location;
  * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_CreateApplicationVersion.html"
  * >CreateApplicationVersion API</a> call.
  * 
+ * @since 0.1.0
  */
-@MojoGoal("create-application-version")
-@MojoSince("0.1.0")
+@Mojo(name="create-application-version")
 public class CreateApplicationVersionMojo extends AbstractBeanstalkMojo {
 	/**
 	 * Beanstalk Application Name
 	 */
-	@MojoParameter(expression="${beanstalk.applicationName}", defaultValue="${project.artifactId}", required=true)
+	@Parameter(property="beanstalk.applicationName", defaultValue="${project.artifactId}", required=true)
 	String applicationName;
 
 	/**
@@ -50,37 +49,37 @@ public class CreateApplicationVersionMojo extends AbstractBeanstalkMojo {
 	 * 
 	 * Unfortunately, this is incorrectly named. Anyway...
 	 */
-	@MojoParameter(expression="${beanstalk.versionDescription}", defaultValue="Update from beanstalk-maven-plugin")
+	@Parameter(property="beanstalk.versionDescription", defaultValue="Update from beanstalk-maven-plugin")
 	String versionDescription;
 
 	/**
 	 * Auto-Create Application? Defaults to true
 	 */
-	@MojoParameter(expression="${beanstalk.autoCreateApplication}", defaultValue="true")
+	@Parameter(property="beanstalk.autoCreateApplication", defaultValue="true")
 	boolean autoCreateApplication;
 
 	/**
 	 * S3 Bucket
 	 */
-	@MojoParameter(expression="${beanstalk.s3Bucket}", defaultValue="${project.artifactId}", required=true)
+	@Parameter(property="beanstalk.s3Bucket", defaultValue="${project.artifactId}", required=true)
 	String s3Bucket;
 
 	/**
 	 * S3 Key
 	 */
-	@MojoParameter(expression="${beanstalk.s3Key}", defaultValue="${project.build.finalName}.${project.packaging}", required=true)
+	@Parameter(property="beanstalk.s3Key", defaultValue="${project.build.finalName}.${project.packaging}", required=true)
 	String s3Key;
 
 	/**
 	 * Version Label to use. Defaults to Project Version
 	 */
-	@MojoParameter(expression="${beanstalk.versionLabel}", defaultValue="${project.version}", required=true)
+	@Parameter(property="beanstalk.versionLabel", defaultValue="${project.version}", required=true)
 	String versionLabel;
 
 	/**
 	 * Skip when this versionLabel already exists?
 	 */
-	@MojoParameter(expression="${beanstalk.skipExisting}", defaultValue="true")
+	@Parameter(property="beanstalk.skipExisting", defaultValue="true")
 	boolean skipExisting;
 
 	protected Object executeInternal() throws MojoExecutionException {

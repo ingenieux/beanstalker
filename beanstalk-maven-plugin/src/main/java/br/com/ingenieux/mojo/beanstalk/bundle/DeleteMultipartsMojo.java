@@ -19,9 +19,8 @@ import java.util.Date;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.jfrog.maven.annomojo.annotations.MojoGoal;
-import org.jfrog.maven.annomojo.annotations.MojoParameter;
-import org.jfrog.maven.annomojo.annotations.MojoSince;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import br.com.ingenieux.mojo.aws.util.BeanstalkerS3Client;
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
@@ -31,15 +30,15 @@ import com.amazonaws.AmazonServiceException;
 
 /**
  * Uploads a packed war file to Amazon S3 for further Deployment.
+ * 
+ * @since 0.2.7
  */
-@MojoGoal("delete-multiparts")
-@MojoSince("0.2.7")
+@Mojo(name="delete-multiparts")
 public class DeleteMultipartsMojo extends AbstractBeanstalkMojo {
 	/**
 	 * S3 Bucket
-	 * 
 	 */
-	@MojoParameter(expression = "${beanstalk.s3Bucket}", defaultValue = "${project.artifactId}", required = true)
+	@Parameter(property="beanstalk.s3Bucket", defaultValue = "${project.artifactId}", required = true)
 	String s3Bucket;
 
 	/**
@@ -51,14 +50,14 @@ public class DeleteMultipartsMojo extends AbstractBeanstalkMojo {
 	 * >this list</a> for reference.
 	 * </p>
 	 */
-	@MojoParameter(expression = "${beanstalk.s3Region}")
+	@Parameter(property="beanstalk.s3Region")
 	String s3Region;
 	
 	/**
 	 * How many delete to delete? Defaults to 365 days
 	 * 
 	 */
-	@MojoParameter(expression="${beanstalk.daysToDelete}", defaultValue="365")
+	@Parameter(property="beanstalk.daysToDelete", defaultValue="365")
 	Integer daysToDelete;
 
 	protected Object executeInternal() throws MojoExecutionException,

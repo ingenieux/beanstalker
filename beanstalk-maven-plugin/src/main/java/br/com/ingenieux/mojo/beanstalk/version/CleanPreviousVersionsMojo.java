@@ -24,9 +24,8 @@ import java.util.ListIterator;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.jfrog.maven.annomojo.annotations.MojoGoal;
-import org.jfrog.maven.annomojo.annotations.MojoParameter;
-import org.jfrog.maven.annomojo.annotations.MojoSince;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
@@ -39,38 +38,39 @@ import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
 
 /**
  * Deletes application versions, either by count and/or by date old
+ * 
+ * @since 0.2.2
  */
-@MojoGoal("clean-previous-versions")
-@MojoSince("0.2.2")
+@Mojo(name="clean-previous-versions")
 public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
 	/**
 	 * Beanstalk Application Name
 	 */
-	@MojoParameter(expression="${beanstalk.applicationName}", defaultValue="${project.artifactId}", required=true)
+	@Parameter(property="beanstalk.applicationName", defaultValue="${project.artifactId}", required=true)
 	String applicationName;
 
 	/**
 	 * Delete the source bundle?
 	 */
-	@MojoParameter(expression="${beanstalk.deleteSourceBundle}", defaultValue="false")
+	@Parameter(property="beanstalk.deleteSourceBundle", defaultValue="false")
 	boolean deleteSourceBundle;
 
 	/**
 	 * How many versions to keep?
 	 */
-	@MojoParameter(expression="${beanstalk.versionsToKeep}")
+	@Parameter(property="beanstalk.versionsToKeep")
 	Integer versionsToKeep;
 
 	/**
 	 * How many versions to keep?
 	 */
-	@MojoParameter(expression="${beanstalk.daysToKeep}")
+	@Parameter(property="beanstalk.daysToKeep")
 	Integer daysToKeep;
 
 	/**
 	 * Simulate deletion changing algorithm?
 	 */
-	@MojoParameter(expression="${beanstalk.dryRun}", defaultValue="true")
+	@Parameter(property="beanstalk.dryRun", defaultValue="true")
 	boolean dryRun;
 
 	private int deletedVersionsCount;
