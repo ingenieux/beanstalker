@@ -21,7 +21,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
@@ -42,14 +41,6 @@ public abstract class AbstractBeanstalkMojo extends
 			return Collections.emptyList();
 
 		return Arrays.asList(arrOptionSettings);
-	}
-
-	@Override
-	protected String getEndpoint() {
-		if (StringUtils.isNotBlank(region))
-			return String.format("elasticbeanstalk.%s.amazonaws.com", region);
-
-		return null;
 	}
 
 	protected EnvironmentDescription lookupEnvironment(String applicationName,

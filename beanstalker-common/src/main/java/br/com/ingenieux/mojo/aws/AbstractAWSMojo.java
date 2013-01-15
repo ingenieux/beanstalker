@@ -22,6 +22,7 @@ import org.codehaus.plexus.context.Context;
 import org.codehaus.plexus.context.ContextException;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Contextualizable;
 
+import br.com.ingenieux.mojo.aws.util.AWSClientFactory;
 import br.com.ingenieux.mojo.aws.util.TypeUtil;
 
 import com.amazonaws.AmazonWebServiceClient;
@@ -50,9 +51,9 @@ import com.amazonaws.auth.BasicAWSCredentials;
  * it works, right?
  * 
  * <p>
- * <b>NOTE:</b> Settings in this class use properties based in "beanstalker", which is
- * the project. The beanstalk module, though, prefixes then as "beanstalk"
- * instead
+ * <b>NOTE:</b> Settings in this class use properties based in "beanstalker",
+ * which is the project. The beanstalk module, though, prefixes then as
+ * "beanstalk" instead
  * </p>
  * 
  * Parts of this class come from <a
@@ -74,7 +75,7 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 	/**
 	 * Maven Settings Reference
 	 */
-	@Parameter(property="settings", required = true, readonly = true)
+	@Parameter(property = "settings", required = true, readonly = true)
 	protected Settings settings;
 
 	/**
@@ -83,21 +84,22 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 	protected AWSCredentials awsCredentials;
 
 	/**
-	 * The server id in maven settings.xml to use for AWS Services Credentials (accessKey / secretKey)
+	 * The server id in maven settings.xml to use for AWS Services Credentials
+	 * (accessKey / secretKey)
 	 */
-	@Parameter(property="beanstalker.serverId", defaultValue = "aws.amazon.com")
+	@Parameter(property = "beanstalker.serverId", defaultValue = "aws.amazon.com")
 	protected String serverId;
 
 	/**
 	 * Verbose Logging?
 	 */
-	@Parameter(property="beanstalker.verbose", defaultValue = "false")
+	@Parameter(property = "beanstalker.verbose", defaultValue = "false")
 	protected boolean verbose;
 
 	/**
 	 * Ignore Exceptions?
 	 */
-	@Parameter(property="beanstalker.ignoreExceptions", defaultValue = "false")
+	@Parameter(property = "beanstalker.ignoreExceptions", defaultValue = "false")
 	protected boolean ignoreExceptions;
 
 	protected String version = "?";
@@ -118,7 +120,7 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 				 * This actually is the right way...
 				 */
 				Expose expose = exposeSettings(serverId);
-				
+
 				awsAccessKey = expose.getAccessKey();
 				awsSecretKey = expose.getSharedKey();
 			} else if (StringUtils.isNotBlank(getAccessKey())
@@ -150,11 +152,11 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 
 	protected Expose exposeSettings(String serverId) {
 		Server server = settings.getServer(serverId);
-		
+
 		Validate.notNull(server, "Settings for serverId ('" + serverId + "') not found. See http://beanstalker.ingenieux.com.br/beanstalk-maven-plugin/security.html for more information");
 
 		Expose expose = new Expose();
-		
+
 		expose.setServerId(serverId);
 		expose.setAccessKey(server.getUsername());
 		expose.setSharedKey(getDecryptedAwsKey(server.getPassword().trim()));
@@ -258,12 +260,8 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 	 * >this list</a> for reference.
 	 * </p>
 	 */
-	@Parameter(property="beanstalker.region")
+	@Parameter(property = "beanstalker.region")
 	protected String region;
-
-	protected String getEndpoint() {
-		return "";
-	}
 
 	protected final String getUserAgent() {
 		return String
@@ -274,7 +272,7 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 	/**
 	 * AWS Access Key
 	 */
-	@Parameter(property="aws.accessKey")
+	@Parameter(property = "aws.accessKey")
 	private String accessKey;
 
 	protected String getAccessKey() {
@@ -284,7 +282,7 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 	/**
 	 * AWS Secret Key
 	 */
-	@Parameter(property="aws.secretKey")
+	@Parameter(property = "aws.secretKey")
 	private String secretKey;
 
 	protected String getSecretKey() {
@@ -315,18 +313,14 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 		setupVersion();
 	}
 
-	private void setupService() throws MojoExecutionException {
+	protected void setupService() throws MojoExecutionException {
 		@SuppressWarnings("unchecked")
 		Class<S> serviceClass = (Class<S>) TypeUtil.getServiceClass(getClass());
 
 		try {
-			this.service = serviceClass.getConstructor(AWSCredentials.class,
-					ClientConfiguration.class).newInstance(getAWSCredentials(),
-					getClientConfiguration());
-
-			if (StringUtils.isNotBlank(getEndpoint()))
-				((AmazonWebServiceClient) this.service)
-						.setEndpoint(getEndpoint());
+			clientFactory = new AWSClientFactory(getAWSCredentials(), getClientConfiguration(), region);
+			
+			this.service = clientFactory.getService(serviceClass);
 		} catch (Exception exc) {
 			throw new MojoExecutionException("Unable to create service", exc);
 		}
@@ -334,6 +328,8 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 
 	private S service;
 
+	protected AWSClientFactory clientFactory;
+	
 	public S getService() {
 		if (null == service) {
 			try {
@@ -434,7 +430,7 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 	}
 
 	protected abstract Object executeInternal() throws Exception;
-	
+
 	public boolean isVerbose() {
 		return verbose;
 	}

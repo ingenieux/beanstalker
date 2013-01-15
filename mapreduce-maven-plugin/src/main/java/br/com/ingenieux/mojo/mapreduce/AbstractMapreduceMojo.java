@@ -13,19 +13,9 @@ package br.com.ingenieux.mojo.mapreduce;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import org.apache.commons.lang.StringUtils;
-
 import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
 
 import com.amazonaws.services.elasticmapreduce.AmazonElasticMapReduceClient;
 
 public abstract class AbstractMapreduceMojo extends AbstractAWSMojo<AmazonElasticMapReduceClient> {
-	@Override
-	protected String getEndpoint() {
-		if (StringUtils.isNotBlank(region))
-			return String.format("elasticmapreduce.%s.amazonaws.com",
-					region);
-
-		return null;
-	}
 }

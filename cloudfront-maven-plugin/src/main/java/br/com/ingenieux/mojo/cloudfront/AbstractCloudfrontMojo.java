@@ -69,7 +69,6 @@ public abstract class AbstractCloudfrontMojo extends
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	protected List<String> fetchLocalDistributionFiles(Distribution d)
 			throws IOException {
 		List<String> filenames = FileUtils.getFileNames(webappDirectory,
