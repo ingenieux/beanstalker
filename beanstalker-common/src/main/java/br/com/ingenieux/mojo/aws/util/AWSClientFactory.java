@@ -3,6 +3,8 @@ package br.com.ingenieux.mojo.aws.util;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.apache.commons.lang.reflect.ConstructorUtils;
 
 import com.amazonaws.AmazonWebServiceClient;
@@ -23,7 +25,7 @@ public class AWSClientFactory {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T> T getService(Class<T> serviceClazz) throws ReflectiveOperationException {
+	public <T> T getService(Class<T> serviceClazz) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
 		T resultObj = (T) ConstructorUtils.invokeConstructor(serviceClazz, new Object[] { creds, clientConfiguration }, new Class<?>[] { AWSCredentials.class, ClientConfiguration.class });
 
 		if (isNotBlank(region)) {

@@ -18,6 +18,7 @@ import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.join;
 import static org.apache.commons.lang.StringUtils.strip;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -271,7 +272,7 @@ public class BindDomainsMojo extends AbstractNeedsEnvironmentMojo {
 
 		AmazonElasticLoadBalancing elb;
 
-		public BindDomainContext() throws ReflectiveOperationException {
+		public BindDomainContext() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
 			this.r53 = clientFactory.getService(AmazonRoute53Client.class);
 			this.ec2 = clientFactory.getService(AmazonEC2Client.class);
 			this.elb = clientFactory.getService(AmazonElasticLoadBalancingClient.class);
