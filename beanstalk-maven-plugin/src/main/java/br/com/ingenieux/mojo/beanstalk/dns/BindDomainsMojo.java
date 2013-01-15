@@ -15,7 +15,6 @@ package br.com.ingenieux.mojo.beanstalk.dns;
  */
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.apache.commons.lang.StringUtils.join;
 import static org.apache.commons.lang.StringUtils.strip;
 
@@ -35,6 +34,7 @@ import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2Client;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentResourcesRequest;
 import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancing;
 import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancingClient;
 import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersRequest;
@@ -54,8 +54,7 @@ import com.amazonaws.services.route53.model.ResourceRecordSet;
 
 /**
  * <p>
- * Binds an Elastic Beanstalk Environment into a set of Route53 Domain (as
- * apexes)
+ * Binds an Elastic Beanstalk Environment into a set of Route53 records
  * </p>
  * 
  * <p>
@@ -67,21 +66,20 @@ import com.amazonaws.services.route53.model.ResourceRecordSet;
 @Mojo(name = "bind-domains")
 public class BindDomainsMojo extends AbstractNeedsEnvironmentMojo {
 	/**
-	 * List of Domains
+	 * <p>List of Domains</p>
+	 * 
+	 * <p>Could be set as either:</p>
+	 * <ul>
+	 * <li>fqdn:hostedZoneId (e.g. "services.modafocas.org:Z3DJ4DL0DIEEJA")</li>
+	 * <li>hosted zone name - will be set to root. (e.g., "modafocas.org")</li>
+	 * </ul>
 	 */
 	@Parameter(property = "beanstalk.domains")
 	String[] domains;
 
-	/**
-	 * Comma-separated list of domains. Will take precedence over
-	 * beanstalk.domains if supplied
-	 */
-	@Parameter(property = "beanstalk.domainList")
-	String domainList;
-
 	@Override
 	protected Object executeInternal() throws Exception {
-		Map<String, String> domainsToAssign = new LinkedHashMap<String, String>();
+		Map<String, String> recordsToAssign = new LinkedHashMap<String, String>();
 		/**
 		 * Step #1: AWS Client Config
 		 */
@@ -91,52 +89,95 @@ public class BindDomainsMojo extends AbstractNeedsEnvironmentMojo {
 		 * Step #2: Validate Parameters
 		 */
 		{
-			for (String domain : domains)
-				domainsToAssign.put(formatDomain(domain), null);
-
-			if (isNotBlank(domainList)) {
-				domainsToAssign.clear();
-				for (String domain : domainList.split(","))
-					domainsToAssign.put(formatDomain(domain), null);
+			for (String domain : domains) {
+				String key = formatDomain(domain);
+				String value = null;
+				
+				/*
+				 * Handle Entries in the form <record>:<zoneid>
+				 */
+				if (-1 != key.indexOf(':')) {
+					String[] pair = key.split(":", 2);
+					
+					key = formatDomain(pair[0]);
+					value = strip(pair[1], ".");
+				}
+				
+				recordsToAssign.put(key, value);
 			}
 
-			Validate.isTrue(domainsToAssign.size() > 0, "No Domains Supplied!");
+			Validate.isTrue(recordsToAssign.size() > 0, "No Domains Supplied!");
 
 			if (getLog().isInfoEnabled()) {
 				getLog().info(format("Domains to Map to Environment (cnamePrefix='%s')", curEnv.getCNAME()));
 
-				for (String domain : domainsToAssign.keySet())
-					getLog().info(format(" * Domain: %s", domain));
+				for (Entry<String, String> entry : recordsToAssign.entrySet()) {
+					String key = entry.getKey();
+					String zoneId = entry.getValue();
+					
+					String message = format(" * Domain: %s", key);
+					
+					if (null != zoneId)
+						message += " (and using zoneId " + zoneId + ")";
+					
+					getLog().info(message);
+				}
 			}
 		}
 
 		/**
 		 * Step #3: Lookup Domains on Route53
 		 */
+		Map<String, HostedZone> hostedZoneMapping = new LinkedHashMap<String, HostedZone>();
+		
 		{
-			Set<String> unresolvedDomains = new LinkedHashSet<String>(domainsToAssign.keySet());
-
+			Set<String> unresolvedDomains = new LinkedHashSet<String>();
+			
+			for (Entry<String, String> entry : recordsToAssign.entrySet()) {
+				if (null != entry.getValue())
+					continue;
+				
+				unresolvedDomains.add(entry.getKey());
+			}
+			
 			for (HostedZone hostedZone : ctx.r53.listHostedZones().getHostedZones()) {
 				String id = hostedZone.getId();
 				String name = hostedZone.getName();
+				
+				hostedZoneMapping.put(id, hostedZone);
 
 				if (unresolvedDomains.contains(name)) {
 					if (getLog().isInfoEnabled())
 						getLog().info(format("Mapping Domain %s to R53 Zone Id %s", name, id));
 
-					domainsToAssign.put(name, id);
+					recordsToAssign.put(name, id);
+
+					unresolvedDomains.remove(name);
 				}
 			}
 
 			Validate.isTrue(unresolvedDomains.isEmpty(), "Domains not resolved: " + join(unresolvedDomains, "; "));
 		}
-
+		
 		/**
-		 * Step #4: Get ELB Hosted Zone Id
+		 * Step #4: Domain Validation
 		 */
 		{
-			String loadBalancerName = curEnv.getEndpointURL().replaceFirst(
-					"\\-\\d+\\..*$", "");
+			for (Entry<String, String> entry : recordsToAssign.entrySet()) {
+				String record = entry.getKey();
+				String zoneId = entry.getValue();
+				HostedZone hostedZone = hostedZoneMapping.get(zoneId);
+				
+				Validate.notNull(hostedZone, format("Unknown Hosted Zone Id: %s for Record: %s", zoneId, record));
+				Validate.isTrue(record.endsWith(hostedZone.getName()), format("Record %s does not map to zoneId %s (domain: %s)", record, zoneId, hostedZone.getName()));
+			}
+		}
+
+		/**
+		 * Step #5: Get ELB Hosted Zone Id
+		 */
+		{
+			String loadBalancerName = getService().describeEnvironmentResources(new DescribeEnvironmentResourcesRequest().withEnvironmentId(curEnv.getEnvironmentId())).getEnvironmentResources().getLoadBalancers().get(0).getName();
 
 			DescribeLoadBalancersRequest req = new DescribeLoadBalancersRequest(
 					Arrays.asList(loadBalancerName));
@@ -153,16 +194,16 @@ public class BindDomainsMojo extends AbstractNeedsEnvironmentMojo {
 		}
 
 		/**
-		 * Step #5: Apply Change Batch on Each Domain
+		 * Step #6: Apply Change Batch on Each Domain
 		 */
-		for (Entry<String, String> domainEntry : domainsToAssign.entrySet()) {
-			assignDomain(ctx, domainEntry.getKey(), domainEntry.getValue());
+		for (Entry<String, String> recordEntry : recordsToAssign.entrySet()) {
+			assignDomain(ctx, recordEntry.getKey(), recordEntry.getValue());
 		}
 
 		return null;
 	}
 
-	protected void assignDomain(BindDomainContext ctx, String domain, String zoneId) {
+	protected void assignDomain(BindDomainContext ctx, String record, String zoneId) {
 		ChangeBatch changeBatch = new ChangeBatch();
 
 		/**
@@ -177,7 +218,7 @@ public class BindDomainsMojo extends AbstractNeedsEnvironmentMojo {
 
 			for (ResourceRecordSet rrs : listResourceRecordSets
 					.getResourceRecordSets()) {
-				if (!rrs.getName().equals(domain + "."))
+				if (!rrs.getName().equals(record))
 					continue;
 
 				if (!"A".equals(rrs.getType()))
@@ -188,11 +229,16 @@ public class BindDomainsMojo extends AbstractNeedsEnvironmentMojo {
 			}
 
 			if (null != resourceRecordSet) {
+				if (getLog().isInfoEnabled())
+					getLog().info(format("Excluding resourceRecordSet %s for domain %s", resourceRecordSet, record));
 				changeBatch.getChanges().add(new Change(ChangeAction.DELETE,
 						resourceRecordSet));
 			}
 		}
 
+		/**
+		 * Then Add Ours
+		 */
 		AliasTarget aliasTarget = new AliasTarget();
 
 		aliasTarget.setHostedZoneId(ctx.elbHostedZoneId);
@@ -200,10 +246,13 @@ public class BindDomainsMojo extends AbstractNeedsEnvironmentMojo {
 
 		ResourceRecordSet resourceRecordSet = new ResourceRecordSet();
 
-		resourceRecordSet.setName(domain);
+		resourceRecordSet.setName(record);
 		resourceRecordSet.setType(RRType.A);
 
 		resourceRecordSet.setAliasTarget(aliasTarget);
+
+		if (getLog().isInfoEnabled())
+			getLog().info(format("Adding resourceRecordSet %s for domain %s mapped to %s", resourceRecordSet, record, aliasTarget.getDNSName()));
 
 		changeBatch.getChanges().add(new Change(ChangeAction.CREATE, resourceRecordSet));
 
