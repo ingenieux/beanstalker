@@ -14,6 +14,7 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
+import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isBlank;
 
 import java.util.ArrayList;
@@ -72,8 +73,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 	Integer timeoutMins;
 
 	@Override
-	protected EnvironmentDescription handleResults(String kind,
-			List<EnvironmentDescription> environments)
+	protected EnvironmentDescription handleResults(List<EnvironmentDescription> environments)
 			throws MojoExecutionException {
 		// Don't care - We're an exception to the rule, you know.
 
@@ -110,6 +110,16 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 							+ ".elasticbeanstalk.com");
 
 		copyOptionSettings(curEnv);
+		
+		if (! solutionStack.equals(curEnv.getSolutionStackName())) {
+			if (getLog().isInfoEnabled())
+				getLog().info(
+						format("(btw, we're launching with solutionStack/ set to '%s' instead of the default ('%s'). " +
+								"If this is not the case, then we kindly ask you to file a bug report on the mailing list :)",
+								curEnv.getSolutionStackName(), solutionStack));
+			
+			solutionStack = curEnv.getSolutionStackName();
+		}
 
 		String newEnvironmentName = getNewEnvironmentName(this.environmentName);
 

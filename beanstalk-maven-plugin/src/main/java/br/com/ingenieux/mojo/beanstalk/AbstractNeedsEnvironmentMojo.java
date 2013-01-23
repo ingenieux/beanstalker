@@ -44,7 +44,7 @@ public abstract class AbstractNeedsEnvironmentMojo extends
 	@Override
 	protected void configure() {
 		try {
-			curEnv = super.lookupEnvironment(applicationName, "", null, null, cnamePrefix);
+			curEnv = super.lookupEnvironment(applicationName, cnamePrefix);
 		} catch (MojoExecutionException e) {
 			throw new RuntimeException(e);
 		}

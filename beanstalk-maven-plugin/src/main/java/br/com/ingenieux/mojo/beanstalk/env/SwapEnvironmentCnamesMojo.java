@@ -40,31 +40,6 @@ import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
 @Mojo(name="swap-environment-cnames")
 public class SwapEnvironmentCnamesMojo extends AbstractBeanstalkMojo {
 	/**
-	 * Source Environment Name
-	 * 
-	 */
-	@Parameter(property="beanstalk.sourceEnvironmentName")
-	String sourceEnvironmentName;
-
-	/**
-	 * Source Environment Id
-	 */
-	@Parameter(property="beanstalk.sourceEnvironmentId")
-	String sourceEnvironmentId;
-
-	/**
-	 * Destination Environment Name
-	 */
-	@Parameter(property="beanstalk.targetEnvironmentName")
-	String targetEnvironmentName;
-
-	/**
-	 * Destination Environment Id
-	 */
-	@Parameter(property="beanstalk.targetEnvironmentId")
-	String targetEnvironmentId;
-
-	/**
 	 * Beanstalk Application Name
 	 */
 	@Parameter(property="beanstalk.applicationName", defaultValue = "${project.artifactId}", required = true)
@@ -85,11 +60,9 @@ public class SwapEnvironmentCnamesMojo extends AbstractBeanstalkMojo {
 	@Override
 	protected Object executeInternal() throws AbstractMojoExecutionException {
 		EnvironmentDescription sourceEnvironment = lookupEnvironment(applicationName,
-				"source", sourceEnvironmentId,
-				sourceEnvironmentName, sourceEnvironmentCNamePrefix);
+				sourceEnvironmentCNamePrefix);
 		EnvironmentDescription targetEnvironment = lookupEnvironment(applicationName,
-				"target", targetEnvironmentId,
-				targetEnvironmentName, targetEnvironmentCNamePrefix);
+				targetEnvironmentCNamePrefix);
 
 		SwapCNamesContext context = SwapCNamesContextBuilder
 				.swapCNamesContext()//
@@ -101,6 +74,7 @@ public class SwapEnvironmentCnamesMojo extends AbstractBeanstalkMojo {
 				.withDestinationEnvironmentName(
 						targetEnvironment.getEnvironmentName())//
 				.build();
+		
 		SwapCNamesCommand command = new SwapCNamesCommand(this);
 
 		return command.execute(context);

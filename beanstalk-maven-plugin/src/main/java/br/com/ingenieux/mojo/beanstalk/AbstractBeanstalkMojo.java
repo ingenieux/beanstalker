@@ -14,8 +14,8 @@ package br.com.ingenieux.mojo.beanstalk;
  * limitations under the License.
  */
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
 
+import static org.apache.commons.lang.StringUtils.isBlank;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -43,39 +43,13 @@ public abstract class AbstractBeanstalkMojo extends
 		return Arrays.asList(arrOptionSettings);
 	}
 
-	protected EnvironmentDescription lookupEnvironment(String applicationName,
-			String kind, String environmentId, String environmentName,
-			String environmentCNamePrefix) throws MojoExecutionException {
-		boolean bIdDefined = isNotBlank(environmentId);
-		boolean bNameDefined = isNotBlank(environmentName);
-		boolean bCNamePrefixDefined = isNotBlank(environmentCNamePrefix);
-
-		boolean bIdOrNameDefined = bIdDefined ^ bNameDefined;
-
-		if (!(bIdOrNameDefined ^ bCNamePrefixDefined)) {
-			String message = "You must declare either _EnvironmentId or _EnvironmentName or _EnvironmentCNamePrefix"
-					.replaceAll("_", kind);
-			throw new MojoExecutionException(message);
-		}
+	protected EnvironmentDescription lookupEnvironment(String applicationName, String environmentCNamePrefix) throws MojoExecutionException {
+		if (isBlank(environmentCNamePrefix))
+			throw new MojoExecutionException("You must declare cnamePrefix");
 
 		DescribeEnvironmentsRequest req = new DescribeEnvironmentsRequest()
 				.withApplicationName(applicationName);
 		DescribeEnvironmentsResult result = null;
-
-		if (bIdOrNameDefined) {
-			if (bIdDefined) {
-				req.setEnvironmentIds(Arrays.asList(environmentId));
-			} else if (bNameDefined) {
-				req.setEnvironmentNames(Arrays.asList(environmentName));
-			}
-
-			result = getService().describeEnvironments(req);
-
-			List<EnvironmentDescription> environments = result
-					.getEnvironments();
-
-			return handleResults(kind, environments);
-		}
 
 		String cNameToFind = String.format("%s.elasticbeanstalk.com",
 				environmentCNamePrefix);
@@ -90,34 +64,27 @@ public abstract class AbstractBeanstalkMojo extends
 			if (cNameToFind.equals(d.getCNAME())&& (!d.getStatus().startsWith("Termin")))
 				environments.add(d);
 
-		return handleResults(kind, environments);
+		return handleResults(environments);
 	}
 
-	protected EnvironmentDescription handleResults(String kind,
-			List<EnvironmentDescription> environments)
+	protected EnvironmentDescription handleResults(List<EnvironmentDescription> environments)
 			throws MojoExecutionException {
 		int len = environments.size();
 
 		if (1 == len)
 			return environments.get(0);
 
-		handleNonSingle(kind, len);
+		handleNonSingle(len);
 
 		return null;
 	}
 
-	protected void handleNonSingle(String kind, int len)
+	protected void handleNonSingle(int len)
 			throws MojoExecutionException {
 		if (0 == len) {
-			String message = "No _ environments found matching the supplied parameters"
-					.replaceAll("_", kind);
-
-			throw new MojoExecutionException(message);
+			throw new MojoExecutionException("No environments found");
 		} else {
-			String message = "Multiple _ environments found matching the supplied parameters (may you file a bug report?)"
-					.replaceAll("_", kind);
-
-			throw new MojoExecutionException(message);
+			throw new MojoExecutionException("Multiple environments found matching the supplied parameters (may you file a bug report?)");
 		}
 	}
 }
