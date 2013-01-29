@@ -211,8 +211,12 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 				bInvalid |= (curOptionSetting.getValue().contains(curEnv
 						.getEnvironmentId()));
 
-			if (bInvalid)
+			if (bInvalid) {
+				getLog().debug(format("Excluding Option Setting: %s:%s['%s']", curOptionSetting.getNamespace(), curOptionSetting.getOptionName(), curOptionSetting.getValue()));
 				listIterator.remove();
+			} else {
+				getLog().debug(format("Using Option Setting: %s:%s['%s']", curOptionSetting.getNamespace(), curOptionSetting.getOptionName(), curOptionSetting.getValue()));
+			}
 		}
 
 		/*
