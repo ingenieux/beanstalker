@@ -207,6 +207,11 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 						"aws:cloudformation:template:parameter") && curOptionSetting
 						.getOptionName().equals("AppSource"));
 
+ 			if (!bInvalid)
+				bInvalid |= (curOptionSetting.getNamespace().equals(
+						"aws:elasticbeanstalk:sns:topics") && curOptionSetting
+						.getOptionName().equals("Notification Topic ARN"));
+ 			
 			if (!bInvalid)
 				bInvalid |= (curOptionSetting.getValue().contains(curEnv
 						.getEnvironmentId()));
