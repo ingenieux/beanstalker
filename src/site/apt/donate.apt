@@ -41,59 +41,5 @@ So here's the deal:
 
 	We've set up a {{{https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Y8KNQS86NP9CC}paypal donate link}} so you could show your support for beanstalker and help make it better.
 
-But wait, there's more:
-
-	In order to bring you some more than simply some intrinsecal motivation, we're making a deal: Until January 31 2013, donations above USD 30 will give free beta access to ekaterminal builds. 
-
-	ekaterminal, just like beanstalker, came from my own frustration with AWS Tooling. In particular, accessing AWS Instances.
-
-	Think about it: If you have more than one username / IAM Account / SSH Key, mostly, accessing EC2 involves:
-
-	* Finding (and opening) your IAM / AWS Account Page and login with your password
-
-	* Identifying the Instance to login
-
-	* Identify the SSH Key to Login (in particular, there are 2 different kinds of SSH Key hashes in AWS which makes it harder to rely on fingerprints, for instance)
-
-	* Copy its IP Address (which is a bit tricky)
-
-	* Opening necessary Security Groups Access if needed
-
-	* Guess what the username is (its not always ec-user)
-
-	* Build your SSH Command to connect (ssh -i <ssh key> <user>@<host>)
-
-	[]
-
-	If you have a short attention span just like me, you'll notice that remotely connecting to EC2 is an error prone and boring process, right?
-
-Enter ekaterminal
-  
-	From ekaterminal, you can manage: 
-
-	* IAM Accounts, as well as passwords and account keys
-
-	* SSH Keys, with import / export between .pem and .ppk file formats, and dealing with AWS' "Multiple Hashes" Problem
-
-	* Common Users for a Machine, as well as the right key for each one
-
-	* Workspaces, where you save the information above
-
-	* A "Instances" panel for a given AWS Account, from where you could login (both Putty and openssh are supported, in Windows / Mac / Linux Environments)
-
-What will it do in two minutes?
-
-	In {{{http://www.youtube.com/watch?v=f-d_i9l0zCc}this short video}}, you can have an idea of how fast it can go. Being a Java Web Start application, updates are automatic and online, and you can download, open your workspace, and connect - In most of our tests, login on an EC2 instance **takes around 15 seconds**. How easier it could get? 
-
-	All the data you manage from ekaterminal are persisted into a single .json file, suitable for sharing in Dropbox (we're considering encryption and advanced access sharing features), and the feedback we're getting is that people really want it badly. Its a good sign, but we'd like to turn this into an opportunity to value our existing users and improve our mutual knowledge.
-
-	By donating more than USD 30, you'll gain access to the latest beta builds of ekaterminal and, once released, you'll get Access to its Professional Version. The free version will be limited for non-commercial use and will have some feature limitations which you'll not see in Pro Version.
-
-	Besides that, your Pro Version will enable you for Basic Support via email, and access to a solution forum with tips and ideas - There a few "surprise" features we will announce in the upcoming weeks. :)
-
-	I consider it to be a steal. But besides that, its a fair deal, right?
-
-	Don't think twice, and donate to beanstalker to get {{{https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Y8KNQS86NP9CC}your beta ekaterminal Pro Access}} today!
-
 	Thank you  
     

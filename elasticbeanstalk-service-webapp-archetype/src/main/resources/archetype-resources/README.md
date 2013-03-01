@@ -56,6 +56,18 @@ From the console, click in "Launch New Environment". In this dialog, not all opt
 
 Don't launch it yet, though. We have some tips...
 
+## Deploy versus Fast-Deploy
+
+There are two variables involved when deploying into AWS Elastic Beanstalk:
+
+  - Git versus S3 (we chose git in this project)
+  - Downtime or Zero-Downtime
+
+Since we already made your life simpler by choosing git over S3, you have two profiles to pick according to your needs:
+
+  - Production: mvn -Pdeploy deploy will do a zero-downtime deploy. No downtime, but uses more resources
+  - Development: mvn -Pfast-deploy deploy will do a plain git deploy. It will incur downtime, but uses less resources
+
 ## Environment / Configuration Tips:
 
   - We suggest you save your environment into a configuration template once you're happy. We suggest ```envname-yyyymmdd-nn```, where NN is a number which gets incremented.

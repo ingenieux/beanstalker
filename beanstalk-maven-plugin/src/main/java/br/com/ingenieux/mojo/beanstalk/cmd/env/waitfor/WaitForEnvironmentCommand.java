@@ -33,7 +33,7 @@ public class WaitForEnvironmentCommand extends
 	/**
 	 * Poll Interval
 	 */
-	private static final long POLL_INTERVAL = 15 * 1000;
+	public static final long POLL_INTERVAL = 90 * 1000;
 	
 	/**
 	 * Magic Constant for Mins to MSEC
@@ -116,7 +116,7 @@ public class WaitForEnvironmentCommand extends
 		return expiresAt.before(new Date(System.currentTimeMillis()));
 	}
 
-	void sleepInterval() {
+	public static void sleepInterval() {
 		try {
 			Thread.sleep(POLL_INTERVAL);
 		} catch (InterruptedException e) {

@@ -26,9 +26,11 @@ import java.util.regex.Pattern;
 
 import org.apache.maven.plugin.AbstractMojoExecutionException;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import br.com.ingenieux.mojo.aws.util.CredentialsUtil;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesContextBuilder;
@@ -52,7 +54,7 @@ import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
  * 
  * @since 0.2.0
  */
-@Mojo(name="replace-environment")
+@Mojo(name = "replace-environment")
 // Best Guess Evar
 public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 	/**
@@ -62,6 +64,11 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 			.compile("^(.*)-(\\d+)$");
 
 	/**
+	 * Max No of Retry Attempts
+	 */
+	private static final int MAX_ATTEMPTS = 10;
+
+	/**
 	 * Max Environment Name
 	 */
 	private static final int MAX_ENVNAME_LEN = 23;
@@ -69,8 +76,14 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 	/**
 	 * Minutes until timeout
 	 */
-	@Parameter(property="beanstalk.timeoutMins", defaultValue = "20")
+	@Parameter(property = "beanstalk.timeoutMins", defaultValue = "20")
 	Integer timeoutMins;
+
+	/**
+	 * Skips if Same Version?
+	 */
+	@Parameter(property = "beanstalk.skipIfSameVersion", defaultValue = "true")
+	boolean skipIfSameVersion = true;
 
 	@Override
 	protected EnvironmentDescription handleResults(List<EnvironmentDescription> environments)
@@ -99,6 +112,12 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 		EnvironmentDescription curEnv = getEnvironmentFor(applicationName,
 				cnamePrefix);
 
+		if (curEnv.getVersionLabel().equals(versionLabel) && skipIfSameVersion) {
+			getLog().warn(format("Environment is running version %s and skipIfSameVersion is true. Returning", versionLabel));
+
+			return null;
+		}
+
 		/*
 		 * Decides on a cnamePrefix, and launches a new environment
 		 */
@@ -110,14 +129,14 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 							+ ".elasticbeanstalk.com");
 
 		copyOptionSettings(curEnv);
-		
-		if (! solutionStack.equals(curEnv.getSolutionStackName())) {
+
+		if (!solutionStack.equals(curEnv.getSolutionStackName())) {
 			if (getLog().isInfoEnabled())
-				getLog().info(
+				getLog().warn(
 						format("(btw, we're launching with solutionStack/ set to '%s' instead of the default ('%s'). " +
 								"If this is not the case, then we kindly ask you to file a bug report on the mailing list :)",
 								curEnv.getSolutionStackName(), solutionStack));
-			
+
 			solutionStack = curEnv.getSolutionStackName();
 		}
 
@@ -140,7 +159,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 			/*
 			 * Terminates the failed launched environment
 			 */
-			terminateAndWaitForEnvironment(createEnvResult.getEnvironmentId());
+			terminateEnvironment(createEnvResult.getEnvironmentId());
 
 			handleException(exc);
 
@@ -148,15 +167,44 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 		}
 
 		/*
-		 * Swaps
+		 * Swaps. Due to beanstalker-25, we're doing some extra logic we
+		 * actually woudln't want to.
 		 */
-		swapEnvironmentCNames(newEnvDesc.getEnvironmentId(),
-				curEnv.getEnvironmentId(), cnamePrefix);
+		{
+			boolean swapped = false;
+			for (int i = 1; i <= MAX_ATTEMPTS; i++) {
+				try {
+					swapEnvironmentCNames(newEnvDesc.getEnvironmentId(),
+							curEnv.getEnvironmentId(), cnamePrefix);
+					swapped = true;
+					break;
+				} catch (Throwable exc) {
+					if (exc instanceof MojoFailureException)
+						exc = Throwable.class.cast(MojoFailureException.class.cast(exc).getCause());
+
+					getLog().warn(format("Attempt #%d/%d failed. Sleeping and retrying. Reason: %s", i, MAX_ATTEMPTS, exc.getMessage()));
+
+					WaitForEnvironmentCommand.sleepInterval();
+				}
+			}
+
+			if (!swapped) {
+				getLog().info("Failed to properly Replace Environment. Finishing the new one. And throwing you a failure");
+
+				terminateEnvironment(newEnvDesc.getEnvironmentId());
+
+				String message = "Unable to swap cnames. btw, see https://github.com/ingenieux/beanstalker/issues/25 and help us improve beanstalker";
+
+				getLog().warn(message);
+
+				throw new MojoFailureException(message);
+			}
+		}
 
 		/*
-		 * Terminates the previous environment - and waits for it
+		 * Terminates the previous environment
 		 */
-		terminateAndWaitForEnvironment(curEnv.getEnvironmentId());
+		terminateEnvironment(curEnv.getEnvironmentId());
 
 		return createEnvResult;
 	}
@@ -196,7 +244,8 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 			 * 
 			 * I really mean harmful - If you mention a terminated environment
 			 * settings, Elastic Beanstalk will accept, but this might lead to
-			 * inconsistent states, specially when creating / listing environments. 
+			 * inconsistent states, specially when creating / listing
+			 * environments.
 			 * 
 			 * Trust me on this one.
 			 */
@@ -207,20 +256,20 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 						"aws:cloudformation:template:parameter") && curOptionSetting
 						.getOptionName().equals("AppSource"));
 
- 			if (!bInvalid)
+			if (!bInvalid)
 				bInvalid |= (curOptionSetting.getNamespace().equals(
 						"aws:elasticbeanstalk:sns:topics") && curOptionSetting
 						.getOptionName().equals("Notification Topic ARN"));
- 			
+
 			if (!bInvalid)
 				bInvalid |= (curOptionSetting.getValue().contains(curEnv
 						.getEnvironmentId()));
 
 			if (bInvalid) {
-				getLog().debug(format("Excluding Option Setting: %s:%s['%s']", curOptionSetting.getNamespace(), curOptionSetting.getOptionName(), curOptionSetting.getValue()));
+				getLog().info(format("Excluding Option Setting: %s:%s['%s']", curOptionSetting.getNamespace(), curOptionSetting.getOptionName(), CredentialsUtil.redact(curOptionSetting.getValue())));
 				listIterator.remove();
 			} else {
-				getLog().debug(format("Using Option Setting: %s:%s['%s']", curOptionSetting.getNamespace(), curOptionSetting.getOptionName(), curOptionSetting.getValue()));
+				getLog().info(format("Including Option Setting: %s:%s['%s']", curOptionSetting.getNamespace(), curOptionSetting.getOptionName(), CredentialsUtil.redact(curOptionSetting.getValue())));
 			}
 		}
 
@@ -282,32 +331,28 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 	 *            environment id to terminate
 	 * @throws AbstractMojoExecutionException
 	 */
-	protected void terminateAndWaitForEnvironment(String environmentId)
+	protected void terminateEnvironment(String environmentId)
 			throws AbstractMojoExecutionException {
-		{
-			getLog().info("Terminating environmentId=" + environmentId);
+		Exception lastException = null;
+		for (int i = 1; i <= MAX_ATTEMPTS; i++) {
+			getLog().info(format("Terminating environmentId=%s (attempt %d/%d)", environmentId, i, MAX_ATTEMPTS));
 
-			TerminateEnvironmentContext terminatecontext = new TerminateEnvironmentContextBuilder()
-					.withEnvironmentId(environmentId)
-					.withTerminateResources(true).build();
-			TerminateEnvironmentCommand command = new TerminateEnvironmentCommand(
-					this);
+			try {
+				TerminateEnvironmentContext terminatecontext = new TerminateEnvironmentContextBuilder()
+						.withEnvironmentId(environmentId)
+						.withTerminateResources(true).build();
+				TerminateEnvironmentCommand command = new TerminateEnvironmentCommand(
+						this);
 
-			command.execute(terminatecontext);
+				command.execute(terminatecontext);
+
+				return;
+			} catch (Exception exc) {
+				lastException = exc;
+			}
 		}
 
-		{
-			WaitForEnvironmentContext context = new WaitForEnvironmentContextBuilder()
-					.withApplicationName(applicationName)
-					.withEnvironmentId(environmentId)
-					.withStatusToWaitFor("Terminated")
-					.withTimeoutMins(timeoutMins).build();
-
-			WaitForEnvironmentCommand command = new WaitForEnvironmentCommand(
-					this);
-
-			command.execute(context);
-		}
+		throw new MojoFailureException("Unable to terminate environment " + environmentId, lastException);
 	}
 
 	/**
