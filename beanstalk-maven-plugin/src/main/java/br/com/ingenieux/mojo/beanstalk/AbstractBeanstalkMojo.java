@@ -15,18 +15,27 @@ package br.com.ingenieux.mojo.beanstalk;
  */
 
 
+import static java.lang.String.format;
+import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.apache.commons.collections.comparators.ReverseComparator;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
 
 import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalkClient;
 import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationsRequest;
 import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsRequest;
 import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsResult;
 import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
@@ -86,5 +95,84 @@ public abstract class AbstractBeanstalkMojo extends
 		} else {
 			throw new MojoExecutionException("Multiple environments found matching the supplied parameters (may you file a bug report?)");
 		}
+	}
+
+	/**
+	 * Boolean predicate for harmful/placebo options
+	 * 
+	 * I really mean harmful - If you mention a terminated environment settings,
+	 * Elastic Beanstalk will accept, but this might lead to inconsistent
+	 * states, specially when creating / listing environments.
+	 * 
+	 * Trust me on this one.
+	 * 
+	 * @param environmentId
+	 *            environment id to lookup
+	 * @param optionSetting
+	 *            option setting
+	 * @return true if this is not needed
+	 */
+	protected boolean harmfulOptionSettingP(String environmentId, ConfigurationOptionSetting optionSetting) {
+		boolean bInvalid = isBlank(optionSetting.getValue());
+	
+		if (!bInvalid)
+			bInvalid = (optionSetting.getNamespace().equals(
+					"aws:cloudformation:template:parameter") && optionSetting
+					.getOptionName().equals("AppSource"));
+	
+		if (!bInvalid)
+			bInvalid = (optionSetting.getNamespace().equals(
+					"aws:elasticbeanstalk:sns:topics") && optionSetting
+					.getOptionName().equals("Notification Topic ARN"));
+	
+		/*
+		 * TODO: Apply a more general regex instead
+		 */
+		if (!bInvalid && isNotBlank(environmentId))
+			bInvalid = (optionSetting.getValue().contains(environmentId));
+		
+		return bInvalid;
+	}
+
+	public String lookupTemplateName(String applicationName, String templateName) {
+		if (!hasWildcards(defaultString(templateName)))
+			return templateName;
+		
+		getLog().info(format("Template Name %s contains wildcards. A Lookup is needed", templateName));
+
+		Collection<String> configurationTemplates = getConfigurationTemplates(applicationName);
+		
+		for (String configTemplateName : configurationTemplates)
+			getLog().debug(format(" * Found Template Name: %s", configTemplateName));
+		
+		/*
+		 * TODO: Research and Review valid characters / applicable glob replacements
+		 */
+		Pattern templateMask = Pattern.compile(templateName.replaceAll("\\.", "\\\\.").replaceAll("\\Q*\\E", ".*").replaceAll("\\Q?\\E", "."));
+
+		for (String s : configurationTemplates) {
+			Matcher m = templateMask.matcher(s);
+			if (m.matches()) {
+				getLog().info(format("Selecting: %s", s));
+				return s;
+			}
+		}
+		
+		getLog().info("Not found");
+		
+		return null;
+	}
+	
+	public boolean hasWildcards(String input) {
+		return (input.indexOf('*') != -1 || input.indexOf('?') != -1);
+	}
+
+	@SuppressWarnings("unchecked")
+	private List<String> getConfigurationTemplates(String applicationName) {
+		List<String> configurationTemplates = getService().describeApplications(new DescribeApplicationsRequest().withApplicationNames(applicationName)).getApplications().get(0).getConfigurationTemplates();
+		
+		Collections.<String>sort(configurationTemplates, new ReverseComparator(String.CASE_INSENSITIVE_ORDER));
+		
+		return configurationTemplates;
 	}
 }

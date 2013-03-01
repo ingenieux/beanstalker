@@ -5,6 +5,7 @@ import java.util.Arrays;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.AbstractMojoExecutionException;
 
+import br.com.ingenieux.mojo.aws.util.CredentialsUtil;
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.BaseCommand;
 
@@ -25,13 +26,13 @@ import com.amazonaws.services.elasticbeanstalk.model.CreateEnvironmentResult;
  * limitations under the License.
  */
 public class CreateEnvironmentCommand extends
-    BaseCommand<CreateEnvironmentContext, CreateEnvironmentResult> {
+		BaseCommand<CreateEnvironmentContext, CreateEnvironmentResult> {
 	/**
 	 * Constructor
 	 * 
 	 * @param parentMojo
-	 *          parent mojo
-	 * @throws AbstractMojoExecutionException 
+	 *            parent mojo
+	 * @throws AbstractMojoExecutionException
 	 */
 	public CreateEnvironmentCommand(AbstractBeanstalkMojo parentMojo) throws AbstractMojoExecutionException {
 		super(parentMojo);
@@ -39,7 +40,7 @@ public class CreateEnvironmentCommand extends
 
 	@Override
 	protected CreateEnvironmentResult executeInternal(
-	    CreateEnvironmentContext context) throws Exception {
+			CreateEnvironmentContext context) throws Exception {
 		CreateEnvironmentRequest request = new CreateEnvironmentRequest();
 
 		request.setApplicationName(context.getApplicationName());
@@ -50,15 +51,15 @@ public class CreateEnvironmentCommand extends
 		request.setOptionSettings(Arrays.asList(context.getOptionSettings()));
 
 		if (StringUtils.isNotBlank(context.getTemplateName())) {
-			request.setTemplateName(context.getTemplateName());
+			request.setTemplateName(parentMojo.lookupTemplateName(context.getApplicationName(), context.getTemplateName()));
 		} else if (StringUtils.isNotBlank(context.getSolutionStack())) {
 			request.setSolutionStackName(context.getSolutionStack());
 		}
 
 		request.setVersionLabel(context.getVersionLabel());
-		
+
 		if (parentMojo.isVerbose())
-			parentMojo.getLog().info("Requesting createEnvironment w/ request: " + request);
+			parentMojo.getLog().info("Requesting createEnvironment w/ request: " + CredentialsUtil.redact("" + request));
 
 		return service.createEnvironment(request);
 	}

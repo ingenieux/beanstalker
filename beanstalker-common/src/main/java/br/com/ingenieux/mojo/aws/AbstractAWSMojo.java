@@ -2,6 +2,7 @@ package br.com.ingenieux.mojo.aws;
 
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Properties;
 
@@ -23,6 +24,7 @@ import org.codehaus.plexus.context.ContextException;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Contextualizable;
 
 import br.com.ingenieux.mojo.aws.util.AWSClientFactory;
+import br.com.ingenieux.mojo.aws.util.CredentialsUtil;
 import br.com.ingenieux.mojo.aws.util.TypeUtil;
 
 import com.amazonaws.AmazonWebServiceClient;
@@ -361,7 +363,7 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 			return;
 		}
 
-		displayResults(result);
+		displayResults(result, 0);
 	}
 
 	/**
@@ -394,9 +396,26 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 		}
 	}
 
-	protected void displayResults(Object result) {
+	protected void displayResults(Object result, int level) {
 		if (null == result)
 			return;
+		
+		String prefix = StringUtils.repeat(" ", level * 2) + " * ";
+
+		if (Collection.class.isAssignableFrom(result.getClass())) {
+			@SuppressWarnings("unchecked")
+			Collection<Object> coll = Collection.class.cast(result);
+			
+			for (Object o : coll)
+				displayResults(o, 1 + level);
+			
+			return;
+		} else if ("java.lang".equals(result.getClass().getPackage().getName())) {
+			getLog().info(prefix + CredentialsUtil.redact("" + result) + " [class: "
+					+ result.getClass().getSimpleName() + "]");
+			
+			return;
+		}
 
 		BeanMap beanMap = new BeanMap(result);
 
@@ -418,12 +437,12 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 			} catch (Exception e) {
 				getLog().warn("Failure on property " + propertyName, e);
 			}
-
+			
 			if (null == propertyClass) {
-				getLog().info(propertyName + ": " + propertyValue);
+				getLog().info(prefix + propertyName + ": " + CredentialsUtil.redact("" + propertyValue));
 			} else {
-				getLog().info(
-						propertyName + ": " + propertyValue + " [class: "
+				getLog().info(prefix + 
+						propertyName + ": " + CredentialsUtil.redact("" + propertyValue) + " [class: "
 								+ propertyClass.getSimpleName() + "]");
 			}
 		}

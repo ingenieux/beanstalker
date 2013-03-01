@@ -14,9 +14,11 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryBuilder;
 import org.eclipse.jgit.lib.TextProgressMonitor;
+import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RefSpec;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
@@ -80,14 +82,18 @@ public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
 		Git git = getGitRepo();
 		String versionLabel = null;
 
-		String commitId = ObjectId.toString(git.getRepository()
-				.getRef("master").getObjectId());
+		String commitId = null;
+
+		Ref masterRef = git.getRepository()
+				.getRef("master");
+		if (null != masterRef)
+			commitId = ObjectId.toString(masterRef.getObjectId());
 
 		Status status = git.status().call();
 
 		boolean pushAhead = false;
 
-		if (status.isClean()) {
+		if (null != commitId && status.isClean()) {
 			versionLabel = lookupVersionLabelForCommitId(commitId);
 
 			if (null == versionLabel) {
@@ -121,30 +127,50 @@ public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
 
 			git.commit().setAll(true).setMessage(versionDescription).call();
 
-			commitId = ObjectId.toString(git.getRepository()
-					.getRef("master").getObjectId());
+			masterRef = git.getRepository()
+					.getRef("master");
+
+			commitId = ObjectId.toString(masterRef.getObjectId());
 		}
 
 		String environmentName = null;
 
+		/*
+		 * Builds the remote push URL
+		 */
 		if (null != curEnv && !skipEnvironmentUpdate)
 			environmentName = curEnv.getEnvironmentName();
 
 		String remote = new RequestSigner(getAWSCredentials(), applicationName,
 				region, commitId, environmentName, new Date()).getPushUrl();
 
-		PushCommand cmd = git.//
-				push();
+		/*
+		 * Does the Push
+		 */
+		{
+			PushCommand cmd = git.//
+					push();
 
-		cmd.setProgressMonitor(new TextProgressMonitor());
+			cmd.setProgressMonitor(new TextProgressMonitor());
 
-		try {
-			cmd.setRefSpecs(new RefSpec("HEAD:refs/heads/master")).//
-					setForce(true).//
-					setRemote(remote).//
-					call();
-		} catch (Exception exc) {
-			// Ignore
+			Iterable<PushResult> pushResults = null;
+			try {
+				pushResults = cmd.setRefSpecs(new RefSpec("HEAD:refs/heads/master")).//
+						setForce(true).//
+						setRemote(remote).//
+						call();
+			} catch (Exception exc) {
+				// Ignore
+				getLog().debug("(Actually Expected) Exception", exc);
+			}
+
+			/*
+			 * I wish someday it could work... :(
+			 */
+			if (null != pushResults)
+				for (PushResult pushResult : pushResults) {
+					getLog().debug(" * " + pushResult.getMessages());
+				}
 		}
 
 		versionLabel = lookupVersionLabelForCommitId(commitId);
@@ -159,7 +185,7 @@ public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
 	private String lookupVersionLabelForCommitId(String commitId) {
 		String versionLabel = null;
 		String prefixToLookup = format("git-%s-", commitId);
-		
+
 		DescribeApplicationVersionsResult describeApplicationVersions = getService().describeApplicationVersions(new DescribeApplicationVersionsRequest().withApplicationName(applicationName));
 
 		for (ApplicationVersionDescription avd : describeApplicationVersions.getApplicationVersions()) {
@@ -168,7 +194,7 @@ public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
 				break;
 			}
 		}
-		
+
 		return versionLabel;
 	}
 

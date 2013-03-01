@@ -55,7 +55,12 @@ public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 	ConfigurationOptionSetting[] optionSettings;
 
 	/**
-	 * Template Name
+	 * <p>Template Name.</p>
+	 * 
+	 * <p>Could be either literal or a glob, like, <pre>ingenieux-services-prod-*</pre>. If a glob, there will
+	 * be a lookup involved, and the first one in reverse ASCIIbetical order
+	 * will be picked upon.
+	 * </p>
 	 */
 	@Parameter(property="beanstalk.templateName")
 	String templateName;
@@ -66,7 +71,7 @@ public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 		    .withEnvironmentDescription(environmentDescription)//
 		    .withEnvironmentName(curEnv.getEnvironmentName())//
 		    .withOptionSettings(optionSettings)//
-		    .withTemplateName(templateName)//
+		    .withTemplateName(lookupTemplateName(applicationName, templateName))//
 		    .withVersionLabel(versionLabel)//
 		    .build();
 		UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(this);

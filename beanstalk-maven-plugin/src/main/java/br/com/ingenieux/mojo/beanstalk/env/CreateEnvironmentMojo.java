@@ -71,7 +71,12 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 	String solutionStack;
 
 	/**
-	 * Template Name
+	 * <p>Template Name.</p>
+	 * 
+	 * <p>Could be either literal or a glob, like, <pre>ingenieux-services-prod-*</pre>. If a glob, there will
+	 * be a lookup involved, and the first one in reverse ASCIIbetical order
+	 * will be picked upon.
+	 * </p>
 	 */
 	@Parameter(property="beanstalk.templateName")
 	String templateName;

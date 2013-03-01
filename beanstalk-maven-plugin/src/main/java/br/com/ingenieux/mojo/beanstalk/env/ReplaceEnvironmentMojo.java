@@ -15,7 +15,6 @@ package br.com.ingenieux.mojo.beanstalk.env;
  */
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.isBlank;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -239,31 +238,8 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 		while (listIterator.hasNext()) {
 			ConfigurationOptionSetting curOptionSetting = listIterator.next();
 
-			/*
-			 * Filters out harmful options
-			 * 
-			 * I really mean harmful - If you mention a terminated environment
-			 * settings, Elastic Beanstalk will accept, but this might lead to
-			 * inconsistent states, specially when creating / listing
-			 * environments.
-			 * 
-			 * Trust me on this one.
-			 */
-			boolean bInvalid = isBlank(curOptionSetting.getValue());
-
-			if (!bInvalid)
-				bInvalid |= (curOptionSetting.getNamespace().equals(
-						"aws:cloudformation:template:parameter") && curOptionSetting
-						.getOptionName().equals("AppSource"));
-
-			if (!bInvalid)
-				bInvalid |= (curOptionSetting.getNamespace().equals(
-						"aws:elasticbeanstalk:sns:topics") && curOptionSetting
-						.getOptionName().equals("Notification Topic ARN"));
-
-			if (!bInvalid)
-				bInvalid |= (curOptionSetting.getValue().contains(curEnv
-						.getEnvironmentId()));
+			boolean bInvalid = harmfulOptionSettingP(curEnv
+					.getEnvironmentId(), curOptionSetting);
 
 			if (bInvalid) {
 				getLog().info(format("Excluding Option Setting: %s:%s['%s']", curOptionSetting.getNamespace(), curOptionSetting.getOptionName(), CredentialsUtil.redact(curOptionSetting.getValue())));

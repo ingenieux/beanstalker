@@ -44,26 +44,26 @@ import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettin
  * @author Aldrin Leal
  * @since 0.2.5
  */
-@Mojo(name="describe-configuration-templates")
+@Mojo(name = "describe-configuration-templates")
 public class DescribeConfigurationTemplatesMojo extends AbstractBeanstalkMojo {
 	private static final String ENDL = System.getProperty("line.separator");
 
 	/**
 	 * Beanstalk Application Name
 	 */
-	@Parameter(property="beanstalk.applicationName", defaultValue = "${project.artifactId}", required = true)
+	@Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}", required = true)
 	protected String applicationName;
 
 	/**
 	 * Configuration Template Name (Optional)
 	 */
-	@Parameter(property="beanstalk.configurationTemplate")
+	@Parameter(property = "beanstalk.configurationTemplate")
 	String configurationTemplate;
 
 	/**
 	 * Output file (Optional)
 	 */
-	@Parameter(property="beanstalk.outputFile")
+	@Parameter(property = "beanstalk.outputFile")
 	File outputFile;
 
 	@Override
@@ -118,6 +118,8 @@ public class DescribeConfigurationTemplatesMojo extends AbstractBeanstalkMojo {
 				.getConfigurationSettings()) {
 			for (ConfigurationOptionSetting setting : configSetting
 					.getOptionSettings()) {
+				if (harmfulOptionSettingP(null, setting))
+					continue;
 				buf.add("  <optionSetting>");
 				buf.add(String.format("    <%s>%s</%1$s>", "namespace",
 						setting.getNamespace()));

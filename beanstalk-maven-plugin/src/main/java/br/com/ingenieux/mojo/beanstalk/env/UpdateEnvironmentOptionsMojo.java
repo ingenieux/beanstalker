@@ -33,7 +33,7 @@ import com.amazonaws.services.elasticbeanstalk.model.UpdateEnvironmentRequest;
  * 
  * @since 0.2.2
  */
-@Mojo(name="update-environment-options", requiresDirectInvocation=true)
+@Mojo(name = "update-environment-options", requiresDirectInvocation = true)
 public class UpdateEnvironmentOptionsMojo extends AbstractNeedsEnvironmentMojo {
 	public enum WhatToSet {
 		description, optionSettings, templateName, versionLabel
@@ -48,29 +48,34 @@ public class UpdateEnvironmentOptionsMojo extends AbstractNeedsEnvironmentMojo {
 	/**
 	 * Environment Name
 	 */
-	@Parameter(property="beanstalk.environmentDescription", defaultValue="default")
+	@Parameter(property = "beanstalk.environmentDescription", defaultValue = "default")
 	String environmentDescription;
 
 	/**
 	 * Version Label to use. Defaults to Project Version
 	 */
-	@Parameter(property="beanstalk.versionLabel", defaultValue="${project.version}")
+	@Parameter(property = "beanstalk.versionLabel", defaultValue = "${project.version}")
 	String versionLabel;
 
 	/**
-	 * Template Name
+	 * <p>Template Name.</p>
+	 * 
+	 * <p>Could be either literal or a glob, like, <pre>ingenieux-services-prod-*</pre>. If a glob, there will
+	 * be a lookup involved, and the first one in reverse ASCIIbetical order
+	 * will be picked upon.
+	 * </p>
 	 */
-	@Parameter(property="beanstalk.templateName")
+	@Parameter(property = "beanstalk.templateName")
 	String templateName;
 
 	/**
 	 * What to set?
 	 */
-	@Parameter(property="beanstalk.whatToSet", defaultValue="versionLabel", required=true)
+	@Parameter(property = "beanstalk.whatToSet", defaultValue = "versionLabel", required = true)
 	WhatToSet whatToSet;
 
 	protected Object executeInternal() throws MojoExecutionException,
-	    MojoFailureException {
+			MojoFailureException {
 		UpdateEnvironmentRequest req = new UpdateEnvironmentRequest();
 
 		req.setEnvironmentId(curEnv.getEnvironmentId());
@@ -83,9 +88,9 @@ public class UpdateEnvironmentOptionsMojo extends AbstractNeedsEnvironmentMojo {
 		} else if (WhatToSet.optionSettings.equals(whatToSet)) {
 			req.setOptionSettings(getOptionSettings(optionSettings));
 		} else if (WhatToSet.templateName.equals(whatToSet)) {
-			req.setTemplateName(templateName);
-//		} else if (WhatToSet.optionsToRemove.equals(whatToSet)) {
-//			req.setOptionsToRemove(optionsToRemove)
+			req.setTemplateName(lookupTemplateName(applicationName, templateName));
+			// } else if (WhatToSet.optionsToRemove.equals(whatToSet)) {
+			// req.setOptionsToRemove(optionsToRemove)
 		}
 
 		return getService().updateEnvironment(req);

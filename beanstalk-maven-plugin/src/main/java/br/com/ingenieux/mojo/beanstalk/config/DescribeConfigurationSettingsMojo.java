@@ -14,6 +14,10 @@ package br.com.ingenieux.mojo.beanstalk.config;
  * limitations under the License.
  */
 
+import static org.apache.commons.lang.StringUtils.isNotBlank;
+
+import java.util.List;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -22,6 +26,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 
 import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettingsRequest;
+import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
 
 /**
  * Returns the Configuration Settings
@@ -32,29 +37,44 @@ import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettin
  * 
  * @since 0.2.0
  */
-@Mojo(name="describe-configuration-settings")
+@Mojo(name = "describe-configuration-settings")
 public class DescribeConfigurationSettingsMojo extends
-    AbstractNeedsEnvironmentMojo {
+		AbstractNeedsEnvironmentMojo {
 	/**
 	 * Template Name
 	 */
-	@Parameter(property="beanstalk.templateName")
+	@Parameter(property = "beanstalk.templateName")
 	String templateName;
 
-	protected Object executeInternal() throws MojoExecutionException,
-	    MojoFailureException {
-		boolean bTemplateNameDefined = org.apache.commons.lang.StringUtils
-		    .isNotBlank(templateName);
+	@Override
+	protected EnvironmentDescription handleResults(List<EnvironmentDescription> environments)
+			throws MojoExecutionException {
+		try {
+			return super.handleResults(environments);
+		} catch (Exception exc) {
+			// Don't care - We're an exception to the rule, you know.
+			
+			return null;
+		}
+	}
 
-		DescribeConfigurationSettingsRequest req = new DescribeConfigurationSettingsRequest()//
-	    .withApplicationName(applicationName);
-	    
+	protected Object executeInternal() throws MojoExecutionException,
+			MojoFailureException {
+		boolean bTemplateNameDefined = isNotBlank(templateName) && !hasWildcards(templateName);
+
+		DescribeConfigurationSettingsRequest req = new DescribeConfigurationSettingsRequest().withApplicationName(applicationName);
+
 		if (bTemplateNameDefined) {
 			req.withTemplateName(templateName);
+		} else if (null != curEnv) {
+			req.withEnvironmentName(curEnv.getEnvironmentName());
 		} else {
-			req.withEnvironmentName(curEnv.getEnvironmentName())//
-		    .withTemplateName(templateName);
+			getLog().warn("You must supply a templateName or environmentName. Ignoring");
+			
+			return null;
 		}
+		
+		getLog().info("Request: " + req);
 
 		return getService().describeConfigurationSettings(req);
 	}
