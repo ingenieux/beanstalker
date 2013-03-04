@@ -1,5 +1,7 @@
 package br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor;
 
+import static java.lang.String.format;
+
 import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
@@ -108,7 +110,7 @@ public class WaitForEnvironmentCommand extends
 				return null;
 			}
 			
-			sleepInterval();
+			sleepInterval(POLL_INTERVAL);
 		} while (true);
 	}
 
@@ -116,9 +118,10 @@ public class WaitForEnvironmentCommand extends
 		return expiresAt.before(new Date(System.currentTimeMillis()));
 	}
 
-	public static void sleepInterval() {
+	public void sleepInterval(long pollInterval) {
+		logger.info(format("Sleeping for %d seconds", pollInterval / 1000));
 		try {
-			Thread.sleep(POLL_INTERVAL);
+			Thread.sleep(pollInterval);
 		} catch (InterruptedException e) {
 		}
 	}

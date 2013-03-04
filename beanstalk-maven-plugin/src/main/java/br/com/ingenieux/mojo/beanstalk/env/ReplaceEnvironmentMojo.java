@@ -18,6 +18,7 @@ import static java.lang.String.format;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.regex.Matcher;
@@ -57,18 +58,13 @@ import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
 // Best Guess Evar
 public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 	/**
-	 * 
+	 * Pattern for Increasing in Replace Environment 
 	 */
 	private static final Pattern PATTERN_NUMBERED = Pattern
 			.compile("^(.*)-(\\d+)$");
 
 	/**
-	 * Max No of Retry Attempts
-	 */
-	private static final int MAX_ATTEMPTS = 10;
-
-	/**
-	 * Max Environment Name
+	 * Max Environment Name Length
 	 */
 	private static final int MAX_ENVNAME_LEN = 23;
 
@@ -83,6 +79,24 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 	 */
 	@Parameter(property = "beanstalk.skipIfSameVersion", defaultValue = "true")
 	boolean skipIfSameVersion = true;
+
+	/**
+	 * Max Number of Attempts (for cnameSwap in Particular)
+	 */
+	@Parameter(property = "beanstalk.maxAttempts", defaultValue="15")
+	Integer maxAttempts = 15;
+	
+	/**
+	 * Do a 'Mock' Terminate Environment Call (useful for Debugging)
+	 */
+	@Parameter(property="beanstalk.mockTerminateEnvironment", defaultValue="false")
+	boolean mockTerminateEnvironment = false;
+
+	/**
+	 * Retry Interval, in Seconds
+	 */
+	@Parameter(property="beanstalk.attemptRetryInterval", defaultValue="60")
+	int attemptRetryInterval = 60;
 
 	@Override
 	protected EnvironmentDescription handleResults(List<EnvironmentDescription> environments)
@@ -171,7 +185,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 		 */
 		{
 			boolean swapped = false;
-			for (int i = 1; i <= MAX_ATTEMPTS; i++) {
+			for (int i = 1; i <= maxAttempts; i++) {
 				try {
 					swapEnvironmentCNames(newEnvDesc.getEnvironmentId(),
 							curEnv.getEnvironmentId(), cnamePrefix);
@@ -181,9 +195,9 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 					if (exc instanceof MojoFailureException)
 						exc = Throwable.class.cast(MojoFailureException.class.cast(exc).getCause());
 
-					getLog().warn(format("Attempt #%d/%d failed. Sleeping and retrying. Reason: %s", i, MAX_ATTEMPTS, exc.getMessage()));
+					getLog().warn(format("Attempt #%d/%d failed. Sleeping and retrying. Reason: %s", i, maxAttempts, exc.getMessage()));
 
-					WaitForEnvironmentCommand.sleepInterval();
+					sleepInterval(attemptRetryInterval);
 				}
 			}
 
@@ -206,6 +220,14 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 		terminateEnvironment(curEnv.getEnvironmentId());
 
 		return createEnvResult;
+	}
+
+	public void sleepInterval(int pollInterval) {
+		getLog().info(format("Sleeping for %d seconds (and until %s)", pollInterval, new Date(System.currentTimeMillis() + 1000 * pollInterval)));
+		try {
+			Thread.sleep(1000 * pollInterval);
+		} catch (InterruptedException e) {
+		}
 	}
 
 	/**
@@ -274,30 +296,14 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 				"Swapping environment cnames " + newEnvironmentId + " and "
 						+ curEnvironmentId);
 
-		{
-			SwapCNamesContext context = SwapCNamesContextBuilder
-					.swapCNamesContext()//
-					.withSourceEnvironmentId(newEnvironmentId)//
-					.withDestinationEnvironmentId(curEnvironmentId)//
-					.build();
-			SwapCNamesCommand command = new SwapCNamesCommand(this);
+		SwapCNamesContext context = SwapCNamesContextBuilder
+				.swapCNamesContext()//
+				.withSourceEnvironmentId(newEnvironmentId)//
+				.withDestinationEnvironmentId(curEnvironmentId)//
+				.build();
+		SwapCNamesCommand command = new SwapCNamesCommand(this);
 
-			command.execute(context);
-		}
-
-		{
-			WaitForEnvironmentContext context = new WaitForEnvironmentContextBuilder()
-					.withApplicationName(applicationName)//
-					.withStatusToWaitFor("Ready")//
-					.withEnvironmentId(newEnvironmentId)//
-					.withTimeoutMins(timeoutMins)//
-					.withDomainToWaitFor(cnamePrefix).build();
-
-			WaitForEnvironmentCommand command = new WaitForEnvironmentCommand(
-					this);
-
-			command.execute(context);
-		}
+		command.execute(context);
 	}
 
 	/**
@@ -309,9 +315,15 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 	 */
 	protected void terminateEnvironment(String environmentId)
 			throws AbstractMojoExecutionException {
+		if (mockTerminateEnvironment) {
+			getLog().info(format("We're ignoring the termination of environment id '%s' (see mockTerminateEnvironment)", environmentId));
+			
+			return;
+		}
+		
 		Exception lastException = null;
-		for (int i = 1; i <= MAX_ATTEMPTS; i++) {
-			getLog().info(format("Terminating environmentId=%s (attempt %d/%d)", environmentId, i, MAX_ATTEMPTS));
+		for (int i = 1; i <= maxAttempts; i++) {
+			getLog().info(format("Terminating environmentId=%s (attempt %d/%d)", environmentId, i, maxAttempts));
 
 			try {
 				TerminateEnvironmentContext terminatecontext = new TerminateEnvironmentContextBuilder()
