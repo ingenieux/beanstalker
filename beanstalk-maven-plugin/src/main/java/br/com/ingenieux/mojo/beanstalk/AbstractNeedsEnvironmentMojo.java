@@ -50,7 +50,7 @@ public abstract class AbstractNeedsEnvironmentMojo extends
 	@Override
 	protected void configure() {
 		try {
-			curEnv = super.lookupEnvironment(applicationName, cnamePrefix, null);
+			curEnv = super.lookupEnvironment(applicationName, cnamePrefix, environmentName);
 		} catch (MojoExecutionException e) {
 			throw new RuntimeException(e);
 		}
