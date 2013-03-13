@@ -296,14 +296,30 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 				"Swapping environment cnames " + newEnvironmentId + " and "
 						+ curEnvironmentId);
 
-		SwapCNamesContext context = SwapCNamesContextBuilder
-				.swapCNamesContext()//
-				.withSourceEnvironmentId(newEnvironmentId)//
-				.withDestinationEnvironmentId(curEnvironmentId)//
-				.build();
-		SwapCNamesCommand command = new SwapCNamesCommand(this);
+		{
+			SwapCNamesContext context = SwapCNamesContextBuilder
+					.swapCNamesContext()//
+					.withSourceEnvironmentId(newEnvironmentId)//
+					.withDestinationEnvironmentId(curEnvironmentId)//
+					.build();
+			SwapCNamesCommand command = new SwapCNamesCommand(this);
 
-		command.execute(context);
+			command.execute(context);
+		}
+
+		{
+			WaitForEnvironmentContext context = new WaitForEnvironmentContextBuilder()
+					.withApplicationName(applicationName)//
+					.withStatusToWaitFor("Ready")//
+					.withEnvironmentId(newEnvironmentId)//
+					.withTimeoutMins(timeoutMins)//
+					.withDomainToWaitFor(cnamePrefix).build();
+
+			WaitForEnvironmentCommand command = new WaitForEnvironmentCommand(
+					this);
+
+			command.execute(context);
+		}
 	}
 
 	/**
