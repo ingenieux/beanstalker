@@ -60,9 +60,9 @@ public class SwapEnvironmentCnamesMojo extends AbstractBeanstalkMojo {
 	@Override
 	protected Object executeInternal() throws AbstractMojoExecutionException {
 		EnvironmentDescription sourceEnvironment = lookupEnvironment(applicationName,
-				sourceEnvironmentCNamePrefix);
+				sourceEnvironmentCNamePrefix, null);
 		EnvironmentDescription targetEnvironment = lookupEnvironment(applicationName,
-				targetEnvironmentCNamePrefix);
+				targetEnvironmentCNamePrefix, null);
 
 		SwapCNamesContext context = SwapCNamesContextBuilder
 				.swapCNamesContext()//

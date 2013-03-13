@@ -31,7 +31,13 @@ public abstract class AbstractNeedsEnvironmentMojo extends
 	protected String applicationName;
 
 	/**
-	 *  cnamePrefix 
+	 *  environmentName. Takes precedence over cnamePrefix.
+	 **/
+	@Parameter(property = "beanstalk.environmentName", defaultValue = "${project.artifactId}-env")
+    protected String environmentName;
+
+	/**
+	 *  cnamePrefix
 	 **/
 	@Parameter(property = "beanstalk.cnamePrefix", defaultValue = "${project.artifactId}")
     protected String cnamePrefix;
@@ -44,7 +50,7 @@ public abstract class AbstractNeedsEnvironmentMojo extends
 	@Override
 	protected void configure() {
 		try {
-			curEnv = super.lookupEnvironment(applicationName, cnamePrefix);
+			curEnv = super.lookupEnvironment(applicationName, cnamePrefix, null);
 		} catch (MojoExecutionException e) {
 			throw new RuntimeException(e);
 		}

@@ -14,7 +14,6 @@ package br.com.ingenieux.mojo.beanstalk;
  * limitations under the License.
  */
 
-
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.apache.commons.lang.StringUtils.isBlank;
@@ -52,26 +51,45 @@ public abstract class AbstractBeanstalkMojo extends
 		return Arrays.asList(arrOptionSettings);
 	}
 
-	protected EnvironmentDescription lookupEnvironment(String applicationName, String environmentCNamePrefix) throws MojoExecutionException {
-		if (isBlank(environmentCNamePrefix))
-			throw new MojoExecutionException("You must declare cnamePrefix");
+	protected EnvironmentDescription lookupEnvironment(String applicationName, String environmentCNamePrefix, String environmentName) throws MojoExecutionException {
+		if (isBlank(environmentCNamePrefix) && isBlank(environmentName))
+			throw new MojoExecutionException("You must declare either cnamePrefix or environmentName");
 
 		DescribeEnvironmentsRequest req = new DescribeEnvironmentsRequest()
 				.withApplicationName(applicationName);
 		DescribeEnvironmentsResult result = null;
 
-		String cNameToFind = String.format("%s.elasticbeanstalk.com",
-				environmentCNamePrefix);
-
-		getLog().info("Looking up for " + cNameToFind);
-
 		result = getService().describeEnvironments(req);
 
 		List<EnvironmentDescription> environments = new ArrayList<EnvironmentDescription>();
 
-		for (EnvironmentDescription d : result.getEnvironments())
-			if (cNameToFind.equals(d.getCNAME())&& (!d.getStatus().startsWith("Termin")))
+		boolean bLookupEnvironmentName = isNotBlank(environmentName);
+
+		boolean bLookupCnamePrefix = !bLookupEnvironmentName;
+
+		String cNameToFind = null;
+
+		if (bLookupCnamePrefix) {
+			cNameToFind = String.format("%s.elasticbeanstalk.com",
+					environmentCNamePrefix);
+
+			getLog().info("Looking up for " + cNameToFind);
+		}
+
+		for (EnvironmentDescription d : result.getEnvironments()) {
+			if (d.getStatus().startsWith("Termin"))
+				continue;
+			boolean bFound = false;
+
+			if (bLookupEnvironmentName) {
+				bFound = environmentName.equals(d.getEnvironmentName());
+			} else {
+				bFound = cNameToFind.equals(d.getCNAME());
+			}
+			
+			if (bFound)
 				environments.add(d);
+		}
 
 		return handleResults(environments);
 	}
@@ -114,39 +132,40 @@ public abstract class AbstractBeanstalkMojo extends
 	 */
 	protected boolean harmfulOptionSettingP(String environmentId, ConfigurationOptionSetting optionSetting) {
 		boolean bInvalid = isBlank(optionSetting.getValue());
-	
+
 		if (!bInvalid)
 			bInvalid = (optionSetting.getNamespace().equals(
 					"aws:cloudformation:template:parameter") && optionSetting
 					.getOptionName().equals("AppSource"));
-	
+
 		if (!bInvalid)
 			bInvalid = (optionSetting.getNamespace().equals(
 					"aws:elasticbeanstalk:sns:topics") && optionSetting
 					.getOptionName().equals("Notification Topic ARN"));
-	
+
 		/*
 		 * TODO: Apply a more general regex instead
 		 */
 		if (!bInvalid && isNotBlank(environmentId))
 			bInvalid = (optionSetting.getValue().contains(environmentId));
-		
+
 		return bInvalid;
 	}
 
 	public String lookupTemplateName(String applicationName, String templateName) {
 		if (!hasWildcards(defaultString(templateName)))
 			return templateName;
-		
+
 		getLog().info(format("Template Name %s contains wildcards. A Lookup is needed", templateName));
 
 		Collection<String> configurationTemplates = getConfigurationTemplates(applicationName);
-		
+
 		for (String configTemplateName : configurationTemplates)
 			getLog().debug(format(" * Found Template Name: %s", configTemplateName));
-		
+
 		/*
-		 * TODO: Research and Review valid characters / applicable glob replacements
+		 * TODO: Research and Review valid characters / applicable glob
+		 * replacements
 		 */
 		Pattern templateMask = Pattern.compile(templateName.replaceAll("\\.", "\\\\.").replaceAll("\\Q*\\E", ".*").replaceAll("\\Q?\\E", "."));
 
@@ -157,12 +176,12 @@ public abstract class AbstractBeanstalkMojo extends
 				return s;
 			}
 		}
-		
+
 		getLog().info("Not found");
-		
+
 		return null;
 	}
-	
+
 	public boolean hasWildcards(String input) {
 		return (input.indexOf('*') != -1 || input.indexOf('?') != -1);
 	}
@@ -170,9 +189,9 @@ public abstract class AbstractBeanstalkMojo extends
 	@SuppressWarnings("unchecked")
 	private List<String> getConfigurationTemplates(String applicationName) {
 		List<String> configurationTemplates = getService().describeApplications(new DescribeApplicationsRequest().withApplicationNames(applicationName)).getApplications().get(0).getConfigurationTemplates();
-		
-		Collections.<String>sort(configurationTemplates, new ReverseComparator(String.CASE_INSENSITIVE_ORDER));
-		
+
+		Collections.<String> sort(configurationTemplates, new ReverseComparator(String.CASE_INSENSITIVE_ORDER));
+
 		return configurationTemplates;
 	}
 }

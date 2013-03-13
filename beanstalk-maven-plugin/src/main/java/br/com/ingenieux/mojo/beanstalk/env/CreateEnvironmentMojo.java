@@ -41,12 +41,6 @@ import com.amazonaws.services.elasticbeanstalk.model.CreateEnvironmentResult;
 @Mojo(name="create-environment")
 public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 	/**
-	 * Environment Name
-	 **/ 
-	@Parameter(property="beanstalk.environmentName", defaultValue="${project.artifactId}-env")
-	protected String environmentName;
-        
-	/**
 	 * Application Description
 	 */
 	@Parameter(property="beanstalk.applicationDescription", defaultValue="${project.name}")

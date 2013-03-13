@@ -35,7 +35,7 @@ public class PutEnvironmentMojo extends CreateEnvironmentMojo {
 	@Override
 	protected void configure() {
 		try {
-			curEnv = super.lookupEnvironment(applicationName, cnamePrefix);
+			curEnv = super.lookupEnvironment(applicationName, cnamePrefix, null);
 		} catch (Exception exc) {
 			// Previous Environment Does Not Exists. So its fine to just create the new environment.
 		}
