@@ -57,8 +57,6 @@ public class CreateConfigurationTemplateMojo extends AbstractBeanstalkMojo {
 	@Override
 	protected Object executeInternal() throws MojoExecutionException,
 	    MojoFailureException {
-//		DescribeApplicationsRequest req = new DescribeApplicationsRequest()
-//		    .withApplicationNames(applicationName);
 		boolean bConfigurationTemplateDefined = StringUtils
 		    .isNotBlank(configurationTemplate);
 		
@@ -72,9 +70,15 @@ public class CreateConfigurationTemplateMojo extends AbstractBeanstalkMojo {
 		return null;
 	}
 
-	CreateConfigurationTemplateResult createConfiguration(String templateName) {
+	CreateConfigurationTemplateResult createConfiguration(String templateName) throws MojoFailureException {
 		ConfigurationTemplate template = getConfigurationTemplate(templateName);
-		
+
+        if (null == template)
+            throw new MojoFailureException(String.format("templateName ('%s') not found", templateName));
+
+        if (null == template.getSolutionStack())
+            throw new MojoFailureException(String.format("Please define solutionStack/ in template %s", templateName));
+
 		CreateConfigurationTemplateRequest req = new CreateConfigurationTemplateRequest(applicationName, templateName);
 		
 		req.setSolutionStackName(template.getSolutionStack());
