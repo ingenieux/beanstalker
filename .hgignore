@@ -1,18 +1,14 @@
 .classpath
-.idea
 .project
 .settings
+.idea
 target
 MANIFEST.MF
 syntax: glob
 *.iml
+*.eml
 *.log
-ddl.sql
-dropDDL.jdbc
 nbactions.xml
 nb-configuration.xml
-
-syntax: regexp
-^mapper-core/temp$
 syntax: regexp
 ^beanstalk-maven-plugin/test\.properties$
