@@ -28,6 +28,8 @@ import br.com.ingenieux.mojo.beanstalk.ConfigurationTemplate;
 import com.amazonaws.services.elasticbeanstalk.model.CreateConfigurationTemplateRequest;
 import com.amazonaws.services.elasticbeanstalk.model.CreateConfigurationTemplateResult;
 
+import static org.apache.commons.lang.StringUtils.isBlank;
+
 /**
  * Describes Available Configuration Templates
  * 
@@ -76,7 +78,7 @@ public class CreateConfigurationTemplateMojo extends AbstractBeanstalkMojo {
         if (null == template)
             throw new MojoFailureException(String.format("templateName ('%s') not found", templateName));
 
-        if (null == template.getSolutionStack())
+        if (isBlank(template.getSolutionStack()))
             throw new MojoFailureException(String.format("Please define solutionStack/ in template %s", templateName));
 
 		CreateConfigurationTemplateRequest req = new CreateConfigurationTemplateRequest(applicationName, templateName);
