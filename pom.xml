@@ -9,7 +9,7 @@
 	<groupId>br.com.ingenieux</groupId>
 	<artifactId>beanstalker</artifactId>
 	<packaging>pom</packaging>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.0</version>
 
 	<name>beanstalker</name>
 	<description>Beanstalker is a set of maven-tooling. It includes both an archetype and a plugin.</description>
