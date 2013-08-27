@@ -1,14 +1,9 @@
 .classpath
-.project
+syntax:regexp
+.*/?\.project$
 .settings
-.idea
 target
-MANIFEST.MF
-syntax: glob
+.idea
+syntax:glob
 *.iml
-*.eml
-*.log
-nbactions.xml
-nb-configuration.xml
-syntax: regexp
-^beanstalk-maven-plugin/test\.properties$
+test.properties

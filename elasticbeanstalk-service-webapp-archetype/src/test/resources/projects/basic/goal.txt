@@ -1,0 +1,1 @@
+package -DskipTests -Daws.accessKey=SOMETHING -Daws.secretKey=ELSE -Pfast-deploy
