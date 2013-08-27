@@ -11,7 +11,7 @@ import javax.ws.rs.WebApplicationException;
 
 import org.apache.commons.lang.time.StopWatch;
 
-import com.amazonaws.services.dynamodb.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.s3.AmazonS3;
 import com.google.inject.Inject;
