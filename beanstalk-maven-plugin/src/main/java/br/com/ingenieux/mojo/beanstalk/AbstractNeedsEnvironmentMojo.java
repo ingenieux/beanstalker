@@ -33,13 +33,13 @@ public abstract class AbstractNeedsEnvironmentMojo extends
 	/**
 	 *  environmentName. Takes precedence over cnamePrefix.
 	 **/
-	@Parameter(property = "beanstalk.environmentName", defaultValue = "${project.artifactId}-env")
+	@Parameter(property = "beanstalk.environmentName")
     protected String environmentName;
 
 	/**
 	 *  cnamePrefix
 	 **/
-	@Parameter(property = "beanstalk.cnamePrefix", defaultValue = "${project.artifactId}")
+	@Parameter(property = "beanstalk.cnamePrefix")
     protected String cnamePrefix;
 
     /**
@@ -66,6 +66,9 @@ public abstract class AbstractNeedsEnvironmentMojo extends
 		for (final EnvironmentDescription env : getEnvironmentsFor(applicationName)) {
 			final String cnameToMatch = cnamePrefix
 					+ ".elasticbeanstalk.com";
+			if (verbose)
+				getLog().info("Trying to match " + cnameToMatch + " with " + env.getCNAME());
+			
 			if (env.getCNAME().equalsIgnoreCase(cnameToMatch))
 				return env;
 		}
