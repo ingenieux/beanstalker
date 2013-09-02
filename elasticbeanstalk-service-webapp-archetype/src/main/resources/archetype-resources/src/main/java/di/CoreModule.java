@@ -6,7 +6,6 @@ package ${package}.di;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import br.com.ingenieux.cloudy.awseb.di.BaseAWSModule;
-import br.com.ingenieux.cloudy.awseb.di.BeanstalkEnvironmentModule;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -20,6 +19,7 @@ public class CoreModule extends AbstractModule {
     @Override
     protected void configure() {
     	install(new BaseAWSModule().withDynamicRegion());
-        install(new BeanstalkEnvironmentModule());
+        // Uncomment to create beanstalk awareness
+        // install(new BeanstalkEnvironmentModule());
     }
 }

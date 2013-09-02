@@ -18,7 +18,7 @@
 		<guice.version>3.1.2</guice.version>
 		<jersey.version>1.16</jersey.version>
 		<jackson.version>1.9.10</jackson.version>
-		<cloudy.version>0.0.4-SNAPSHOT</cloudy.version>
+		<cloudy.version>0.0.4</cloudy.version>
 		<beanstalk.cnamePrefix>\${artifactId}-env</beanstalk.cnamePrefix>
 		<beanstalker.region>us-east-1</beanstalker.region>
 	</properties>
