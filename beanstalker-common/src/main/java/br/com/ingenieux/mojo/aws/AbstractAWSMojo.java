@@ -106,6 +106,8 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 
 	protected String version = "?";
 
+	protected Context context;
+
 	public AWSCredentials getAWSCredentials() throws MojoFailureException {
 		/*
 		 * Construct if needed
@@ -190,6 +192,7 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 	}
 
 	public void contextualize(final Context context) throws ContextException {
+		this.context = context;
 		this.container = (PlexusContainer) context
 				.get(PlexusConstants.PLEXUS_KEY);
 	}

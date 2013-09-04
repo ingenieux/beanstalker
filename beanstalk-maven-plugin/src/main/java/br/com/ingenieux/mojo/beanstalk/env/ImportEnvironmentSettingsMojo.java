@@ -14,11 +14,11 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.AbstractMojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.codehaus.plexus.context.Context;
-import org.codehaus.plexus.context.ContextException;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 
@@ -35,31 +35,32 @@ import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettin
  */
 @Mojo(name = "import-environment-settings")
 public class ImportEnvironmentSettingsMojo extends AbstractNeedsEnvironmentMojo {
-	private Context context;
-
-	@Override
-	public void contextualize(Context context) throws ContextException {
-		super.contextualize(context);
-
-		this.context = context;
-	}
-
 	protected Object executeInternal() throws AbstractMojoExecutionException {
 		DescribeConfigurationSettingsResult configSettings = getService()
 				.describeConfigurationSettings(
 						new DescribeConfigurationSettingsRequest(
-								applicationName)
-								.withEnvironmentName(curEnv.getEnvironmentName()));
+								applicationName).withEnvironmentName(curEnv
+								.getEnvironmentName()));
 
 		for (ConfigurationOptionSetting d : configSettings
 				.getConfigurationSettings().get(0).getOptionSettings()) {
-			String key = String.format("%s:%s", d.getNamespace(),
-					d.getOptionName());
+			String key = String.format("beanstalk.%s.%s", d.getNamespace()
+					.replaceAll(":", "."), d.getOptionName());
 			String value = d.getValue();
 			
 			if (StringUtils.isBlank(value)) {
 				getLog().debug("Ignoring null/blank property for " + key);
 				continue;
+			}
+
+			for (Map.Entry<String, ConfigurationOptionSetting> cosEntry : COMMON_PARAMETERS.entrySet()) {
+				ConfigurationOptionSetting v = cosEntry.getValue();
+				
+				boolean match = v.getNamespace().equals(d.getNamespace()) && v.getOptionName().equals(d.getOptionName());
+				
+				if (match) {
+					key = cosEntry.getKey();
+				}
 			}
 
 			getLog().info(String.format("Importing: %s=%s", key, value));

@@ -1,6 +1,8 @@
 package br.com.ingenieux.mojo.beanstalk.cmd.env.update;
 
-import static org.apache.commons.lang.StringUtils.*;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
+
+import java.util.Arrays;
 
 import org.apache.maven.plugin.AbstractMojoExecutionException;
 
@@ -39,13 +41,20 @@ public class UpdateEnvironmentCommand extends
 	@Override
 	protected UpdateEnvironmentResult executeInternal(
 	    UpdateEnvironmentContext context) throws Exception {
-		UpdateEnvironmentRequest req = new UpdateEnvironmentRequest()
-		    .withDescription(context.environmentDescription)//
-		    .withEnvironmentId(context.environmentId)//
-		    .withEnvironmentName(context.environmentName)//
-		    .withOptionSettings(context.optionSettings);
+		UpdateEnvironmentRequest req = new UpdateEnvironmentRequest();
 		
-		if (isNotBlank(context.versionLabel)) {
+		if (null != context.environmentDescription)
+		    req.setDescription(context.environmentDescription);
+		
+		if (null != context.environmentId)
+			req.setEnvironmentId(context.environmentId);
+		
+		if (null != context.optionSettings)
+		    req.setOptionSettings(Arrays.asList(context.optionSettings));
+
+		if (context.useLatestVersionLabel) {
+			req.setVersionLabel(context.latestVersionLabel);
+		} else if (isNotBlank(context.versionLabel)) {
 			info("Calling update-environment, and using versionLabel: " + context.versionLabel);
 			
 			req.setVersionLabel(context.versionLabel);

@@ -16,7 +16,14 @@ package br.com.ingenieux.mojo.beanstalk.env;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
+import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.maven.plugin.AbstractMojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -26,8 +33,11 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.create.CreateEnvironmentCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.create.CreateEnvironmentContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.create.CreateEnvironmentContextBuilder;
 
+import com.amazonaws.services.elasticbeanstalk.model.ApplicationVersionDescription;
 import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
 import com.amazonaws.services.elasticbeanstalk.model.CreateEnvironmentResult;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationVersionsRequest;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationVersionsResult;
 
 /**
  * Creates and Launches an Elastic Beanstalk Environment
@@ -53,9 +63,9 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 	ConfigurationOptionSetting[] optionSettings;
 
 	/**
-	 * Version Label to use. Defaults to Project Version
+	 * Version Label to use
 	 */
-	@Parameter(property="beanstalk.versionLabel", defaultValue="${project.version}", required=true)
+	@Parameter(property="beanstalk.versionLabel")
 	String versionLabel;
 
 	/**
@@ -96,6 +106,36 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 		 * Hey Aldrin, have you ever noticed we're getting pedantic on those validations?
 		 */
 		Validate.isTrue(isNotBlank(newEnvironmentName), "No New Environment Name Supplied");
+		
+		if (null == optionSettings) {
+			optionSettings = introspectOptionSettings();
+		}
+		
+		if (StringUtils.isBlank(versionLabel)) {
+			DescribeApplicationVersionsResult appVersionsResult = getService().describeApplicationVersions(new DescribeApplicationVersionsRequest().withApplicationName(applicationName));
+
+			List<ApplicationVersionDescription> appVersionList = new ArrayList<ApplicationVersionDescription>(appVersionsResult.getApplicationVersions());
+			
+			Collections.sort(appVersionList, new Comparator<ApplicationVersionDescription>() {
+				@Override
+				public int compare(ApplicationVersionDescription o1,
+						ApplicationVersionDescription o2) {
+					return new CompareToBuilder().append(o2.getDateUpdated(), o1.getDateUpdated()).append(o2.getDateCreated(), o1.getDateUpdated()).toComparison();
+				}
+			});
+			
+			if (appVersionList.isEmpty()) {
+				String message = "No version label supplied **AND** no app versions available.";
+				
+				getLog().info(message);
+				
+				throw new IllegalStateException(message);
+			} else {
+				versionLabel = appVersionList.get(0).getVersionLabel();
+				
+				getLog().info("Using latest available application version " + versionLabel);
+			}
+		}
 		
 		CreateEnvironmentContextBuilder builder = CreateEnvironmentContextBuilder
 		    .createEnvironmentContext() //

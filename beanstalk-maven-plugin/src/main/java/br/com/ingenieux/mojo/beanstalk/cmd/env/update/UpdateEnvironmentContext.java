@@ -29,6 +29,26 @@ public class UpdateEnvironmentContext {
 
 	String templateName;
 
+	boolean useLatestVersionLabel = true;
+
+	public boolean isUseLatestVersionLabel() {
+		return useLatestVersionLabel;
+	}
+
+	public void setUseLatestVersionLabel(boolean useLatestVersionLabel) {
+		this.useLatestVersionLabel = useLatestVersionLabel;
+	}
+
+	String latestVersionLabel;
+
+	public String getLatestVersionLabel() {
+		return latestVersionLabel;
+	}
+
+	public void setLatestVersionLabel(String latestVersionLabel) {
+		this.latestVersionLabel = latestVersionLabel;
+	}
+
 	/**
 	 * @return the environmentName
 	 */
@@ -73,7 +93,7 @@ public class UpdateEnvironmentContext {
 
 	/**
 	 * @param environmentName
-	 *          the environmentName to set
+	 *            the environmentName to set
 	 */
 	public void setEnvironmentName(String environmentName) {
 		this.environmentName = environmentName;
@@ -81,7 +101,7 @@ public class UpdateEnvironmentContext {
 
 	/**
 	 * @param environmentId
-	 *          the environmentId to set
+	 *            the environmentId to set
 	 */
 	public void setEnvironmentId(String environmentId) {
 		this.environmentId = environmentId;
@@ -89,7 +109,7 @@ public class UpdateEnvironmentContext {
 
 	/**
 	 * @param versionLabel
-	 *          the versionLabel to set
+	 *            the versionLabel to set
 	 */
 	public void setVersionLabel(String versionLabel) {
 		this.versionLabel = versionLabel;
@@ -97,7 +117,7 @@ public class UpdateEnvironmentContext {
 
 	/**
 	 * @param environmentDescription
-	 *          the environmentDescription to set
+	 *            the environmentDescription to set
 	 */
 	public void setEnvironmentDescription(String environmentDescription) {
 		this.environmentDescription = environmentDescription;
@@ -105,7 +125,7 @@ public class UpdateEnvironmentContext {
 
 	/**
 	 * @param optionSettings
-	 *          the optionSettings to set
+	 *            the optionSettings to set
 	 */
 	public void setOptionSettings(ConfigurationOptionSetting[] optionSettings) {
 		if (null != optionSettings)
@@ -114,7 +134,7 @@ public class UpdateEnvironmentContext {
 
 	/**
 	 * @param templateName
-	 *          the templateName to set
+	 *            the templateName to set
 	 */
 	public void setTemplateName(String templateName) {
 		this.templateName = templateName;

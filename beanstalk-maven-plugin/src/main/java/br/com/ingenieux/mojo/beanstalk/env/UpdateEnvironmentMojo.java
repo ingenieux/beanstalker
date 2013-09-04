@@ -64,8 +64,18 @@ public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 	 */
 	@Parameter(property="beanstalk.templateName")
 	String templateName;
+	
+	/**
+	 * Use Latest Version Label?
+	 */
+	@Parameter(property="beanstalk.useLatestVersionLabel")
+	boolean useLatestVersionLabel = true;
 
 	protected Object executeInternal() throws AbstractMojoExecutionException {
+		if (null == optionSettings) {
+			optionSettings = super.introspectOptionSettings();
+		}
+		
 		UpdateEnvironmentContext context = UpdateEnvironmentContextBuilder
 		    .updateEnvironmentContext().withEnvironmentId(curEnv.getEnvironmentId())//
 		    .withEnvironmentDescription(environmentDescription)//
@@ -73,6 +83,8 @@ public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 		    .withOptionSettings(optionSettings)//
 		    .withTemplateName(lookupTemplateName(applicationName, templateName))//
 		    .withVersionLabel(versionLabel)//
+		    .withUseLatestVersionLabel(useLatestVersionLabel)//
+		    .withLatestVersionLabel(curEnv.getVersionLabel())//
 		    .build();
 		UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(this);
 
