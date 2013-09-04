@@ -26,21 +26,20 @@ import com.amazonaws.services.elasticbeanstalk.model.UpdateEnvironmentRequest;
 import com.amazonaws.services.elasticbeanstalk.model.UpdateEnvironmentResult;
 
 /**
- * Sets an Unix Environment Variable into the AWS EB Environment
+ * Sets a System Property in a Running Environment
  * 
- * @see ImportEnvironmentSettingsMojo
  * @since 1.1.0
  */
 @Mojo(name = "set-environment-variable", requiresDirectInvocation = true)
-public class SetEnvironmentVariableMojo extends AbstractNeedsEnvironmentMojo {
+public class SetPropertyMojo extends AbstractNeedsEnvironmentMojo {
 	/**
-	 * Env Var Name
+	 * System Property Name
 	 */
 	@Parameter(property = "beanstalk.envName", required=true)
 	String envName;
 
 	/**
-	 * Env Var Value
+	 * System Property Value
 	 */
 	@Parameter(property = "beanstalk.envValue", required=true)
 	String envValue;

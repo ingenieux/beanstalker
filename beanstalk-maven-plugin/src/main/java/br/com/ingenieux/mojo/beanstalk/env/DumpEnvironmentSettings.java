@@ -35,10 +35,11 @@ import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettin
 import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettingsResult;
 
 /**
- * Dumps the current mojo context for aws-related variables into the screen or
- * an output file
+ * Dumps the current Environment Settings into stdout or
+ * an output file (a java properties file)
+ *
+ * TODO: Export to .ebextensions file format
  * 
- * @see ImportEnvironmentSettingsMojo
  * @since 1.1.0
  */
 @Mojo(name = "dump-environment-settings")
