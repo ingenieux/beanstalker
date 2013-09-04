@@ -30,7 +30,7 @@ import com.amazonaws.services.elasticbeanstalk.model.UpdateEnvironmentResult;
  * 
  * @since 1.1.0
  */
-@Mojo(name = "set-environment-variable", requiresDirectInvocation = true)
+@Mojo(name = "set-property", requiresDirectInvocation = true)
 public class SetPropertyMojo extends AbstractNeedsEnvironmentMojo {
 	/**
 	 * System Property Name

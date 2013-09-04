@@ -75,10 +75,10 @@
 	<modules>
 		<module>beanstalker-common</module>
 		<module>beanstalk-maven-plugin</module>
-		<module>elasticbeanstalk-service-webapp-archetype</module>
 		<module>mapreduce-maven-plugin</module>
 		<module>cloudfront-maven-plugin</module>
 		<module>simpledb-maven-plugin</module>
+		<module>elasticbeanstalk-service-webapp-archetype</module>
 	</modules>
 
 	<dependencyManagement>
