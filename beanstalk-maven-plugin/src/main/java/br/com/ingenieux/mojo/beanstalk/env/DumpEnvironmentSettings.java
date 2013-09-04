@@ -49,68 +49,104 @@ public class DumpEnvironmentSettings extends AbstractNeedsEnvironmentMojo {
 	@Parameter(property = "beanstalk.outputFile")
 	private File outputFile;
 	
+	@Parameter(property = "beanstalk.changedOnly", defaultValue="true")
+	private boolean changedOnly;
+
 	private Map<String, ConfigurationOptionDescription> defaultSettings = new TreeMap<String, ConfigurationOptionDescription>();
-	
+
 	protected Object executeInternal() throws Exception {
-		DescribeConfigurationOptionsResult configOptions = getService().describeConfigurationOptions(new DescribeConfigurationOptionsRequest().withApplicationName(applicationName).withEnvironmentName(curEnv.getEnvironmentName()));
-		
+		DescribeConfigurationOptionsResult configOptions = getService()
+				.describeConfigurationOptions(
+						new DescribeConfigurationOptionsRequest()
+								.withApplicationName(applicationName)
+								.withEnvironmentName(
+										curEnv.getEnvironmentName()));
+
 		for (ConfigurationOptionDescription o : configOptions.getOptions()) {
-			String key = String.format("beanstalk.env.%s.%s", o.getNamespace().replace(":", "."), o.getName());
-			
-			for (Map.Entry<String, ConfigurationOptionSetting> entry : COMMON_PARAMETERS.entrySet()) {
+			String key = String.format("beanstalk.env.%s.%s", o.getNamespace()
+					.replace(":", "."), o.getName());
+
+			for (Map.Entry<String, ConfigurationOptionSetting> entry : COMMON_PARAMETERS
+					.entrySet()) {
 				ConfigurationOptionSetting cos = entry.getValue();
-				
-				if (cos.getNamespace().equals(o.getNamespace()) && cos.getOptionName().equals(o.getName())) {
+
+				if (cos.getNamespace().equals(o.getNamespace())
+						&& cos.getOptionName().equals(o.getName())) {
 					key = entry.getKey();
 					break;
 				}
 			}
-			
+
 			defaultSettings.put(key, o);
 		}
-		
-		
+
 		DescribeConfigurationSettingsResult configurationSettings = getService()
 				.describeConfigurationSettings(
 						new DescribeConfigurationSettingsRequest()
 								.withApplicationName(applicationName)
-								.withEnvironmentName(curEnv.getEnvironmentName()));
+								.withEnvironmentName(
+										curEnv.getEnvironmentName()));
 
 		Properties newProperties = new Properties();
-		
+
 		if (configurationSettings.getConfigurationSettings().isEmpty()) {
-			throw new IllegalStateException("No Configuration Settings received");
+			throw new IllegalStateException(
+					"No Configuration Settings received");
 		}
 
-		ConfigurationSettingsDescription configSettings = configurationSettings.getConfigurationSettings().get(0);
-		
+		ConfigurationSettingsDescription configSettings = configurationSettings
+				.getConfigurationSettings().get(0);
+
 		for (ConfigurationOptionSetting d : configSettings.getOptionSettings()) {
-			String key = String.format("beanstalk.env.%s.%s", d.getNamespace().replaceAll(":", "."), d.getOptionName());
+			String key = String.format("beanstalk.env.%s.%s", d.getNamespace()
+					.replaceAll(":", "."), d.getOptionName());
 			String defaultValue = "";
 			String outputKey = key;
-			
-			for (Map.Entry<String, ConfigurationOptionSetting> cosEntry : COMMON_PARAMETERS.entrySet()) {
+
+			for (Map.Entry<String, ConfigurationOptionSetting> cosEntry : COMMON_PARAMETERS
+					.entrySet()) {
 				ConfigurationOptionSetting v = cosEntry.getValue();
-				
-				boolean match = v.getNamespace().equals(d.getNamespace()) && v.getOptionName().equals(d.getOptionName());
-				
+
+				boolean match = v.getNamespace().equals(d.getNamespace())
+						&& v.getOptionName().equals(d.getOptionName());
+
 				if (match) {
 					outputKey = cosEntry.getKey();
 					break;
 				}
 			}
-			
+
 			if (defaultSettings.containsKey(outputKey))
-				defaultValue = StringUtils.defaultString(defaultSettings.get(outputKey).getDefaultValue());
-			
+				defaultValue = StringUtils.defaultString(defaultSettings.get(
+						outputKey).getDefaultValue());
+
 			String value = d.getValue();
-			
+
 			if (null == value || StringUtils.isBlank("" + value))
 				continue;
 
 			if (!defaultValue.equals(value)) {
-				getLog().debug("Adding property " + key);
-				newProperties.put(outputKey, value);
+				if (!value.contains(curEnv.getEnvironmentId())) {
+					getLog().info("Adding property " + key);
+					
+					if (changedOnly) {
+						String curValue = project.getProperties().getProperty(outputKey);
+						
+						if (! value.equals(curValue)) {
+							newProperties.put(outputKey, value);
+						}
+					} else {
+						newProperties.put(outputKey, value);
+					}
+				} else {
+					getLog().info(
+							"Ignoring property "
+									+ outputKey
+									+ "(value="
+									+ value
+									+ ") due to containing references to the environment id");
+				}
+
 			} else {
 				getLog().debug("Ignoring property " + key + " (defaulted)");
 			}

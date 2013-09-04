@@ -224,6 +224,12 @@ public abstract class AbstractNeedsEnvironmentMojo extends
 					new ConfigurationOptionSetting(
 							"aws:elasticbeanstalk:sns:topics",
 							"Notification Protocol", ""));
+			put("beanstalk.securityGroups",
+					new ConfigurationOptionSetting(
+							"aws:autoscaling:launchconfiguration",
+							"SecurityGroups", ""));
+			put("beanstalk.imageId", new ConfigurationOptionSetting(
+					"aws:autoscaling:launchconfiguration", "ImageId", ""));
 		}
 	};
 }
