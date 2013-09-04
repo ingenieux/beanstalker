@@ -34,7 +34,8 @@ public class CreateEnvironmentCommand extends
 	 *            parent mojo
 	 * @throws AbstractMojoExecutionException
 	 */
-	public CreateEnvironmentCommand(AbstractBeanstalkMojo parentMojo) throws AbstractMojoExecutionException {
+	public CreateEnvironmentCommand(AbstractBeanstalkMojo parentMojo)
+			throws AbstractMojoExecutionException {
 		super(parentMojo);
 	}
 
@@ -51,7 +52,8 @@ public class CreateEnvironmentCommand extends
 		request.setOptionSettings(Arrays.asList(context.getOptionSettings()));
 
 		if (StringUtils.isNotBlank(context.getTemplateName())) {
-			request.setTemplateName(parentMojo.lookupTemplateName(context.getApplicationName(), context.getTemplateName()));
+			request.setTemplateName(parentMojo.lookupTemplateName(
+					context.getApplicationName(), context.getTemplateName()));
 		} else if (StringUtils.isNotBlank(context.getSolutionStack())) {
 			request.setSolutionStackName(context.getSolutionStack());
 		}
@@ -59,7 +61,9 @@ public class CreateEnvironmentCommand extends
 		request.setVersionLabel(context.getVersionLabel());
 
 		if (parentMojo.isVerbose())
-			parentMojo.getLog().info("Requesting createEnvironment w/ request: " + CredentialsUtil.redact("" + request));
+			parentMojo.getLog().info(
+					"Requesting createEnvironment w/ request: "
+							+ CredentialsUtil.redact("" + request));
 
 		return service.createEnvironment(request);
 	}

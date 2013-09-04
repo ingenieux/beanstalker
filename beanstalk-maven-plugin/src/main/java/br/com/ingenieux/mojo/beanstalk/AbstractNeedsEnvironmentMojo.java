@@ -144,11 +144,6 @@ public abstract class AbstractNeedsEnvironmentMojo extends
 			if (("" + entry.getKey()).startsWith("beanstalk"))
 				properties.put(entry.getKey(), entry.getValue());
 
-		for (Map.Entry<Object, Object> entry : context.getContextData()
-				.entrySet())
-			if (("" + entry.getKey()).startsWith("beanstalk"))
-				properties.put(entry.getKey(), entry.getValue());
-
 		for (Object o : properties.keySet()) {
 			String k = "" + o;
 
