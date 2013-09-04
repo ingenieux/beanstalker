@@ -187,7 +187,7 @@ public abstract class AbstractBeanstalkMojo extends
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<String> getConfigurationTemplates(String applicationName) {
+	protected List<String> getConfigurationTemplates(String applicationName) {
 		List<String> configurationTemplates = getService().describeApplications(new DescribeApplicationsRequest().withApplicationNames(applicationName)).getApplications().get(0).getConfigurationTemplates();
 
 		Collections.<String> sort(configurationTemplates, new ReverseComparator(String.CASE_INSENSITIVE_ORDER));
