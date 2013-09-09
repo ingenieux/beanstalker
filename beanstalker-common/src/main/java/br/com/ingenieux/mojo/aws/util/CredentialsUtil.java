@@ -48,6 +48,11 @@ public class CredentialsUtil {
 	 * @return redacted string
 	 */
 	public static String redact(String s) {
-		return defaultString(s).replaceAll("[\\p{Alnum}\\/\\+]{40}", "/***REDACTED POSSIBLE AWS CREDENTIAL***/");
+		s = defaultString(s);
+		
+		if (-1 != s.indexOf("git-"))
+			return s;
+		
+		return s.replaceAll("[\\p{Alnum}\\/\\+]{40}", "/***REDACTED POSSIBLE AWS CREDENTIAL***/");
 	}
 }

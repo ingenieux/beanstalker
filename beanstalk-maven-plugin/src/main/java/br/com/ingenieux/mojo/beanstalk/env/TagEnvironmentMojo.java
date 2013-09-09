@@ -14,6 +14,9 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -25,38 +28,46 @@ import org.apache.maven.plugins.annotations.Parameter;
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 
 import com.amazonaws.services.elasticbeanstalk.model.CreateConfigurationTemplateRequest;
+import com.amazonaws.services.elasticbeanstalk.model.CreateConfigurationTemplateResult;
 
 /**
- * Tags an Environment
+ * <p>Tags an Environment</p>
+ * 
+ * <p>Defaults to cnamePrefix-yyyyMMdd-nn, where 'nn' is incremented according to availability.</p>
  * 
  * @since 1.1.0
  */
-@Mojo(name = "tag-environment")
+@Mojo(name = "tag-environment", requiresDirectInvocation=true)
 public class TagEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
+	private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd");
+
 	/**
 	 * Template Name to use
 	 */
 	@Parameter(property = "beanstalk.templateName")
 	String templateName;
-
+	
 	@Override
 	protected Object executeInternal() throws AbstractMojoExecutionException {
 		Set<String> configTemplates = new TreeSet<String>(
 				super.getConfigurationTemplates(applicationName));
+		String today = DATE_FORMAT.format(new Date());
 
 		if (StringUtils.isBlank(templateName)) {
 			int i = 1;
 			
 			do {
-				templateName = String.format("%s-%s-%02d", applicationName,
-						environmentName, i++);
+				templateName = String.format("%s-%s-%02d", cnamePrefix, today, i++);
 			} while (configTemplates.contains(templateName));
-
 		}
 
-		return getService().createConfigurationTemplate(
+		CreateConfigurationTemplateResult result = getService().createConfigurationTemplate(
 				new CreateConfigurationTemplateRequest().withEnvironmentId(
 						curEnv.getEnvironmentId()).withTemplateName(
-						templateName));
+						templateName).withApplicationName(curEnv.getApplicationName()));
+		
+		getLog().info("Created config template " + templateName + " for environment " + curEnv.getEnvironmentId());
+		
+		return result;
 	}
 }

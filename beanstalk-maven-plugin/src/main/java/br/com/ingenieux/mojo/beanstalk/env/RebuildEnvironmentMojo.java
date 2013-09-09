@@ -14,8 +14,7 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.AbstractMojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
@@ -35,8 +34,7 @@ import com.amazonaws.services.elasticbeanstalk.model.RebuildEnvironmentRequest;
 @Mojo(name="rebuild-environment")
 public class RebuildEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 	@Override
-	protected Object executeInternal() throws MojoExecutionException,
-	    MojoFailureException {
+	protected Object executeInternal() throws AbstractMojoExecutionException {
 		RebuildEnvironmentRequest req = new RebuildEnvironmentRequest();
 
 		req.setEnvironmentId(curEnv.getEnvironmentId());

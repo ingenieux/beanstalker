@@ -59,6 +59,11 @@ public class WaitForEnvironmentCommand extends
 		String environmentId = context.getEnvironmentId();
 		String applicationName = context.getApplicationName();
 		String statusToWaitFor = context.getStatusToWaitFor();
+		boolean negated = statusToWaitFor.startsWith("!");
+		
+		if (negated) {
+			statusToWaitFor = statusToWaitFor.substring(1);
+		}
 
 		boolean hasDomainToWaitFor = StringUtils.isNotBlank(context
 		    .getDomainToWaitFor());
@@ -71,7 +76,7 @@ public class WaitForEnvironmentCommand extends
 		boolean done = false;
 
 		info("Will wait until " + expiresAt + " for environment " + environmentId
-		    + " to get into " + statusToWaitFor);
+		    + " to get into " + (negated ? "!" : "") + statusToWaitFor);
 
 		if (hasDomainToWaitFor)
 			info("... as well as having domain " + domainToWaitFor);
@@ -92,9 +97,12 @@ public class WaitForEnvironmentCommand extends
 			boolean covered = false;
 
 			for (EnvironmentDescription d : result.getEnvironments()) {
-				debug("Environment Detail:" + ToStringBuilder.reflectionToString(d));
-
+				info("Environment Detail:" + ToStringBuilder.reflectionToString(d));
+				
 				done = d.getStatus().equalsIgnoreCase(statusToWaitFor);
+				
+				if (negated)
+					done = !done;
 				
 				covered |= d.getEnvironmentId().equals(environmentId);
 

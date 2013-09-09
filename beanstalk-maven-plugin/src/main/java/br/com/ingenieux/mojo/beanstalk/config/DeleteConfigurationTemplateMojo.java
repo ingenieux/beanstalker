@@ -31,7 +31,7 @@ import com.amazonaws.services.elasticbeanstalk.model.DeleteConfigurationTemplate
  * @author Aldrin Leal
  * @since 0.2.7
  */
-@Mojo(name="delete-configuration-templates")
+@Mojo(name="delete-configuration-template")
 public class DeleteConfigurationTemplateMojo extends AbstractBeanstalkMojo {
 	/**
 	 * Beanstalk Application Name

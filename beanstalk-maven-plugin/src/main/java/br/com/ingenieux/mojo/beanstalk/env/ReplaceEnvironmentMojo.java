@@ -24,6 +24,7 @@ import java.util.ListIterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.AbstractMojoExecutionException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -58,7 +59,7 @@ import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
 // Best Guess Evar
 public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 	/**
-	 * Pattern for Increasing in Replace Environment 
+	 * Pattern for Increasing in Replace Environment
 	 */
 	private static final Pattern PATTERN_NUMBERED = Pattern
 			.compile("^(.*)-(\\d+)$");
@@ -83,23 +84,24 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 	/**
 	 * Max Number of Attempts (for cnameSwap in Particular)
 	 */
-	@Parameter(property = "beanstalk.maxAttempts", defaultValue="15")
+	@Parameter(property = "beanstalk.maxAttempts", defaultValue = "15")
 	Integer maxAttempts = 15;
-	
+
 	/**
 	 * Do a 'Mock' Terminate Environment Call (useful for Debugging)
 	 */
-	@Parameter(property="beanstalk.mockTerminateEnvironment", defaultValue="false")
+	@Parameter(property = "beanstalk.mockTerminateEnvironment", defaultValue = "false")
 	boolean mockTerminateEnvironment = false;
 
 	/**
 	 * Retry Interval, in Seconds
 	 */
-	@Parameter(property="beanstalk.attemptRetryInterval", defaultValue="60")
+	@Parameter(property = "beanstalk.attemptRetryInterval", defaultValue = "60")
 	int attemptRetryInterval = 60;
 
 	@Override
-	protected EnvironmentDescription handleResults(List<EnvironmentDescription> environments)
+	protected EnvironmentDescription handleResults(
+			List<EnvironmentDescription> environments)
 			throws MojoExecutionException {
 		// Don't care - We're an exception to the rule, you know.
 
@@ -126,7 +128,9 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 				cnamePrefix);
 
 		if (curEnv.getVersionLabel().equals(versionLabel) && skipIfSameVersion) {
-			getLog().warn(format("Environment is running version %s and skipIfSameVersion is true. Returning", versionLabel));
+			getLog().warn(
+					format("Environment is running version %s and skipIfSameVersion is true. Returning",
+							versionLabel));
 
 			return null;
 		}
@@ -146,14 +150,16 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 		if (!solutionStack.equals(curEnv.getSolutionStackName())) {
 			if (getLog().isInfoEnabled())
 				getLog().warn(
-						format("(btw, we're launching with solutionStack/ set to '%s' instead of the default ('%s'). " +
-								"If this is not the case, then we kindly ask you to file a bug report on the mailing list :)",
+						format("(btw, we're launching with solutionStack/ set to '%s' instead of the default ('%s'). "
+								+ "If this is not the case, then we kindly ask you to file a bug report on the mailing list :)",
 								curEnv.getSolutionStackName(), solutionStack));
 
 			solutionStack = curEnv.getSolutionStackName();
 		}
 
-		String newEnvironmentName = getNewEnvironmentName(this.environmentName);
+		String newEnvironmentName = getNewEnvironmentName(StringUtils
+				.defaultString(this.environmentName,
+						curEnv.getEnvironmentName()));
 
 		if (getLog().isInfoEnabled())
 			getLog().info("And it'll be named " + newEnvironmentName);
@@ -193,16 +199,20 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 					break;
 				} catch (Throwable exc) {
 					if (exc instanceof MojoFailureException)
-						exc = Throwable.class.cast(MojoFailureException.class.cast(exc).getCause());
+						exc = Throwable.class.cast(MojoFailureException.class
+								.cast(exc).getCause());
 
-					getLog().warn(format("Attempt #%d/%d failed. Sleeping and retrying. Reason: %s", i, maxAttempts, exc.getMessage()));
+					getLog().warn(
+							format("Attempt #%d/%d failed. Sleeping and retrying. Reason: %s",
+									i, maxAttempts, exc.getMessage()));
 
 					sleepInterval(attemptRetryInterval);
 				}
 			}
 
 			if (!swapped) {
-				getLog().info("Failed to properly Replace Environment. Finishing the new one. And throwing you a failure");
+				getLog().info(
+						"Failed to properly Replace Environment. Finishing the new one. And throwing you a failure");
 
 				terminateEnvironment(newEnvDesc.getEnvironmentId());
 
@@ -223,7 +233,10 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 	}
 
 	public void sleepInterval(int pollInterval) {
-		getLog().info(format("Sleeping for %d seconds (and until %s)", pollInterval, new Date(System.currentTimeMillis() + 1000 * pollInterval)));
+		getLog().info(
+				format("Sleeping for %d seconds (and until %s)", pollInterval,
+						new Date(System.currentTimeMillis() + 1000
+								* pollInterval)));
 		try {
 			Thread.sleep(1000 * pollInterval);
 		} catch (InterruptedException e) {
@@ -260,14 +273,43 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 		while (listIterator.hasNext()) {
 			ConfigurationOptionSetting curOptionSetting = listIterator.next();
 
-			boolean bInvalid = harmfulOptionSettingP(curEnv
-					.getEnvironmentId(), curOptionSetting);
+			boolean bInvalid = harmfulOptionSettingP(curEnv.getEnvironmentId(),
+					curOptionSetting);
 
 			if (bInvalid) {
-				getLog().info(format("Excluding Option Setting: %s:%s['%s']", curOptionSetting.getNamespace(), curOptionSetting.getOptionName(), CredentialsUtil.redact(curOptionSetting.getValue())));
+				getLog().info(
+						format("Excluding Option Setting: %s:%s['%s']",
+								curOptionSetting.getNamespace(),
+								curOptionSetting.getOptionName(),
+								CredentialsUtil.redact(curOptionSetting
+										.getValue())));
 				listIterator.remove();
 			} else {
-				getLog().info(format("Including Option Setting: %s:%s['%s']", curOptionSetting.getNamespace(), curOptionSetting.getOptionName(), CredentialsUtil.redact(curOptionSetting.getValue())));
+				getLog().info(
+						format("Including Option Setting: %s:%s['%s']",
+								curOptionSetting.getNamespace(),
+								curOptionSetting.getOptionName(),
+								CredentialsUtil.redact(curOptionSetting
+										.getValue())));
+			}
+		}
+
+		Object __secGroups = project.getProperties().get(
+				"beanstalk.securityGroups");
+
+		if (null != __secGroups) {
+			String securityGroups = StringUtils.defaultString(__secGroups.toString());
+
+			if (!StringUtils.isBlank(securityGroups)) {
+				ConfigurationOptionSetting newOptionSetting = new ConfigurationOptionSetting(
+						"aws:autoscaling:launchconfiguration",
+						"SecurityGroups", securityGroups);
+				newOptionSettings.add(newOptionSetting);
+				getLog().info(
+						format("Including Option Setting: %s:%s['%s']",
+								newOptionSetting.getNamespace(),
+								newOptionSetting.getOptionName(),
+								newOptionSetting.getValue()));
 			}
 		}
 
@@ -332,14 +374,18 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 	protected void terminateEnvironment(String environmentId)
 			throws AbstractMojoExecutionException {
 		if (mockTerminateEnvironment) {
-			getLog().info(format("We're ignoring the termination of environment id '%s' (see mockTerminateEnvironment)", environmentId));
-			
+			getLog().info(
+					format("We're ignoring the termination of environment id '%s' (see mockTerminateEnvironment)",
+							environmentId));
+
 			return;
 		}
-		
+
 		Exception lastException = null;
 		for (int i = 1; i <= maxAttempts; i++) {
-			getLog().info(format("Terminating environmentId=%s (attempt %d/%d)", environmentId, i, maxAttempts));
+			getLog().info(
+					format("Terminating environmentId=%s (attempt %d/%d)",
+							environmentId, i, maxAttempts));
 
 			try {
 				TerminateEnvironmentContext terminatecontext = new TerminateEnvironmentContextBuilder()
@@ -356,7 +402,8 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 			}
 		}
 
-		throw new MojoFailureException("Unable to terminate environment " + environmentId, lastException);
+		throw new MojoFailureException("Unable to terminate environment "
+				+ environmentId, lastException);
 	}
 
 	/**

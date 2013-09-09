@@ -55,7 +55,7 @@ import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
  * 
  * @since 0.2.7-RC4
  */
-@Mojo(name="expose-security-credentials", requiresProject=true)
+@Mojo(name = "expose-security-credentials", requiresProject = true)
 public class ExposeSecurityCredentialsMojo extends AbstractBeanstalkMojo {
 	/**
 	 * Which Server Settings to Expose?
@@ -96,7 +96,14 @@ public class ExposeSecurityCredentialsMojo extends AbstractBeanstalkMojo {
 		}
 
 		for (Expose e : exposes) {
-			Expose realExpose = super.exposeSettings(e.getServerId());
+			Expose realExpose = null;
+
+			try {
+				realExpose = super.exposeSettings(e.getServerId());
+			} catch (Exception exc) {
+				getLog().warn("Failed to Expose Settings from serverId ('" + e.getServerId() + "')");
+				continue;
+			}
 
 			getLog().info(
 					String.format(
@@ -128,7 +135,7 @@ public class ExposeSecurityCredentialsMojo extends AbstractBeanstalkMojo {
 		} else {
 			getLog().warn(message);
 		}
-		
+
 		throw new IllegalStateException(message);
 	}
 }

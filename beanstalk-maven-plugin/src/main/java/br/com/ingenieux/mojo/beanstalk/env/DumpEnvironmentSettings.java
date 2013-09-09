@@ -16,6 +16,8 @@ package br.com.ingenieux.mojo.beanstalk.env;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
@@ -35,22 +37,40 @@ import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettin
 import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettingsResult;
 
 /**
- * Dumps the current Environment Settings into stdout or
- * an output file (a java properties file)
- *
+ * Dumps the current Environment Settings into stdout or an output file (a java
+ * properties file)
+ * 
  * TODO: Export to .ebextensions file format
  * 
  * @since 1.1.0
  */
-@Mojo(name = "dump-environment-settings")
+@Mojo(name = "dump-environment-settings", requiresDirectInvocation = true)
 public class DumpEnvironmentSettings extends AbstractNeedsEnvironmentMojo {
 	/**
 	 * (Optional) output file to output to
 	 */
 	@Parameter(property = "beanstalk.outputFile")
 	private File outputFile;
-	
-	@Parameter(property = "beanstalk.changedOnly", defaultValue="true")
+
+	/**
+	 * <p>
+	 * Output File Format
+	 * </p>
+	 * 
+	 * <p>
+	 * Possible values:
+	 * </p>
+	 * <ul>
+	 * <li>yaml</li>
+	 * <li>properties</li>
+	 * </ul>
+	 * 
+	 * (defaults to properties)
+	 */
+	@Parameter(property = "beanstalk.outputFileFormat", defaultValue = "properties")
+	private String outputFileFormat;
+
+	@Parameter(property = "beanstalk.changedOnly", defaultValue = "true")
 	private boolean changedOnly;
 
 	private Map<String, ConfigurationOptionDescription> defaultSettings = new TreeMap<String, ConfigurationOptionDescription>();
@@ -97,12 +117,16 @@ public class DumpEnvironmentSettings extends AbstractNeedsEnvironmentMojo {
 
 		ConfigurationSettingsDescription configSettings = configurationSettings
 				.getConfigurationSettings().get(0);
+		
+		Map<String, ConfigurationOptionSetting> keyMap = new LinkedHashMap<String, ConfigurationOptionSetting>();
 
 		for (ConfigurationOptionSetting d : configSettings.getOptionSettings()) {
 			String key = String.format("beanstalk.env.%s.%s", d.getNamespace()
 					.replaceAll(":", "."), d.getOptionName());
 			String defaultValue = "";
 			String outputKey = key;
+			
+			keyMap.put(key, d);
 
 			for (Map.Entry<String, ConfigurationOptionSetting> cosEntry : COMMON_PARAMETERS
 					.entrySet()) {
@@ -129,11 +153,12 @@ public class DumpEnvironmentSettings extends AbstractNeedsEnvironmentMojo {
 			if (!defaultValue.equals(value)) {
 				if (!value.contains(curEnv.getEnvironmentId())) {
 					getLog().info("Adding property " + key);
-					
+
 					if (changedOnly) {
-						String curValue = project.getProperties().getProperty(outputKey);
-						
-						if (! value.equals(curValue)) {
+						String curValue = project.getProperties().getProperty(
+								outputKey);
+
+						if (!value.equals(curValue)) {
 							newProperties.put(outputKey, value);
 						}
 					} else {
@@ -153,12 +178,32 @@ public class DumpEnvironmentSettings extends AbstractNeedsEnvironmentMojo {
 			}
 		}
 
-		String comment = "elastic beanstalk environment properties for "
-				+ environmentName;
-		if (null != outputFile) {
-			newProperties.store(new FileOutputStream(outputFile), comment);
-		} else {
-			newProperties.store(System.out, comment);
+		if ("properties".equals(this.outputFileFormat)) {
+			String comment = "elastic beanstalk environment properties for "
+					+ curEnv.getEnvironmentName();
+			if (null != outputFile) {
+				newProperties.store(new FileOutputStream(outputFile), comment);
+			} else {
+				newProperties.store(System.out, comment);
+			}
+		} else if ("yaml".equals(this.outputFileFormat)) {
+			PrintStream printStream = System.out;
+			
+			if (null != outputFile)
+				printStream = new PrintStream(outputFile);
+			
+			printStream.println("option_settings:");
+			
+			for (Map.Entry<Object, Object> e : newProperties.entrySet()) {
+				ConfigurationOptionSetting c = keyMap.get("" + e.getKey());
+				String value = "" + e.getValue();
+				
+				printStream.println("  - namespace: " + c.getNamespace());
+				printStream.println("    option_name: " + c.getOptionName());
+				printStream.println("    value: " + value);
+			}
+			
+			printStream.close();
 		}
 
 		return null;

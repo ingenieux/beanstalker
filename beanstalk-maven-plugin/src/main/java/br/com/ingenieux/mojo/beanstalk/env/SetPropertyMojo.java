@@ -35,16 +35,18 @@ public class SetPropertyMojo extends AbstractNeedsEnvironmentMojo {
 	/**
 	 * System Property Name
 	 */
-	@Parameter(property = "beanstalk.envName", required=true)
+	@Parameter(property = "beanstalk.envName", required = true)
 	String envName;
 
 	/**
 	 * System Property Value
 	 */
-	@Parameter(property = "beanstalk.envValue", required=true)
+	@Parameter(property = "beanstalk.envValue", required = true)
 	String envValue;
 
 	protected Object executeInternal() throws Exception {
+		waitForNotUpdating();
+
 		UpdateEnvironmentRequest req = new UpdateEnvironmentRequest()
 				.withEnvironmentId(curEnv.getEnvironmentId());
 

@@ -13,9 +13,15 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
+import org.apache.maven.plugin.AbstractMojoExecutionException;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+
+import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentCommand;
+import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext;
+import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
 
 import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
 import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsRequest;
@@ -50,12 +56,6 @@ public abstract class AbstractNeedsEnvironmentMojo extends
 	protected MavenProject project;
 
 	/**
-	 * environmentName. Takes precedence over cnamePrefix.
-	 **/
-	@Parameter(property = "beanstalk.environmentName")
-	protected String environmentName;
-
-	/**
 	 * cnamePrefix
 	 **/
 	@Parameter(property = "beanstalk.cnamePrefix")
@@ -69,8 +69,7 @@ public abstract class AbstractNeedsEnvironmentMojo extends
 	@Override
 	protected void configure() {
 		try {
-			curEnv = super.lookupEnvironment(applicationName, cnamePrefix,
-					environmentName);
+			curEnv = super.lookupEnvironment(applicationName, cnamePrefix);
 		} catch (MojoExecutionException e) {
 			throw new RuntimeException(e);
 		}
@@ -186,6 +185,21 @@ public abstract class AbstractNeedsEnvironmentMojo extends
 				.toArray(new ConfigurationOptionSetting[configOptionSetting
 						.size()]);
 	}
+
+	protected void waitForNotUpdating()
+			throws AbstractMojoExecutionException, MojoFailureException,
+			MojoExecutionException {
+				WaitForEnvironmentContext context = new WaitForEnvironmentContextBuilder()
+						.withApplicationName(applicationName)//
+						.withStatusToWaitFor("!Updating")//
+						.withEnvironmentId(curEnv.getEnvironmentId())//
+						.withTimeoutMins(2)//
+						.withDomainToWaitFor(cnamePrefix).build();
+			
+				WaitForEnvironmentCommand command = new WaitForEnvironmentCommand(this);
+			
+				command.execute(context);
+			}
 
 	public static final Map<String, ConfigurationOptionSetting> COMMON_PARAMETERS = new TreeMap<String, ConfigurationOptionSetting>() {
 		private static final long serialVersionUID = -6380522758234507742L;

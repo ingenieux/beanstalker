@@ -57,6 +57,12 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 	String applicationDescription;
 
 	/**
+	 * environmentName. Takes precedence over cnamePrefix.
+	 **/
+	@Parameter(property = "beanstalk.environmentName", required=true)
+	protected String environmentName;
+
+	/**
 	 * <p>
 	 * Configuration Option Settings. Will evaluate as such:
 	 * </p>

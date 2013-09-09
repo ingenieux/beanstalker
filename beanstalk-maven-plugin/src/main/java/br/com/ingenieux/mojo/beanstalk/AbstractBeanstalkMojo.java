@@ -51,9 +51,9 @@ public abstract class AbstractBeanstalkMojo extends
 		return Arrays.asList(arrOptionSettings);
 	}
 
-	protected EnvironmentDescription lookupEnvironment(String applicationName, String environmentCNamePrefix, String environmentName) throws MojoExecutionException {
-		if (isBlank(environmentCNamePrefix) && isBlank(environmentName))
-			throw new MojoExecutionException("You must declare either cnamePrefix or environmentName");
+	protected EnvironmentDescription lookupEnvironment(String applicationName, String environmentCNamePrefix) throws MojoExecutionException {
+		if (isBlank(environmentCNamePrefix))
+			throw new MojoExecutionException("You must declare cnamePrefix");
 
 		DescribeEnvironmentsRequest req = new DescribeEnvironmentsRequest()
 				.withApplicationName(applicationName);
@@ -63,31 +63,14 @@ public abstract class AbstractBeanstalkMojo extends
 
 		List<EnvironmentDescription> environments = new ArrayList<EnvironmentDescription>();
 
-		boolean bLookupEnvironmentName = isNotBlank(environmentName);
+		String cNameToFind = String.format("%s.elasticbeanstalk.com", environmentCNamePrefix);
 
-		boolean bLookupCnamePrefix = !bLookupEnvironmentName;
-
-		String cNameToFind = null;
-
-		if (bLookupCnamePrefix) {
-			cNameToFind = String.format("%s.elasticbeanstalk.com",
-					environmentCNamePrefix);
-
-			getLog().info("Looking up for " + cNameToFind);
-		}
+		getLog().info("Looking up for " + cNameToFind);
 
 		for (EnvironmentDescription d : result.getEnvironments()) {
 			if (d.getStatus().startsWith("Termin"))
 				continue;
-			boolean bFound = false;
-
-			if (bLookupEnvironmentName) {
-				bFound = environmentName.equals(d.getEnvironmentName());
-			} else {
-				bFound = cNameToFind.equals(d.getCNAME());
-			}
-			
-			if (bFound)
+			if (cNameToFind.equalsIgnoreCase(d.getCNAME()))
 				environments.add(d);
 		}
 

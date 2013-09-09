@@ -126,6 +126,8 @@ public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 	boolean useLatestVersionLabel = true;
 
 	protected Object executeInternal() throws AbstractMojoExecutionException {
+		waitForNotUpdating();
+		
 		if (null == optionSettings) {
 			optionSettings = super.introspectOptionSettings();
 		}
