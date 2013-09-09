@@ -20,6 +20,7 @@ public class CoreModule extends AbstractModule {
     protected void configure() {
     	install(new BaseAWSModule().withDynamicRegion());
         // Uncomment to create beanstalk awareness
+        // install(new EC2Module());
         // install(new BeanstalkEnvironmentModule());
     }
 }
