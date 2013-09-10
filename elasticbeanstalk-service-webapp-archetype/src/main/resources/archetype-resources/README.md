@@ -38,9 +38,11 @@ We suggest convention over configuration, but anyway. The only setting you're li
 
 Make sure you pick something unique and unlikely to conflict with other users.
 
+It is also interesting to review the parameters in the ```properties``` section.
+
 ## Deploying
 
-Simply call ```mvn deploy -Pdeploy```
+Simply call ```mvn deploy -Pfast-deploy```
 
 If your environment is Ready (Green or Red), it will deploy. If not, a new version will get published. 
 
@@ -48,9 +50,11 @@ If your environment is Ready (Green or Red), it will deploy. If not, a new versi
 
 ## Launching an Environment
 
-If you did the previous step, it will create a new elastic beanstalk application for you in AWS Console. 
+If you did the previous step, it will create a new elastic beanstalk application for you in AWS Console. You can launch and environment right away with:
 
-From the console, click in "Launch New Environment". In this dialog, not all options are available, so initially set the ```Health Check URL``` to the /debug handler:
+```mvn beanstalk:create-environment```
+
+Or you could use the console. From the console, click in "Launch New Environment". In this dialog, not all options are available, so initially set the ```Health Check URL``` to the /debug handler:
 
 ```/services/api/v1/debug```
 
@@ -70,8 +74,9 @@ Since we already made your life simpler by choosing git over S3, you have two pr
 
 ## Environment / Configuration Tips:
 
-  - We suggest you save your environment into a configuration template once you're happy. We suggest ```envname-yyyymmdd-nn```, where NN is a number which gets incremented.
-  - Also, AWS told us its a bad idea to have matching environment names / applications, and even have the same environment named across different regions. In fact, they suggest you to add the ```-env``` suffix to make it easier to spot environments, environmentIds, and other oddly-named things. 
+  - We suggest you save your environment into a configuration template once you're happy. We suggest ```envname-yyyymmdd-nn```, where NN is a number which gets incremented. 
+
+Hint: Use ```mvn beanstalk:tag-environment``` to do this. If you want to launch a new environment based on this template, simply use ```mvn beanstalk:create-environment -Dbeanstalk.templateName=envname-yyyymmdd-nn```
 
 ## Setting the Proper Health Check URL
 
