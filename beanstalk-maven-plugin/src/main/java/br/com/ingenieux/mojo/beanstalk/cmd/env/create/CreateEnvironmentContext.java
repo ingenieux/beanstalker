@@ -31,7 +31,7 @@ public class CreateEnvironmentContext {
 	String solutionStack;
 
 	String templateName;
-
+	
 	/**
 	 * @return the applicationName
 	 */

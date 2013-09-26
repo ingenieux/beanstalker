@@ -2,7 +2,10 @@ package br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor;
 
 import static java.lang.String.format;
 
+import java.util.Comparator;
 import java.util.Date;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -14,7 +17,10 @@ import br.com.ingenieux.mojo.beanstalk.cmd.BaseCommand;
 
 import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsRequest;
 import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsResult;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeEventsRequest;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeEventsResult;
 import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
+import com.amazonaws.services.elasticbeanstalk.model.EventDescription;
 
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,13 +36,21 @@ import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
  * limitations under the License.
  */
 public class WaitForEnvironmentCommand extends
-    BaseCommand<WaitForEnvironmentContext, EnvironmentDescription> {
-	
+		BaseCommand<WaitForEnvironmentContext, EnvironmentDescription> {
+
+	static class EventDescriptionComparator implements
+			Comparator<EventDescription> {
+		@Override
+		public int compare(EventDescription o1, EventDescription o2) {
+			return o1.getEventDate().compareTo(o2.getEventDate());
+		}
+	}
+
 	/**
 	 * Poll Interval
 	 */
-	public static final long POLL_INTERVAL = 90 * 1000;
-	
+	public static final long POLL_INTERVAL = 15 * 1000;
+
 	/**
 	 * Magic Constant for Mins to MSEC
 	 */
@@ -46,37 +60,40 @@ public class WaitForEnvironmentCommand extends
 	 * Constructor
 	 * 
 	 * @param parentMojo
-	 *          parent mojo
-	 * @throws AbstractMojoExecutionException 
+	 *            parent mojo
+	 * @throws AbstractMojoExecutionException
 	 */
-	public WaitForEnvironmentCommand(AbstractBeanstalkMojo parentMojo) throws AbstractMojoExecutionException {
+	public WaitForEnvironmentCommand(AbstractBeanstalkMojo parentMojo)
+			throws AbstractMojoExecutionException {
 		super(parentMojo);
 	}
 
 	public EnvironmentDescription executeInternal(
-	    WaitForEnvironmentContext context) throws Exception {
+			WaitForEnvironmentContext context) throws Exception {
 		long timeoutMins = context.getTimeoutMins();
 		String environmentId = context.getEnvironmentId();
 		String applicationName = context.getApplicationName();
 		String statusToWaitFor = context.getStatusToWaitFor();
 		boolean negated = statusToWaitFor.startsWith("!");
-		
+
 		if (negated) {
 			statusToWaitFor = statusToWaitFor.substring(1);
 		}
 
 		boolean hasDomainToWaitFor = StringUtils.isNotBlank(context
-		    .getDomainToWaitFor());
+				.getDomainToWaitFor());
 
 		String domainToWaitFor = String.format("%s.elasticbeanstalk.com",
-		    context.getDomainToWaitFor());
+				context.getDomainToWaitFor());
 
-		Date expiresAt = new Date(System.currentTimeMillis() + MINS_TO_MSEC * timeoutMins);
+		Date expiresAt = new Date(System.currentTimeMillis() + MINS_TO_MSEC
+				* timeoutMins);
+		Date lastMessageRecord = new Date();
 
 		boolean done = false;
 
-		info("Will wait until " + expiresAt + " for environment " + environmentId
-		    + " to get into " + (negated ? "!" : "") + statusToWaitFor);
+		info("Will wait until " + expiresAt + " to get into "
+				+ (negated ? "!" : "") + statusToWaitFor);
 
 		if (hasDomainToWaitFor)
 			info("... as well as having domain " + domainToWaitFor);
@@ -86,24 +103,27 @@ public class WaitForEnvironmentCommand extends
 				throw new MojoExecutionException("Timed out");
 
 			DescribeEnvironmentsRequest req = new DescribeEnvironmentsRequest()
-			    .withApplicationName(applicationName).withEnvironmentIds(
-			        environmentId);
-			
+					.withApplicationName(applicationName).withEnvironmentIds(
+							environmentId);
+
 			if (statusToWaitFor.startsWith("Terminat"))
 				req.withIncludeDeleted(true);
 
-			DescribeEnvironmentsResult result = service.describeEnvironments(req);
-			
+			DescribeEnvironmentsResult result = service
+					.describeEnvironments(req);
+
 			boolean covered = false;
 
 			for (EnvironmentDescription d : result.getEnvironments()) {
-				info("Environment Detail:" + ToStringBuilder.reflectionToString(d));
-				
+				if (parentMojo.isVerbose())
+					info("Environment Detail:"
+							+ ToStringBuilder.reflectionToString(d));
+
 				done = d.getStatus().equalsIgnoreCase(statusToWaitFor);
-				
+
 				if (negated)
 					done = !done;
-				
+
 				covered |= d.getEnvironmentId().equals(environmentId);
 
 				if (done && hasDomainToWaitFor)
@@ -112,12 +132,35 @@ public class WaitForEnvironmentCommand extends
 				if (done)
 					return d;
 			}
-			
-			if (! covered && "Terminated".equals(statusToWaitFor)) {
-				info(String.format("Environment id %s not even returned. Probably gone", environmentId));
+
+			if (!covered && "Terminated".equals(statusToWaitFor)) {
+				info(String.format(
+						"Environment id %s not even returned. Probably gone",
+						environmentId));
 				return null;
+			} else {
+				DescribeEventsResult events = service
+						.describeEvents(new DescribeEventsRequest()
+								.withApplicationName(applicationName)
+								.withStartTime(
+										new Date(1000 + lastMessageRecord
+												.getTime()))
+								.withEnvironmentId(environmentId)
+								.withSeverity("TRACE"));
+
+				Set<EventDescription> eventList = new TreeSet<EventDescription>(
+						new EventDescriptionComparator());
+
+				eventList.addAll(events.getEvents());
+
+				for (EventDescription d : eventList) {
+					info(String.format("%s %s %s", d.getSeverity(),
+							d.getEventDate(), d.getMessage()));
+
+					lastMessageRecord = d.getEventDate();
+				}
 			}
-			
+
 			sleepInterval(POLL_INTERVAL);
 		} while (true);
 	}

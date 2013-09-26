@@ -24,7 +24,7 @@ public class WaitForEnvironmentContext {
 		this.applicationName = applicationName;
 	}
 
-	Integer timeoutMins;
+	Integer timeoutMins = 20;
 
 	public Integer getTimeoutMins() {
 		return timeoutMins;

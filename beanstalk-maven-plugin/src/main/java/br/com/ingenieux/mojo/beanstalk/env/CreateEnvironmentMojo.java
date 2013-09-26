@@ -32,6 +32,9 @@ import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.create.CreateEnvironmentCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.create.CreateEnvironmentContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.create.CreateEnvironmentContextBuilder;
+import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentCommand;
+import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext;
+import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
 
 import com.amazonaws.services.elasticbeanstalk.model.ApplicationVersionDescription;
 import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
@@ -116,6 +119,14 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 	 */
 	@Parameter(property="beanstalk.templateName")
 	String templateName;
+	
+	/**
+	 * <p>Status to Wait For</p>
+	 * 
+	 * <p>Optional. If set, will block until app status is set eg "Ready"</p>
+	 */
+	@Parameter(property="beanstalk.waitForReady", defaultValue="true")
+	boolean waitForReady;
 
 	/**
 	 * Overrides parent in order to avoid a thrown exception as there's not an environment to lookup
@@ -184,6 +195,18 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 
 		CreateEnvironmentCommand command = new CreateEnvironmentCommand(this);
 
-		return command.execute(context);
+		CreateEnvironmentResult result = command.execute(context);
+		
+		if (waitForReady) {
+			WaitForEnvironmentContext ctx = new WaitForEnvironmentContextBuilder()
+					.withEnvironmentId(result.getEnvironmentId())
+					.withApplicationName(result.getApplicationName())
+					.withDomainToWaitFor(result.getCNAME())
+					.withStatusToWaitFor("Ready").build();
+
+			new WaitForEnvironmentCommand(this).execute(ctx);
+		}
+		
+		return result;
 	}
 }
