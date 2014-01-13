@@ -2,6 +2,8 @@ package br.com.ingenieux.mojo.beanstalk;
 
 import java.io.File;
 
+import org.junit.Ignore;
+
 import junit.framework.Assert;
 
 /*
@@ -18,6 +20,7 @@ import junit.framework.Assert;
  * limitations under the License.
  */
 
+@Ignore
 public class CreateConfigurationTemplatesTest extends BeanstalkTestBase {
 	public void testDescribeConfigurationTemplates() throws Exception {
 		setVariableValueToObject(describeConfigTemplatesMojo, "applicationName",

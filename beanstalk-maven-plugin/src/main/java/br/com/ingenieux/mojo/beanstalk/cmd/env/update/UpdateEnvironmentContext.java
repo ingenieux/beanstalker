@@ -140,16 +140,6 @@ public class UpdateEnvironmentContext {
 		this.templateName = templateName;
 	}
 
-    String workerEnvironmentName;
-
-    public String getWorkerEnvironmentName() {
-        return workerEnvironmentName;
-    }
-
-    public void setWorkerEnvironmentName(String workerEnvironmentName) {
-        this.workerEnvironmentName = workerEnvironmentName;
-    }
-
     String environmentTierName;
 
     public String getEnvironmentTierName() {

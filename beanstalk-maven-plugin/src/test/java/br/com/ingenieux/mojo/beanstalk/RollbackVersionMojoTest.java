@@ -16,9 +16,11 @@ package br.com.ingenieux.mojo.beanstalk;
 import java.io.File;
 
 import org.codehaus.plexus.configuration.PlexusConfiguration;
+import org.junit.Ignore;
 
 import br.com.ingenieux.mojo.beanstalk.version.RollbackVersionMojo;
 
+@Ignore
 public class RollbackVersionMojoTest extends BeanstalkTestBase {
 	private RollbackVersionMojo mojo;
 
@@ -37,14 +39,14 @@ public class RollbackVersionMojoTest extends BeanstalkTestBase {
 		this.mojo = mojo;
 	}
 
-	public void testPreviousVersion() throws Exception {
+	public void ignoretestPreviousVersion() throws Exception {
 		setVariableValueToObject(mojo, "applicationName", "belemtransito");
 		setVariableValueToObject(mojo, "environmentName", "production");
 
 		mojo.execute();
 	}
 
-	public void testLatestInstead() throws Exception {
+	public void ignoretestLatestInstead() throws Exception {
 		setVariableValueToObject(mojo, "applicationName", "belemtransito");
 		setVariableValueToObject(mojo, "environmentName", "production");
 		setVariableValueToObject(mojo, "latestVersionInstead", true);

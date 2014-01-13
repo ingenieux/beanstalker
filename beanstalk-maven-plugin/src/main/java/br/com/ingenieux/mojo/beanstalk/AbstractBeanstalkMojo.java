@@ -41,10 +41,10 @@ public abstract class AbstractBeanstalkMojo extends
 
     protected EnvironmentDescription lookupEnvironment(String applicationName, String environmentCNamePrefix, String workerEnvironmentName) throws MojoExecutionException {
         if (isBlank(environmentCNamePrefix) && isBlank(workerEnvironmentName))
-            throw new MojoExecutionException("You must declare either cnamePrefix or workerEnvironmentName");
+            throw new MojoExecutionException("You must declare either cnamePrefix or environmentName");
 
         if (isNotBlank(environmentCNamePrefix) && isNotBlank(workerEnvironmentName)) {
-            getLog().warn("Ignoring cnamePrefix. Using workerEnvironmentName instead");
+            getLog().warn("Ignoring cnamePrefix. Using environmentName instead");
 
             environmentCNamePrefix = null;
         }
@@ -75,7 +75,11 @@ public abstract class AbstractBeanstalkMojo extends
         }
 
         if (!isBlank(workerEnvironmentName)) {
-            environments.addAll(result.getEnvironments());
+            for (EnvironmentDescription d : result.getEnvironments()) {
+                if (d.getStatus().startsWith("Termin"))
+                    continue;
+                environments.add(d);
+            }
         }
 
         return handleResults(environments);

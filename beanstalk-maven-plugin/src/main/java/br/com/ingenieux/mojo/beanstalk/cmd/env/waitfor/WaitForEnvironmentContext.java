@@ -88,13 +88,13 @@ public class WaitForEnvironmentContext {
         this.health = health;
     }
 
-    String workerEnvironmentName;
+    String environmentName;
 
-    public String getWorkerEnvironmentName() {
-        return workerEnvironmentName;
+    public String getEnvironmentName() {
+        return environmentName;
     }
 
-    public void setWorkerEnvironmentName(String workerEnvironmentName) {
-        this.workerEnvironmentName = workerEnvironmentName;
+    public void setEnvironmentName(String environmentName) {
+        this.environmentName = environmentName;
     }
 }

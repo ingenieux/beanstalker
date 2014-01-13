@@ -53,8 +53,14 @@ public abstract class AbstractNeedsEnvironmentMojo extends
 	/**
 	 * Worker Environment Name
 	 **/
-	@Parameter(property = "beanstalk.workerEnvironmentName")
-	protected String workerEnvironmentName;
+	@Parameter(property = "beanstalk.environmentName")
+	protected String environmentName;
+	
+	/**
+	 * Lookup Type
+	 */
+	@Parameter(property = "beanstalk.lookupType", defaultValue="cnamePrefix")
+	protected LookupType lookupType;
 
 	/**
 	 * Current Environment
@@ -64,7 +70,11 @@ public abstract class AbstractNeedsEnvironmentMojo extends
 	@Override
 	protected void configure() {
 		try {
-			curEnv = super.lookupEnvironment(applicationName, cnamePrefix, workerEnvironmentName);
+			if (lookupType.equals(LookupType.cnamePrefix)) {
+				curEnv = super.lookupEnvironment(applicationName, cnamePrefix, null);
+			} else {
+				curEnv = super.lookupEnvironment(applicationName, null, environmentName);
+			}
 		} catch (MojoExecutionException e) {
 			throw new RuntimeException(e);
 		}
@@ -189,7 +199,7 @@ public abstract class AbstractNeedsEnvironmentMojo extends
 						.withStatusToWaitFor("!Updating")//
 						.withEnvironmentId(curEnv.getEnvironmentId())//
 						.withTimeoutMins(2)//
-                        .withWorkerEnvironmentName(workerEnvironmentName)//
+                        .withWorkerEnvironmentName(environmentName)//
 						.withDomainToWaitFor(cnamePrefix).build();
 			
 				WaitForEnvironmentCommand command = new WaitForEnvironmentCommand(this);

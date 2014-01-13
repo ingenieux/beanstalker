@@ -53,6 +53,7 @@ public class CreateEnvironmentCommand extends
         if ("Worker".equals(context.getEnvironmentTierName())) {
             context.setEnvironmentTierType("SQS/HTTP");
             request.setCNAMEPrefix(null);
+            request.setTier(new EnvironmentTier().withName(context.getEnvironmentTierName()).withType(context.getEnvironmentTierType()).withVersion(context.getEnvironmentTierVersion()));
         }
 
 		if (StringUtils.isNotBlank(context.getTemplateName())) {
@@ -61,8 +62,6 @@ public class CreateEnvironmentCommand extends
 		} else if (StringUtils.isNotBlank(context.getSolutionStack())) {
 			request.setSolutionStackName(context.getSolutionStack());
 		}
-
-        request.setTier(new EnvironmentTier().withName(context.getEnvironmentTierName()).withType(context.getEnvironmentTierType()).withVersion(context.getEnvironmentTierVersion()));
 
 		request.setVersionLabel(context.getVersionLabel());
 

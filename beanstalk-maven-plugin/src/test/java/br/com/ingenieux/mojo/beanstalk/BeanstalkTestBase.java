@@ -21,6 +21,7 @@ import java.util.Properties;
 import org.apache.commons.lang.text.StrSubstitutor;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
+import org.junit.Ignore;
 
 import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
 import br.com.ingenieux.mojo.beanstalk.app.CreateApplicationMojo;
@@ -41,6 +42,7 @@ import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsResult;
 import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
 import com.amazonaws.services.elasticbeanstalk.model.TerminateEnvironmentRequest;
 
+@Ignore
 public abstract class BeanstalkTestBase extends AbstractMojoTestCase {
 	public static final String PROP_VERSION_LABEL = "versionLabel";
 

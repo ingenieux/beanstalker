@@ -2,6 +2,7 @@ package br.com.ingenieux.mojo.beanstalk;
 
 import java.io.File;
 
+import org.junit.Ignore;
 import org.junit.internal.runners.JUnit38ClassRunner;
 import org.junit.runner.RunWith;
 
@@ -22,6 +23,7 @@ import com.amazonaws.services.s3.model.S3Object;
  * limitations under the License.
  */
 
+@Ignore
 @RunWith(JUnit38ClassRunner.class)
 public class BootstrapTest extends BeanstalkTestBase {
 	private String s3Key;

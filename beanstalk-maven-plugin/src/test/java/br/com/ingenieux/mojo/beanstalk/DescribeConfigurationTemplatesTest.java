@@ -1,5 +1,7 @@
 package br.com.ingenieux.mojo.beanstalk;
 
+import org.junit.Ignore;
+
 import br.com.ingenieux.mojo.beanstalk.app.CreateApplicationMojo;
 import br.com.ingenieux.mojo.beanstalk.version.CreateApplicationVersionMojo;
 
@@ -18,6 +20,7 @@ import br.com.ingenieux.mojo.beanstalk.version.CreateApplicationVersionMojo;
  * limitations under the License.
  */
 
+@Ignore
 public class DescribeConfigurationTemplatesTest extends BeanstalkTestBase {
 	@Override
 	protected void configureMojos() throws Exception {

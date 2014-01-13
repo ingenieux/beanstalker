@@ -68,10 +68,10 @@ public class WaitForEnvironmentCommand extends
 		String applicationName = context.getApplicationName();
 		String statusToWaitFor = context.getStatusToWaitFor();
         String healthToWaitFor = context.getHealth();
-        String workerEnvironmentName = context.getWorkerEnvironmentName();
+        String environmentName = context.getEnvironmentName();
         boolean negated = statusToWaitFor.startsWith("!");
 
-        if (isNotBlank(workerEnvironmentName))
+        if (isNotBlank(environmentName))
             context.setDomainToWaitFor(null);
 
 		if (negated) {
@@ -106,7 +106,7 @@ public class WaitForEnvironmentCommand extends
 
 			DescribeEnvironmentsRequest req = new DescribeEnvironmentsRequest()
 					.withApplicationName(applicationName)//
-                    .withEnvironmentNames(workerEnvironmentName)//
+                    .withEnvironmentNames(environmentName)//
 					.withEnvironmentIds(environmentId);
 
 			if (statusToWaitFor.startsWith("Terminat"))

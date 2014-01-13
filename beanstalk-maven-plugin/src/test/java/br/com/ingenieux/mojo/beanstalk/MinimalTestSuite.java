@@ -1,5 +1,7 @@
 package br.com.ingenieux.mojo.beanstalk;
 
+import org.junit.Ignore;
+
 import junit.framework.Test;
 import junit.framework.TestResult;
 import junit.framework.TestSuite;
@@ -17,6 +19,7 @@ import junit.framework.TestSuite;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@Ignore
 public class MinimalTestSuite {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(MinimalTestSuite.class.getName());

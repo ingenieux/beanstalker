@@ -288,7 +288,6 @@
             <id>worker</id>
             <properties>
                 <beanstalk.environmentName>\${artifactId}-worker</beanstalk.environmentName>
-                <beanstalk.workerEnvironmentName>\${artifactId}-worker</beanstalk.workerEnvironmentName>
                 <beanstalk.environmentTierName>Worker</beanstalk.environmentTierName>
                 <beanstalk.sqsdHttpPath>/services/api/v1/sqsd</beanstalk.sqsdHttpPath>
             </properties>
