@@ -1,16 +1,15 @@
 package br.com.ingenieux.mojo.beanstalk.cmd.env.update;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
+import br.com.ingenieux.mojo.beanstalk.cmd.BaseCommand;
+import com.amazonaws.services.elasticbeanstalk.model.EnvironmentTier;
+import com.amazonaws.services.elasticbeanstalk.model.UpdateEnvironmentRequest;
+import com.amazonaws.services.elasticbeanstalk.model.UpdateEnvironmentResult;
+import org.apache.maven.plugin.AbstractMojoExecutionException;
 
 import java.util.Arrays;
 
-import org.apache.maven.plugin.AbstractMojoExecutionException;
-
-import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
-import br.com.ingenieux.mojo.beanstalk.cmd.BaseCommand;
-
-import com.amazonaws.services.elasticbeanstalk.model.UpdateEnvironmentRequest;
-import com.amazonaws.services.elasticbeanstalk.model.UpdateEnvironmentResult;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,9 +44,23 @@ public class UpdateEnvironmentCommand extends
 		
 		if (null != context.environmentDescription)
 		    req.setDescription(context.environmentDescription);
-		
-		if (null != context.environmentId)
+
+        if (null != context.workerEnvironmentName) {
+            req.setEnvironmentName(context.workerEnvironmentName);
+        } else if (null != context.environmentId) {
 			req.setEnvironmentId(context.environmentId);
+        }
+
+        if (null != context.getEnvironmentTierName()) {
+            String envTierType = "Standard";
+            String envTierVersion = "1.0";
+
+            if ("Worker".equals(context.getEnvironmentTierName())) {
+                envTierType = "SQS/JSON";
+            }
+
+            req.setTier(new EnvironmentTier().withName(context.getEnvironmentTierName()).withType(envTierType).withVersion(envTierVersion));
+        }
 		
 		if (null != context.optionSettings)
 		    req.setOptionSettings(Arrays.asList(context.optionSettings));

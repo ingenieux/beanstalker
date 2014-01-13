@@ -75,7 +75,14 @@ class WaitForEnvironmentContextBuilderBase<GeneratorT extends WaitForEnvironment
 		return (GeneratorT) this;
 	}
 
-	@SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
+    public GeneratorT withHealth(String health) {
+        instance.setHealth(health);
+
+        return (GeneratorT) this;
+    }
+
+    @SuppressWarnings("unchecked")
 	public GeneratorT withStatusToWaitFor(String aValue) {
 		instance.setStatusToWaitFor(aValue);
 
@@ -92,6 +99,12 @@ class WaitForEnvironmentContextBuilderBase<GeneratorT extends WaitForEnvironment
 	@SuppressWarnings("unchecked")
 	public GeneratorT withDomainToWaitFor(String aValue) {
 		instance.setDomainToWaitFor(aValue);
+
+		return (GeneratorT) this;
+	}
+
+	public GeneratorT withWorkerEnvironmentName(String aValue) {
+		instance.setWorkerEnvironmentName(aValue);
 
 		return (GeneratorT) this;
 	}

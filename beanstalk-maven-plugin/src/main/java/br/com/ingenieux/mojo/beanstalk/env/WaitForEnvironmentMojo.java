@@ -13,13 +13,13 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 /**
  * Waits for Environment Status to Change
@@ -47,18 +47,32 @@ public class WaitForEnvironmentMojo extends AbstractBeanstalkMojo {
 	String statusToWaitFor;
 
 	/**
+	 * Health to Wait For
+	 */
+	@Parameter(property="beanstalk.statusToWaitFor", defaultValue="Green")
+	String healthToWaitFor;
+
+	/**
 	 * DNS CName Prefix
 	 */
 	@Parameter(property="beanstalk.cnamePrefix", defaultValue="${project.artifactId}")
 	String cnamePrefix;
 
-	@Override
+    /**
+     * Worker Environment Name
+     **/
+    @Parameter(property = "beanstalk.workerEnvironmentName")
+    protected String workerEnvironmentName;
+
+    @Override
 	protected Object executeInternal() throws Exception {
 		WaitForEnvironmentContext context = new WaitForEnvironmentContextBuilder()
 		    .withApplicationName(applicationName)//
 		    .withStatusToWaitFor(statusToWaitFor)//
 		    .withDomainToWaitFor(cnamePrefix)//
-		    .withTimeoutMins(timeoutMins)
+		    .withTimeoutMins(timeoutMins)//
+            .withHealth(healthToWaitFor)//
+            .withWorkerEnvironmentName(workerEnvironmentName)//
 		    .build();
 
 		WaitForEnvironmentCommand command = new WaitForEnvironmentCommand(this);

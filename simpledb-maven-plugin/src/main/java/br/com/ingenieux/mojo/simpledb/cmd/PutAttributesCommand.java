@@ -1,22 +1,16 @@
 package br.com.ingenieux.mojo.simpledb.cmd;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.node.ArrayNode;
-import org.codehaus.jackson.node.ObjectNode;
-
 import com.amazonaws.services.simpledb.AmazonSimpleDB;
 import com.amazonaws.services.simpledb.model.CreateDomainRequest;
 import com.amazonaws.services.simpledb.model.PutAttributesRequest;
 import com.amazonaws.services.simpledb.model.ReplaceableAttribute;
 import com.amazonaws.services.simpledb.model.UpdateCondition;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import java.util.*;
 
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -65,13 +59,13 @@ public class PutAttributesCommand {
 
         request.setDomainName(ctx.getDomain());
 
-        Iterator<String> itFieldName = objectNode.getFieldNames();
+        Iterator<String> itFieldName = objectNode.fieldNames();
 
         while (itFieldName.hasNext()) {
             String key = itFieldName.next();
 
             if ("name".equals(key)) {
-                String value = objectNode.get("name").getTextValue();
+                String value = objectNode.get("name").textValue();
 
                 request.setItemName(value);
             } else if ("append".equals(key) || "replace".equals(key)) {
@@ -101,7 +95,7 @@ public class PutAttributesCommand {
             valueParameter = expectNode.get("value").asText();
 
         if (null != expectNode.get("exists"))
-            existsParameter = Boolean.valueOf(expectNode.get("exists").asBoolean());
+            existsParameter = Boolean.valueOf("" + expectNode.get("exists"));
 
         return new UpdateCondition(nameParameter, valueParameter, existsParameter);
     }
@@ -112,7 +106,7 @@ public class PutAttributesCommand {
         for (int i = 0; i < attributesNode.size(); i++) {
             ObjectNode objectNode = (ObjectNode) attributesNode.get(i);
 
-            Iterator<String> itFieldName = objectNode.getFieldNames();
+            Iterator<String> itFieldName = objectNode.fieldNames();
             while (itFieldName.hasNext()) {
                 String key = itFieldName.next();
                 JsonNode valueNode = objectNode.get(key);

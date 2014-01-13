@@ -104,4 +104,18 @@ class UpdateEnvironmentContextBuilderBase<GeneratorT extends UpdateEnvironmentCo
 
 		return (GeneratorT) this;
 	}
+
+	@SuppressWarnings("unchecked")
+	public GeneratorT withWorkerEnvironmentName(String aValue) {
+		instance.setWorkerEnvironmentName(aValue);
+
+		return (GeneratorT) this;
+	}
+
+	@SuppressWarnings("unchecked")
+	public GeneratorT withEnvironmentTierName(String aValue) {
+		instance.setEnvironmentTierName(aValue);
+
+		return (GeneratorT) this;
+	}
 }

@@ -18,13 +18,9 @@ import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.*;
 
-import org.codehaus.jackson.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.model.ConfirmSubscriptionRequest;
@@ -114,7 +110,7 @@ public class BaseSNSResource extends BaseResource {
     private static final Map<String, X509Certificate> SNS_CERT_MAP = new TreeMap<String, X509Certificate>();
 
     protected void validateSignature(String body, ObjectNode bodyNode) throws Exception {
-        String signingCert = bodyNode.get("SigningCertURL").getTextValue();
+        String signingCert = bodyNode.get("SigningCertURL").textValue();
         
         X509Certificate cert = SNS_CERT_MAP.get(signingCert);
         boolean expired = false;
@@ -158,7 +154,7 @@ public class BaseSNSResource extends BaseResource {
             SNS_CERT_MAP.put(signingCert, cert);
         }
         
-        String signature = bodyNode.get("Signature").getTextValue();
+        String signature = bodyNode.get("Signature").textValue();
         
         PublicKey publicKey = cert.getPublicKey();
 
@@ -166,7 +162,7 @@ public class BaseSNSResource extends BaseResource {
     }
 
     public void handleSubscribe(String endpointId, String topicArn, ObjectNode bodyNode) {
-        String token = bodyNode.get("Token").getTextValue();
+        String token = bodyNode.get("Token").textValue();
         
         if (logger.isInfoEnabled())
             logger.info(
@@ -207,8 +203,8 @@ public class BaseSNSResource extends BaseResource {
      *            full message payload (as json)
      */
     public void handleNotification(String endpointId, ObjectNode bodyNode) throws Exception {
-        String subjectStr = bodyNode.get("Subject").getTextValue();
-        String messageStr = bodyNode.get("Message").getTextValue();
+        String subjectStr = bodyNode.get("Subject").textValue();
+        String messageStr = bodyNode.get("Message").textValue();
     
         if (logger.isInfoEnabled()) {
             logger.info(

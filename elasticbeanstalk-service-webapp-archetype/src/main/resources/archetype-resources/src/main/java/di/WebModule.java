@@ -3,7 +3,7 @@
 #set( $symbol_escape = '\' )
 package ${package}.di;
 
-import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
+import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 
 import ${package}.resource.RootResource;
 import ${package}.resource.SNSResource;
@@ -17,7 +17,7 @@ public class WebModule extends ServletModule {
 	protected void configureServlets() {
 		bind(GuiceContainer.class);
 		
-		bind(JacksonJsonProvider.class).in(Scopes.SINGLETON);
+		bind(JacksonJaxbJsonProvider.class).in(Scopes.SINGLETON);
 		
 		serve("/services/api/v1/*").with(GuiceContainer.class);
 		

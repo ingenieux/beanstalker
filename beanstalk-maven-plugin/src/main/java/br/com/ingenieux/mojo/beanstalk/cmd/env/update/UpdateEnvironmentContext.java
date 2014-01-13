@@ -139,4 +139,24 @@ public class UpdateEnvironmentContext {
 	public void setTemplateName(String templateName) {
 		this.templateName = templateName;
 	}
+
+    String workerEnvironmentName;
+
+    public String getWorkerEnvironmentName() {
+        return workerEnvironmentName;
+    }
+
+    public void setWorkerEnvironmentName(String workerEnvironmentName) {
+        this.workerEnvironmentName = workerEnvironmentName;
+    }
+
+    String environmentTierName;
+
+    public String getEnvironmentTierName() {
+        return environmentTierName;
+    }
+
+    public void setEnvironmentTierName(String environmentTierName) {
+        this.environmentTierName = environmentTierName;
+    }
 }

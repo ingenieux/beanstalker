@@ -105,4 +105,25 @@ class CreateEnvironmentContextBuilderBase<GeneratorT extends CreateEnvironmentCo
 
 		return (GeneratorT) this;
 	}
+
+	@SuppressWarnings("unchecked")
+	public GeneratorT withEnvironmentTierName(String aValue) {
+		instance.setEnvironmentTierName(aValue);
+
+		return (GeneratorT) this;
+	}
+
+	@SuppressWarnings("unchecked")
+	public GeneratorT withEnvironmentTierType(String aValue) {
+		instance.setEnvironmentTierType(aValue);
+
+		return (GeneratorT) this;
+	}
+
+	@SuppressWarnings("unchecked")
+	public GeneratorT withEnvironmentTierVersion(String aValue) {
+		instance.setEnvironmentTierVersion(aValue);
+
+		return (GeneratorT) this;
+	}
 }

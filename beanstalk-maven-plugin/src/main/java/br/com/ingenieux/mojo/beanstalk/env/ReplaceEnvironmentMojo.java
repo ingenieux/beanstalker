@@ -14,23 +14,6 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
-import static java.lang.String.format;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.maven.plugin.AbstractMojoExecutionException;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-
 import br.com.ingenieux.mojo.aws.util.CredentialsUtil;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesContext;
@@ -41,12 +24,19 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.terminate.TerminateEnvironmentCon
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
+import com.amazonaws.services.elasticbeanstalk.model.*;
+import org.apache.commons.lang.StringUtils;
+import org.apache.maven.plugin.AbstractMojoExecutionException;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
-import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
-import com.amazonaws.services.elasticbeanstalk.model.CreateEnvironmentResult;
-import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettingsRequest;
-import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettingsResult;
-import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static java.lang.String.format;
 
 /**
  * Launches a new environment and, when done, replace with the existing,
@@ -98,6 +88,9 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 	 */
 	@Parameter(property = "beanstalk.attemptRetryInterval", defaultValue = "60")
 	int attemptRetryInterval = 60;
+
+    @Parameter(property = "beanstalk.waitForGreenXTimesInARow", defaultValue = "2")
+    int waitForGreenXTimesInARow = 2;
 
 	@Override
 	protected EnvironmentDescription handleResults(
@@ -424,6 +417,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 		WaitForEnvironmentContext context = new WaitForEnvironmentContextBuilder()
 				.withApplicationName(applicationName)
 				.withStatusToWaitFor("Ready").withEnvironmentId(environmentId)
+                .withHealth("Green")
 				.withTimeoutMins(timeoutMins).build();
 
 		WaitForEnvironmentCommand command = new WaitForEnvironmentCommand(this);

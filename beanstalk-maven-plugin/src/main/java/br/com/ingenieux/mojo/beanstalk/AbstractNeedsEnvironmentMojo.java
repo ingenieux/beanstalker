@@ -1,16 +1,11 @@
 package br.com.ingenieux.mojo.beanstalk;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
+import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentCommand;
+import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext;
+import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
+import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsRequest;
+import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.maven.plugin.AbstractMojoExecutionException;
@@ -19,13 +14,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
-import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentCommand;
-import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext;
-import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
-
-import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
-import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsRequest;
-import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
+import java.util.*;
 
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -62,6 +51,12 @@ public abstract class AbstractNeedsEnvironmentMojo extends
 	protected String cnamePrefix;
 
 	/**
+	 * Worker Environment Name
+	 **/
+	@Parameter(property = "beanstalk.workerEnvironmentName")
+	protected String workerEnvironmentName;
+
+	/**
 	 * Current Environment
 	 */
 	protected EnvironmentDescription curEnv;
@@ -69,7 +64,7 @@ public abstract class AbstractNeedsEnvironmentMojo extends
 	@Override
 	protected void configure() {
 		try {
-			curEnv = super.lookupEnvironment(applicationName, cnamePrefix);
+			curEnv = super.lookupEnvironment(applicationName, cnamePrefix, workerEnvironmentName);
 		} catch (MojoExecutionException e) {
 			throw new RuntimeException(e);
 		}
@@ -239,6 +234,26 @@ public abstract class AbstractNeedsEnvironmentMojo extends
 							"SecurityGroups", ""));
 			put("beanstalk.imageId", new ConfigurationOptionSetting(
 					"aws:autoscaling:launchconfiguration", "ImageId", ""));
+			put("beanstalk.sshSourceRestriction", new ConfigurationOptionSetting(
+					"aws:autoscaling:launchconfiguration", "SSHSourceRestriction", ""));
+			put("beanstalk.blockDeviceMappings", new ConfigurationOptionSetting(
+					"aws:autoscaling:launchconfiguration", "BlockDeviceMappings", ""));
+            put("beanstalk.sqsdWorkerQueueUrl", new ConfigurationOptionSetting(
+                    "aws:elasticbeanstalk:sqsd", "WorkerQueueURL", ""));
+            put("beanstalk.sqsdHttpPath", new ConfigurationOptionSetting(
+                    "aws:elasticbeanstalk:sqsd", "HttpPath", ""));
+            put("beanstalk.sqsdMimeType", new ConfigurationOptionSetting(
+                    "aws:elasticbeanstalk:sqsd", "MimeType", ""));
+            put("beanstalk.sqsdHttpConnections", new ConfigurationOptionSetting(
+                    "aws:elasticbeanstalk:sqsd", "HttpConnections", ""));
+            put("beanstalk.sqsdConnectTimeout", new ConfigurationOptionSetting(
+                    "aws:elasticbeanstalk:sqsd", "ConnectTimeout", ""));
+            put("beanstalk.sqsdInactivityTimeout", new ConfigurationOptionSetting(
+                    "aws:elasticbeanstalk:sqsd", "InactivityTimeout", ""));
+            put("beanstalk.sqsdVisibilityTimeout", new ConfigurationOptionSetting(
+                    "aws:elasticbeanstalk:sqsd", "VisibilityTimeout", ""));
+            put("beanstalk.sqsdRetentionPeriod", new ConfigurationOptionSetting(
+                    "aws:elasticbeanstalk:sqsd", "RetentionPeriod", ""));
 		}
 	};
 }

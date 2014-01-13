@@ -31,8 +31,8 @@ public class CreateEnvironmentContext {
 	String solutionStack;
 
 	String templateName;
-	
-	/**
+
+    /**
 	 * @return the applicationName
 	 */
 	public String getApplicationName() {
@@ -152,4 +152,34 @@ public class CreateEnvironmentContext {
 	public void setTemplateName(String templateName) {
 		this.templateName = templateName;
 	}
+
+    String environmentTierName = "WebServer";
+
+    public String getEnvironmentTierName() {
+        return environmentTierName;
+    }
+
+    public void setEnvironmentTierName(String environmentTierName) {
+        this.environmentTierName = environmentTierName;
+    }
+
+    String environmentTierType = "Standard";
+
+    public String getEnvironmentTierType() {
+        return environmentTierType;
+    }
+
+    public void setEnvironmentTierType(String environmentTierType) {
+        this.environmentTierType = environmentTierType;
+    }
+
+    String environmentTierVersion = "1.0";
+
+    public String getEnvironmentTierVersion() {
+        return environmentTierVersion;
+    }
+
+    public void setEnvironmentTierVersion(String environmentTierVersion) {
+        this.environmentTierVersion = environmentTierVersion;
+    }
 }

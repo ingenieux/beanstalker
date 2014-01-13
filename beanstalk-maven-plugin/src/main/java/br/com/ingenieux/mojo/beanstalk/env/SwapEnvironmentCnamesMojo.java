@@ -15,17 +15,14 @@ package br.com.ingenieux.mojo.beanstalk.env;
  */
 
 
-
-import org.apache.maven.plugin.AbstractMojoExecutionException;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesContextBuilder;
-
 import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
+import org.apache.maven.plugin.AbstractMojoExecutionException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 /**
  * Lists the available solution stacks
@@ -60,9 +57,9 @@ public class SwapEnvironmentCnamesMojo extends AbstractBeanstalkMojo {
 	@Override
 	protected Object executeInternal() throws AbstractMojoExecutionException {
 		EnvironmentDescription sourceEnvironment = lookupEnvironment(applicationName,
-				sourceEnvironmentCNamePrefix);
+				sourceEnvironmentCNamePrefix, null);
 		EnvironmentDescription targetEnvironment = lookupEnvironment(applicationName,
-				targetEnvironmentCNamePrefix);
+				targetEnvironmentCNamePrefix, null);
 
 		SwapCNamesContext context = SwapCNamesContextBuilder
 				.swapCNamesContext()//

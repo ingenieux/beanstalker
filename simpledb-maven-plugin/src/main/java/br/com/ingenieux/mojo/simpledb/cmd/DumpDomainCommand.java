@@ -14,28 +14,23 @@ package br.com.ingenieux.mojo.simpledb.cmd;
  * limitations under the License.
  */
 
-import static org.apache.commons.lang.StringUtils.isBlank;
-
-import java.io.FileWriter;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.ObjectWriter;
-import org.codehaus.jackson.node.ArrayNode;
-import org.codehaus.jackson.node.ObjectNode;
-import org.codehaus.plexus.util.IOUtil;
-
 import com.amazonaws.services.simpledb.AmazonSimpleDB;
 import com.amazonaws.services.simpledb.model.Attribute;
 import com.amazonaws.services.simpledb.model.Item;
 import com.amazonaws.services.simpledb.model.SelectRequest;
 import com.amazonaws.services.simpledb.model.SelectResult;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.codehaus.plexus.util.IOUtil;
+
+import java.io.FileWriter;
+import java.io.Writer;
+import java.util.*;
+
+import static org.apache.commons.lang.StringUtils.isBlank;
 
 public class DumpDomainCommand {
     final ObjectMapper mapper = new ObjectMapper();

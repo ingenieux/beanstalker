@@ -14,30 +14,29 @@ package br.com.ingenieux.mojo.aws.util;
  * limitations under the License.
  */
 
-import java.util.Date;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.event.ProgressEvent;
+import com.amazonaws.event.ProgressListener;
+import com.amazonaws.event.ProgressListenerChain;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.internal.Constants;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
-import com.amazonaws.services.s3.model.ProgressEvent;
-import com.amazonaws.services.s3.model.ProgressListener;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.TransferManagerConfiguration;
 import com.amazonaws.services.s3.transfer.TransferProgress;
 import com.amazonaws.services.s3.transfer.Upload;
-import com.amazonaws.services.s3.transfer.internal.ProgressListenerChain;
 import com.amazonaws.services.s3.transfer.internal.TransferManagerUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+
+import java.util.Date;
 
 public class BeanstalkerS3Client extends AmazonS3Client {
 	private boolean multipartUpload = true;
@@ -58,37 +57,36 @@ public class BeanstalkerS3Client extends AmazonS3Client {
 			return upload;
 		}
 
-		@Override
-		public void progressChanged(ProgressEvent e) {
-			if (null == upload)
-				return;
+        @Override
+        public void progressChanged(ProgressEvent e) {
+            if (null == upload)
+                return;
 
-			TransferProgress xProgress = upload.getProgress();
+            TransferProgress xProgress = upload.getProgress();
 
-			System.out.print("\r  "
-					+ String.format("%.2f", xProgress.getPercentTransfered())
-					+ "% " + asNumber(xProgress.getBytesTransfered()) + "/"
-					+ asNumber(contentLen) + BLANK_LINE);
+            System.out.print("\r  "
+                    + String.format("%.2f", xProgress.getPercentTransferred())
+                    + "% " + asNumber(xProgress.getBytesTransferred()) + "/"
+                    + asNumber(contentLen) + BLANK_LINE);
 
-			switch (e.getEventCode()) {
-			case ProgressEvent.COMPLETED_EVENT_CODE: {
-				System.out.println("Done");
-				break;
-			}
-			case ProgressEvent.FAILED_EVENT_CODE: {
-				try {
-					AmazonClientException exc = upload.waitForException();
+            switch (e.getEventCode()) {
+                case ProgressEvent.COMPLETED_EVENT_CODE: {
+                    System.out.println("Done");
+                    break;
+                }
+                case ProgressEvent.FAILED_EVENT_CODE: {
+                    try {
+                        AmazonClientException exc = upload.waitForException();
 
-					System.err.println("Unable to upload file: "
-							+ exc.getMessage());
-				} catch (InterruptedException ignored) {
-				}
-				break;
-			}
-			}
-
-		}
-	}
+                        System.err.println("Unable to upload file: "
+                                + exc.getMessage());
+                    } catch (InterruptedException ignored) {
+                    }
+                    break;
+                }
+            }
+        }
+    }
 	
 	
 
@@ -163,7 +161,7 @@ public class BeanstalkerS3Client extends AmazonS3Client {
 
 		XProgressListener progressListener = new XProgressListener();
 
-		req.setProgressListener(new ProgressListenerChain(progressListener));
+        req.setGeneralProgressListener(new ProgressListenerChain(progressListener));
 
 		progressListener.setContentLen(contentLen);
 		progressListener.setUpload(transferManager.upload(req));
@@ -174,7 +172,7 @@ public class BeanstalkerS3Client extends AmazonS3Client {
 			throw new AmazonClientException(e.getMessage(), e);
 		}
 
-		CopyObjectRequest copyReq = new CopyObjectRequest(req.getBucketName(), tempFilename, 
+		CopyObjectRequest copyReq = new CopyObjectRequest(req.getBucketName(), tempFilename,
 				req.getBucketName(), origFilename);
 
 		copyObject(copyReq);

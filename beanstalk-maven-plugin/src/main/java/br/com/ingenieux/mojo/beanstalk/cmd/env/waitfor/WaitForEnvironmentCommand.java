@@ -1,26 +1,19 @@
 package br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor;
 
-import static java.lang.String.format;
+import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
+import br.com.ingenieux.mojo.beanstalk.cmd.BaseCommand;
+import com.amazonaws.services.elasticbeanstalk.model.*;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.maven.plugin.AbstractMojoExecutionException;
+import org.apache.maven.plugin.MojoExecutionException;
 
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.maven.plugin.AbstractMojoExecutionException;
-import org.apache.maven.plugin.MojoExecutionException;
-
-import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
-import br.com.ingenieux.mojo.beanstalk.cmd.BaseCommand;
-
-import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsRequest;
-import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsResult;
-import com.amazonaws.services.elasticbeanstalk.model.DescribeEventsRequest;
-import com.amazonaws.services.elasticbeanstalk.model.DescribeEventsResult;
-import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
-import com.amazonaws.services.elasticbeanstalk.model.EventDescription;
+import static java.lang.String.format;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -74,14 +67,16 @@ public class WaitForEnvironmentCommand extends
 		String environmentId = context.getEnvironmentId();
 		String applicationName = context.getApplicationName();
 		String statusToWaitFor = context.getStatusToWaitFor();
-		boolean negated = statusToWaitFor.startsWith("!");
+        String healthToWaitFor = context.getHealth();
+        String workerEnvironmentName = context.getWorkerEnvironmentName();
+        boolean negated = statusToWaitFor.startsWith("!");
 
 		if (negated) {
 			statusToWaitFor = statusToWaitFor.substring(1);
 		}
 
-		boolean hasDomainToWaitFor = StringUtils.isNotBlank(context
-				.getDomainToWaitFor());
+		boolean hasDomainToWaitFor = isNotBlank(context
+                .getDomainToWaitFor());
 
 		String domainToWaitFor = String.format("%s.elasticbeanstalk.com",
 				context.getDomainToWaitFor());
@@ -103,8 +98,9 @@ public class WaitForEnvironmentCommand extends
 				throw new MojoExecutionException("Timed out");
 
 			DescribeEnvironmentsRequest req = new DescribeEnvironmentsRequest()
-					.withApplicationName(applicationName).withEnvironmentIds(
-							environmentId);
+					.withApplicationName(applicationName)//
+                    .withEnvironmentNames(workerEnvironmentName)//
+					.withEnvironmentIds(environmentId);
 
 			if (statusToWaitFor.startsWith("Terminat"))
 				req.withIncludeDeleted(true);
@@ -120,6 +116,9 @@ public class WaitForEnvironmentCommand extends
 							+ ToStringBuilder.reflectionToString(d));
 
 				done = d.getStatus().equalsIgnoreCase(statusToWaitFor);
+
+                if (done && isNotBlank(healthToWaitFor))
+                    done = healthToWaitFor.equals(d.getHealth());
 
 				if (negated)
 					done = !done;

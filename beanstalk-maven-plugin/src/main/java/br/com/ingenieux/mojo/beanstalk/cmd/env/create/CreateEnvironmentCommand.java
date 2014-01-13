@@ -1,16 +1,15 @@
 package br.com.ingenieux.mojo.beanstalk.cmd.env.create;
 
-import java.util.Arrays;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.maven.plugin.AbstractMojoExecutionException;
-
 import br.com.ingenieux.mojo.aws.util.CredentialsUtil;
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.BaseCommand;
-
 import com.amazonaws.services.elasticbeanstalk.model.CreateEnvironmentRequest;
 import com.amazonaws.services.elasticbeanstalk.model.CreateEnvironmentResult;
+import com.amazonaws.services.elasticbeanstalk.model.EnvironmentTier;
+import org.apache.commons.lang.StringUtils;
+import org.apache.maven.plugin.AbstractMojoExecutionException;
+
+import java.util.Arrays;
 
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -51,12 +50,17 @@ public class CreateEnvironmentCommand extends
 
 		request.setOptionSettings(Arrays.asList(context.getOptionSettings()));
 
+        if ("Worker".equals(context.getEnvironmentTierName()))
+            context.setEnvironmentTierType("SQS/HTTP");
+
 		if (StringUtils.isNotBlank(context.getTemplateName())) {
 			request.setTemplateName(parentMojo.lookupTemplateName(
 					context.getApplicationName(), context.getTemplateName()));
 		} else if (StringUtils.isNotBlank(context.getSolutionStack())) {
 			request.setSolutionStackName(context.getSolutionStack());
 		}
+
+        request.setTier(new EnvironmentTier().withName(context.getEnvironmentTierName()).withType(context.getEnvironmentTierType()).withVersion(context.getEnvironmentTierVersion()));
 
 		request.setVersionLabel(context.getVersionLabel());
 

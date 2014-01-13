@@ -14,10 +14,10 @@
 
 	<properties>
 		<jetty.version>7.0.2.v20100331</jetty.version>
-		<slf4j.version>1.7.2</slf4j.version>
-		<guice.version>3.1.2</guice.version>
-		<jersey.version>1.16</jersey.version>
-		<jackson.version>1.9.10</jackson.version>
+		<slf4j.version>1.7.5</slf4j.version>
+		<guice.version>3.1.3</guice.version>
+		<jersey.version>1.18</jersey.version>
+		<jackson.version>2.3.0</jackson.version>
 		<cloudy.version>0.0.4</cloudy.version>
 		<beanstalk.cnamePrefix>\${artifactId}-env</beanstalk.cnamePrefix>
 		<beanstalker.region>us-east-1</beanstalker.region>
@@ -89,7 +89,7 @@
 		<dependency>
 			<groupId>com.amazonaws</groupId>
 			<artifactId>aws-java-sdk</artifactId>
-			<version>1.5.5</version>
+			<version>1.6.12</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.inject</groupId>
@@ -106,26 +106,21 @@
 			<artifactId>jersey-guice</artifactId>
 			<version>\${jersey.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-xc</artifactId>
-			<version>\${jackson.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-jaxrs</artifactId>
-			<version>\${jackson.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-mapper-asl</artifactId>
-			<version>\${jackson.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-core-asl</artifactId>
-			<version>\${jackson.version}</version>
-		</dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.jaxrs</groupId>
+            <artifactId>jackson-jaxrs-json-provider</artifactId>
+            <version>\${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>\${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>\${jackson.version}</version>
+        </dependency>
 		<dependency>
 			<groupId>br.com.ingenieux.cloudy</groupId>
 			<artifactId>cloudy-awseb</artifactId>

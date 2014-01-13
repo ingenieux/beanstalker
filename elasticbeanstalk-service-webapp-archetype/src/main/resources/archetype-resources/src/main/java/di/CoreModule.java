@@ -3,7 +3,7 @@
 #set( $symbol_escape = '\' )
 package ${package}.di;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.com.ingenieux.cloudy.awseb.di.BaseAWSModule;
 

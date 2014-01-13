@@ -14,12 +14,11 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
-import org.apache.maven.plugin.AbstractMojoExecutionException;
-import org.apache.maven.plugins.annotations.Mojo;
-
 import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentContextBuilder;
+import org.apache.maven.plugin.AbstractMojoExecutionException;
+import org.apache.maven.plugins.annotations.Mojo;
 
 /**
  * Creates (if needed) or Updates an Elastic Beanstalk Environment
@@ -35,7 +34,7 @@ public class PutEnvironmentMojo extends CreateEnvironmentMojo {
 	@Override
 	protected void configure() {
 		try {
-			curEnv = super.lookupEnvironment(applicationName, cnamePrefix);
+			curEnv = super.lookupEnvironment(applicationName, cnamePrefix, workerEnvironmentName);
 		} catch (Exception exc) {
 			// Previous Environment Does Not Exists. So its fine to just create the new environment.
 		}

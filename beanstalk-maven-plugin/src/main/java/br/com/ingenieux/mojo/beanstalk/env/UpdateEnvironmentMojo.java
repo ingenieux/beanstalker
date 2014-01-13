@@ -14,16 +14,14 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
-import org.apache.maven.plugin.AbstractMojoExecutionException;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentContextBuilder;
-
 import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
+import org.apache.maven.plugin.AbstractMojoExecutionException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 /**
  * Updates the environment versionLabel for a given environmentName
@@ -62,37 +60,31 @@ public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 	 * <p>
 	 * A Property might be aliased. Current aliases include:
 	 * </p>
-	 * 
-	 * <ul>
-	 * <li>beanstalk.keyName to aws:autoscaling:launchconfiguration/EC2KeyName
-	 * (EC2 Instance Key)</li>
-	 * <li>beanstalk.applicationHealthCheckURL, to
-	 * aws:elasticbeanstalk:application/Application Healthcheck URL (Application
-	 * Healthcheck URL)</li>
-	 * <li>beanstalk.iamInstanceProfile, to
-	 * aws:autoscaling:launchconfiguration/IamInstanceProfile (IAM Instance
-	 * Profile Role Name)</li>
-	 * <li>beanstalk.environmentType, to
-	 * aws:elasticbeanstalk:environment/EnvironmentType (SingleInstance or
-	 * ELB-bound Environment)</li>
-	 * <li>beanstalk.instanceType, to
-	 * aws:autoscaling:launchconfiguration/InstanceType (EC2 Instance Type to
-	 * Use)
-	 * <li>beanstalk.automaticallyTerminateUnhealthyInstances, to
-	 * aws:elasticbeanstalk:monitoring/Automatically Terminate Unhealthy
-	 * Instances (true if should automatically terminate instances)
-	 * <li>beanstalk.stickinessPolicy, to aws:elb:policies/Stickiness Policy
-	 * (ELB Stickiness Policy)</li>
-	 * <li>beanstalk.stickinessCookieExpiration, to aws:elb:policies/Stickiness
-	 * Cookie Expiration" (Stickiness Cookie Expiration Timeout)</li>
-	 * <li>beanstalk.availabilityZones, to aws:autoscaling:asg/Custom
-	 * Availability Zones (Custom AZs to Use)</li>
-	 * <li>beanstalk.notificationProtocol, to
-	 * aws:elasticbeanstalk:sns:topics/Notification Protocol</li>
-	 * <li>beanstalk.securityGroups, to
-	 * aws:autoscaling:launchconfiguration/SecurityGroups</li>
-	 * <li>beanstalk.imageId, to aws:autoscaling:launchconfiguration/ImageId</li>
-	 * </ul>
+	 *
+     * <ul>
+     *   <li>beanstalk.keyName to aws:autoscaling:launchconfiguration/EC2KeyName (EC2 Instance Key)</li>
+     *   <li>beanstalk.applicationHealthCheckURL, to aws:elasticbeanstalk:application/Application Healthcheck URL (Application Healthcheck URL)</li>
+     *   <li>beanstalk.iamInstanceProfile, to aws:autoscaling:launchconfiguration/IamInstanceProfile (IAM Instance Profile Role Name)</li>
+     *   <li>beanstalk.environmentType, to aws:elasticbeanstalk:environment/EnvironmentType (SingleInstance or ELB-bound Environment)</li>
+     *   <li>beanstalk.instanceType, to aws:autoscaling:launchconfiguration/InstanceType (EC2 Instance Type to Use)
+     *   <li>beanstalk.automaticallyTerminateUnhealthyInstances, to aws:elasticbeanstalk:monitoring/Automatically Terminate Unhealthy Instances (true if should automatically terminate instances)
+     *   <li>beanstalk.stickinessPolicy, to aws:elb:policies/Stickiness Policy (ELB Stickiness Policy)</li>
+     *   <li>beanstalk.stickinessCookieExpiration, to aws:elb:policies/Stickiness Cookie Expiration" (Stickiness Cookie Expiration Timeout)</li>
+     *   <li>beanstalk.availabilityZones, to aws:autoscaling:asg/Custom Availability Zones (Custom AZs to Use)</li>
+     *   <li>beanstalk.notificationProtocol, to aws:elasticbeanstalk:sns:topics/Notification Protocol</li>
+     *   <li>beanstalk.securityGroups, to aws:autoscaling:launchconfiguration/SecurityGroups</li>
+     *   <li>beanstalk.imageId, to aws:autoscaling:launchconfiguration/ImageId</li>
+     *   <li>beanstalk.sshSourceRestriction, to aws:autoscaling:launchconfiguration/SSHSourceRestriction</li>
+     *   <li>beanstalk.blockDeviceMappings, to aws:autoscaling:launchconfiguration/BlockDeviceMappings</li>
+     *   <li>beanstalk.sqsdWorkerQueueURL, to aws:elasticbeanstalk:sqsd/WorkerQueueURL</li>
+     *   <li>beanstalk.sqsdHttpPath, to aws:elasticbeanstalk:sqsd/HttpPath</li>
+     *   <li>beanstalk.sqsdMimeType, to aws:elasticbeanstalk:sqsd/MimeType</li>
+     *   <li>beanstalk.sqsdHttpConnections, to aws:elasticbeanstalk:sqsd/HttpConnections</li>
+     *   <li>beanstalk.sqsdConnectTimeout, to aws:elasticbeanstalk:sqsd/ConnectTimeout</li>
+     *   <li>beanstalk.sqsdInactivityTimeout, to aws:elasticbeanstalk:sqsd/InactivityTimeout</li>
+     *   <li>beanstalk.sqsdVisibilityTimeout, to aws:elasticbeanstalk:sqsd/VisibilityTimeout</li>
+     *   <li>beanstalk.sqsdRetentionPeriod, to aws:elasticbeanstalk:sqsd/RetentionPeriod</li>
+     * </ul>
 	 * 
 	 * The reason for most of those aliases if the need to address space and ':'
 	 * inside Maven Properties and XML Files.
@@ -125,6 +117,12 @@ public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 	@Parameter(property = "beanstalk.useLatestVersionLabel")
 	boolean useLatestVersionLabel = true;
 
+    /**
+     * <p>Environment Tier Name (defaults to "WebServer")</p>
+     */
+    @Parameter(property="beanstalk.environmentTierName", defaultValue="WebServer")
+    String environmentTierName;
+
 	protected Object executeInternal() throws AbstractMojoExecutionException {
 		waitForNotUpdating();
 		
@@ -143,6 +141,8 @@ public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 				.withVersionLabel(versionLabel)//
 				.withUseLatestVersionLabel(useLatestVersionLabel)//
 				.withLatestVersionLabel(curEnv.getVersionLabel())//
+                .withWorkerEnvironmentName(workerEnvironmentName)//
+                .withEnvironmentTierName(environmentTierName)//
 				.build();
 		UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(this);
 

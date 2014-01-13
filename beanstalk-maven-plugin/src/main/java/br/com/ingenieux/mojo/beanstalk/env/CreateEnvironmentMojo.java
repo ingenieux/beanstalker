@@ -14,20 +14,6 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.Validate;
-import org.apache.commons.lang.builder.CompareToBuilder;
-import org.apache.maven.plugin.AbstractMojoExecutionException;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.create.CreateEnvironmentCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.create.CreateEnvironmentContext;
@@ -35,12 +21,20 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.create.CreateEnvironmentContextBu
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
+import com.amazonaws.services.elasticbeanstalk.model.*;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.Validate;
+import org.apache.commons.lang.builder.CompareToBuilder;
+import org.apache.maven.plugin.AbstractMojoExecutionException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
-import com.amazonaws.services.elasticbeanstalk.model.ApplicationVersionDescription;
-import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
-import com.amazonaws.services.elasticbeanstalk.model.CreateEnvironmentResult;
-import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationVersionsRequest;
-import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationVersionsResult;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 /**
  * Creates and Launches an Elastic Beanstalk Environment
@@ -90,6 +84,16 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 	 *   <li>beanstalk.notificationProtocol, to aws:elasticbeanstalk:sns:topics/Notification Protocol</li>
 	 *   <li>beanstalk.securityGroups, to aws:autoscaling:launchconfiguration/SecurityGroups</li>
 	 *   <li>beanstalk.imageId, to aws:autoscaling:launchconfiguration/ImageId</li>
+	 *   <li>beanstalk.sshSourceRestriction, to aws:autoscaling:launchconfiguration/SSHSourceRestriction</li>
+	 *   <li>beanstalk.blockDeviceMappings, to aws:autoscaling:launchconfiguration/BlockDeviceMappings</li>
+     *   <li>beanstalk.sqsdWorkerQueueURL, to aws:elasticbeanstalk:sqsd/WorkerQueueURL</li>
+     *   <li>beanstalk.sqsdHttpPath, to aws:elasticbeanstalk:sqsd/HttpPath</li>
+	 *   <li>beanstalk.sqsdMimeType, to aws:elasticbeanstalk:sqsd/MimeType</li>
+	 *   <li>beanstalk.sqsdHttpConnections, to aws:elasticbeanstalk:sqsd/HttpConnections</li>
+	 *   <li>beanstalk.sqsdConnectTimeout, to aws:elasticbeanstalk:sqsd/ConnectTimeout</li>
+	 *   <li>beanstalk.sqsdInactivityTimeout, to aws:elasticbeanstalk:sqsd/InactivityTimeout</li>
+	 *   <li>beanstalk.sqsdVisibilityTimeout, to aws:elasticbeanstalk:sqsd/VisibilityTimeout</li>
+	 *   <li>beanstalk.sqsdRetentionPeriod, to aws:elasticbeanstalk:sqsd/RetentionPeriod</li>
 	 * </ul>
 	 * 
 	 * The reason for most of those aliases if the need to address space and ':' inside Maven Properties and XML Files.
@@ -127,6 +131,12 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 	 */
 	@Parameter(property="beanstalk.waitForReady", defaultValue="true")
 	boolean waitForReady;
+
+	/**
+	 * <p>Environment Tier Name (defaults to "WebServer")</p>
+	 */
+	@Parameter(property="beanstalk.environmentTierName", defaultValue="WebServer")
+	String environmentTierName;
 
 	/**
 	 * Overrides parent in order to avoid a thrown exception as there's not an environment to lookup
@@ -189,6 +199,7 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 		    .withTemplateName(templateName)//
 		    .withEnvironmentName(newEnvironmentName)//
 		    .withOptionSettings(optionSettings)//
+            .withEnvironmentTierName(environmentTierName)//
 		    .withVersionLabel(versionLabel);//
 		
 		CreateEnvironmentContext context = builder.build();

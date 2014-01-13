@@ -77,4 +77,24 @@ public class WaitForEnvironmentContext {
 	public void setDomainToWaitFor(String domainToWaitFor) {
 		this.domainToWaitFor = domainToWaitFor;
 	}
+
+    String health;
+
+    public String getHealth() {
+        return health;
+    }
+
+    public void setHealth(String health) {
+        this.health = health;
+    }
+
+    String workerEnvironmentName;
+
+    public String getWorkerEnvironmentName() {
+        return workerEnvironmentName;
+    }
+
+    public void setWorkerEnvironmentName(String workerEnvironmentName) {
+        this.workerEnvironmentName = workerEnvironmentName;
+    }
 }
