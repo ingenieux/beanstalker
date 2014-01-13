@@ -1,11 +1,9 @@
 package br.com.ingenieux.mojo.beanstalk.bundle;
 
-import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.defaultIfBlank;
-
-import java.io.File;
-import java.util.Date;
-
+import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
+import com.amazonaws.services.elasticbeanstalk.model.ApplicationVersionDescription;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationVersionsRequest;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationVersionsResult;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
@@ -13,19 +11,15 @@ import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.Status;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.lib.RepositoryBuilder;
-import org.eclipse.jgit.lib.TextProgressMonitor;
+import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RefSpec;
 
-import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
+import java.io.File;
+import java.util.Date;
 
-import com.amazonaws.services.elasticbeanstalk.model.ApplicationVersionDescription;
-import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationVersionsRequest;
-import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationVersionsResult;
+import static java.lang.String.format;
+import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 
 /**
  * Uploads a packed war file to Amazon S3 for further Deployment.
@@ -72,6 +66,7 @@ public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
 		try {
 			super.configure();
 		} catch (Exception exc) {
+            //getLog().warn(exc);
 		}
 
 		region = defaultIfBlank(region, "us-east-1");

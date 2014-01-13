@@ -44,7 +44,7 @@ public abstract class AbstractBeanstalkMojo extends
             throw new MojoExecutionException("You must declare either cnamePrefix or workerEnvironmentName");
 
         if (isNotBlank(environmentCNamePrefix) && isNotBlank(workerEnvironmentName)) {
-            getLog().warn("Ignoring environmentNamePrefix. Using workerEnvironmentName instead");
+            getLog().warn("Ignoring cnamePrefix. Using workerEnvironmentName instead");
 
             environmentCNamePrefix = null;
         }
