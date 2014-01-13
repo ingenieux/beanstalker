@@ -142,8 +142,8 @@ public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 				.withUseLatestVersionLabel(useLatestVersionLabel)//
 				.withLatestVersionLabel(curEnv.getVersionLabel())//
                 .withWorkerEnvironmentName(workerEnvironmentName)//
-                .withEnvironmentTierName(environmentTierName)//
 				.build();
+
 		UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(this);
 
 		return command.execute(context);

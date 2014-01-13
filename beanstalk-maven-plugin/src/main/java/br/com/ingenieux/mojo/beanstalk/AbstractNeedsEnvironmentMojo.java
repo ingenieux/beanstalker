@@ -189,6 +189,7 @@ public abstract class AbstractNeedsEnvironmentMojo extends
 						.withStatusToWaitFor("!Updating")//
 						.withEnvironmentId(curEnv.getEnvironmentId())//
 						.withTimeoutMins(2)//
+                        .withWorkerEnvironmentName(workerEnvironmentName)//
 						.withDomainToWaitFor(cnamePrefix).build();
 			
 				WaitForEnvironmentCommand command = new WaitForEnvironmentCommand(this);

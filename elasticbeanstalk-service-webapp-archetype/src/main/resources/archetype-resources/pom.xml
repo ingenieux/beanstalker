@@ -25,7 +25,7 @@
 		-->
         <beanstalk.solutionStack>64bit Amazon Linux running Tomcat 7</beanstalk.solutionStack>
 		<!-- switch to .../health/check when you set iamInstanceProfile below -->
-        <beanstalk.applicationHealthCheckURL>/services/api/v1/health/debug</beanstalk.applicationHealthCheckURL>
+        <beanstalk.applicationHealthCheckURL>/services/api/v1/debug</beanstalk.applicationHealthCheckURL>
 		<beanstalk.environmentName>\${artifactId}-env</beanstalk.environmentName>
         <beanstalk.environmentType>SingleInstance</beanstalk.environmentType>
 		<!-- replace with your environment details -->

@@ -71,6 +71,9 @@ public class WaitForEnvironmentCommand extends
         String workerEnvironmentName = context.getWorkerEnvironmentName();
         boolean negated = statusToWaitFor.startsWith("!");
 
+        if (isNotBlank(workerEnvironmentName))
+            context.setDomainToWaitFor(null);
+
 		if (negated) {
 			statusToWaitFor = statusToWaitFor.substring(1);
 		}
@@ -78,8 +81,12 @@ public class WaitForEnvironmentCommand extends
 		boolean hasDomainToWaitFor = isNotBlank(context
                 .getDomainToWaitFor());
 
-		String domainToWaitFor = String.format("%s.elasticbeanstalk.com",
-				context.getDomainToWaitFor());
+		String domainToWaitFor = null;
+
+        if (isNotBlank(context.getDomainToWaitFor())) {
+            domainToWaitFor = format("%s.elasticbeanstalk.com",
+                    context.getDomainToWaitFor());
+        }
 
 		Date expiresAt = new Date(System.currentTimeMillis() + MINS_TO_MSEC
 				* timeoutMins);
