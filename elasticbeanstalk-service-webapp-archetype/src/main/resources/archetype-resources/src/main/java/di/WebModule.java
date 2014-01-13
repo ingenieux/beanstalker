@@ -5,8 +5,7 @@ package ${package}.di;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 
-import ${package}.resource.RootResource;
-import ${package}.resource.SNSResource;
+import ${package}.resource.*;
 
 import com.google.inject.Scopes;
 import com.google.inject.servlet.ServletModule;
@@ -24,5 +23,7 @@ public class WebModule extends ServletModule {
 		bind(RootResource.class);
 		
 		bind(SNSResource.class);
+
+        bind(SampleSQSDResource.class);
 	}
 }

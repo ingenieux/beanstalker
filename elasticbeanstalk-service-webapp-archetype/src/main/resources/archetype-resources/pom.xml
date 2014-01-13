@@ -23,17 +23,17 @@
 		<beanstalker.region>us-east-1</beanstalker.region>
 		<!-- review src/main/webapp/.ebextensions/java7.config if you change this setting
 		-->
-                <beanstalk.solutionStack>64bit Amazon Linux running Tomcat 7</beanstalk.solutionStack>
+        <beanstalk.solutionStack>64bit Amazon Linux running Tomcat 7</beanstalk.solutionStack>
 		<!-- switch to .../health/check when you set iamInstanceProfile below -->
-                <beanstalk.applicationHealthCheckURL>/services/api/v1/health/debug</beanstalk.applicationHealthCheckURL>
+        <beanstalk.applicationHealthCheckURL>/services/api/v1/health/debug</beanstalk.applicationHealthCheckURL>
 		<beanstalk.environmentName>\${artifactId}-env</beanstalk.environmentName>
-                <beanstalk.environmentType>SingleInstance</beanstalk.environmentType>
+        <beanstalk.environmentType>SingleInstance</beanstalk.environmentType>
 		<!-- replace with your environment details -->
 		<!--
-                <beanstalk.keyName>[your-key-name]</beanstalk.keyName>
-                <beanstalk.iamInstanceProfile>aws-elasticbeanstalk-ec2-role</beanstalk.iamInstanceProfile>
-                <beanstalk.instanceType>m1.small</beanstalk.instanceType>
-                <beanstalk.availabilityZones>us-east-1e, us-east-1d</beanstalk.availabilityZones>
+        <beanstalk.keyName>[your-key-name]</beanstalk.keyName>
+        <beanstalk.iamInstanceProfile>aws-elasticbeanstalk-ec2-role</beanstalk.iamInstanceProfile>
+        <beanstalk.instanceType>m1.small</beanstalk.instanceType>
+        <beanstalk.availabilityZones>us-east-1e, us-east-1d</beanstalk.availabilityZones>
 		-->
 	</properties>
 
@@ -284,5 +284,14 @@
 				</plugins>
 			</build>
 		</profile>
+        <profile>
+            <id>worker</id>
+            <properties>
+                <beanstalk.environmentName>\${artifactId}-worker</beanstalk.environmentName>
+                <beanstalk.workerEnvironmentName>\${artifactId}-worker</beanstalk.workerEnvironmentName>
+                <beanstalk.environmentTierName>Worker</beanstalk.environmentTierName>
+                <beanstalk.sqsdHttpPath>/services/api/v1/sqsd</beanstalk.sqsdHttpPath>
+            </properties>
+        </profile>
 	</profiles>
 </project>
