@@ -50,8 +50,10 @@ public class CreateEnvironmentCommand extends
 
 		request.setOptionSettings(Arrays.asList(context.getOptionSettings()));
 
-        if ("Worker".equals(context.getEnvironmentTierName()))
+        if ("Worker".equals(context.getEnvironmentTierName())) {
             context.setEnvironmentTierType("SQS/HTTP");
+            request.setCNAMEPrefix(null);
+        }
 
 		if (StringUtils.isNotBlank(context.getTemplateName())) {
 			request.setTemplateName(parentMojo.lookupTemplateName(
