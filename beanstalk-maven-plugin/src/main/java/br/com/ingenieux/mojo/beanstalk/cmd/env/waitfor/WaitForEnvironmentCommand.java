@@ -91,6 +91,8 @@ public class WaitForEnvironmentCommand extends
 
 		if (isNotBlank(workerEnvironmentName))
 			context.setDomainToWaitFor(null);
+		
+		// argument juggling
 
 		Predicate<EnvironmentDescription> envPredicate = null;
 
@@ -159,14 +161,14 @@ public class WaitForEnvironmentCommand extends
 				info("... and with environmentName set to '%s'", workerEnvironmentName);
 			} else if (isNotBlank(context.getDomainToWaitFor())) {
 				// as well as by worker environment
-				final String domainToWaitFor = format(
-						"%s.elasticbeanstalk.com", context.getDomainToWaitFor());
+				final String domainToWaitFor = context.getDomainToWaitFor().replaceFirst("\\.elasticbeanstalk\\.com", "");
 
 				envPredicate = Predicates.and(envPredicate,
 						new Predicate<EnvironmentDescription>() {
+							final String fullDomainToWaitFor = domainToWaitFor + ".elasticbeanstalk.com";
 							@Override
 							public boolean apply(EnvironmentDescription t) {
-								return t.getCNAME().equals(domainToWaitFor);
+								return t.getCNAME().equals(fullDomainToWaitFor);
 							}
 						});
 				info("... and with cnamePrefix set to '%s'", domainToWaitFor);
