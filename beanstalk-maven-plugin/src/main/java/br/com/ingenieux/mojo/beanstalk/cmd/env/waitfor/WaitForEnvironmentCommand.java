@@ -1,19 +1,30 @@
 package br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor;
 
-import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
-import br.com.ingenieux.mojo.beanstalk.cmd.BaseCommand;
-import com.amazonaws.services.elasticbeanstalk.model.*;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.maven.plugin.AbstractMojoExecutionException;
-import org.apache.maven.plugin.MojoExecutionException;
+import static java.lang.String.format;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import org.apache.maven.plugin.AbstractMojoExecutionException;
+import org.apache.maven.plugin.MojoExecutionException;
+
+import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
+import br.com.ingenieux.mojo.beanstalk.cmd.BaseCommand;
+
+import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsRequest;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsResult;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeEventsRequest;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeEventsResult;
+import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
+import com.amazonaws.services.elasticbeanstalk.model.EventDescription;
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+import com.google.common.collect.Collections2;
 
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -63,112 +74,177 @@ public class WaitForEnvironmentCommand extends
 
 	public EnvironmentDescription executeInternal(
 			WaitForEnvironmentContext context) throws Exception {
+		// Those are invariants
 		long timeoutMins = context.getTimeoutMins();
-		String environmentId = context.getEnvironmentId();
 		String applicationName = context.getApplicationName();
-		String statusToWaitFor = context.getStatusToWaitFor();
-        String healthToWaitFor = context.getHealth();
-        String workerEnvironmentName = context.getWorkerEnvironmentName();
-        boolean negated = statusToWaitFor.startsWith("!");
 
-        if (isNotBlank(workerEnvironmentName))
-            context.setDomainToWaitFor(null);
+		// as well as those (which are used as predicate variables, thus being
+		// final)
+		final String environmentId = context.getEnvironmentId();
+		final String statusToWaitFor = context.getStatusToWaitFor();
+		final String healthToWaitFor = context.getHealth();
+		final String workerEnvironmentName = context.getWorkerEnvironmentName();
 
-		if (negated) {
-			statusToWaitFor = statusToWaitFor.substring(1);
+		// some argument juggling
+
+		final boolean negated = statusToWaitFor.startsWith("!");
+
+		if (isNotBlank(workerEnvironmentName))
+			context.setDomainToWaitFor(null);
+
+		Predicate<EnvironmentDescription> envPredicate = null;
+
+		{
+			// start building predicates with the status one - "![status]" must
+			// be equal to status or not status
+			final int offset = negated ? 1 : 0;
+			final String vStatusToWaitFor = statusToWaitFor.substring(offset);
+
+			envPredicate = new Predicate<EnvironmentDescription>() {
+				public boolean apply(EnvironmentDescription t) {
+
+					boolean result = vStatusToWaitFor.equals(t.getStatus());
+
+					if (negated)
+						result = !result;
+
+					debug("testing status '%s' as equal as '%s' (negated? %s, offset: %d): %s",
+							vStatusToWaitFor, t.getStatus(), negated, offset,
+							result);
+
+					return result;
+				}
+			};
+			info("... with status %s set to '%s'", (negated ? "*NOT*" : " "), vStatusToWaitFor);
+		}
+		
+		{
+			if (isNotBlank(environmentId)) {
+				envPredicate = Predicates.and(envPredicate, new Predicate<EnvironmentDescription>() { 
+					@Override
+					public boolean apply(EnvironmentDescription t) {
+						return t.getEnvironmentId().equals(environmentId);
+					}
+				});
+				
+				info("... with environmentId equal to '%s'", environmentId);
+			}
 		}
 
-		boolean hasDomainToWaitFor = isNotBlank(context
-                .getDomainToWaitFor());
+		{
+			if (isNotBlank(healthToWaitFor)) {
+				envPredicate = Predicates.and(envPredicate, new Predicate<EnvironmentDescription>() { 
+					@Override
+					public boolean apply(EnvironmentDescription t) {
+						return t.getHealth().equals(healthToWaitFor);
+					}
+				});
+				
+				info("... with health equal to '%s'", healthToWaitFor);
+			}
+		}
 
-		String domainToWaitFor = null;
+		{
+			// then by cnamePrefix
 
-        if (isNotBlank(context.getDomainToWaitFor())) {
-            domainToWaitFor = format("%s.elasticbeanstalk.com",
-                    context.getDomainToWaitFor());
-        }
+			if (isNotBlank(workerEnvironmentName)) {
+				envPredicate = Predicates.and(envPredicate,
+						new Predicate<EnvironmentDescription>() {
+							@Override
+							public boolean apply(EnvironmentDescription t) {
+								return workerEnvironmentName.equals(t
+										.getEnvironmentName());
+							}
+						});
+				info("... and with environmentName set to '%s'", workerEnvironmentName);
+			} else if (isNotBlank(context.getDomainToWaitFor())) {
+				// as well as by worker environment
+				final String domainToWaitFor = format(
+						"%s.elasticbeanstalk.com", context.getDomainToWaitFor());
+
+				envPredicate = Predicates.and(envPredicate,
+						new Predicate<EnvironmentDescription>() {
+							@Override
+							public boolean apply(EnvironmentDescription t) {
+								return t.getCNAME().equals(domainToWaitFor);
+							}
+						});
+				info("... and with cnamePrefix set to '%s'", domainToWaitFor);
+			}
+		}
 
 		Date expiresAt = new Date(System.currentTimeMillis() + MINS_TO_MSEC
 				* timeoutMins);
 		Date lastMessageRecord = new Date();
 
-		boolean done = false;
+		boolean includeDeletedP = statusToWaitFor.startsWith("Terminat");
 
-		info("Will wait until " + expiresAt + " to get into "
-				+ (negated ? "!" : "") + statusToWaitFor);
-
-		if (hasDomainToWaitFor)
-			info("... as well as having domain " + domainToWaitFor);
+		info("Will wait until " + expiresAt + " to get into expected condition");
 
 		do {
-			if (timedOutP(expiresAt))
-				throw new MojoExecutionException("Timed out");
+			lastMessageRecord = displayEvents(applicationName,
+					lastMessageRecord, environmentId);
 
 			DescribeEnvironmentsRequest req = new DescribeEnvironmentsRequest()
 					.withApplicationName(applicationName)//
-                    .withEnvironmentNames(workerEnvironmentName)//
-					.withEnvironmentIds(environmentId);
-
-			if (statusToWaitFor.startsWith("Terminat"))
-				req.withIncludeDeleted(true);
+					.withIncludeDeleted(includeDeletedP);
 
 			DescribeEnvironmentsResult result = service
 					.describeEnvironments(req);
 
-			boolean covered = false;
+			List<EnvironmentDescription> environments = result
+					.getEnvironments();
 
-			for (EnvironmentDescription d : result.getEnvironments()) {
-				if (parentMojo.isVerbose())
-					info("Environment Detail:"
-							+ ToStringBuilder.reflectionToString(d));
+			debug("There are %d environments", environments.size());
 
-				done = d.getStatus().equalsIgnoreCase(statusToWaitFor);
+			for (EnvironmentDescription d : environments)
+				debug("Testing environment %s: %s", d, envPredicate.apply(d));
 
-                if (done && isNotBlank(healthToWaitFor))
-                    done = healthToWaitFor.equals(d.getHealth());
+			Collection<EnvironmentDescription> validEnvironments = Collections2
+					.filter(environments, envPredicate);
 
-				if (negated)
-					done = !done;
+			if (1 == validEnvironments.size()) {
+				EnvironmentDescription foundEnvironment = validEnvironments.iterator()
+						.next();
+				
+				debug("Found environment %s", foundEnvironment);
 
-				covered |= d.getEnvironmentId().equals(environmentId);
-
-				if (done && hasDomainToWaitFor)
-					done = domainToWaitFor.equals(d.getCNAME());
-
-				if (done)
-					return d;
-			}
-
-			if (!covered && "Terminated".equals(statusToWaitFor)) {
-				info(String.format(
-						"Environment id %s not even returned. Probably gone",
-						environmentId));
-				return null;
+				return foundEnvironment;
 			} else {
-				DescribeEventsResult events = service
-						.describeEvents(new DescribeEventsRequest()
-								.withApplicationName(applicationName)
-								.withStartTime(
-										new Date(1000 + lastMessageRecord
-												.getTime()))
-								.withEnvironmentId(environmentId)
-								.withSeverity("TRACE"));
-
-				Set<EventDescription> eventList = new TreeSet<EventDescription>(
-						new EventDescriptionComparator());
-
-				eventList.addAll(events.getEvents());
-
-				for (EventDescription d : eventList) {
-					info(String.format("%s %s %s", d.getSeverity(),
-							d.getEventDate(), d.getMessage()));
-
-					lastMessageRecord = d.getEventDate();
-				}
+				debug("Found %d environments. No good. Ignoring.",
+						validEnvironments.size());
+				for (EnvironmentDescription d : validEnvironments)
+					debug(" ... %s", d);
 			}
 
 			sleepInterval(POLL_INTERVAL);
-		} while (true);
+		} while (!timedOutP(expiresAt));
+
+		throw new MojoExecutionException("Timed out");
+	}
+
+	protected Date displayEvents(String applicationName,
+			Date lastMessageRecord, String environmentId) {
+		DescribeEventsResult events = service
+				.describeEvents(new DescribeEventsRequest()
+						.withApplicationName(applicationName)
+						.withStartTime(
+								new Date(1000 + lastMessageRecord.getTime()))
+						.withEnvironmentId(environmentId).withSeverity("TRACE"));
+
+		Set<EventDescription> eventList = new TreeSet<EventDescription>(
+				new EventDescriptionComparator());
+
+		eventList.addAll(events.getEvents());
+
+		for (EventDescription d : eventList) {
+			info(String.format("%s %s %s", d.getSeverity(), d.getEventDate(),
+					d.getMessage()));
+
+			lastMessageRecord = d.getEventDate();
+		}
+
+		return lastMessageRecord;
 	}
 
 	boolean timedOutP(Date expiresAt) throws MojoExecutionException {
@@ -176,7 +252,7 @@ public class WaitForEnvironmentCommand extends
 	}
 
 	public void sleepInterval(long pollInterval) {
-		logger.info(format("Sleeping for %d seconds", pollInterval / 1000));
+		debug("Sleeping for %d seconds", pollInterval / 1000);
 		try {
 			Thread.sleep(pollInterval);
 		} catch (InterruptedException e) {

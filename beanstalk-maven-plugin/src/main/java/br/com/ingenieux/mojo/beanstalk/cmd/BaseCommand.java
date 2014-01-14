@@ -56,16 +56,16 @@ public abstract class BaseCommand<I, O> implements Command<I, O> {
 		return logger.isDebugEnabled();
 	}
 
-	public void debug(CharSequence content) {
-		logger.debug(content);
+	public void debug(CharSequence message, Object... args) {
+		logger.debug(String.format("" + message, args));
 	}
 
 	public boolean isInfoEnabled() {
 		return logger.isInfoEnabled();
 	}
 
-	public void info(CharSequence content) {
-		logger.info(content);
+	public void info(CharSequence message, Object... args) {
+		logger.info(String.format("" + message, args));
 	}
 
 	public final O execute(I context) throws MojoFailureException,

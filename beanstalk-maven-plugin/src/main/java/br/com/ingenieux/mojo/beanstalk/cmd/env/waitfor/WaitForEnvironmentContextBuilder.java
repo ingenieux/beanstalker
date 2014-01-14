@@ -103,6 +103,7 @@ class WaitForEnvironmentContextBuilderBase<GeneratorT extends WaitForEnvironment
 		return (GeneratorT) this;
 	}
 
+	@SuppressWarnings("unchecked")
 	public GeneratorT withWorkerEnvironmentName(String aValue) {
 		instance.setWorkerEnvironmentName(aValue);
 

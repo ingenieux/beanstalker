@@ -209,11 +209,13 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 		CreateEnvironmentResult result = command.execute(context);
 		
 		if (waitForReady) {
-			WaitForEnvironmentContext ctx = new WaitForEnvironmentContextBuilder()
-					.withEnvironmentId(result.getEnvironmentId())
-					.withApplicationName(result.getApplicationName())
-					.withDomainToWaitFor(result.getCNAME())
-					.withStatusToWaitFor("Ready").build();
+			WaitForEnvironmentContext ctx = new WaitForEnvironmentContextBuilder()//
+					.withEnvironmentId(result.getEnvironmentId())//
+					.withApplicationName(result.getApplicationName())//
+					.withDomainToWaitFor(result.getCNAME())//
+					.withHealth("Green")//
+					.withStatusToWaitFor("Ready")//
+					.build();
 
 			new WaitForEnvironmentCommand(this).execute(ctx);
 		}
