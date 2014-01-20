@@ -22,7 +22,7 @@ public class CreateAndDeployIT extends BaseBeanstalkIntegrationTest {
 
         assertThat("We wanted the archetype to compile cleanly", result.getExitCode(), is(equalTo(0)));
 
-		result = invoke("deploy beanstalk:wait-for-environment beanstalk:put-environment -Pfast-deploy -DskipTests");
+		result = invoke("deploy beanstalk:put-environment -Pfast-deploy -DskipTests");
 		
 		assertThat("The deployment shouldn't be a problem, you know.", result.getExitCode(), is(equalTo(0)));
 		
