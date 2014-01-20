@@ -44,38 +44,21 @@ public class WaitForEnvironmentContext {
 		this.statusToWaitFor = statusToWaitFor;
 	}
 
-	String environmentId;
+	String environmentRef;
 
 	/**
-	 * @return the environmentId
+	 * @return the environmentRef
 	 */
-	public String getEnvironmentId() {
-		return environmentId;
+	public String getEnvironmentRef() {
+		return environmentRef;
 	}
 
 	/**
-	 * @param environmentId
-	 *          the environmentId to set
+	 * @param environmentRef
+	 *          the environmentRef to set
 	 */
-	public void setEnvironmentId(String environmentId) {
-		this.environmentId = environmentId;
-	}
-
-	String domainToWaitFor;
-
-	/**
-	 * @return the domainToWaitFor
-	 */
-	public String getDomainToWaitFor() {
-		return domainToWaitFor;
-	}
-
-	/**
-	 * @param domainToWaitFor
-	 *          the domainToWaitFor to set
-	 */
-	public void setDomainToWaitFor(String domainToWaitFor) {
-		this.domainToWaitFor = domainToWaitFor;
+	public void setEnvironmentRef(String environmentRef) {
+		this.environmentRef = environmentRef;
 	}
 
     String health;
@@ -86,15 +69,5 @@ public class WaitForEnvironmentContext {
 
     public void setHealth(String health) {
         this.health = health;
-    }
-
-    String workerEnvironmentName;
-
-    public String getWorkerEnvironmentName() {
-        return workerEnvironmentName;
-    }
-
-    public void setWorkerEnvironmentName(String workerEnvironmentName) {
-        this.workerEnvironmentName = workerEnvironmentName;
     }
 }

@@ -3,6 +3,7 @@ package br.com.ingenieux.mojo.beanstalk.cmd.env.create;
 import br.com.ingenieux.mojo.aws.util.CredentialsUtil;
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.BaseCommand;
+import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
 import com.amazonaws.services.elasticbeanstalk.model.CreateEnvironmentRequest;
 import com.amazonaws.services.elasticbeanstalk.model.CreateEnvironmentResult;
 import com.amazonaws.services.elasticbeanstalk.model.EnvironmentTier;
@@ -51,8 +52,12 @@ public class CreateEnvironmentCommand extends
 		request.setOptionSettings(Arrays.asList(context.getOptionSettings()));
 
         if ("Worker".equals(context.getEnvironmentTierName())) {
+            if (contextDoesNotContainsEC2Role(context)) {
+                parentMojo.getLog().warn("It is meaningless to launch a worker without an IAM Role. If you set in templateName, thats fine, but here's a warning for you");
+            };
             context.setEnvironmentTierType("SQS/HTTP");
             request.setCNAMEPrefix(null);
+            request.setTier(new EnvironmentTier().withName(context.getEnvironmentTierName()).withType(context.getEnvironmentTierType()).withVersion(context.getEnvironmentTierVersion()));
         }
 
 		if (StringUtils.isNotBlank(context.getTemplateName())) {
@@ -61,8 +66,6 @@ public class CreateEnvironmentCommand extends
 		} else if (StringUtils.isNotBlank(context.getSolutionStack())) {
 			request.setSolutionStackName(context.getSolutionStack());
 		}
-
-        request.setTier(new EnvironmentTier().withName(context.getEnvironmentTierName()).withType(context.getEnvironmentTierType()).withVersion(context.getEnvironmentTierVersion()));
 
 		request.setVersionLabel(context.getVersionLabel());
 
@@ -73,4 +76,17 @@ public class CreateEnvironmentCommand extends
 
 		return service.createEnvironment(request);
 	}
+
+    protected boolean contextDoesNotContainsEC2Role(CreateEnvironmentContext context) {
+        boolean found = false;
+
+        for (ConfigurationOptionSetting opt : context.getOptionSettings()) {
+            found = opt.getOptionName().equals("IamInstanceProfile") && opt.getNamespace().equals("aws:autoscaling:launchconfiguration");
+
+            if (found)
+                break;
+        }
+
+        return !found;
+    }
 }

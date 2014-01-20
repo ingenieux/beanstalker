@@ -72,11 +72,6 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-surefire-plugin</artifactId>
-						<configuration>
-							<forkMode>none</forkMode>
-							<skip>false</skip>
-							<test>MinimalTestSuite</test>
-						</configuration>
 					</plugin>
 				</plugins>
 			</build>

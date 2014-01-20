@@ -3,6 +3,7 @@ package br.com.ingenieux.mojo.beanstalk;
 import junit.framework.Test;
 import junit.framework.TestResult;
 import junit.framework.TestSuite;
+import org.junit.Ignore;
 
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +18,7 @@ import junit.framework.TestSuite;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@Ignore
 public class MinimalTestSuite {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(MinimalTestSuite.class.getName());

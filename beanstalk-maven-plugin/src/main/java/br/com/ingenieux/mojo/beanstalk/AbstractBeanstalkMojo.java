@@ -15,12 +15,20 @@ package br.com.ingenieux.mojo.beanstalk;
  */
 
 import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
+import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentCommand;
+import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext;
+import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
 import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalkClient;
-import com.amazonaws.services.elasticbeanstalk.model.*;
+import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationsRequest;
+import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
 import org.apache.commons.collections.comparators.ReverseComparator;
 import org.apache.maven.plugin.MojoExecutionException;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,54 +47,18 @@ public abstract class AbstractBeanstalkMojo extends
         return Arrays.asList(arrOptionSettings);
     }
 
-    protected EnvironmentDescription lookupEnvironment(String applicationName, String environmentCNamePrefix, String workerEnvironmentName) throws MojoExecutionException {
-        if (isBlank(environmentCNamePrefix) && isBlank(workerEnvironmentName))
-            throw new MojoExecutionException("You must declare either cnamePrefix or workerEnvironmentName");
-
-        if (isNotBlank(environmentCNamePrefix) && isNotBlank(workerEnvironmentName)) {
-            getLog().warn("Ignoring cnamePrefix. Using workerEnvironmentName instead");
-
-            environmentCNamePrefix = null;
-        }
-
-        DescribeEnvironmentsRequest req = new DescribeEnvironmentsRequest()
-                .withApplicationName(applicationName);
-
-        if (!isBlank(workerEnvironmentName))
-            req.withEnvironmentNames(workerEnvironmentName);
-
-        DescribeEnvironmentsResult result = null;
-
-        result = getService().describeEnvironments(req);
-
-        List<EnvironmentDescription> environments = new ArrayList<EnvironmentDescription>();
-
-        if (!isBlank(environmentCNamePrefix)) {
-            String cNameToFind = String.format("%s.elasticbeanstalk.com", environmentCNamePrefix);
-
-            getLog().info("Looking up for " + cNameToFind);
-
-            for (EnvironmentDescription d : result.getEnvironments()) {
-                if (d.getStatus().startsWith("Termin"))
-                    continue;
-                if (cNameToFind.equalsIgnoreCase(d.getCNAME()))
-                    environments.add(d);
-            }
-        }
-
-        if (!isBlank(workerEnvironmentName)) {
-            environments.addAll(result.getEnvironments());
-        }
-
+    protected EnvironmentDescription lookupEnvironment(String applicationName, String environmentRef) throws MojoExecutionException {
+        final WaitForEnvironmentContext ctx = new WaitForEnvironmentContextBuilder().withApplicationName(applicationName).withEnvironmentRef(environmentRef).build();
+        final Collection<EnvironmentDescription> environments = new WaitForEnvironmentCommand(this).lookupInternal(ctx);
         return handleResults(environments);
     }
 
-    protected EnvironmentDescription handleResults(List<EnvironmentDescription> environments)
+    protected EnvironmentDescription handleResults(Collection<EnvironmentDescription> environments)
             throws MojoExecutionException {
         int len = environments.size();
 
         if (1 == len)
-            return environments.get(0);
+            return environments.iterator().next();
 
         handleNonSingle(len);
 
@@ -178,5 +150,12 @@ public abstract class AbstractBeanstalkMojo extends
         Collections.<String>sort(configurationTemplates, new ReverseComparator(String.CASE_INSENSITIVE_ORDER));
 
         return configurationTemplates;
+    }
+
+    public String ensureSuffix(String cname) {
+        if (! cname.endsWith(".elasticbeanstalk.com"))
+            cname += ".elasticbeanstalk.com";
+
+        return cname;
     }
 }

@@ -49,30 +49,23 @@ public class WaitForEnvironmentMojo extends AbstractBeanstalkMojo {
 	/**
 	 * Health to Wait For
 	 */
-	@Parameter(property="beanstalk.statusToWaitFor", defaultValue="Green")
+	@Parameter(property="beanstalk.healthToWaitFor", defaultValue="Green")
 	String healthToWaitFor;
 
 	/**
-	 * DNS CName Prefix
+	 * Environment Ref
 	 */
-	@Parameter(property="beanstalk.cnamePrefix", defaultValue="${project.artifactId}")
-	String cnamePrefix;
-
-    /**
-     * Worker Environment Name
-     **/
-    @Parameter(property = "beanstalk.workerEnvironmentName")
-    protected String workerEnvironmentName;
+	@Parameter(property="beanstalk.environmentRef", defaultValue="${project.artifactId}.elasticbeanstalk.com")
+	String environmentRef;
 
     @Override
 	protected Object executeInternal() throws Exception {
 		WaitForEnvironmentContext context = new WaitForEnvironmentContextBuilder()
 		    .withApplicationName(applicationName)//
 		    .withStatusToWaitFor(statusToWaitFor)//
-		    .withDomainToWaitFor(cnamePrefix)//
 		    .withTimeoutMins(timeoutMins)//
             .withHealth(healthToWaitFor)//
-            .withWorkerEnvironmentName(workerEnvironmentName)//
+            .withEnvironmentRef(environmentRef)//
 		    .build();
 
 		WaitForEnvironmentCommand command = new WaitForEnvironmentCommand(this);

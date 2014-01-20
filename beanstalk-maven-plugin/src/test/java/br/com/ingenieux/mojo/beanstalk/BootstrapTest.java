@@ -1,12 +1,12 @@
 package br.com.ingenieux.mojo.beanstalk;
 
-import java.io.File;
-
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.S3Object;
+import org.junit.Ignore;
 import org.junit.internal.runners.JUnit38ClassRunner;
 import org.junit.runner.RunWith;
 
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.S3Object;
+import java.io.File;
 
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +22,7 @@ import com.amazonaws.services.s3.model.S3Object;
  * limitations under the License.
  */
 
+@Ignore
 @RunWith(JUnit38ClassRunner.class)
 public class BootstrapTest extends BeanstalkTestBase {
 	private String s3Key;

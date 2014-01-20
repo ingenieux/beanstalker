@@ -19,14 +19,15 @@
 		<jersey.version>1.18</jersey.version>
 		<jackson.version>2.3.0</jackson.version>
 		<cloudy.version>0.0.4</cloudy.version>
+        <beanstalk.environmentName>\${artifactId}-env</beanstalk.environmentName>
 		<beanstalk.cnamePrefix>\${artifactId}-env</beanstalk.cnamePrefix>
+        <beanstalk.environmentRef>\${artifactId}-env.elasticbeanstalk.com</beanstalk.environmentRef>
 		<beanstalker.region>us-east-1</beanstalker.region>
 		<!-- review src/main/webapp/.ebextensions/java7.config if you change this setting
 		-->
         <beanstalk.solutionStack>64bit Amazon Linux running Tomcat 7</beanstalk.solutionStack>
 		<!-- switch to .../health/check when you set iamInstanceProfile below -->
         <beanstalk.applicationHealthCheckURL>/services/api/v1/debug</beanstalk.applicationHealthCheckURL>
-		<beanstalk.environmentName>\${artifactId}-env</beanstalk.environmentName>
         <beanstalk.environmentType>SingleInstance</beanstalk.environmentType>
 		<!-- replace with your environment details -->
 		<!--
@@ -225,7 +226,12 @@
 	<profiles>
 		<profile>
 			<id>deploy</id>
-			<build>
+            <properties>
+                <maven.install.skip>true</maven.install.skip>
+                <maven.deploy.skip>true</maven.deploy.skip>
+            </properties>
+            <build>
+                <defaultGoal>deploy</defaultGoal>
 				<plugins>
 					<plugin>
 						<groupId>br.com.ingenieux</groupId>
@@ -287,8 +293,8 @@
         <profile>
             <id>worker</id>
             <properties>
+                <beanstalk.environmentRef>\${artifactId}-worker</beanstalk.environmentRef>
                 <beanstalk.environmentName>\${artifactId}-worker</beanstalk.environmentName>
-                <beanstalk.workerEnvironmentName>\${artifactId}-worker</beanstalk.workerEnvironmentName>
                 <beanstalk.environmentTierName>Worker</beanstalk.environmentTierName>
                 <beanstalk.sqsdHttpPath>/services/api/v1/sqsd</beanstalk.sqsdHttpPath>
             </properties>

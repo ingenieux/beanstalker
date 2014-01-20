@@ -90,22 +90,8 @@ class WaitForEnvironmentContextBuilderBase<GeneratorT extends WaitForEnvironment
 	}
 
 	@SuppressWarnings("unchecked")
-	public GeneratorT withEnvironmentId(String aValue) {
-		instance.setEnvironmentId(aValue);
-
-		return (GeneratorT) this;
-	}
-
-	@SuppressWarnings("unchecked")
-	public GeneratorT withDomainToWaitFor(String aValue) {
-		instance.setDomainToWaitFor(aValue);
-
-		return (GeneratorT) this;
-	}
-
-	@SuppressWarnings("unchecked")
-	public GeneratorT withWorkerEnvironmentName(String aValue) {
-		instance.setWorkerEnvironmentName(aValue);
+	public GeneratorT withEnvironmentRef(String aValue) {
+		instance.setEnvironmentRef(aValue);
 
 		return (GeneratorT) this;
 	}

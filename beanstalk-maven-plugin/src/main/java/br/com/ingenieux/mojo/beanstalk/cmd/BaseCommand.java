@@ -1,13 +1,10 @@
 package br.com.ingenieux.mojo.beanstalk.cmd;
 
-import org.apache.maven.plugin.AbstractMojoExecutionException;
+import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
+import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalkClient;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
-
-import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
-
-import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalkClient;
 
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,7 +41,7 @@ public abstract class BaseCommand<I, O> implements Command<I, O> {
 	 * @param parentMojo
 	 *          parent mojo
 	 */
-	protected BaseCommand(AbstractBeanstalkMojo parentMojo) throws AbstractMojoExecutionException {
+	protected BaseCommand(AbstractBeanstalkMojo parentMojo) throws MojoExecutionException {
 		this.parentMojo = parentMojo;
 
 		this.service = parentMojo.getService();

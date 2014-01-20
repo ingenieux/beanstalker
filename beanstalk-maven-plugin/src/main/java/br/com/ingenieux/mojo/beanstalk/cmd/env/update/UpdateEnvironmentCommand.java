@@ -45,8 +45,8 @@ public class UpdateEnvironmentCommand extends
 		if (null != context.environmentDescription)
 		    req.setDescription(context.environmentDescription);
 
-        if (null != context.workerEnvironmentName) {
-            req.setEnvironmentName(context.workerEnvironmentName);
+        if (null != context.environmentName) {
+            req.setEnvironmentName(context.environmentName);
         } else if (null != context.environmentId) {
 			req.setEnvironmentId(context.environmentId);
         }

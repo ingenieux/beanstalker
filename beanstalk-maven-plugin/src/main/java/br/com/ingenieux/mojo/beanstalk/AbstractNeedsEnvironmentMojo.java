@@ -44,17 +44,11 @@ public abstract class AbstractNeedsEnvironmentMojo extends
 	@Parameter(defaultValue = "${project}", readonly = true)
 	protected MavenProject project;
 
-	/**
-	 * cnamePrefix
-	 **/
-	@Parameter(property = "beanstalk.cnamePrefix")
-	protected String cnamePrefix;
-
-	/**
-	 * Worker Environment Name
-	 **/
-	@Parameter(property = "beanstalk.workerEnvironmentName")
-	protected String workerEnvironmentName;
+    /**
+     * Environment Ref
+     */
+    @Parameter(property="beanstalk.environmentRef", defaultValue="${project.artifactId}.elasticbeanstalk.com")
+    protected String environmentRef;
 
 	/**
 	 * Current Environment
@@ -64,7 +58,7 @@ public abstract class AbstractNeedsEnvironmentMojo extends
 	@Override
 	protected void configure() {
 		try {
-			curEnv = super.lookupEnvironment(applicationName, cnamePrefix, workerEnvironmentName);
+            curEnv = super.lookupEnvironment(applicationName, environmentRef);
 		} catch (MojoExecutionException e) {
 			throw new RuntimeException(e);
 		}
@@ -187,11 +181,10 @@ public abstract class AbstractNeedsEnvironmentMojo extends
 				WaitForEnvironmentContext context = new WaitForEnvironmentContextBuilder()
 						.withApplicationName(applicationName)//
 						.withStatusToWaitFor("!Updating")//
-						.withEnvironmentId(curEnv.getEnvironmentId())//
 						.withTimeoutMins(2)//
-                        .withWorkerEnvironmentName(workerEnvironmentName)//
-						.withDomainToWaitFor(cnamePrefix).build();
-			
+                        .withEnvironmentRef(environmentRef)//
+                        .build();
+
 				WaitForEnvironmentCommand command = new WaitForEnvironmentCommand(this);
 			
 				command.execute(context);

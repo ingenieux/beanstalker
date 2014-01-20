@@ -54,7 +54,7 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 	String applicationDescription;
 
 	/**
-	 * environmentName. Takes precedence over cnamePrefix.
+	 * environmentName. Takes precedence over environmentRef.
 	 **/
 	@Parameter(property = "beanstalk.environmentName", required=true)
 	protected String environmentName;
@@ -138,6 +138,12 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 	@Parameter(property="beanstalk.environmentTierName", defaultValue="WebServer")
 	String environmentTierName;
 
+    /**
+     * <p>CNAME Prefix</p>
+     */
+    @Parameter(property="beanstalk.cnamePrefix", required=true)
+    String cnamePrefix;
+
 	/**
 	 * Overrides parent in order to avoid a thrown exception as there's not an environment to lookup
 	 */
@@ -210,9 +216,8 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 		
 		if (waitForReady) {
 			WaitForEnvironmentContext ctx = new WaitForEnvironmentContextBuilder()//
-					.withEnvironmentId(result.getEnvironmentId())//
+					.withEnvironmentRef(result.getEnvironmentId())//
 					.withApplicationName(result.getApplicationName())//
-					.withDomainToWaitFor(result.getCNAME())//
 					.withHealth("Green")//
 					.withStatusToWaitFor("Ready")//
 					.build();

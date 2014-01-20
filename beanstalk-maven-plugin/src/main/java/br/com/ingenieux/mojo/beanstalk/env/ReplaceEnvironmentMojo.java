@@ -94,7 +94,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 
 	@Override
 	protected EnvironmentDescription handleResults(
-			List<EnvironmentDescription> environments)
+			Collection<EnvironmentDescription> environments)
 			throws MojoExecutionException {
 		// Don't care - We're an exception to the rule, you know.
 
@@ -129,7 +129,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 		}
 
 		/*
-		 * Decides on a cnamePrefix, and launches a new environment
+		 * Decides on a environmentRef, and launches a new environment
 		 */
 		String cnamePrefixToCreate = getCNamePrefixToCreate();
 
@@ -346,9 +346,9 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 			WaitForEnvironmentContext context = new WaitForEnvironmentContextBuilder()
 					.withApplicationName(applicationName)//
 					.withStatusToWaitFor("Ready")//
-					.withEnvironmentId(newEnvironmentId)//
+					.withEnvironmentRef(newEnvironmentId)//
 					.withTimeoutMins(timeoutMins)//
-					.withDomainToWaitFor(cnamePrefix).build();
+					.build();
 
 			WaitForEnvironmentCommand command = new WaitForEnvironmentCommand(
 					this);
@@ -416,7 +416,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 
 		WaitForEnvironmentContext context = new WaitForEnvironmentContextBuilder()
 				.withApplicationName(applicationName)
-				.withStatusToWaitFor("Ready").withEnvironmentId(environmentId)
+				.withStatusToWaitFor("Ready").withEnvironmentRef(environmentId)
                 .withHealth("Green")
 				.withTimeoutMins(timeoutMins).build();
 
@@ -456,7 +456,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 
 	/**
 	 * Returns the environment description matching applicationName and
-	 * cnamePrefix
+	 * environmentRef
 	 * 
 	 * @param applicationName
 	 *            application name

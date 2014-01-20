@@ -1,5 +1,8 @@
 package br.com.ingenieux.mojo.beanstalk;
 
+import junit.framework.Assert;
+import org.junit.Ignore;
+
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,8 +16,8 @@ package br.com.ingenieux.mojo.beanstalk;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import junit.framework.Assert;
 
+@Ignore
 public class CheckAvailabilityMojoTest extends BeanstalkTestBase {
 	public void testCheckAvailability() throws Exception {
 		setVariableValueToObject(checkAvailabilityMojo, "cnamePrefix",

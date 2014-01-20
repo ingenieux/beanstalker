@@ -14,26 +14,24 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
+import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
+import com.amazonaws.services.elasticbeanstalk.model.CreateConfigurationTemplateRequest;
+import com.amazonaws.services.elasticbeanstalk.model.CreateConfigurationTemplateResult;
+import org.apache.commons.lang.StringUtils;
+import org.apache.maven.plugin.AbstractMojoExecutionException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.maven.plugin.AbstractMojoExecutionException;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-
-import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
-
-import com.amazonaws.services.elasticbeanstalk.model.CreateConfigurationTemplateRequest;
-import com.amazonaws.services.elasticbeanstalk.model.CreateConfigurationTemplateResult;
-
 /**
  * <p>Tags an Environment</p>
  * 
- * <p>Defaults to cnamePrefix-yyyyMMdd-nn, where 'nn' is incremented according to availability.</p>
+ * <p>Defaults to environmentRef-yyyyMMdd-nn, where 'nn' is incremented according to availability.</p>
  * 
  * @since 1.1.0
  */
@@ -57,7 +55,7 @@ public class TagEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 			int i = 1;
 			
 			do {
-				templateName = String.format("%s-%s-%02d", cnamePrefix, today, i++);
+				templateName = String.format("%s-%s-%02d", curEnv.getEnvironmentName(), today, i++);
 			} while (configTemplates.contains(templateName));
 		}
 

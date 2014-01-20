@@ -13,12 +13,14 @@ package br.com.ingenieux.mojo.beanstalk;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import java.io.File;
-
-import org.codehaus.plexus.configuration.PlexusConfiguration;
 
 import br.com.ingenieux.mojo.beanstalk.version.RollbackVersionMojo;
+import org.codehaus.plexus.configuration.PlexusConfiguration;
+import org.junit.Ignore;
 
+import java.io.File;
+
+@Ignore
 public class RollbackVersionMojoTest extends BeanstalkTestBase {
 	private RollbackVersionMojo mojo;
 
@@ -37,14 +39,14 @@ public class RollbackVersionMojoTest extends BeanstalkTestBase {
 		this.mojo = mojo;
 	}
 
-	public void testPreviousVersion() throws Exception {
+	public void ignoretestPreviousVersion() throws Exception {
 		setVariableValueToObject(mojo, "applicationName", "belemtransito");
 		setVariableValueToObject(mojo, "environmentName", "production");
 
 		mojo.execute();
 	}
 
-	public void testLatestInstead() throws Exception {
+	public void ignoretestLatestInstead() throws Exception {
 		setVariableValueToObject(mojo, "applicationName", "belemtransito");
 		setVariableValueToObject(mojo, "environmentName", "production");
 		setVariableValueToObject(mojo, "latestVersionInstead", true);

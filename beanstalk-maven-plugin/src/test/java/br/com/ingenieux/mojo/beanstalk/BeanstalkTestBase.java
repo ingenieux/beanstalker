@@ -13,14 +13,6 @@ package br.com.ingenieux.mojo.beanstalk;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import java.io.File;
-import java.io.FileInputStream;
-import java.net.URISyntaxException;
-import java.util.Properties;
-
-import org.apache.commons.lang.text.StrSubstitutor;
-import org.apache.maven.plugin.testing.AbstractMojoTestCase;
-import org.codehaus.plexus.configuration.PlexusConfiguration;
 
 import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
 import br.com.ingenieux.mojo.beanstalk.app.CreateApplicationMojo;
@@ -33,14 +25,23 @@ import br.com.ingenieux.mojo.beanstalk.env.TerminateEnvironmentMojo;
 import br.com.ingenieux.mojo.beanstalk.env.UpdateEnvironmentMojo;
 import br.com.ingenieux.mojo.beanstalk.env.WaitForEnvironmentMojo;
 import br.com.ingenieux.mojo.beanstalk.version.CreateApplicationVersionMojo;
-
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalk;
 import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalkClient;
 import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsResult;
 import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
 import com.amazonaws.services.elasticbeanstalk.model.TerminateEnvironmentRequest;
+import org.apache.commons.lang.text.StrSubstitutor;
+import org.apache.maven.plugin.testing.AbstractMojoTestCase;
+import org.codehaus.plexus.configuration.PlexusConfiguration;
+import org.junit.Ignore;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.net.URISyntaxException;
+import java.util.Properties;
+
+@Ignore
 public abstract class BeanstalkTestBase extends AbstractMojoTestCase {
 	public static final String PROP_VERSION_LABEL = "versionLabel";
 

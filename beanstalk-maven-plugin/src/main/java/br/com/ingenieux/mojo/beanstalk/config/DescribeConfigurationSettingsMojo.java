@@ -14,19 +14,17 @@ package br.com.ingenieux.mojo.beanstalk.config;
  * limitations under the License.
  */
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-
-import java.util.List;
-
+import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettingsRequest;
+import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
+import java.util.Collection;
 
-import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettingsRequest;
-import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 /**
  * Returns the Configuration Settings
@@ -47,7 +45,7 @@ public class DescribeConfigurationSettingsMojo extends
 	String templateName;
 
 	@Override
-	protected EnvironmentDescription handleResults(List<EnvironmentDescription> environments)
+	protected EnvironmentDescription handleResults(Collection<EnvironmentDescription> environments)
 			throws MojoExecutionException {
 		try {
 			return super.handleResults(environments);
