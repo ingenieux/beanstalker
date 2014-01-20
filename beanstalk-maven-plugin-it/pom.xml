@@ -12,6 +12,8 @@
     <properties>
         <beanstalk.project.name>mbit-sample</beanstalk.project.name>
         <skipTests>false</skipTests>
+        <maven.install.skip>true</maven.install.skip>
+        <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
     <dependencies>
