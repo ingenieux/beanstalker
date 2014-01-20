@@ -131,7 +131,7 @@ public class WaitForEnvironmentCommand extends
             envPredicate = Predicates.and(envPredicate, new Predicate<EnvironmentDescription>() {
                 @Override
                 public boolean apply(EnvironmentDescription t) {
-                    return t.getCNAME().equals(environmentRef);
+                    return defaultString(t.getCNAME()).equals(environmentRef);
                 }
             });
             info("... with cname set to '%s'", environmentRef);
