@@ -313,12 +313,12 @@
                 <module>beanstalk-maven-plugin</module>
                 <module>cloudfront-maven-plugin</module>
                 <module>simpledb-maven-plugin</module>
+                <module>elasticbeanstalk-service-webapp-archetype</module>
             </modules>
         </profile>
         <profile>
             <id>it</id>
             <modules>
-                <module>elasticbeanstalk-service-webapp-archetype</module>
                 <module>beanstalk-maven-plugin-it</module>
             </modules>
         </profile>
