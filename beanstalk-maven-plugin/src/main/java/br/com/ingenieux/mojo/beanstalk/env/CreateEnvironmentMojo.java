@@ -141,7 +141,7 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
     /**
      * <p>CNAME Prefix</p>
      */
-    @Parameter(property="beanstalk.cnamePrefix", required=true)
+    @Parameter(property="beanstalk.cnamePrefix")
     String cnamePrefix;
 
 	/**

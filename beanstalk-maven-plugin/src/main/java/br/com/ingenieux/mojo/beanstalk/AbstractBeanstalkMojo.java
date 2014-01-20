@@ -153,9 +153,14 @@ public abstract class AbstractBeanstalkMojo extends
     }
 
     public String ensureSuffix(String cname) {
+        cname = defaultString(cname);
         if (! cname.endsWith(".elasticbeanstalk.com"))
             cname += ".elasticbeanstalk.com";
 
         return cname;
+    }
+
+    public String ensureSuffixStripped(String cnamePrefix) {
+        return defaultString(cnamePrefix).replaceAll("\\Q.elasticbeanstalk.com\\E$", "");
     }
 }

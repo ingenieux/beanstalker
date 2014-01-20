@@ -45,7 +45,7 @@ public class CreateEnvironmentCommand extends
 		CreateEnvironmentRequest request = new CreateEnvironmentRequest();
 
 		request.setApplicationName(context.getApplicationName());
-		request.setCNAMEPrefix(context.getCnamePrefix());
+		request.setCNAMEPrefix(parentMojo.ensureSuffixStripped(context.getCnamePrefix()));
 		request.setDescription(context.getApplicationDescription());
 		request.setEnvironmentName(context.getEnvironmentName());
 

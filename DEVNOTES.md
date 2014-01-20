@@ -59,4 +59,5 @@ The classical:
   * Coverage Testing / SonarQube
   * clone-environment
   * debug-environment
+  * Optimize the build - site/site-deploy seems too slow
   * Update docs site
