@@ -55,7 +55,7 @@ public class BaseBeanstalkIntegrationTest {
 					.setBaseDirectory(baseDir)
 					.setGoals(
 							Arrays.asList(r(
-											"archetype:generate -DarchetypeVersion=${project.version} -DarchetypeGroupId=br.com.ingenieux -DarchetypeArtifactId=elasticbeanstalk-service-webapp-archetype -DgroupId=br.com.ingenieux -DartifactId=${beanstalk.project.name} -Dversion=0.0.1-SNAPSHOT -Dpackage=br.com.ingenieux.sample")
+											"archetype:generate -DarchetypeVersion=${project.version} -DarchetypeGroupId=br.com.ingenieux -DarchetypeArtifactId=elasticbeanstalk-service-webapp-archetype -DgroupId=br.com.ingenieux -DartifactId=${beanstalk.project.name} -Dversion=0.0.1-SNAPSHOT -Dpackage=br.com.ingenieux.sample -DarchetypeCatalog=local")
 									.split("\\s+"))));
 		}
 		invoker.setWorkingDirectory(projectDir);
