@@ -16,7 +16,7 @@ Personal notes since I often switch machines, configurations and lose my mind
 
   * Use this to force cleanup (in case it fails - post-integration test should deal with it anyway):
 
-```$ mvn -f beanstalk-maven-plugin-it/pom.xml exec:java -Dexec.mainClass=br.com.ingenieux.beanstalker.it.ProjectCleaner```
+```$ mvn -f beanstalk-maven-plugin-it/pom.xml compile exec:java -Dexec.mainClass=br.com.ingenieux.beanstalker.it.ProjectCleaner```
 
   * You can also override the default app name, via the beanstalk.project.name variable:
 
@@ -47,6 +47,7 @@ github = git+ssh://git@github.com/ingenieux/beanstalker.git
 ```
 
   * ```hg pull -u && hg push github && mvn clean deploy -Prelease && mvn site site-deploy -Prelease```
+
 ## Release Process
 
 The classical:
