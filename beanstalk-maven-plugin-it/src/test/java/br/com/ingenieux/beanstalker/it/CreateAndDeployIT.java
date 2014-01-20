@@ -60,9 +60,7 @@ public class CreateAndDeployIT extends BaseBeanstalkIntegrationTest {
 
         assertThat("There should be a previous environment", oldEnvironments.size(), equalTo(1));
 
-        assertThat("Previous environment should be in 'Terminated' status", oldEnvironments.get(0).getStatus(), is(equalTo("Terminated")));
-
-        result = invoke("beanstalk:terminate-environment");
+        assertThat("Previous environment should be in 'Terminating' status", oldEnvironments.get(0).getStatus(), is(equalTo("Terminating")));
     }
 
     @Test
