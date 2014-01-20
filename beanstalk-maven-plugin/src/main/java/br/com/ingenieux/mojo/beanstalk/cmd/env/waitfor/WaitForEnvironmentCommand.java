@@ -67,6 +67,16 @@ public class WaitForEnvironmentCommand extends
 	}
 
     public Collection<EnvironmentDescription> lookupInternal(WaitForEnvironmentContext context) {
+        Predicate<EnvironmentDescription> envPredicate = getEnvironmentDescriptionPredicate(context);
+
+        DescribeEnvironmentsRequest req = new DescribeEnvironmentsRequest().withApplicationName(context.getApplicationName()).withIncludeDeleted(true);
+
+        final List<EnvironmentDescription> envs = parentMojo.getService().describeEnvironments(req).getEnvironments();
+
+        return Collections2.filter(envs, envPredicate);
+    }
+
+    protected Predicate<EnvironmentDescription> getEnvironmentDescriptionPredicate(WaitForEnvironmentContext context) {
         // as well as those (which are used as predicate variables, thus being
         // final)
         final String environmentRef = context.getEnvironmentRef();
@@ -147,15 +157,10 @@ public class WaitForEnvironmentCommand extends
                 info("... with health equal to '%s'", healthToWaitFor);
             }
         }
-
-        DescribeEnvironmentsRequest req = new DescribeEnvironmentsRequest().withApplicationName(context.getApplicationName());
-
-        final List<EnvironmentDescription> envs = parentMojo.getService().describeEnvironments(req).getEnvironments();
-
-        return Collections2.filter(envs, envPredicate);
+        return envPredicate;
     }
 
-	public EnvironmentDescription executeInternal(
+    public EnvironmentDescription executeInternal(
 			WaitForEnvironmentContext context) throws Exception {
 		// Those are invariants
 		long timeoutMins = context.getTimeoutMins();
@@ -164,8 +169,16 @@ public class WaitForEnvironmentCommand extends
 				* timeoutMins);
 		Date lastMessageRecord = new Date();
 
+        parentMojo.getLog().info("Environment Lookup");
+
+        Predicate<EnvironmentDescription> envPredicate = getEnvironmentDescriptionPredicate(context);
+
 		do {
-			Collection<EnvironmentDescription> validEnvironments = lookupInternal(context);
+            DescribeEnvironmentsRequest req = new DescribeEnvironmentsRequest().withApplicationName(context.getApplicationName()).withIncludeDeleted(true);
+
+            final List<EnvironmentDescription> envs = parentMojo.getService().describeEnvironments(req).getEnvironments();
+
+            Collection<EnvironmentDescription> validEnvironments = Collections2.filter(envs, envPredicate);
 
 			debug("There are %d environments", validEnvironments.size());
 
