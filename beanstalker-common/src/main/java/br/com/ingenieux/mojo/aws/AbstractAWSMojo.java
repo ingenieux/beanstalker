@@ -192,7 +192,7 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
             getLog().warn(format("serverId['%s'] not found. Using runtime defaults", serverId));
 
             expose.setServerId("runtime");
-            expose.setAccessKey(getAWSCredentials().getCredentials().getAWSSecretKey());
+            expose.setAccessKey(getAWSCredentials().getCredentials().getAWSAccessKeyId());
             expose.setSharedKey(getAWSCredentials().getCredentials().getAWSSecretKey());
         }
 
