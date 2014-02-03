@@ -182,10 +182,9 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
     protected Expose exposeSettings(String serverId) throws MojoFailureException {
 		Server server = settings.getServer(serverId);
 
-        Expose expose = null;
-        if (null != server) {
-            expose = new Expose();
+        Expose expose = new Expose();
 
+        if (null != server) {
             expose.setServerId(serverId);
             expose.setAccessKey(server.getUsername());
             expose.setSharedKey(getDecryptedAwsKey(server.getPassword().trim()));
