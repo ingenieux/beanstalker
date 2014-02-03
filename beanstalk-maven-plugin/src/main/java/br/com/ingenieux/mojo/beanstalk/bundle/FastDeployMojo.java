@@ -170,9 +170,13 @@ public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
 
 		versionLabel = lookupVersionLabelForCommitId(commitId);
 
-		getLog().info("Deployed version " + versionLabel);
+        if (null != versionLabel) {
+            getLog().info("Deployed version " + versionLabel);
 
-		project.getProperties().put("beanstalk.versionLabel", versionLabel);
+            project.getProperties().put("beanstalk.versionLabel", versionLabel);
+        } else {
+            getLog().warn("No version found. Ignoring.");
+        }
 
 		return null;
 	}
