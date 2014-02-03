@@ -31,6 +31,7 @@ import com.amazonaws.AmazonWebServiceClient;
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.BasicSessionCredentials;
 
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -147,8 +148,13 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 				throw new MojoFailureException(errorMessage);
 			}
 
-			this.awsCredentials = new BasicAWSCredentials(awsAccessKey,
-					awsSecretKey);
+			if(getSessionToken()!=null) {
+				this.awsCredentials = new BasicSessionCredentials(awsAccessKey,
+						awsSecretKey, getSessionToken());
+			} else {
+				this.awsCredentials = new BasicAWSCredentials(awsAccessKey,
+						awsSecretKey);
+			}
 		}
 
 		return this.awsCredentials;
@@ -294,6 +300,16 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 		return secretKey;
 	}
 
+	/**
+	 * AWS Session Token
+	 */
+	@Parameter(property = "aws.sessionToken")
+	private String sessionToken;
+
+	protected String getSessionToken() {
+		return sessionToken;
+	}	
+	
 	protected void setupVersion() {
 		InputStream is = null;
 
