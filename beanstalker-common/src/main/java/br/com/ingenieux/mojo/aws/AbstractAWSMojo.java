@@ -173,7 +173,7 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
         try {
             InetAddress.getByName("instance-data.ec2.internal.");
 
-            return new InstanceProfileCredentialsProvider();
+            return new STSSessionCredentialsProvider(new InstanceProfileCredentialsProvider().getCredentials(), getClientConfiguration());
         } catch (Exception exc) {
             return null;
         }
