@@ -2,7 +2,6 @@ package br.com.ingenieux.mojo.aws.util;
 
 import com.amazonaws.AmazonWebServiceClient;
 import com.amazonaws.ClientConfiguration;
-import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import org.apache.commons.lang.reflect.ConstructorUtils;
 
@@ -26,7 +25,7 @@ public class AWSClientFactory {
 
 	@SuppressWarnings("unchecked")
 	public <T> T getService(Class<T> serviceClazz) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-		T resultObj = (T) ConstructorUtils.invokeConstructor(serviceClazz, new Object[] { creds, clientConfiguration }, new Class<?>[] { AWSCredentials.class, ClientConfiguration.class });
+		T resultObj = (T) ConstructorUtils.invokeConstructor(serviceClazz, new Object[] { creds, clientConfiguration }, new Class<?>[] { AWSCredentialsProvider.class, ClientConfiguration.class });
 
 		if (isNotBlank(region)) {
 			for (ServiceEndpointFormatter formatter : ServiceEndpointFormatter.values()) {
