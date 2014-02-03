@@ -1,11 +1,12 @@
 package br.com.ingenieux.mojo.aws;
 
-import java.io.InputStream;
-import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Properties;
-
+import br.com.ingenieux.mojo.aws.util.AWSClientFactory;
+import br.com.ingenieux.mojo.aws.util.CredentialsUtil;
+import br.com.ingenieux.mojo.aws.util.TypeUtil;
+import com.amazonaws.AmazonWebServiceClient;
+import com.amazonaws.ClientConfiguration;
+import com.amazonaws.auth.*;
+import com.amazonaws.internal.StaticCredentialsProvider;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -23,15 +24,14 @@ import org.codehaus.plexus.context.Context;
 import org.codehaus.plexus.context.ContextException;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Contextualizable;
 
-import br.com.ingenieux.mojo.aws.util.AWSClientFactory;
-import br.com.ingenieux.mojo.aws.util.CredentialsUtil;
-import br.com.ingenieux.mojo.aws.util.TypeUtil;
+import java.io.InputStream;
+import java.lang.reflect.Method;
+import java.net.InetAddress;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Properties;
 
-import com.amazonaws.AmazonWebServiceClient;
-import com.amazonaws.ClientConfiguration;
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.BasicSessionCredentials;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -84,7 +84,7 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 	/**
 	 * AWS Credentials
 	 */
-	protected AWSCredentials awsCredentials;
+	protected AWSCredentialsProvider awsCredentialsProvider;
 
 	/**
 	 * The server id in maven settings.xml to use for AWS Services Credentials
@@ -109,58 +109,77 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 
 	protected Context context;
 
-	public AWSCredentials getAWSCredentials() throws MojoFailureException {
-		/*
-		 * Construct if needed
-		 */
-		if (null == this.awsCredentials) {
-			String awsSecretKey = null;
-			String awsAccessKey = null;
+	public AWSCredentialsProvider getAWSCredentials() throws MojoFailureException {
+        if (null != this.awsCredentialsProvider)
+            return this.awsCredentialsProvider;
 
-			/*
-			 * Are you using aws.accessKey and aws.secretKey? j'accuse!
-			 */
-			if (hasServerSettings()) {
-				/*
-				 * This actually is the right way...
-				 */
-				Expose expose = exposeSettings(serverId);
+        AWSCredentials awsCredentials = null;
+        String awsSecretKey = null;
+        String awsAccessKey = null;
+        String sessionToken = null;
 
-				awsAccessKey = expose.getAccessKey();
-				awsSecretKey = expose.getSharedKey();
-			} else if (StringUtils.isNotBlank(getAccessKey())
-					|| StringUtils.isNotBlank(getSecretKey())) {
-				getLog().warn(
-						"Warning! Usage of accessKey and secretKey is being "
-								+ "deprecated! "
-								+ "See http://beanstalker.ingenieux.com.br/beanstalk-maven-plugin/security.html for more information");
-				awsAccessKey = getAccessKey();
-				awsSecretKey = getDecryptedAwsKey(getSecretKey());
-			} else {
-				/*
-				 * Throws up. We have nowhere to get our credentials...
-				 */
-				String errorMessage = "Entries in settings.xml for server "
-						+ serverId
-						+ " not defined. See http://beanstalker.ingenieux.com.br/beanstalk-maven-plugin/usage.html for more information";
-				getLog().error(errorMessage);
+        /*
+         * Are you using aws.accessKey and aws.secretKey? j'accuse!
+         */
+        if (hasServerSettings()) {
+            /*
+             * This actually is the right way...
+             */
+            Expose expose = exposeSettings(serverId);
 
-				throw new MojoFailureException(errorMessage);
-			}
+            awsAccessKey = expose.getAccessKey();
+            awsSecretKey = expose.getSharedKey();
+        } else if (isNotBlank(getAccessKey())
+                || isNotBlank(getSecretKey()) || isNotBlank(getSecretKey())) {
+            getLog().warn(
+                    "Warning! Usage of accessKey and secretKey is being "
+                            + "deprecated! "
+                            + "See http://beanstalker.ingenieux.com.br/beanstalk-maven-plugin/security.html for more information");
+            awsAccessKey = getAccessKey();
+            awsSecretKey = getDecryptedAwsKey(getSecretKey());
 
-			if(getSessionToken()!=null) {
-				this.awsCredentials = new BasicSessionCredentials(awsAccessKey,
-						awsSecretKey, getSessionToken());
-			} else {
-				this.awsCredentials = new BasicAWSCredentials(awsAccessKey,
-						awsSecretKey);
-			}
-		}
+            if (isNotBlank(getSessionToken()))
+                sessionToken = getSessionToken();
+        } else if (null != getInstanceProvider()) {
+            return this.awsCredentialsProvider = getInstanceProvider();
+        } else {
+            /*
+             * Throws up. We have nowhere to get our credentials...
+             */
+            String errorMessage = "Entries in settings.xml for server "
+                    + serverId
+                    + " not defined. See http://beanstalker.ingenieux.com.br/beanstalk-maven-plugin/usage.html for more information";
+            getLog().error(errorMessage);
 
-		return this.awsCredentials;
+            throw new MojoFailureException(errorMessage);
+        }
+
+        if (isNotBlank(sessionToken)) {
+            awsCredentials = new BasicSessionCredentials(awsAccessKey,
+                    awsSecretKey, sessionToken);
+        } else {
+            awsCredentials = new BasicAWSCredentials(awsAccessKey,
+                    awsSecretKey);
+        }
+
+        if (null != awsCredentials) {
+            this.awsCredentialsProvider = new StaticCredentialsProvider(awsCredentials);
+        }
+
+		return this.awsCredentialsProvider;
 	}
 
-	protected Expose exposeSettings(String serverId) {
+    protected AWSCredentialsProvider getInstanceProvider() {
+        try {
+            InetAddress.getByName("instance-data.ec2.internal.");
+
+            return new InstanceProfileCredentialsProvider();
+        } catch (Exception exc) {
+            return null;
+        }
+    }
+
+    protected Expose exposeSettings(String serverId) {
 		Server server = settings.getServer(serverId);
 
 		Validate.notNull(server, "Settings for serverId ('" + serverId + "') not found. See http://beanstalker.ingenieux.com.br/beanstalk-maven-plugin/security.html for more information");
@@ -301,7 +320,7 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 	}
 
 	/**
-	 * AWS Session Token
+	 * [Optional] AWS Session Token when used with MFA
 	 */
 	@Parameter(property = "aws.sessionToken")
 	private String sessionToken;

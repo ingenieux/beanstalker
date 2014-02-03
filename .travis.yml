@@ -1,6 +1,6 @@
 language: java
 
-script: "mvn install -DskipTests"
+script: "mvn install -Prelease -DskipTests"
 
 jdk:
   - oraclejdk7

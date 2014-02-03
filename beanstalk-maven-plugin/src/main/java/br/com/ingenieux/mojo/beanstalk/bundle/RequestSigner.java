@@ -1,18 +1,17 @@
 package br.com.ingenieux.mojo.beanstalk.bundle;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.SimpleTimeZone;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.codec.digest.DigestUtils;
-
-import com.amazonaws.auth.AWSCredentials;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 public class RequestSigner {
 	private static final String TERMINATOR = "aws4_request";
@@ -121,16 +120,14 @@ public class RequestSigner {
 		return Hex.encodeHexString(obj.getBytes());
 	}
 
-	public RequestSigner(AWSCredentials awsCredentials, String applicationId,
+	public RequestSigner(AWSCredentialsProvider awsCredentials, String applicationId,
 			String region, String commitId, String environmentName, Date date) {
 		super();
-		this.awsCredentials = awsCredentials;
+		this.awsCredentials = awsCredentials.getCredentials();
 		this.applicationId = applicationId;
 		this.region = region;
 		this.commitId = commitId;
 		this.environmentName = environmentName;
 		this.date = date;
 	}
-	
-	
 }

@@ -1,6 +1,5 @@
 package br.com.ingenieux.mojo.beanstalk;
 
-import junit.framework.Assert;
 import org.junit.Ignore;
 
 /*
@@ -33,7 +32,7 @@ public class CheckAvailabilityMojoTest extends BeanstalkTestBase {
 		try {
 			checkAvailabilityMojo.execute();
 
-			Assert.fail("Didn't throw up exception");
+			fail("Didn't throw up exception");
 		} catch (Exception e) {
 
 		}

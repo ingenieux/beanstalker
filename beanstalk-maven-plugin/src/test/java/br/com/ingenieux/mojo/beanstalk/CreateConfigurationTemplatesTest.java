@@ -1,6 +1,5 @@
 package br.com.ingenieux.mojo.beanstalk;
 
-import junit.framework.Assert;
 import org.junit.Ignore;
 
 import java.io.File;
@@ -33,7 +32,7 @@ public class CreateConfigurationTemplatesTest extends BeanstalkTestBase {
 
 		outputFile.delete();
 
-		Assert.assertFalse(outputFile.exists());
+		assertFalse(outputFile.exists());
 
 		setVariableValueToObject(describeConfigTemplatesMojo, "outputFile",
 		    outputFile);
@@ -43,6 +42,6 @@ public class CreateConfigurationTemplatesTest extends BeanstalkTestBase {
 
 		describeConfigTemplatesMojo.execute();
 
-		Assert.assertTrue(outputFile.exists());
+		assertTrue(outputFile.exists());
 	}
 }

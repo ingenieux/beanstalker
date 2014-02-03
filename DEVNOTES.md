@@ -58,6 +58,11 @@ The classical:
 
   * Coverage Testing / SonarQube
   * clone-environment
-  * debug-environment
+  * debug-environment:
+    * https://github.com/aws/aws-toolkit-eclipse/blob/7641a135dbb0571e40aff32f81e11dbf34366431/com.amazonaws.eclipse.elasticbeanstalk/src/com/amazonaws/eclipse/elasticbeanstalk/EnvironmentBehavior.java
+    * https://github.com/aws/aws-toolkit-eclipse/blob/911c2c3402b357ed94857e06c1f4fbe0b040b930/com.amazonaws.eclipse.elasticbeanstalk/src/com/amazonaws/eclipse/elasticbeanstalk/Environment.java
+    * https://github.com/aws/aws-toolkit-eclipse/blob/911c2c3402b357ed94857e06c1f4fbe0b040b930/com.amazonaws.eclipse.elasticbeanstalk/src/com/amazonaws/eclipse/elasticbeanstalk/jobs/UpdateEnvironmentJob.java
+    *
+    https://github.com/aws/aws-toolkit-eclipse/blob/7641a135dbb0571e40aff32f81e11dbf34366431/com.amazonaws.eclipse.ec2/src/com/amazonaws/ec2/cluster/Cluster.java
   * Optimize the build - site/site-deploy seems too slow
   * Update docs site

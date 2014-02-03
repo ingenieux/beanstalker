@@ -95,7 +95,7 @@ public abstract class BeanstalkTestBase extends AbstractMojoTestCase {
 
 		configureMojos();
 
-		this.credentials = uploadSourceBundleMojo.getAWSCredentials();
+		this.credentials = uploadSourceBundleMojo.getAWSCredentials().getCredentials();
 
 		this.service = new AWSElasticBeanstalkClient(credentials);
 	}
