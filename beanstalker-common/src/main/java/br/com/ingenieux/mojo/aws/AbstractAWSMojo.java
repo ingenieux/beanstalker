@@ -10,7 +10,6 @@ import com.amazonaws.internal.StaticCredentialsProvider;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.Validate;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -31,6 +30,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Properties;
 
+import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 /*
@@ -179,18 +179,25 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
         }
     }
 
-    protected Expose exposeSettings(String serverId) {
+    protected Expose exposeSettings(String serverId) throws MojoFailureException {
 		Server server = settings.getServer(serverId);
 
-		Validate.notNull(server, "Settings for serverId ('" + serverId + "') not found. See http://beanstalker.ingenieux.com.br/beanstalk-maven-plugin/security.html for more information");
+        Expose expose = null;
+        if (null != server) {
+            expose = new Expose();
 
-		Expose expose = new Expose();
+            expose.setServerId(serverId);
+            expose.setAccessKey(server.getUsername());
+            expose.setSharedKey(getDecryptedAwsKey(server.getPassword().trim()));
+        } else {
+            getLog().warn(format("serverId['%s'] not found. Using runtime defaults", serverId));
 
-		expose.setServerId(serverId);
-		expose.setAccessKey(server.getUsername());
-		expose.setSharedKey(getDecryptedAwsKey(server.getPassword().trim()));
+            expose.setServerId("runtime");
+            expose.setAccessKey(getAWSCredentials().getCredentials().getAWSSecretKey());
+            expose.setSharedKey(getAWSCredentials().getCredentials().getAWSSecretKey());
+        }
 
-		return expose;
+        return expose;
 	}
 
 	/**
@@ -294,9 +301,9 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 	protected String region;
 
 	protected final String getUserAgent() {
-		return String
-				.format("Apache Maven/3.0 (ingenieux beanstalker/%s; http://beanstalker.ingenieux.com.br)",
-						version);
+		return
+                format("Apache Maven/3.0 (ingenieux beanstalker/%s; http://beanstalker.ingenieux.com.br)",
+                        version);
 	}
 
 	/**
