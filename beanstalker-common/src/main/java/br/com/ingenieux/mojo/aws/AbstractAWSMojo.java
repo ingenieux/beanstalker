@@ -5,7 +5,10 @@ import br.com.ingenieux.mojo.aws.util.CredentialsUtil;
 import br.com.ingenieux.mojo.aws.util.TypeUtil;
 import com.amazonaws.AmazonWebServiceClient;
 import com.amazonaws.ClientConfiguration;
-import com.amazonaws.auth.*;
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.BasicSessionCredentials;
 import com.amazonaws.internal.StaticCredentialsProvider;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.io.IOUtils;
@@ -25,7 +28,6 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Contextualizable;
 
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.net.InetAddress;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Properties;
@@ -140,8 +142,6 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 
             if (isNotBlank(getSessionToken()))
                 sessionToken = getSessionToken();
-        } else if (null != getInstanceProvider()) {
-            return this.awsCredentialsProvider = getInstanceProvider();
         } else {
             /*
              * Throws up. We have nowhere to get our credentials...
@@ -168,16 +168,6 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 
 		return this.awsCredentialsProvider;
 	}
-
-    protected AWSCredentialsProvider getInstanceProvider() {
-        try {
-            InetAddress.getByName("instance-data.ec2.internal.");
-
-            return new InstanceProfileCredentialsProvider();
-        } catch (Exception exc) {
-            return null;
-        }
-    }
 
     protected Expose exposeSettings(String serverId) throws MojoFailureException {
 		Server server = settings.getServer(serverId);
