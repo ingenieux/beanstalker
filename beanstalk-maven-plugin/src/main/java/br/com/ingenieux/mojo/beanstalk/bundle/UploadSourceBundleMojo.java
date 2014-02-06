@@ -14,21 +14,19 @@ package br.com.ingenieux.mojo.beanstalk.bundle;
  * limitations under the License.
  */
 
-import java.io.File;
-
+import br.com.ingenieux.mojo.aws.util.BeanstalkerS3Client;
+import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.PutObjectResult;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import br.com.ingenieux.mojo.aws.util.BeanstalkerS3Client;
-import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
-
-import com.amazonaws.AmazonClientException;
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.PutObjectResult;
+import java.io.File;
 
 /**
  * Uploads a packed war file to Amazon S3 for further Deployment.
@@ -47,7 +45,7 @@ public class UploadSourceBundleMojo extends AbstractBeanstalkMojo {
 	/**
 	 * S3 Key
 	 */
-	@Parameter(property="beanstalk.s3Key", defaultValue = "${project.build.finalName}.${project.packaging}", required = true)
+	@Parameter(property="beanstalk.s3Key", defaultValue = "${project.artifactId}/${project.build.finalName}-${beanstalk.versionLabel}.${project.packaging}", required = true)
 	String s3Key;
 
 	/**
@@ -71,7 +69,7 @@ public class UploadSourceBundleMojo extends AbstractBeanstalkMojo {
 	 * </p>
 	 */
 	@Parameter(property = "beanstalk.multipartUpload", defaultValue = "true")
-	boolean multipartUpload = true;
+	boolean multipartUpload = false;
 
 	/**
 	 * Artifact to Deploy

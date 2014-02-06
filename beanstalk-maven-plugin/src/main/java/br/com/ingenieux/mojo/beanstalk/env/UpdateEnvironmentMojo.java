@@ -35,9 +35,9 @@ import org.apache.maven.plugins.annotations.Parameter;
 @Mojo(name = "update-environment")
 public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 	/**
-	 * Version Label to use. Defaults to Project Version
+	 * Version Label to use
 	 */
-	@Parameter(property = "beanstalk.versionLabel", defaultValue = "${project.version}")
+	@Parameter(property = "beanstalk.versionLabel")
 	String versionLabel;
 
 	/**
@@ -111,12 +111,6 @@ public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 	@Parameter(property = "beanstalk.templateName")
 	String templateName;
 
-	/**
-	 * Use Latest Version Label?
-	 */
-	@Parameter(property = "beanstalk.useLatestVersionLabel")
-	boolean useLatestVersionLabel = true;
-
     /**
      * <p>Environment Tier Name (defaults to "WebServer")</p>
      */
@@ -124,6 +118,8 @@ public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
     String environmentTierName;
 
 	protected Object executeInternal() throws AbstractMojoExecutionException {
+        versionLabel = lookupVersionLabel(applicationName, versionLabel);
+
 		waitForNotUpdating();
 		
 		if (null == optionSettings) {
@@ -139,7 +135,6 @@ public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 				.withTemplateName(
 						lookupTemplateName(applicationName, templateName))//
 				.withVersionLabel(versionLabel)//
-				.withUseLatestVersionLabel(useLatestVersionLabel)//
 				.withLatestVersionLabel(curEnv.getVersionLabel())//
 				.build();
 

@@ -148,6 +148,8 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 	
 	@Override
 	protected Object executeInternal() throws AbstractMojoExecutionException {
+        versionLabel = lookupVersionLabel(applicationName, versionLabel);
+
 		CreateEnvironmentResult result = createEnvironment(cnamePrefix, this.environmentName);
 
 		return result;

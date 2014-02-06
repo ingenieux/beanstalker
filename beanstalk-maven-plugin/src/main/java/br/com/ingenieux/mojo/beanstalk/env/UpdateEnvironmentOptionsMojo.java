@@ -52,9 +52,9 @@ public class UpdateEnvironmentOptionsMojo extends AbstractNeedsEnvironmentMojo {
 	String environmentDescription;
 
 	/**
-	 * Version Label to use. Defaults to Project Version
+	 * Version Label to use.
 	 */
-	@Parameter(property = "beanstalk.versionLabel", defaultValue = "${project.version}")
+	@Parameter(property = "beanstalk.versionLabel")
 	String versionLabel;
 
 	/**

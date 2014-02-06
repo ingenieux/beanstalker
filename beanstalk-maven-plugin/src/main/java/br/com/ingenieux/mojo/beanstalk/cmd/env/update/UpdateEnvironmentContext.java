@@ -29,16 +29,6 @@ public class UpdateEnvironmentContext {
 
 	String templateName;
 
-	boolean useLatestVersionLabel = true;
-
-	public boolean isUseLatestVersionLabel() {
-		return useLatestVersionLabel;
-	}
-
-	public void setUseLatestVersionLabel(boolean useLatestVersionLabel) {
-		this.useLatestVersionLabel = useLatestVersionLabel;
-	}
-
 	String latestVersionLabel;
 
 	public String getLatestVersionLabel() {

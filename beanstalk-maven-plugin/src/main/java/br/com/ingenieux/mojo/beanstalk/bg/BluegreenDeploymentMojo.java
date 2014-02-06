@@ -91,7 +91,7 @@ public class BluegreenDeploymentMojo extends AbstractNeedsEnvironmentMojo {
 
         getLog().info(format("(Blue) Updating environmentId to version %s", versionLabel));
 
-        new UpdateEnvironmentCommand(this).execute(new UpdateEnvironmentContextBuilder().withUseLatestVersionLabel(false).withEnvironmentId(otherEnvId).withVersionLabel(versionLabel).build());
+        new UpdateEnvironmentCommand(this).execute(new UpdateEnvironmentContextBuilder().withEnvironmentId(otherEnvId).withVersionLabel(versionLabel).build());
 
         getLog().info(format("(Blue) Waiting for environmentId['%s'] to get ready and green prior to switching", otherEnvId));
 

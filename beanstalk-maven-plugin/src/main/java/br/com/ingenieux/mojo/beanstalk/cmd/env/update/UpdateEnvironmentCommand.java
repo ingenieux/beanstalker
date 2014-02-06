@@ -65,9 +65,7 @@ public class UpdateEnvironmentCommand extends
 		if (null != context.optionSettings && 0 != context.optionSettings.length)
 		    req.setOptionSettings(Arrays.asList(context.optionSettings));
 
-		if (context.useLatestVersionLabel) {
-			req.setVersionLabel(context.latestVersionLabel);
-		} else if (isNotBlank(context.versionLabel)) {
+        if (isNotBlank(context.versionLabel)) {
 			info("Calling update-environment, and using versionLabel: " + context.versionLabel);
 			
 			req.setVersionLabel(context.versionLabel);

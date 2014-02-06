@@ -92,13 +92,6 @@ class UpdateEnvironmentContextBuilderBase<GeneratorT extends UpdateEnvironmentCo
 	}
 	
 	@SuppressWarnings("unchecked")
-	public GeneratorT withUseLatestVersionLabel(boolean aValue) {
-		instance.setUseLatestVersionLabel(aValue);
-
-		return (GeneratorT) this;
-	}
-	
-	@SuppressWarnings("unchecked")
 	public GeneratorT withLatestVersionLabel(String aValue) {
 		instance.setLatestVersionLabel(aValue);
 
