@@ -89,9 +89,6 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 	@Parameter(property = "beanstalk.attemptRetryInterval", defaultValue = "60")
 	int attemptRetryInterval = 60;
 
-    @Parameter(property = "beanstalk.waitForGreenXTimesInARow", defaultValue = "2")
-    int waitForGreenXTimesInARow = 2;
-
 	@Override
 	protected EnvironmentDescription handleResults(
 			Collection<EnvironmentDescription> environments)
@@ -171,7 +168,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 			/*
 			 * Terminates the failed launched environment
 			 */
-			terminateEnvironment(createEnvResult.getEnvironmentId());
+            terminateEnvironment(createEnvResult.getEnvironmentId());
 
 			handleException(exc);
 
@@ -220,7 +217,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 		/*
 		 * Terminates the previous environment
 		 */
-		terminateEnvironment(curEnv.getEnvironmentId());
+        terminateEnvironment(curEnv.getEnvironmentId());
 
 		return createEnvResult;
 	}

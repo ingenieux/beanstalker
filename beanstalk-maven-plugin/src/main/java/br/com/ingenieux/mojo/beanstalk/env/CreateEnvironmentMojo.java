@@ -21,18 +21,12 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.create.CreateEnvironmentContextBu
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
-import com.amazonaws.services.elasticbeanstalk.model.*;
-import org.apache.commons.lang.StringUtils;
+import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
+import com.amazonaws.services.elasticbeanstalk.model.CreateEnvironmentResult;
 import org.apache.commons.lang.Validate;
-import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.maven.plugin.AbstractMojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
@@ -169,33 +163,9 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 		if (null == optionSettings) {
 			optionSettings = introspectOptionSettings();
 		}
-		
-		if (StringUtils.isBlank(versionLabel)) {
-			DescribeApplicationVersionsResult appVersionsResult = getService().describeApplicationVersions(new DescribeApplicationVersionsRequest().withApplicationName(applicationName));
 
-			List<ApplicationVersionDescription> appVersionList = new ArrayList<ApplicationVersionDescription>(appVersionsResult.getApplicationVersions());
-			
-			Collections.sort(appVersionList, new Comparator<ApplicationVersionDescription>() {
-				@Override
-				public int compare(ApplicationVersionDescription o1,
-						ApplicationVersionDescription o2) {
-					return new CompareToBuilder().append(o2.getDateUpdated(), o1.getDateUpdated()).append(o2.getDateCreated(), o1.getDateUpdated()).toComparison();
-				}
-			});
-			
-			if (appVersionList.isEmpty()) {
-				String message = "No version label supplied **AND** no app versions available.";
-				
-				getLog().info(message);
-				
-				throw new IllegalStateException(message);
-			} else {
-				versionLabel = appVersionList.get(0).getVersionLabel();
-				
-				getLog().info("Using latest available application version " + versionLabel);
-			}
-		}
-		
+        versionLabel = lookupVersionLabel(applicationName, versionLabel);
+
 		CreateEnvironmentContextBuilder builder = CreateEnvironmentContextBuilder
 		    .createEnvironmentContext() //
 		    .withApplicationName(applicationName)//
@@ -227,4 +197,5 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 		
 		return result;
 	}
+
 }

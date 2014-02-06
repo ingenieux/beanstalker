@@ -62,7 +62,7 @@ public class UpdateEnvironmentCommand extends
             req.setTier(new EnvironmentTier().withName(context.getEnvironmentTierName()).withType(envTierType).withVersion(envTierVersion));
         }
 		
-		if (null != context.optionSettings)
+		if (null != context.optionSettings && 0 != context.optionSettings.length)
 		    req.setOptionSettings(Arrays.asList(context.optionSettings));
 
 		if (context.useLatestVersionLabel) {

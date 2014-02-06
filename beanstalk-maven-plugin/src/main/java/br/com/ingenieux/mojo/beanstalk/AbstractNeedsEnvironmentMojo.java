@@ -3,9 +3,7 @@ package br.com.ingenieux.mojo.beanstalk;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
-import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
-import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsRequest;
-import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
+import com.amazonaws.services.elasticbeanstalk.model.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.maven.plugin.AbstractMojoExecutionException;
@@ -250,4 +248,34 @@ public abstract class AbstractNeedsEnvironmentMojo extends
                     "aws:elasticbeanstalk:sqsd", "RetentionPeriod", ""));
 		}
 	};
+
+    protected String lookupVersionLabel(String appName, String versionLabel) {
+        if (StringUtils.isBlank(versionLabel)) {
+            DescribeApplicationVersionsResult appVersionsResult = getService().describeApplicationVersions(new DescribeApplicationVersionsRequest().withApplicationName(appName));
+
+            List<ApplicationVersionDescription> appVersionList = new ArrayList<ApplicationVersionDescription>(appVersionsResult.getApplicationVersions());
+
+            Collections.sort(appVersionList, new Comparator<ApplicationVersionDescription>() {
+                @Override
+                public int compare(ApplicationVersionDescription o1,
+                                   ApplicationVersionDescription o2) {
+                    return new CompareToBuilder().append(o2.getDateUpdated(), o1.getDateUpdated()).append(o2.getDateCreated(), o1.getDateUpdated()).toComparison();
+                }
+            });
+
+            if (appVersionList.isEmpty()) {
+                String message = "No version label supplied **AND** no app versions available.";
+
+                getLog().info(message);
+
+                throw new IllegalStateException(message);
+            } else {
+                versionLabel = appVersionList.get(0).getVersionLabel();
+
+                getLog().info("Using latest available application version " + versionLabel);
+            }
+        }
+
+        return versionLabel;
+    }
 }

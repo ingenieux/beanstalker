@@ -3,12 +3,12 @@ package br.com.ingenieux.mojo.aws;
 import br.com.ingenieux.mojo.aws.util.AWSClientFactory;
 import br.com.ingenieux.mojo.aws.util.CredentialsUtil;
 import br.com.ingenieux.mojo.aws.util.TypeUtil;
+import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonWebServiceClient;
 import com.amazonaws.ClientConfiguration;
-import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.BasicSessionCredentials;
+import com.amazonaws.auth.EnvironmentVariableCredentialsProvider;
 import com.amazonaws.internal.StaticCredentialsProvider;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.io.IOUtils;
@@ -33,7 +33,6 @@ import java.util.Iterator;
 import java.util.Properties;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -115,11 +114,6 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
         if (null != this.awsCredentialsProvider)
             return this.awsCredentialsProvider;
 
-        AWSCredentials awsCredentials = null;
-        String awsSecretKey = null;
-        String awsAccessKey = null;
-        String sessionToken = null;
-
         /*
          * Are you using aws.accessKey and aws.secretKey? j'accuse!
          */
@@ -129,45 +123,43 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
              */
             Expose expose = exposeSettings(serverId);
 
-            awsAccessKey = expose.getAccessKey();
-            awsSecretKey = expose.getSharedKey();
-        } else if (isNotBlank(getAccessKey())
-                || isNotBlank(getSecretKey()) || isNotBlank(getSecretKey())) {
-            getLog().warn(
-                    "Warning! Usage of accessKey and secretKey is being "
-                            + "deprecated! "
-                            + "See http://beanstalker.ingenieux.com.br/beanstalk-maven-plugin/security.html for more information");
-            awsAccessKey = getAccessKey();
-            awsSecretKey = getDecryptedAwsKey(getSecretKey());
+            String awsAccessKey = expose.getAccessKey();
+            String awsSecretKey = expose.getSharedKey();
 
-            if (isNotBlank(getSessionToken()))
-                sessionToken = getSessionToken();
+            this.awsCredentialsProvider = new StaticCredentialsProvider(new BasicAWSCredentials(awsAccessKey, awsSecretKey));
+        } else if (null != (awsCredentialsProvider = getEnvironmentKeys())) {
+            // Already assigned. \o/
         } else {
             /*
              * Throws up. We have nowhere to get our credentials...
              */
             String errorMessage = "Entries in settings.xml for server "
                     + serverId
-                    + " not defined. See http://beanstalker.ingenieux.com.br/beanstalk-maven-plugin/usage.html for more information";
+                    + " not defined. See http://docs.ingenieux.com.br/project/beanstalker/aws-config.html for more information";
             getLog().error(errorMessage);
 
             throw new MojoFailureException(errorMessage);
         }
 
-        if (isNotBlank(sessionToken)) {
-            awsCredentials = new BasicSessionCredentials(awsAccessKey,
-                    awsSecretKey, sessionToken);
-        } else {
-            awsCredentials = new BasicAWSCredentials(awsAccessKey,
-                    awsSecretKey);
-        }
-
-        if (null != awsCredentials) {
-            this.awsCredentialsProvider = new StaticCredentialsProvider(awsCredentials);
-        }
-
 		return this.awsCredentialsProvider;
 	}
+
+    /**
+     * Attempts to use Environment-based Provider Variables
+     *
+     * @return AWS Credentials Provider if available. Null otherwise.
+     */
+    private AWSCredentialsProvider getEnvironmentKeys() {
+        final EnvironmentVariableCredentialsProvider provider = new EnvironmentVariableCredentialsProvider();
+
+        try {
+            provider.getCredentials();
+
+            return provider;
+        } catch (AmazonClientException exc) {
+            return null;
+        }
+    }
 
     protected Expose exposeSettings(String serverId) throws MojoFailureException {
 		Server server = settings.getServer(serverId);
@@ -295,36 +287,6 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
                         version);
 	}
 
-	/**
-	 * AWS Access Key
-	 */
-	@Parameter(property = "aws.accessKey")
-	private String accessKey;
-
-	protected String getAccessKey() {
-		return accessKey;
-	}
-
-	/**
-	 * AWS Secret Key
-	 */
-	@Parameter(property = "aws.secretKey")
-	private String secretKey;
-
-	protected String getSecretKey() {
-		return secretKey;
-	}
-
-	/**
-	 * [Optional] AWS Session Token when used with MFA
-	 */
-	@Parameter(property = "aws.sessionToken")
-	private String sessionToken;
-
-	protected String getSessionToken() {
-		return sessionToken;
-	}	
-	
 	protected void setupVersion() {
 		InputStream is = null;
 

@@ -56,6 +56,7 @@ The classical:
 
 ## TODO
 
+  * Question why useLatestVersions is needed after all.
   * Coverage Testing / SonarQube
   * clone-environment
   * debug-environment:

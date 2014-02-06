@@ -16,7 +16,9 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
 
+import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
@@ -136,13 +138,21 @@ public class WaitForEnvironmentCommand extends
             });
             info("... with cname set to '%s'", environmentRef);
         } else {
+            String tmpRE = Pattern.quote(environmentRef);
+
+            if (environmentRef.endsWith("*"))
+                tmpRE = format("^\\Q%s\\E.*", environmentRef.substring(0, -1 + environmentRef.length()));
+
+            final String environmentRefNameRE = tmpRE;
+
             envPredicate = Predicates.and(envPredicate, new Predicate<EnvironmentDescription>() {
                 @Override
                 public boolean apply(EnvironmentDescription t) {
-                    return t.getEnvironmentName().equals(environmentRef);
+                    return t.getEnvironmentName().matches(environmentRefNameRE);
                 }
             });
-            info("... with environmentName set to '%s'", environmentRef);
+
+            info("... with environmentName matching re '%s'", environmentRefNameRE);
         }
 
         {
