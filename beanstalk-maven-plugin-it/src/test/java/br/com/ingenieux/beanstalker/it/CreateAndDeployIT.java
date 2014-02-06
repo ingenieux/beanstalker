@@ -22,7 +22,7 @@ public class CreateAndDeployIT extends BaseBeanstalkIntegrationTest {
 
         assertThat("We wanted the archetype to compile cleanly", result.getExitCode(), is(equalTo(0)));
 
-		result = invoke("deploy beanstalk:put-environment -Pfast-deploy -DskipTests");
+		result = invoke("package deploy -Ps3-deploy");
 		
 		assertThat("The deployment shouldn't be a problem, you know.", result.getExitCode(), is(equalTo(0)));
 		
@@ -36,13 +36,20 @@ public class CreateAndDeployIT extends BaseBeanstalkIntegrationTest {
 
         writeIntoFile("src/main/webapp/index.txt", "Hello, World %08X!", System.currentTimeMillis() / 1000);
 
-        result = invoke("package deploy -DskipTests -Pfast-deploy");
+        result = invoke("package beanstalk:upload-source-bundle beanstalk:create-application-version beanstalk:replace-environment -Dbeanstalk.mockTerminateEnvironment=true -Ps3-deploy");
 
         sleep(15);
 
         envs = getEnvironments();
 
-        envDesc = envs.getEnvironments().get(0);
+        boolean hasUpdating = false;
+
+        for (EnvironmentDescription ed : envs.getEnvironments()) {
+            if (hasUpdating = "Updating".equals(ed.getStatus())) {
+                envDesc = ed;
+                break;
+            }
+        }
 
         assertThat("There should be an environment in 'Updating' state", envDesc.getStatus(), is(equalTo("Updating")));
 
@@ -50,11 +57,15 @@ public class CreateAndDeployIT extends BaseBeanstalkIntegrationTest {
 
         writeIntoFile("src/main/webapp/index.txt", "Hello, World %08X!", System.currentTimeMillis() / 1000);
 
-        result = invoke("package deploy -Pdeploy -DskipTests", envDesc.getCNAME());
+        result = invoke("package deploy -Pfast-deploy", envDesc.getCNAME());
 
         envs = getEnvironments();
 
         assertThat("Environment Ids must be different", envs.getEnvironments().get(0).getEnvironmentId(), is(not(equalTo(envDesc.getEnvironmentId()))));
+
+        writeIntoFile("src/main/webapp/index.txt", "Hello, World %08X!", System.currentTimeMillis() / 1000);
+
+        result = invoke("package deploy -Pdeploy", envDesc.getCNAME());
 
         final List<EnvironmentDescription> oldEnvironments = service.describeEnvironments(new DescribeEnvironmentsRequest().withEnvironmentIds(envDesc.getEnvironmentId())).getEnvironments();
 
