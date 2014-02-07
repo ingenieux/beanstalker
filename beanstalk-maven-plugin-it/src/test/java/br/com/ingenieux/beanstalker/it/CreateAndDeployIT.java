@@ -57,7 +57,7 @@ public class CreateAndDeployIT extends BaseBeanstalkIntegrationTest {
 
         writeIntoFile("src/main/webapp/index.txt", "Hello, World %08X!", System.currentTimeMillis() / 1000);
 
-        result = invoke("package deploy -Pfast-deploy", envDesc.getCNAME());
+        result = invoke("package deploy -Pbluegreen-s3-deploy", envDesc.getCNAME());
 
         envs = getEnvironments();
 

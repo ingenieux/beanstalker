@@ -67,7 +67,7 @@ public class CreateApplicationVersionMojo extends AbstractBeanstalkMojo {
 	/**
 	 * S3 Key
 	 */
-	@Parameter(property="beanstalk.s3Key", defaultValue="${project.build.finalName}.${project.packaging}", required=true)
+	@Parameter(property="beanstalk.s3Key", defaultValue="${project.artifactId}/${project.build.finalName}-${beanstalk.versionLabel}.${project.packaging}", required=true)
 	String s3Key;
 
 	/**
