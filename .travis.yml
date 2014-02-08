@@ -1,7 +1,9 @@
 language: java
-
-script: "mvn install -Prelease -DskipTests"
-
+script: mvn install -Prelease,it
 jdk:
-  - oraclejdk7
-  - openjdk6
+- oraclejdk7
+- openjdk6
+env:
+  global:
+  - secure: uz02og5+IWdVl2C0XzATR/9ZdKCLhRVeUS7CmnFDQQF5wwMhhm377QinnLFsXIMI+W+DVuHb8ooq9sD0odji6ztH5YUcYmYKqD3QBpo3o70IIFWwBF5geiFJ3XHrKdfIUZ+7ihifAGitkL3j+qPNZm/xHqVqRzLaOzEF2akT44w=
+  - secure: qGMwNeZZ7ECzUwqU0G8UO9FNIE5faXfXBaTZ+sYTGm+WhpJl8SC92BQsFjaJAQeVwFU2WeM/7DtwMu9wzhtnfzPvAIaHKgdLvl3acGyhG5Npu0TuhSd/BNlPQ6XTjmrS+KT5OVNJB4GhwniDhk2h7vMtuDIqCWQmQvY7ODcOa8g=
