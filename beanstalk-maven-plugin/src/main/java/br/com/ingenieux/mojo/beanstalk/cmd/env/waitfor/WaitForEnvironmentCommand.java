@@ -2,9 +2,7 @@ package br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.BaseCommand;
-import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsRequest;
-import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
-import com.amazonaws.services.elasticbeanstalk.model.EventDescription;
+import com.amazonaws.services.elasticbeanstalk.model.*;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
@@ -12,10 +10,7 @@ import org.apache.commons.lang.Validate;
 import org.apache.maven.plugin.AbstractMojoExecutionException;
 import org.apache.maven.plugin.MojoExecutionException;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static java.lang.String.format;
@@ -69,16 +64,16 @@ public class WaitForEnvironmentCommand extends
 	}
 
     public Collection<EnvironmentDescription> lookupInternal(WaitForEnvironmentContext context) {
-        Predicate<EnvironmentDescription> envPredicate = getEnvironmentDescriptionPredicate(context);
+        List<Predicate<EnvironmentDescription>> envPredicates = getEnvironmentDescriptionPredicate(context);
 
         DescribeEnvironmentsRequest req = new DescribeEnvironmentsRequest().withApplicationName(context.getApplicationName()).withIncludeDeleted(true);
 
         final List<EnvironmentDescription> envs = parentMojo.getService().describeEnvironments(req).getEnvironments();
 
-        return Collections2.filter(envs, envPredicate);
+        return Collections2.filter(envs, Predicates.and(envPredicates));
     }
 
-    protected Predicate<EnvironmentDescription> getEnvironmentDescriptionPredicate(WaitForEnvironmentContext context) {
+    protected List<Predicate<EnvironmentDescription>> getEnvironmentDescriptionPredicate(WaitForEnvironmentContext context) {
         // as well as those (which are used as predicate variables, thus being
         // final)
         final String environmentRef = context.getEnvironmentRef();
@@ -94,7 +89,7 @@ public class WaitForEnvironmentCommand extends
 
         // argument juggling
 
-        Predicate<EnvironmentDescription> envPredicate = null;
+        List<Predicate<EnvironmentDescription>> result = new ArrayList<Predicate<EnvironmentDescription>>();
 
         {
             // start building predicates with the status one - "![status]" must
@@ -102,7 +97,7 @@ public class WaitForEnvironmentCommand extends
             final int offset = negated ? 1 : 0;
             final String vStatusToWaitFor = statusToWaitFor.substring(offset);
 
-            envPredicate = new Predicate<EnvironmentDescription>() {
+            result.add(new Predicate<EnvironmentDescription>() {
                 public boolean apply(EnvironmentDescription t) {
 
                     boolean result = vStatusToWaitFor.equals(t.getStatus());
@@ -116,12 +111,13 @@ public class WaitForEnvironmentCommand extends
 
                     return result;
                 }
-            };
+            });
+
             info("... with status %s set to '%s'", (negated ? "*NOT*" : " "), vStatusToWaitFor);
         }
 
         if (environmentRef.matches("e-\\p{Alnum}{10}")) {
-            envPredicate = Predicates.and(envPredicate, new Predicate<EnvironmentDescription>() {
+            result.add(new Predicate<EnvironmentDescription>() {
                 @Override
                 public boolean apply(EnvironmentDescription t) {
                     return t.getEnvironmentId().equals(environmentRef);
@@ -130,7 +126,7 @@ public class WaitForEnvironmentCommand extends
 
             info("... with environmentId equal to '%s'", environmentRef);
         } else if (environmentRef.matches(".*\\Q.elasticbeanstalk.com\\E")) {
-            envPredicate = Predicates.and(envPredicate, new Predicate<EnvironmentDescription>() {
+            result.add(new Predicate<EnvironmentDescription>() {
                 @Override
                 public boolean apply(EnvironmentDescription t) {
                     return defaultString(t.getCNAME()).equals(environmentRef);
@@ -145,7 +141,7 @@ public class WaitForEnvironmentCommand extends
 
             final String environmentRefNameRE = tmpRE;
 
-            envPredicate = Predicates.and(envPredicate, new Predicate<EnvironmentDescription>() {
+            result.add(new Predicate<EnvironmentDescription>() {
                 @Override
                 public boolean apply(EnvironmentDescription t) {
                     return t.getEnvironmentName().matches(environmentRefNameRE);
@@ -157,7 +153,7 @@ public class WaitForEnvironmentCommand extends
 
         {
             if (isNotBlank(healthToWaitFor)) {
-                envPredicate = Predicates.and(envPredicate, new Predicate<EnvironmentDescription>() {
+                result.add(new Predicate<EnvironmentDescription>() {
                     @Override
                     public boolean apply(EnvironmentDescription t) {
                         return t.getHealth().equals(healthToWaitFor);
@@ -167,7 +163,7 @@ public class WaitForEnvironmentCommand extends
                 info("... with health equal to '%s'", healthToWaitFor);
             }
         }
-        return envPredicate;
+        return result;
     }
 
     public EnvironmentDescription executeInternal(
@@ -179,16 +175,18 @@ public class WaitForEnvironmentCommand extends
 				* timeoutMins);
 		Date lastMessageRecord = new Date();
 
-        parentMojo.getLog().info("Environment Lookup");
+        info("Environment Lookup");
 
-        Predicate<EnvironmentDescription> envPredicate = getEnvironmentDescriptionPredicate(context);
+        List<Predicate<EnvironmentDescription>> envPredicates = getEnvironmentDescriptionPredicate(context);
+        Predicate<EnvironmentDescription> corePredicate = envPredicates.get(0);
+        Predicate<EnvironmentDescription> fullPredicate = Predicates.and(envPredicates);
 
 		do {
             DescribeEnvironmentsRequest req = new DescribeEnvironmentsRequest().withApplicationName(context.getApplicationName()).withIncludeDeleted(true);
 
             final List<EnvironmentDescription> envs = parentMojo.getService().describeEnvironments(req).getEnvironments();
 
-            Collection<EnvironmentDescription> validEnvironments = Collections2.filter(envs, envPredicate);
+            Collection<EnvironmentDescription> validEnvironments = Collections2.filter(envs, fullPredicate);
 
 			debug("There are %d environments", validEnvironments.size());
 
@@ -202,9 +200,39 @@ public class WaitForEnvironmentCommand extends
 			} else {
 				debug("Found %d environments. No good. Ignoring.",
 						validEnvironments.size());
+
 				for (EnvironmentDescription d : validEnvironments)
 					debug(" ... %s", d);
-			}
+
+                // ... but have we've got any closer match? If so, dump recent events
+
+                Collection<EnvironmentDescription> foundEnvironments = Collections2.filter(envs, corePredicate);
+
+                if (1 == foundEnvironments.size()) {
+                    EnvironmentDescription foundEnvironment = foundEnvironments.iterator().next();
+
+                    DescribeEventsResult events = service
+                            .describeEvents(new DescribeEventsRequest()
+                                    .withApplicationName(foundEnvironment.getApplicationName())
+                                    .withStartTime(
+                                            new Date(1000 + lastMessageRecord
+                                                    .getTime()))
+                                    .withEnvironmentId(foundEnvironment.getEnvironmentId())
+                                    .withSeverity("TRACE"));
+
+                    Set<EventDescription> eventList = new TreeSet<EventDescription>(
+                            new EventDescriptionComparator());
+
+                    eventList.addAll(events.getEvents());
+
+                    for (EventDescription d : eventList) {
+                        info(String.format("%s %s %s", d.getSeverity(),
+                                d.getEventDate(), d.getMessage()));
+
+                        lastMessageRecord = d.getEventDate();
+                    }                    
+                }
+            }
 
 			sleepInterval(POLL_INTERVAL);
 		} while (!timedOutP(expiresAt));

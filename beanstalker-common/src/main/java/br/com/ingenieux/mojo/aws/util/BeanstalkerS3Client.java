@@ -40,56 +40,62 @@ import java.util.Date;
 
 public class BeanstalkerS3Client extends AmazonS3Client {
 	private boolean multipartUpload = true;
+
+  private boolean silentUpload = false;
 	
 	private final class XProgressListener implements ProgressListener {
 		private long contentLen;
 		private Upload upload;
+    private boolean silentUpload;
 
 		public void setContentLen(long contentLen) {
 			this.contentLen = contentLen;
 		}
 
-		public void setUpload(Upload upload) {
-			this.upload = upload;
+    public void setUpload(Upload upload) {
+      this.upload = upload;
+    }
+
+		public void setSilentUpload(boolean silentUpload) {
+			this.silentUpload = silentUpload;
 		}
 
 		public Upload getUpload() {
 			return upload;
 		}
 
-        @Override
-        public void progressChanged(ProgressEvent e) {
-            if (null == upload)
-                return;
+    @Override
+    public void progressChanged(ProgressEvent e) {
+      if (null == upload)
+          return;
 
-            TransferProgress xProgress = upload.getProgress();
+      TransferProgress xProgress = upload.getProgress();
 
-            System.out.print("\r  "
-                    + String.format("%.2f", xProgress.getPercentTransferred())
-                    + "% " + asNumber(xProgress.getBytesTransferred()) + "/"
-                    + asNumber(contentLen) + BLANK_LINE);
+      if (! silentUpload)
+        System.out.print("\r  "
+                + String.format("%.2f", xProgress.getPercentTransferred())
+                + "% " + asNumber(xProgress.getBytesTransferred()) + "/"
+                + asNumber(contentLen) + BLANK_LINE);
 
-            switch (e.getEventCode()) {
-                case ProgressEvent.COMPLETED_EVENT_CODE: {
-                    System.out.println("Done");
-                    break;
-                }
-                case ProgressEvent.FAILED_EVENT_CODE: {
-                    try {
-                        AmazonClientException exc = upload.waitForException();
+      switch (e.getEventCode()) {
+          case ProgressEvent.COMPLETED_EVENT_CODE: {
+              System.out.println("Done");
+              break;
+          }
+          case ProgressEvent.FAILED_EVENT_CODE: {
+            try {
+              AmazonClientException exc = upload.waitForException();
 
-                        System.err.println("Unable to upload file: "
-                                + exc.getMessage());
-                    } catch (InterruptedException ignored) {
-                    }
-                    break;
-                }
+              System.err.println("Unable to upload file: "
+                      + exc.getMessage());
+            } catch (InterruptedException ignored) {
             }
+            break;
         }
+      }
     }
+  }
 	
-	
-
 	public boolean isMultipartUpload() {
 		return multipartUpload;
 	}
@@ -97,6 +103,14 @@ public class BeanstalkerS3Client extends AmazonS3Client {
 	public void setMultipartUpload(boolean multipartUploadP) {
 		this.multipartUpload = multipartUploadP;
 	}
+
+  public boolean isSilentUpload() {
+    return silentUpload;
+  }
+
+  public void setSilentUpload(boolean silentUpload) {
+    this.silentUpload = silentUpload;
+  }
 
 	private static final String BLANK_LINE = StringUtils.repeat(" ", 24);
 	
@@ -161,10 +175,11 @@ public class BeanstalkerS3Client extends AmazonS3Client {
 
 		XProgressListener progressListener = new XProgressListener();
 
-        req.setGeneralProgressListener(new ProgressListenerChain(progressListener));
+    req.setGeneralProgressListener(new ProgressListenerChain(progressListener));
 
 		progressListener.setContentLen(contentLen);
 		progressListener.setUpload(transferManager.upload(req));
+    progressListener.setSilentUpload(silentUpload);
 
 		try {
 			progressListener.getUpload().waitForCompletion();

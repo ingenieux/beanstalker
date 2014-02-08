@@ -77,13 +77,19 @@ public class UploadSourceBundleMojo extends AbstractBeanstalkMojo {
 	@Parameter(defaultValue="${project.build.directory}/${project.build.finalName}.${project.packaging}")
 	File artifactFile;
 
+	/**
+	 * Silent Upload?
+	 */
+	@Parameter(property = "beanstalk.silentUpload", defaultValue = "false")
+	boolean silentUpload = false;
+
 	protected Object executeInternal() throws MojoExecutionException,
 			MojoFailureException, AmazonServiceException,
 			AmazonClientException, InterruptedException {
 		String path = artifactFile.getPath();
 
-		if (!(path.endsWith(".war") || path.endsWith(".jar"))) {
-			getLog().warn("Not a war/jar file. Skipping");
+		if (!(path.endsWith(".war") || path.endsWith(".jar") || path.endsWith(".zip"))) {
+			getLog().warn("Not a war/jar/zip file. Skipping");
 
 			return null;
 		}
@@ -96,6 +102,7 @@ public class UploadSourceBundleMojo extends AbstractBeanstalkMojo {
 				getClientConfiguration());
 		
 		client.setMultipartUpload(multipartUpload);
+		client.setSilentUpload(silentUpload);
 
 		if (StringUtils.isNotBlank(s3Region))
 			client.setEndpoint(String.format("s3-%s.amazonaws.com", s3Region));

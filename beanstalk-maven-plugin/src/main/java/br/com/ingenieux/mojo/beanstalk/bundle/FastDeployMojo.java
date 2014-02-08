@@ -61,6 +61,12 @@ public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
 	@Parameter(property = "beanstalk.skipEnvironmentUpdate", defaultValue = "false")
 	boolean skipEnvironmentUpdate = false;
 
+	/**
+	 * Silent Upload?
+	 */
+	@Parameter(property = "beanstalk.silentUpload", defaultValue = "false")
+	boolean silentUpload = false;
+
 	@Override
 	protected void configure() {
 		try {
@@ -146,7 +152,8 @@ public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
 			PushCommand cmd = git.//
 					push();
 
-			cmd.setProgressMonitor(new TextProgressMonitor());
+			if (! silentUpload)
+				cmd.setProgressMonitor(new TextProgressMonitor());
 
 			Iterable<PushResult> pushResults = null;
 			try {
