@@ -6,10 +6,10 @@
         <profile>
             <id>default</id>
             <properties>
-                <beanstalk.keyName>aldrin@leal.eng.br</beanstalk.keyName>
+                <beanstalk.keyName>${env.EC2_KEY_NAME}</beanstalk.keyName>
                 <beanstalk.iamInstanceProfile>aws-elasticbeanstalk-ec2-role</beanstalk.iamInstanceProfile>
                 <beanstalk.instanceType>m1.small</beanstalk.instanceType>
-                <beanstalk.s3Bucket>ingenieux-beanstalk-apps</beanstalk.s3Bucket>
+                <beanstalk.s3Bucket>${env.AWSEB_S3_BUCKET}</beanstalk.s3Bucket>
             </properties>
         </profile>
     </profiles>

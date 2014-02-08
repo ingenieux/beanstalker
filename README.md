@@ -1,5 +1,7 @@
 # ingenieux Beanstalker
 
+`[![Build Status](https://travis-ci.org/ingenieux/beanstalker.png?branch=master)](://travis-ci.org/ingenieux/beanstalker.png?branch=master)`
+
 This is a Maven plugin for Interop with AWS Services. In particular:
 
   * [AWS Elastic Beanstalk](http://aws.amazon.com/elasticbeanstalk/)

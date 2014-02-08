@@ -49,7 +49,7 @@ public class WaitForEnvironmentCommand extends
 	/**
 	 * Poll Interval
 	 */
-	public static final long POLL_INTERVAL = 15 * 1000;
+	public static final long POLL_INTERVAL = 30 * 1000;
 
 	/**
 	 * Magic Constant for Mins to MSEC
@@ -217,7 +217,7 @@ public class WaitForEnvironmentCommand extends
 	}
 
 	public void sleepInterval(long pollInterval) {
-		debug("Sleeping for %d seconds", pollInterval / 1000);
+		info("Sleeping for %d seconds", pollInterval / 1000);
 		try {
 			Thread.sleep(pollInterval);
 		} catch (InterruptedException e) {

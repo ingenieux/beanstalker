@@ -2,9 +2,8 @@ language: java
 before_install: 
   - if [ ! -d "$HOME/.m2" ]; then mkdir .m2 ; fi
   - cp ci/settings.xml $HOME/.m2/settings.xml
-script: mvn clean verify -Prelease,it
+script: mvn -f beanstalk-maven-plugin-it/pom.xml verify -Prelease,it -Dbeanstalk.project.name=mbit-travis
 jdk:
-- oraclejdk7
 - openjdk6
 env:
   global:
