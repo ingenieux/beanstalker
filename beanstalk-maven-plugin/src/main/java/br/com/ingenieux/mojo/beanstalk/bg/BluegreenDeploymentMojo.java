@@ -23,7 +23,6 @@ import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
 import com.amazonaws.services.elasticbeanstalk.model.SwapEnvironmentCNAMEsRequest;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
@@ -58,7 +57,7 @@ public class BluegreenDeploymentMojo extends AbstractNeedsEnvironmentMojo {
 
         Collection<EnvironmentDescription> envs = new WaitForEnvironmentCommand(this).lookupInternal(new WaitForEnvironmentContextBuilder().withApplicationName(applicationName).withEnvironmentRef(environmentNamePrefix + "*").build());
 
-        if (2 != envs.size()) {
+        if (envs.size() > 2) {
             final Collection<String> environmentList = Collections2.transform(envs, new Function<EnvironmentDescription, String>() {
                 @Override
                 public String apply(EnvironmentDescription input) {
@@ -69,13 +68,12 @@ public class BluegreenDeploymentMojo extends AbstractNeedsEnvironmentMojo {
             String message = "Ooops. There are multiple environments matching the lookup spec: " + environmentList;
 
             getLog().warn(message);
-
-            throw new MojoFailureException(message);
+            getLog().warn("Will pick one at random anyway as long as it uses WebServer tier name");
         }
 
         String otherEnvId = null;
         for (EnvironmentDescription e : envs) {
-            if (! e.getEnvironmentId().equals(curEnv.getEnvironmentId())) {
+            if (! e.getEnvironmentId().equals(curEnv.getEnvironmentId()) && "WebServer".equals(e.getTier().getName())) {
                 otherEnvId = e.getEnvironmentId();
                 break;
             }

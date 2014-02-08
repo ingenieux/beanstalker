@@ -5,6 +5,8 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalk;
 import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsRequest;
 import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsResult;
+import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
+import com.amazonaws.services.elasticbeanstalk.model.TerminateEnvironmentRequest;
 import com.google.inject.Guice;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -13,12 +15,14 @@ import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.DefaultInvoker;
 import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.Invoker;
+import org.junit.After;
 import org.junit.Before;
 
 import javax.inject.Inject;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 public class BaseBeanstalkIntegrationTest {
@@ -67,6 +71,21 @@ public class BaseBeanstalkIntegrationTest {
 				projectDir).setGoals(
 				Arrays.asList(sub.replace(command).split("\\s+"))));
 	}
+
+    @After
+    public void after() throws Exception {
+        final List<EnvironmentDescription> environments = getEnvironments().getEnvironments();
+
+        for (EnvironmentDescription ed : environments) {
+            try {
+                System.err.println("Terminating environment id=" + ed.getEnvironmentId());
+
+                service.terminateEnvironment(new TerminateEnvironmentRequest().withEnvironmentId(ed.getEnvironmentId()).withTerminateResources(true));
+            } catch (Exception exc) {
+                exc.printStackTrace();
+            }
+        }
+    }
 	
 	protected DescribeEnvironmentsResult getEnvironments() {
 		return service.describeEnvironments(new DescribeEnvironmentsRequest().withApplicationName(r("${beanstalk.project.name}")).withIncludeDeleted(false));

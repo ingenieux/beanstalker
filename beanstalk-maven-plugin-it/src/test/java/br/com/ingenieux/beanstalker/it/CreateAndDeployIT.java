@@ -56,7 +56,7 @@ public class CreateAndDeployIT extends BaseBeanstalkIntegrationTest {
         assertThat("Previous deployment should have worked.", result.getExitCode(), is(equalTo(0)));
     }
 
-    //@Test
+    @Test
     public void testWorkerLifecycle() throws Exception {
         InvocationResult result = invoke("clean deploy beanstalk:put-environment -Pfast-deploy,worker -DskipTests");
 
@@ -69,7 +69,5 @@ public class CreateAndDeployIT extends BaseBeanstalkIntegrationTest {
         EnvironmentDescription envDesc = envs.getEnvironments().get(0);
 
         assertThat(envDesc.getEnvironmentName(), is(equalTo(r("${beanstalk.project.name}-worker"))));
-
-        result = invoke("beanstalk:terminate-environment -Pworker");
     }
 }
