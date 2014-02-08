@@ -5,7 +5,7 @@
 
 Security Credentials
 
-  Here, you have three options:
+  Here, you have two options:
   
   [[1]] Declare as a server on your $HOME/.m2/settings.xml:
   
@@ -28,53 +28,10 @@ Security Credentials
   
   It **DOES** support password encryption. In fact, it throws up an alert whenever it finds an unencrypted password. This is going to be the default in 0.4.0 and beyond. 
   
-  [[2]] Declare it in your <<<.m2/settings.xml>>>:
+  [[2]] Declaring as Environment Variables:
 
 +---+
-<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
-                      http://maven.apache.org/xsd/settings-1.0.0.xsd">
-  <profiles>
-    <profile>
-      <id>default</id>
-      <properties>
-        <aws.accessKey>[access key id]</aws.accessKey>
-        <aws.secretKey>[secret access key]</aws.secretKey>
-      </properties>
-    </profile>
-  </profiles>
-  <activeProfiles>
-    <activeProfile>default</activeProfile>
-  </activeProfiles>
-</settings>
+$ export AWS_ACCESS_KEY_ID="<your aws access key>"
+$ export AWS_SECRET_KEY="<your aws secret key>"
+$ mvn beanstalk:upload-source-bundle
 +---+
-
-  If you don't, find your existing keys from {{{https://aws-portal.amazon.com/gp/aws/developer/account/index.html?action=access-key}AWS Security Credentials}} Page, under "Access Keys"
-
-  [[3]] Declaring upon mvn invocation (not recommended):
-
-+---+
-mvn beanstalk:upload-source-bundle -Daws.accessKey=[access key] -Daws.secretKey=[secret key]
-+---+
-
-  [[4]] Declare on the pom itself (not recommended):
-
-  You can also declare under the plugin configuration.
-
-+---+
-<build>
-  <plugins>
-    <plugin>
-      <groupId>br.com.ingenieux</groupId>
-      <artifactId>beanstalk-maven-plugin</artifactId>
-      <version>[plugin version]</version>
-      <configuration>
-        <accessKey>[access key]</accessKey>
-        <secretKey>[secret key]</secretKey>
-      </configuration>
-    </plugin>
-  </plugins>
-</build>
-+---+
-
