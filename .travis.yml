@@ -1,5 +1,8 @@
 language: java
-script: mvn clean verify -Prelease,it -s ci/settings.xml
+before_install: 
+  - if [ ! -d "$HOME/.m2" ]; then mkdir .m2 ; fi
+  - cp ci/settings.xml $HOME/.m2/settings.xml
+script: mvn clean verify -Prelease,it
 jdk:
 - oraclejdk7
 - openjdk6
