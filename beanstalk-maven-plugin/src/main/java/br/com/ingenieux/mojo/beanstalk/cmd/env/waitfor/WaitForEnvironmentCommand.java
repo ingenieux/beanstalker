@@ -91,31 +91,6 @@ public class WaitForEnvironmentCommand extends
 
         List<Predicate<EnvironmentDescription>> result = new ArrayList<Predicate<EnvironmentDescription>>();
 
-        {
-            // start building predicates with the status one - "![status]" must
-            // be equal to status or not status
-            final int offset = negated ? 1 : 0;
-            final String vStatusToWaitFor = statusToWaitFor.substring(offset);
-
-            result.add(new Predicate<EnvironmentDescription>() {
-                public boolean apply(EnvironmentDescription t) {
-
-                    boolean result = vStatusToWaitFor.equals(t.getStatus());
-
-                    if (negated)
-                        result = !result;
-
-                    debug("testing status '%s' as equal as '%s' (negated? %s, offset: %d): %s",
-                            vStatusToWaitFor, t.getStatus(), negated, offset,
-                            result);
-
-                    return result;
-                }
-            });
-
-            info("... with status %s set to '%s'", (negated ? "*NOT*" : " "), vStatusToWaitFor);
-        }
-
         if (environmentRef.matches("e-\\p{Alnum}{10}")) {
             result.add(new Predicate<EnvironmentDescription>() {
                 @Override
@@ -149,6 +124,31 @@ public class WaitForEnvironmentCommand extends
             });
 
             info("... with environmentName matching re '%s'", environmentRefNameRE);
+        }
+
+        {
+            // start building predicates with the status one - "![status]" must
+            // be equal to status or not status
+            final int offset = negated ? 1 : 0;
+            final String vStatusToWaitFor = statusToWaitFor.substring(offset);
+
+            result.add(new Predicate<EnvironmentDescription>() {
+                public boolean apply(EnvironmentDescription t) {
+
+                    boolean result = vStatusToWaitFor.equals(t.getStatus());
+
+                    if (negated)
+                        result = !result;
+
+                    debug("testing status '%s' as equal as '%s' (negated? %s, offset: %d): %s",
+                            vStatusToWaitFor, t.getStatus(), negated, offset,
+                            result);
+
+                    return result;
+                }
+            });
+
+            info("... with status %s set to '%s'", (negated ? "*NOT*" : " "), vStatusToWaitFor);
         }
 
         {
