@@ -1,5 +1,5 @@
 language: java
-script: mvn install -Prelease,it
+script: mvn clean verify -Prelease,it -s ci/settings.xml
 jdk:
 - oraclejdk7
 - openjdk6
@@ -7,3 +7,5 @@ env:
   global:
   - secure: uz02og5+IWdVl2C0XzATR/9ZdKCLhRVeUS7CmnFDQQF5wwMhhm377QinnLFsXIMI+W+DVuHb8ooq9sD0odji6ztH5YUcYmYKqD3QBpo3o70IIFWwBF5geiFJ3XHrKdfIUZ+7ihifAGitkL3j+qPNZm/xHqVqRzLaOzEF2akT44w=
   - secure: qGMwNeZZ7ECzUwqU0G8UO9FNIE5faXfXBaTZ+sYTGm+WhpJl8SC92BQsFjaJAQeVwFU2WeM/7DtwMu9wzhtnfzPvAIaHKgdLvl3acGyhG5Npu0TuhSd/BNlPQ6XTjmrS+KT5OVNJB4GhwniDhk2h7vMtuDIqCWQmQvY7ODcOa8g=
+  - secure: Qy2kxJA3Jc1x/CwZ730E6nL9skGCf1Br6BEL4WsujKMLr0XTih+c5tny/yQ1h5brhWzHroJht8Omr9A8uNEqBJCm2Zgk/XY5sTFvu+MuuNdBECz+hnX7VvB88qfoBRUy3nVHEINJjC6g8oXut/+sUSJNEXtI36k20nv5yofKNRQ=
+  - secure: BkJJYjkn5NJYpYYsmMAXnIeFLQ76ggGwL9lEj4436EfnCEWm4QT0AKAybMc9PgD4RHG/TEzjnYzXKgALa2vI56M/Np4gTN8XtxZkXlFOLdZ18TCcw+KNz+vWe0O69bDzwmKJgXSS9Co1KQDPVF3Yw+OQiKRTDbETpXMAf5bHPVI=

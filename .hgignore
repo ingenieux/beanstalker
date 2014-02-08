@@ -1,7 +1,9 @@
-.classpath
+syntax:regexp
+.*/?\.classpath$
 syntax:regexp
 .*/?\.project$
-.settings
+syntax:regexp
+.*/?\.settings$
 target
 .idea
 syntax:glob

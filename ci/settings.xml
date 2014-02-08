@@ -1,0 +1,19 @@
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                      http://maven.apache.org/xsd/settings-1.0.0.xsd">
+    <profiles>
+        <profile>
+            <id>default</id>
+            <properties>
+                <beanstalk.keyName>aldrin@leal.eng.br</beanstalk.keyName>
+                <beanstalk.iamInstanceProfile>aws-elasticbeanstalk-ec2-role</beanstalk.iamInstanceProfile>
+                <beanstalk.instanceType>m1.small</beanstalk.instanceType>
+                <beanstalk.s3Bucket>ingenieux-beanstalk-apps</beanstalk.s3Bucket>
+            </properties>
+        </profile>
+    </profiles>
+    <activeProfiles>
+        <activeProfile>default</activeProfile>
+    </activeProfiles>
+</settings>
