@@ -1,6 +1,6 @@
 # ingenieux Beanstalker
 
-`[![Build Status](https://travis-ci.org/ingenieux/beanstalker.png?branch=master)](://travis-ci.org/ingenieux/beanstalker.png?branch=master)`
+[![Build Status](https://travis-ci.org/ingenieux/beanstalker.png?branch=master)](https://travis-ci.org/ingenieux/beanstalker)
 
 This is a Maven plugin for Interop with AWS Services. In particular:
 
@@ -8,7 +8,7 @@ This is a Maven plugin for Interop with AWS Services. In particular:
   * [Amazon CloudFront](http://aws.amazon.com/cloudfront/)
   * [Amazon SimpleDB](http://aws.amazon.com/simpledb/)
 
-It also constains a handy archetype for a RESTful Web Service under AWS EB.
+It also constains a handy archetype for a RESTful Web Service under AWS EB and another as a basic for war overlays.
 
 ## Handful links:
 

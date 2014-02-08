@@ -245,7 +245,7 @@ public class WaitForEnvironmentCommand extends
 	}
 
 	public void sleepInterval(long pollInterval) {
-		info("Sleeping for %d seconds", pollInterval / 1000);
+		debug("Sleeping for %d seconds", pollInterval / 1000);
 		try {
 			Thread.sleep(pollInterval);
 		} catch (InterruptedException e) {
