@@ -76,6 +76,11 @@
     <modules>
         <module>beanstalker-common</module>
         <module>beanstalk-maven-plugin</module>
+        <module>cloudfront-maven-plugin</module>
+        <module>simpledb-maven-plugin</module>
+        <module>elasticbeanstalk-service-webapp-archetype</module>
+        <module>elasticbeanstalk-wrapper-webapp-archetype</module>
+        <module>beanstalk-maven-plugin-it</module>
     </modules>
 
     <dependencyManagement>
@@ -303,23 +308,4 @@
             </plugin>
         </plugins>
     </reporting>
-
-    <profiles>
-        <profile>
-            <id>release</id>
-            <modules>
-                <module>beanstalker-common</module>
-                <module>beanstalk-maven-plugin</module>
-                <module>cloudfront-maven-plugin</module>
-                <module>simpledb-maven-plugin</module>
-                <module>elasticbeanstalk-service-webapp-archetype</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>it</id>
-            <modules>
-                <module>beanstalk-maven-plugin-it</module>
-            </modules>
-        </profile>
-    </profiles>
 </project>
