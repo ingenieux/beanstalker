@@ -493,15 +493,15 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 			}
 		}
 
-		while (containsNamedEnvironment(result) && isNamedEnvironmentAvailable(result))
+		while (containsNamedEnvironment(result) && isNamedEnvironmentUnavailable(result))
 			result = formatAndTruncate("%s-%d", MAX_ENVNAME_LEN,
 					environmentRadical, i++);
 
 		return result;
 	}
 
-    private boolean isNamedEnvironmentAvailable(String cnamePrefix) {
-        return getService().checkDNSAvailability(new CheckDNSAvailabilityRequest(cnamePrefix)).isAvailable();
+    private boolean isNamedEnvironmentUnavailable(String cnamePrefix) {
+        return !getService().checkDNSAvailability(new CheckDNSAvailabilityRequest(cnamePrefix)).isAvailable();
     }
 
     /**
