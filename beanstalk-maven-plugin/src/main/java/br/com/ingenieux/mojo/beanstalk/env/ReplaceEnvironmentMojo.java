@@ -493,14 +493,18 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 			}
 		}
 
-		while (containsNamedEnvironment(result))
+		while (containsNamedEnvironment(result) && isNamedEnvironmentAvailable(result))
 			result = formatAndTruncate("%s-%d", MAX_ENVNAME_LEN,
 					environmentRadical, i++);
 
 		return result;
 	}
 
-	/**
+    private boolean isNamedEnvironmentAvailable(String cnamePrefix) {
+        return getService().checkDNSAvailability(new CheckDNSAvailabilityRequest(cnamePrefix)).isAvailable();
+    }
+
+    /**
 	 * Elastic Beanstalk Contains a Max EnvironmentName Limit. Lets truncate it,
 	 * shall we?
 	 * 
