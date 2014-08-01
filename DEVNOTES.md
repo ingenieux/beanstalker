@@ -56,6 +56,10 @@ The classical:
 
 ## TODO
 
+  * Add ELB Tweaks / Support (healthchecks / other options)
+  * Introduce a Docker archetype
+  * Allow more flexible support for other platforms (e.g., for Docker, switch the namespace and option settings as such)
+  * Consider using an hybrid platform so gradle/others could rely upon
   * Coverage Testing / SonarQube
   * clone-environment
   * debug-environment:
