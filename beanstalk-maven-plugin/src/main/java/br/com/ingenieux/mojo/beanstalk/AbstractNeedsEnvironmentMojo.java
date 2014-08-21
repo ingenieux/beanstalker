@@ -192,88 +192,232 @@ public abstract class AbstractNeedsEnvironmentMojo extends
 		private static final long serialVersionUID = -6380522758234507742L;
 
 		{
-			put("beanstalk.keyName", new ConfigurationOptionSetting(
-					"aws:autoscaling:launchconfiguration", "EC2KeyName", ""));
-			put("beanstalk.applicationHealthCheckURL",
-					new ConfigurationOptionSetting(
-							"aws:elasticbeanstalk:application",
-							"Application Healthcheck URL", ""));
-			put("beanstalk.iamInstanceProfile", new ConfigurationOptionSetting(
-					"aws:autoscaling:launchconfiguration",
-					"IamInstanceProfile", ""));
-			put("beanstalk.environmentType", new ConfigurationOptionSetting(
-					"aws:elasticbeanstalk:environment", "EnvironmentType", ""));
-			put("beanstalk.instanceType", new ConfigurationOptionSetting(
-					"aws:autoscaling:launchconfiguration", "InstanceType", ""));
-			put("beanstalk.automaticallyTerminateUnhealthyInstances",
-					new ConfigurationOptionSetting(
-							"aws:elasticbeanstalk:monitoring",
-							"Automatically Terminate Unhealthy Instances", ""));
-			put("beanstalk.stickinessPolicy", new ConfigurationOptionSetting(
-					"aws:elb:policies", "Stickiness Policy", ""));
-			put("beanstalk.stickinessCookieExpiration",
-					new ConfigurationOptionSetting("aws:elb:policies",
-							"Stickiness Cookie Expiration", ""));
+			put("beanstalk.scalingAvailabilityZones", new ConfigurationOptionSetting(
+					"aws:autoscaling:asg", "Availability Zones", ""));
+			put("beanstalk.scalingCooldown", new ConfigurationOptionSetting(
+					"aws:autoscaling:asg", "Cooldown", ""));
+			put("beanstalk.scalingCustomAvailabilityZones", new ConfigurationOptionSetting(
+					"aws:autoscaling:asg", "Custom Availability Zones", ""));
 			put("beanstalk.availabilityZones", new ConfigurationOptionSetting(
 					"aws:autoscaling:asg", "Custom Availability Zones", ""));
-			put("beanstalk.notificationProtocol",
-					new ConfigurationOptionSetting(
-							"aws:elasticbeanstalk:sns:topics",
-							"Notification Protocol", ""));
-			put("beanstalk.securityGroups",
-					new ConfigurationOptionSetting(
-							"aws:autoscaling:launchconfiguration",
-							"SecurityGroups", ""));
+			put("beanstalk.scalingMinSize", new ConfigurationOptionSetting(
+					"aws:autoscaling:asg", "MinSize", ""));
+			put("beanstalk.scalingMaxSize", new ConfigurationOptionSetting(
+					"aws:autoscaling:asg", "MaxSize", ""));
+
+			put("beanstalk.keyName", new ConfigurationOptionSetting(
+					"aws:autoscaling:launchconfiguration", "EC2KeyName", ""));
+			put("beanstalk.iamInstanceProfile", new ConfigurationOptionSetting(
+					"aws:autoscaling:launchconfiguration","IamInstanceProfile", ""));
 			put("beanstalk.imageId", new ConfigurationOptionSetting(
 					"aws:autoscaling:launchconfiguration", "ImageId", ""));
+			put("beanstalk.instanceType", new ConfigurationOptionSetting(
+					"aws:autoscaling:launchconfiguration", "InstanceType", ""));
+			put("beanstalk.monitoringInterval", new ConfigurationOptionSetting(
+					"aws:autoscaling:launchconfiguration", "MonitoringInterval", ""));
+			put("beanstalk.securityGroups", new ConfigurationOptionSetting(
+					"aws:autoscaling:launchconfiguration", "SecurityGroups", ""));
 			put("beanstalk.sshSourceRestriction", new ConfigurationOptionSetting(
 					"aws:autoscaling:launchconfiguration", "SSHSourceRestriction", ""));
 			put("beanstalk.blockDeviceMappings", new ConfigurationOptionSetting(
 					"aws:autoscaling:launchconfiguration", "BlockDeviceMappings", ""));
-            put("beanstalk.sqsdWorkerQueueUrl", new ConfigurationOptionSetting(
-                    "aws:elasticbeanstalk:sqsd", "WorkerQueueURL", ""));
-            put("beanstalk.sqsdHttpPath", new ConfigurationOptionSetting(
-                    "aws:elasticbeanstalk:sqsd", "HttpPath", ""));
-            put("beanstalk.sqsdMimeType", new ConfigurationOptionSetting(
-                    "aws:elasticbeanstalk:sqsd", "MimeType", ""));
-            put("beanstalk.sqsdHttpConnections", new ConfigurationOptionSetting(
-                    "aws:elasticbeanstalk:sqsd", "HttpConnections", ""));
-            put("beanstalk.sqsdConnectTimeout", new ConfigurationOptionSetting(
-                    "aws:elasticbeanstalk:sqsd", "ConnectTimeout", ""));
-            put("beanstalk.sqsdInactivityTimeout", new ConfigurationOptionSetting(
-                    "aws:elasticbeanstalk:sqsd", "InactivityTimeout", ""));
-            put("beanstalk.sqsdVisibilityTimeout", new ConfigurationOptionSetting(
-                    "aws:elasticbeanstalk:sqsd", "VisibilityTimeout", ""));
-            put("beanstalk.sqsdRetentionPeriod", new ConfigurationOptionSetting(
-                    "aws:elasticbeanstalk:sqsd", "RetentionPeriod", ""));
+
+			put("beanstalk.triggerBreachDuration", new ConfigurationOptionSetting(
+					"aws:autoscaling:trigger", "BreachDuration", ""));
+			put("beanstalk.triggerLowerBreachScaleIncrement", new ConfigurationOptionSetting(
+					"aws:autoscaling:trigger", "LowerBreachScaleIncrement", ""));
+			put("beanstalk.triggerLowerThreshold", new ConfigurationOptionSetting(
+					"aws:autoscaling:trigger", "LowerThreshold", ""));
+			put("beanstalk.triggerMeasureName", new ConfigurationOptionSetting(
+					"aws:autoscaling:trigger", "MeasureName", ""));
+			put("beanstalk.triggerPeriod", new ConfigurationOptionSetting(
+					"aws:autoscaling:trigger", "Period", ""));
+			put("beanstalk.triggerStatistic", new ConfigurationOptionSetting(
+					"aws:autoscaling:trigger", "Statistic", ""));
+			put("beanstalk.triggerUnit", new ConfigurationOptionSetting(
+					"aws:autoscaling:trigger", "Unit", ""));
+			put("beanstalk.triggerUpperBreachScaleIncrement", new ConfigurationOptionSetting(
+					"aws:autoscaling:trigger", "UpperBreachScaleIncrement", ""));
+			put("beanstalk.triggerUpperThreshold", new ConfigurationOptionSetting(
+					"aws:autoscaling:trigger", "UpperThreshold", ""));
+
+			put("beanstalk.rollingupdateMaxBatchSize", new ConfigurationOptionSetting(
+					"aws:autoscaling:updatepolicy:rollingupdate", "MaxBatchSize", ""));
+			put("beanstalk.rollingupdateMinInstancesInService", new ConfigurationOptionSetting(
+					"aws:autoscaling:updatepolicy:rollingupdate", "MinInstancesInService", ""));
+			put("beanstalk.rollingupdatePauseTime", new ConfigurationOptionSetting(
+					"aws:autoscaling:updatepolicy:rollingupdate", "PauseTime", ""));
+			put("beanstalk.rollingupdateEnabled", new ConfigurationOptionSetting(
+					"aws:autoscaling:updatepolicy:rollingupdate", "RollingUpdateEnabled", ""));
+
+			put("beanstalk.vpcId", new ConfigurationOptionSetting(
+					"aws:ec2:vpc", "VPCId", ""));
+			put("beanstalk.vpcSubnets", new ConfigurationOptionSetting(
+					"aws:ec2:vpc", "Subnets", ""));
+			put("beanstalk.vpcELBSubnets", new ConfigurationOptionSetting(
+					"aws:ec2:vpc", "ELBSubnets", ""));
+			put("beanstalk.vpcELBScheme", new ConfigurationOptionSetting(
+					"aws:ec2:vpc", "ELBScheme", ""));
+			put("beanstalk.vpcDBSubnets", new ConfigurationOptionSetting(
+					"aws:ec2:vpc", "DBSubnets", ""));
+			put("beanstalk.vpcAssociatePublicIpAddress", new ConfigurationOptionSetting(
+					"aws:ec2:vpc", "AssociatePublicIpAddress", ""));
+
+			put("beanstalk.applicationHealthCheckURL", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:application","Application Healthcheck URL", ""));
+
+			put("beanstalk.timeout", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:command","Timeout", ""));
+
+			put("beanstalk.environmentType", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:environment", "EnvironmentType", ""));
+
+			put("beanstalk.automaticallyTerminateUnhealthyInstances", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:monitoring","Automatically Terminate Unhealthy Instances", ""));
+
+			put("beanstalk.notificationEndpoint", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:sns:topics", "Notification Endpoint", ""));
+			put("beanstalk.notificationProtocol", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:sns:topics", "Notification Protocol", ""));
+			put("beanstalk.notificationTopicARN", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:sns:topics", "Notification Topic ARN", ""));
+			put("beanstalk.notificationTopicName", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:sns:topics", "Notification Topic Name", ""));
+
+			put("beanstalk.sqsdWorkerQueueUrl", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:sqsd", "WorkerQueueURL", ""));
+			put("beanstalk.sqsdHttpPath", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:sqsd", "HttpPath", ""));
+			put("beanstalk.sqsdMimeType", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:sqsd", "MimeType", ""));
+			put("beanstalk.sqsdHttpConnections", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:sqsd", "HttpConnections", ""));
+			put("beanstalk.sqsdConnectTimeout", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:sqsd", "ConnectTimeout", ""));
+			put("beanstalk.sqsdInactivityTimeout", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:sqsd", "InactivityTimeout", ""));
+			put("beanstalk.sqsdVisibilityTimeout", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:sqsd", "VisibilityTimeout", ""));
+			put("beanstalk.sqsdRetentionPeriod", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:sqsd", "RetentionPeriod", ""));
+			put("beanstalk.sqsdMaxRetries", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:sqsd", "MaxRetries", ""));
+
+			put("beanstalk.healthcheckHealthyThreshold", new ConfigurationOptionSetting(
+					"aws:elb:healthcheck", "HealthyThreshold", ""));
+			put("beanstalk.healthcheckInterval", new ConfigurationOptionSetting(
+					"aws:elb:healthcheck", "Interval", ""));
+			put("beanstalk.healthcheckTimeout", new ConfigurationOptionSetting(
+					"aws:elb:healthcheck", "Timeout", ""));
+			put("beanstalk.healthcheckUnhealthyThreshold", new ConfigurationOptionSetting(
+					"aws:elb:healthcheck", "UnhealthyThreshold", ""));
+
+			put("beanstalk.loadBalancerHTTPPort", new ConfigurationOptionSetting(
+					"aws:elb:loadbalancer", "LoadBalancerHTTPPort", ""));
+			put("beanstalk.loadBalancerPortProtocol", new ConfigurationOptionSetting(
+					"aws:elb:loadbalancer", "LoadBalancerPortProtocol", ""));
+			put("beanstalk.loadBalancerHTTPSPort", new ConfigurationOptionSetting(
+					"aws:elb:loadbalancer", "LoadBalancerHTTPSPort", ""));
+			put("beanstalk.loadBalancerSSLPortProtocol", new ConfigurationOptionSetting(
+					"aws:elb:loadbalancer", "LoadBalancerSSLPortProtocol", ""));
+			put("beanstalk.loadBalancerSSLCertificateId", new ConfigurationOptionSetting(
+					"aws:elb:loadbalancer", "SSLCertificateId", ""));
+
+			put("beanstalk.stickinessCookieExpiration", new ConfigurationOptionSetting(
+					"aws:elb:policies", "Stickiness Cookie Expiration", ""));
+			put("beanstalk.stickinessPolicy", new ConfigurationOptionSetting(
+					"aws:elb:policies", "Stickiness Policy", ""));
+
+			put("beanstalk.dbAllocatedStorage", new ConfigurationOptionSetting(
+					"aws:rds:dbinstance", "DBAllocatedStorage", ""));
+			put("beanstalk.dbDeletionPolicy", new ConfigurationOptionSetting(
+					"aws:rds:dbinstance", "DBDeletionPolicy", ""));
+			put("beanstalk.dbEngine", new ConfigurationOptionSetting(
+					"aws:rds:dbinstance", "DBEngine", ""));
+			put("beanstalk.dbEngineVersion", new ConfigurationOptionSetting(
+					"aws:rds:dbinstance", "DBEngineVersion", ""));
+			put("beanstalk.dbInstanceClass", new ConfigurationOptionSetting(
+					"aws:rds:dbinstance", "DBInstanceClass", ""));
+			put("beanstalk.dbPassword", new ConfigurationOptionSetting(
+					"aws:rds:dbinstance", "DBPassword", ""));
+			put("beanstalk.dbSnapshotIdentifier", new ConfigurationOptionSetting(
+					"aws:rds:dbinstance", "DBSnapshotIdentifier", ""));
+			put("beanstalk.dbUser", new ConfigurationOptionSetting(
+					"aws:rds:dbinstance", "DBUser", ""));
+			put("beanstalk.dbMultiAZDatabase", new ConfigurationOptionSetting(
+					"aws:rds:dbinstance", "MultiAZDatabase", ""));
+
+			put("beanstalk.environmentAwsSecretKey", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:application:environment", "AWS_SECRET_KEY", ""));
+			put("beanstalk.environmentAwsAccessKeyId", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:application:environment", "AWS_ACCESS_KEY_ID", ""));
+			put("beanstalk.environmentJdbcConnectionString", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:application:environment", "JDBC_CONNECTION_STRING", ""));
+			put("beanstalk.environmentParam1", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:application:environment", "PARAM1", ""));
+			put("beanstalk.environmentParam2", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:application:environment", "PARAM2", ""));
+			put("beanstalk.environmentParam3", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:application:environment", "PARAM3", ""));
+			put("beanstalk.environmentParam4", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:application:environment", "PARAM4", ""));
+			put("beanstalk.environmentParam5", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:application:environment", "PARAM5", ""));
+
+			put("beanstalk.logPublicationControl", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:hostmanager", "LogPublicationControl", ""));
+
+			put("beanstalk.jvmOptions", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:container:tomcat:jvmoptions", "JVM Options", ""));
+			put("beanstalk.jvmXmx", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:container:tomcat:jvmoptions", "Xmx", ""));
+			put("beanstalk.jvmMaxPermSize", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:container:tomcat:jvmoptions", "XX:MaxPermSize", ""));
+			put("beanstalk.jvmXms", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:container:tomcat:jvmoptions", "Xms", ""));
+
+			put("beanstalk.phpDocumentRoot", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:container:php:phpini", "document_root", ""));
+			put("beanstalk.phpMemoryLimit", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:container:php:phpini", "memory_limit", ""));
+			put("beanstalk.phpZlibOutputCompression", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:container:php:phpini", "zlib.output_compression", ""));
+			put("beanstalk.phpAllowUrlFopen", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:container:php:phpini", "allow_url_fopen", ""));
+			put("beanstalk.phpDisplayErrors", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:container:php:phpini", "display_errors", ""));
+			put("beanstalk.phpMaxExecutionTime", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:container:php:phpini", "max_execution_time", ""));
+			put("beanstalk.phpComposerOptions", new ConfigurationOptionSetting(
+					"aws:elasticbeanstalk:container:php:phpini", "composer_options", ""));
 		}
 	};
 
     protected String lookupVersionLabel(String appName, String versionLabel) {
         if (StringUtils.isBlank(versionLabel)) {
-            DescribeApplicationVersionsResult appVersionsResult = getService().describeApplicationVersions(new DescribeApplicationVersionsRequest().withApplicationName(appName));
+			DescribeApplicationVersionsResult appVersionsResult = getService().describeApplicationVersions(new DescribeApplicationVersionsRequest().withApplicationName(appName));
 
-            List<ApplicationVersionDescription> appVersionList = new ArrayList<ApplicationVersionDescription>(appVersionsResult.getApplicationVersions());
+			List<ApplicationVersionDescription> appVersionList = new ArrayList<ApplicationVersionDescription>(appVersionsResult.getApplicationVersions());
 
-            Collections.sort(appVersionList, new Comparator<ApplicationVersionDescription>() {
-                @Override
-                public int compare(ApplicationVersionDescription o1,
-                                   ApplicationVersionDescription o2) {
-                    return new CompareToBuilder().append(o2.getDateUpdated(), o1.getDateUpdated()).append(o2.getDateCreated(), o1.getDateUpdated()).toComparison();
-                }
-            });
+			Collections.sort(appVersionList, new Comparator<ApplicationVersionDescription>() {
+			    @Override
+			    public int compare(ApplicationVersionDescription o1,
+								    ApplicationVersionDescription o2) {
+					return new CompareToBuilder().append(o2.getDateUpdated(), o1.getDateUpdated()).append(o2.getDateCreated(), o1.getDateUpdated()).toComparison();
+			    }
+			});
 
-            if (appVersionList.isEmpty()) {
-                String message = "No version label supplied **AND** no app versions available.";
+			if (appVersionList.isEmpty()) {
+			    String message = "No version label supplied **AND** no app versions available.";
 
-                getLog().info(message);
+			    getLog().info(message);
 
-                throw new IllegalStateException(message);
-            } else {
-                versionLabel = appVersionList.get(0).getVersionLabel();
+			    throw new IllegalStateException(message);
+			} else {
+			    versionLabel = appVersionList.get(0).getVersionLabel();
 
-                getLog().info("Using latest available application version " + versionLabel);
-            }
+			    getLog().info("Using latest available application version " + versionLabel);
+			}
         }
 
         return versionLabel;
