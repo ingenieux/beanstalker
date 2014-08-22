@@ -109,6 +109,7 @@ public abstract class AbstractNeedsEnvironmentMojo extends
 				ConfigurationOptionSetting o2) {
 			return new CompareToBuilder()
 					.append(o1.getNamespace(), o2.getNamespace())
+					.append(o1.getOptionName(), o2.getOptionName())
 					.append(o1.getValue(), o2.getValue()).toComparison();
 		}
 	};
