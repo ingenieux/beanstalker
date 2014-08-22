@@ -89,6 +89,12 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
     @Parameter(property = "beanstalk.attemptRetryInterval", defaultValue = "60")
     int attemptRetryInterval = 60;
 
+    /**
+     * Whether or not to copy option settings from old environment when replacing
+     */
+    @Parameter(property = "beanstalk.copyOptionSettings", defaultValue = "true")
+    boolean copyOptionSettings = true;
+
     @Override
     protected EnvironmentDescription handleResults(
             Collection<EnvironmentDescription> environments)
@@ -135,7 +141,11 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
                     "Creating a new environment on " + cnamePrefixToCreate
                             + ".elasticbeanstalk.com");
 
-        copyOptionSettings(curEnv);
+        if(copyOptionSettings) {
+            copyOptionSettings(curEnv);
+        } else {
+            optionSettings = introspectOptionSettings();
+        }
 
         if (!solutionStack.equals(curEnv.getSolutionStackName())) {
             if (getLog().isInfoEnabled())
