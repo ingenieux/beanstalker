@@ -143,8 +143,6 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 
         if(copyOptionSettings) {
             copyOptionSettings(curEnv);
-        } else {
-            optionSettings = introspectOptionSettings();
         }
 
         if (!solutionStack.equals(curEnv.getSolutionStackName())) {
