@@ -20,6 +20,7 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentContextBuilder;
 import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
 import org.apache.maven.plugin.AbstractMojoExecutionException;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
@@ -202,6 +203,31 @@ public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
      */
     @Parameter(property="beanstalk.environmentTierName", defaultValue="WebServer")
     String environmentTierName;
+
+    /**
+     * <p>CNAME Prefix</p>
+     */
+    @Parameter(property="beanstalk.cnamePrefix")
+    String cnamePrefix;
+
+    /**
+     * Whether or not to use cname prefix when trying to lookup environment. Default behavior is to use environmentRef
+     */
+    @Parameter(property = "beanstalk.updateMatchCname", defaultValue = "false")
+    boolean updateMatchCname = false;
+
+    @Override
+    protected void configure() {
+        try {
+            if(updateMatchCname) {
+                curEnv = super.getEnvironmentForCNamePrefix(applicationName, cnamePrefix);
+            } else {
+                curEnv = super.lookupEnvironment(applicationName, environmentRef);
+            }
+        } catch (MojoExecutionException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 	protected Object executeInternal() throws AbstractMojoExecutionException {
         versionLabel = lookupVersionLabel(applicationName, versionLabel);
