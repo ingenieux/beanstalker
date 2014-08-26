@@ -18,9 +18,13 @@ import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentContextBuilder;
+import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentCommand;
+import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext;
+import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
 import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
 import org.apache.maven.plugin.AbstractMojoExecutionException;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
@@ -232,7 +236,7 @@ public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 	protected Object executeInternal() throws AbstractMojoExecutionException {
         versionLabel = lookupVersionLabel(applicationName, versionLabel);
 
-		waitForNotUpdating();
+		waitForNotUpdating(curEnv.getCNAME());
 		
 		if (null == optionSettings) {
 			optionSettings = super.introspectOptionSettings();
@@ -254,4 +258,5 @@ public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 
 		return command.execute(context);
 	}
+
 }

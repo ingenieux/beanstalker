@@ -174,7 +174,7 @@ public abstract class AbstractNeedsEnvironmentMojo extends
 						.size()]);
 	}
 
-	protected void waitForNotUpdating()
+	protected void waitForNotUpdating(String environmentRef)
 			throws AbstractMojoExecutionException, MojoFailureException,
 			MojoExecutionException {
 				WaitForEnvironmentContext context = new WaitForEnvironmentContextBuilder()

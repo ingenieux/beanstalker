@@ -45,7 +45,7 @@ public class SetPropertyMojo extends AbstractNeedsEnvironmentMojo {
 	String envValue;
 
 	protected Object executeInternal() throws Exception {
-		waitForNotUpdating();
+		waitForNotUpdating(environmentRef);
 
 		UpdateEnvironmentRequest req = new UpdateEnvironmentRequest()
 				.withEnvironmentId(curEnv.getEnvironmentId());
