@@ -213,13 +213,13 @@ public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
     /**
      * Whether or not to use cname prefix when trying to lookup environment. Default behavior is to use environmentRef
      */
-    @Parameter(property = "beanstalk.updateMatchCname", defaultValue = "false")
-    boolean updateMatchCname = false;
+    @Parameter(property = "beanstalk.updateMatchCnamePrefix", defaultValue = "false")
+    boolean updateMatchCnamePrefix = false;
 
     @Override
     protected void configure() {
         try {
-            if(updateMatchCname) {
+            if(updateMatchCnamePrefix) {
                 curEnv = super.getEnvironmentForCNamePrefix(applicationName, cnamePrefix);
             } else {
                 curEnv = super.lookupEnvironment(applicationName, environmentRef);
