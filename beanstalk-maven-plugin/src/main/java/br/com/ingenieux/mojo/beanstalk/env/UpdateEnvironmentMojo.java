@@ -14,6 +14,7 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
+import br.com.ingenieux.mojo.aws.util.CredentialsUtil;
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentContext;
@@ -22,11 +23,19 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentCommand
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
 import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettingsRequest;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettingsResult;
+import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
+import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.AbstractMojoExecutionException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+
+import java.util.*;
+
+import static java.lang.String.format;
 
 /**
  * Updates the environment versionLabel for a given environmentName
@@ -242,21 +251,74 @@ public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 			optionSettings = super.introspectOptionSettings();
 		}
 
-		UpdateEnvironmentContext context = UpdateEnvironmentContextBuilder
-				.updateEnvironmentContext()
-				.withEnvironmentId(curEnv.getEnvironmentId())//
-				.withEnvironmentDescription(environmentDescription)//
-				.withEnvironmentName(curEnv.getEnvironmentName())//
-				.withOptionSettings(optionSettings)//
-				.withTemplateName(
-						lookupTemplateName(applicationName, templateName))//
-				.withVersionLabel(versionLabel)//
-				.withLatestVersionLabel(curEnv.getVersionLabel())//
-				.build();
+        UpdateEnvironmentContextBuilder builder = UpdateEnvironmentContextBuilder
+                .updateEnvironmentContext()
+                .withEnvironmentId(curEnv.getEnvironmentId())//
+                .withEnvironmentDescription(environmentDescription)//
+                .withEnvironmentName(curEnv.getEnvironmentName())//
+                .withTemplateName(lookupTemplateName(applicationName, templateName))//
+                .withVersionLabel(versionLabel)//
+                .withLatestVersionLabel(curEnv.getVersionLabel());
 
+        if(isOptionSettingsUpdateRequired()) {
+            builder.withOptionSettings(optionSettings);
+        }
+
+		UpdateEnvironmentContext context = builder.build();
 		UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(this);
 
 		return command.execute(context);
 	}
+
+    /**
+     * Determine if update on option settings is necessary
+     * Look to see if new settings are different than existing settings
+     *
+     * Will only detect if change is to add a new settings option or to change the value of a settings option
+     *
+     * Will not detect removal of a settings option.
+     * Will not detect changes to the aws:autoscaling:launchconfiguration:SecurityGroups setting
+     */
+    protected boolean isOptionSettingsUpdateRequired() {
+
+        Set<ConfigurationOptionSetting> newOptionSettings = new HashSet<ConfigurationOptionSetting>();
+        int l = optionSettings.length;
+        for(int i=0; i<l; i++) {
+            ConfigurationOptionSetting optionSetting = optionSettings[i];
+            if( !( optionSetting.getNamespace().equals("aws:autoscaling:launchconfiguration") &&
+                   optionSetting.getOptionName().equals("SecurityGroups"))) {
+                    newOptionSettings.add(optionSettings[i]);
+            }
+        }
+
+        DescribeConfigurationSettingsResult configurationSettingsResult = getService()
+                .describeConfigurationSettings(
+                        new DescribeConfigurationSettingsRequest()
+                                .withApplicationName(applicationName)
+                                .withEnvironmentName(
+                                        curEnv.getEnvironmentName()));
+
+        List<ConfigurationOptionSetting> existingOptionSettings = new ArrayList<ConfigurationOptionSetting>(
+                configurationSettingsResult.getConfigurationSettings().get(0)
+                        .getOptionSettings());
+
+
+        ListIterator<ConfigurationOptionSetting> existingIterator = existingOptionSettings.listIterator();
+        while (existingIterator.hasNext()) {
+
+            ConfigurationOptionSetting existingOptionSetting = existingIterator.next();
+            Iterator<ConfigurationOptionSetting> newIterator = newOptionSettings.iterator();
+
+            while (newIterator.hasNext()) {
+                ConfigurationOptionSetting newOptionSetting = newIterator.next();
+                if(newOptionSetting.equals(existingOptionSetting)) {
+                    newOptionSettings.remove(newOptionSetting);
+                    break;
+                }
+            }
+        }
+
+        return newOptionSettings.size() > 0;
+    }
 
 }
