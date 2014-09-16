@@ -229,6 +229,9 @@ public class WaitForEnvironmentCommand extends
                         info(String.format("%s %s %s", d.getSeverity(),
                                 d.getEventDate(), d.getMessage()));
 
+                        if (d.getSeverity().equals(("ERROR"))) {
+                            throw new MojoExecutionException ("Something went wrong in while waiting for the environment setup to complete : " + d.getMessage());
+                        }
                         lastMessageRecord = d.getEventDate();
                     }                    
                 }
