@@ -69,10 +69,10 @@ public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
 	Integer daysToKeep;
 
     /**
-     * Filter application version list by version label wildcard matching?
+     * Filter application version list to examine for cleaning based on java.util.regex.Pattern string.
      */
-    @Parameter(property="beanstalk.keepFilter")
-    String keepFilter;
+    @Parameter(property="beanstalk.cleanFilter")
+    String cleanFilter;
 
 	/**
 	 * Simulate deletion changing algorithm?
@@ -130,7 +130,7 @@ public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
 			}
 		}
 
-        filterAppVersionListByVersionLabelPattern(appVersionList, keepFilter);
+        filterAppVersionListByVersionLabelPattern(appVersionList, cleanFilter);
 
 		Collections.sort(appVersionList,
 				new Comparator<ApplicationVersionDescription>() {
