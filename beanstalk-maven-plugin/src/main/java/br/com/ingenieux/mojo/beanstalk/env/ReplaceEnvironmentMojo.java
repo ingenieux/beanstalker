@@ -51,7 +51,7 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
 
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 /**
  * Launches a new environment and, when done, replace with the existing, terminating when needed. It
