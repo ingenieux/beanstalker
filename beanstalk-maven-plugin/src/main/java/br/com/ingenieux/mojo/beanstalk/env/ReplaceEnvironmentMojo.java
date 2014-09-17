@@ -63,7 +63,6 @@ import static java.util.Arrays.asList;
 @Mojo(name = "replace-environment")
 // Best Guess Evar
 public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
-
   /**
    * Pattern for Increasing in Replace Environment
    */
@@ -114,6 +113,12 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
   @Parameter(property = "beanstalk.domains")
   String[] domains;
 
+  /**
+   * Whether or not to copy option settings from old environment when replacing
+   */
+  @Parameter(property = "beanstalk.copyOptionSettings", defaultValue = "true")
+  boolean copyOptionSettings = true;
+
   @Override
   protected EnvironmentDescription handleResults(
       Collection<EnvironmentDescription> environments)
@@ -162,7 +167,9 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
           + ".elasticbeanstalk.com");
     }
 
-    copyOptionSettings(curEnv);
+        if(copyOptionSettings) {
+            copyOptionSettings(curEnv);
+        }
 
     if (!solutionStack.equals(curEnv.getSolutionStackName())) {
       if (getLog().isInfoEnabled()) {

@@ -20,6 +20,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -66,6 +67,12 @@ public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
 	 */
 	@Parameter(property="beanstalk.daysToKeep")
 	Integer daysToKeep;
+
+    /**
+     * Filter application version list to examine for cleaning based on java.util.regex.Pattern string.
+     */
+    @Parameter(property="beanstalk.cleanFilter")
+    String cleanFilter;
 
 	/**
 	 * Simulate deletion changing algorithm?
@@ -123,6 +130,8 @@ public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
 			}
 		}
 
+        filterAppVersionListByVersionLabelPattern(appVersionList, cleanFilter);
+
 		Collections.sort(appVersionList,
 				new Comparator<ApplicationVersionDescription>() {
 					@Override
@@ -179,4 +188,23 @@ public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
 			deletedVersionsCount++;
 		}
 	}
+
+    void filterAppVersionListByVersionLabelPattern(List<ApplicationVersionDescription> appVersionList, String patternString) {
+        if (patternString == null)
+            return;
+
+        getLog().info(
+                "Filtering versions with pattern : " + patternString);
+
+        Pattern p = Pattern.compile(patternString);
+        for (ListIterator<ApplicationVersionDescription> appVersionIterator = appVersionList
+                .listIterator(); appVersionIterator.hasNext();) {
+
+            if (!p.matcher(appVersionIterator
+                  .next()
+                  .getVersionLabel())
+                  .matches())
+                appVersionIterator.remove();
+        }
+    }
 }

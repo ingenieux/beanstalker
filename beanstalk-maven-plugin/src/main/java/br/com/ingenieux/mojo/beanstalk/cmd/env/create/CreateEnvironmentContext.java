@@ -105,8 +105,8 @@ public class CreateEnvironmentContext {
 	}
 
 	/**
-	 * @param versionDescription
-	 *          the versionDescription to set
+	 * @param applicationDescription
+	 *          the applicationDescription to set
 	 */
 	public void setApplicationDescription(String applicationDescription) {
 		this.applicationDescription = applicationDescription;

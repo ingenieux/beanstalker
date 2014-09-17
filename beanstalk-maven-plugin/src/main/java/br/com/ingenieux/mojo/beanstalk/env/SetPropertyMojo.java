@@ -14,16 +14,16 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
-import java.util.Arrays;
+import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
+import com.amazonaws.services.elasticbeanstalk.model.UpdateEnvironmentRequest;
+import com.amazonaws.services.elasticbeanstalk.model.UpdateEnvironmentResult;
 
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
+import java.util.Arrays;
 
-import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
-import com.amazonaws.services.elasticbeanstalk.model.UpdateEnvironmentRequest;
-import com.amazonaws.services.elasticbeanstalk.model.UpdateEnvironmentResult;
+import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 
 /**
  * Sets a System Property in a Running Environment
