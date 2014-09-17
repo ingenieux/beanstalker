@@ -380,13 +380,24 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
      * Changes in Route53 as well.
      */
     if (null != domains) {
-      final BindDomainsContext
-          ctx =
-          new BindDomainsContextBuilder().withCurEnv(this.curEnv).withDomains(asList(domains))
-              .build();
+      List<String> domainsToUse = new ArrayList<String>();
 
-      new BindDomainsCommand(this).execute(
-          ctx);
+      for (String s : domains)
+        if (isNotBlank(s))
+          domainsToUse.add(s.trim());
+
+      if (! domainsToUse.isEmpty()) {
+
+        final BindDomainsContext
+            ctx =
+            new BindDomainsContextBuilder().withCurEnv(this.curEnv).withDomains(domainsToUse)
+                .build();
+
+        new BindDomainsCommand(this).execute(
+            ctx);
+      } else {
+        getLog().info("Skipping r53 domain binding");
+      }
 
     }
 
