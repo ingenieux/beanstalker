@@ -1,8 +1,5 @@
 package br.com.ingenieux.mojo.aws;
 
-import br.com.ingenieux.mojo.aws.util.AWSClientFactory;
-import br.com.ingenieux.mojo.aws.util.CredentialsUtil;
-import br.com.ingenieux.mojo.aws.util.TypeUtil;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonWebServiceClient;
 import com.amazonaws.ClientConfiguration;
@@ -10,6 +7,7 @@ import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.EnvironmentVariableCredentialsProvider;
 import com.amazonaws.internal.StaticCredentialsProvider;
+
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -31,6 +29,10 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Properties;
+
+import br.com.ingenieux.mojo.aws.util.AWSClientFactory;
+import br.com.ingenieux.mojo.aws.util.CredentialsUtil;
+import br.com.ingenieux.mojo.aws.util.TypeUtil;
 
 import static java.lang.String.format;
 
@@ -161,7 +163,11 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
         }
     }
 
-    protected Expose exposeSettings(String serverId) throws MojoFailureException {
+  public AWSClientFactory getClientFactory() {
+    return clientFactory;
+  }
+
+  protected Expose exposeSettings(String serverId) throws MojoFailureException {
 		Server server = settings.getServer(serverId);
 
         Expose expose = new Expose();

@@ -14,28 +14,25 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
-import br.com.ingenieux.mojo.aws.util.CredentialsUtil;
+import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettingsRequest;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettingsResult;
+
+import org.apache.maven.plugin.AbstractMojoExecutionException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Set;
+
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentContextBuilder;
-import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentCommand;
-import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext;
-import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
-import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
-import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettingsRequest;
-import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettingsResult;
-import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
-import org.apache.commons.lang.StringUtils;
-import org.apache.maven.plugin.AbstractMojoExecutionException;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-
-import java.util.*;
-
-import static java.lang.String.format;
 
 /**
  * Updates the environment versionLabel for a given environmentName
@@ -217,35 +214,10 @@ public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
     @Parameter(property="beanstalk.environmentTierName", defaultValue="WebServer")
     String environmentTierName;
 
-    /**
-     * <p>CNAME Prefix</p>
-     */
-    @Parameter(property="beanstalk.cnamePrefix")
-    String cnamePrefix;
-
-    /**
-     * Whether or not to use cname prefix when trying to lookup environment. Default behavior is to use environmentRef
-     */
-    @Parameter(property = "beanstalk.updateMatchCnamePrefix", defaultValue = "false")
-    boolean updateMatchCnamePrefix = false;
-
-    @Override
-    protected void configure() {
-        try {
-            if(updateMatchCnamePrefix) {
-                curEnv = super.getEnvironmentForCNamePrefix(applicationName, cnamePrefix);
-            } else {
-                curEnv = super.lookupEnvironment(applicationName, environmentRef);
-            }
-        } catch (MojoExecutionException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
 	protected Object executeInternal() throws AbstractMojoExecutionException {
         versionLabel = lookupVersionLabel(applicationName, versionLabel);
 
-		waitForNotUpdating(curEnv.getCNAME());
+		waitForNotUpdating();
 		
 		if (null == optionSettings) {
 			optionSettings = super.introspectOptionSettings();
