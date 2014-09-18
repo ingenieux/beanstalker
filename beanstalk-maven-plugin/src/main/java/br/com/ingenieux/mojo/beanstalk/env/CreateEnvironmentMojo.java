@@ -80,6 +80,9 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
      *   <li>beanstalk.securityGroups, to aws:autoscaling:launchconfiguration/SecurityGroups</li>
      *   <li>beanstalk.sshSourceRestriction, to aws:autoscaling:launchconfiguration/SSHSourceRestriction</li>
      *   <li>beanstalk.blockDeviceMappings, to aws:autoscaling:launchconfiguration/BlockDeviceMappings</li>
+     *   <li>beanstalk.rootVolumeType, to aws:autoscaling:launchconfiguration/RootVolumeType</li>
+     *   <li>beanstalk.rootVolumeSize, to aws:autoscaling:launchconfiguration/RootVolumeSize</li>
+     *   <li>beanstalk.rootVolumeIOPS, to aws:autoscaling:launchconfiguration/RootVolumeIOPS</li>
 
      *   <li>beanstalk.triggerBreachDuration, to aws:autoscaling:trigger/BreachDuration</li>
      *   <li>beanstalk.triggerLowerBreachScaleIncrement, to aws:autoscaling:trigger/LowerBreachScaleIncrement</li>
