@@ -239,6 +239,12 @@ public abstract class AbstractNeedsEnvironmentMojo extends
 					"aws:autoscaling:launchconfiguration", "SSHSourceRestriction", ""));
 			put("beanstalk.blockDeviceMappings", new ConfigurationOptionSetting(
 					"aws:autoscaling:launchconfiguration", "BlockDeviceMappings", ""));
+			put("beanstalk.rootVolumeType", new ConfigurationOptionSetting(
+					"aws:autoscaling:launchconfiguration", "RootVolumeType", ""));
+			put("beanstalk.rootVolumeSize", new ConfigurationOptionSetting(
+					"aws:autoscaling:launchconfiguration", "RootVolumeSize", ""));
+			put("beanstalk.rootVolumeIOPS", new ConfigurationOptionSetting(
+					"aws:autoscaling:launchconfiguration", "RootVolumeIOPS", ""));
 
 			put("beanstalk.triggerBreachDuration", new ConfigurationOptionSetting(
 					"aws:autoscaling:trigger", "BreachDuration", ""));
