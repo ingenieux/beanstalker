@@ -20,6 +20,6 @@ logging:
       timeZone: UTC
 #    - type: syslog
 #      host: logs2.papertrailapp.com
-#     port: ${SYSLOG_PORT}
+#     port: ${SYSLOG_PORT:0}
 #      facility: user
 #      threshold: ALL
