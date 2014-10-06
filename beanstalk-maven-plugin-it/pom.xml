@@ -3,7 +3,7 @@
     <parent>
         <groupId>br.com.ingenieux</groupId>
         <artifactId>beanstalker</artifactId>
-        <version>1.3.3-SNAPSHOT</version>
+        <version>1.3.3</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>beanstalk-maven-plugin-it</artifactId>
