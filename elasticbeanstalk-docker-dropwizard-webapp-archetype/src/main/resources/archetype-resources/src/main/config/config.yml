@@ -1,0 +1,11 @@
+graphiteHost: ${GRAPHITE_HOST:}
+
+server:
+  applicationConnectors:
+    - type: http
+      port: 8080
+
+logging:
+  level: INFO
+  loggers:
+    "com.sun.jersey": OFF

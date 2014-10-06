@@ -78,6 +78,7 @@
         <module>beanstalk-maven-plugin</module>
         <module>cloudfront-maven-plugin</module>
         <module>simpledb-maven-plugin</module>
+        <module>elasticbeanstalk-docker-dropwizard-webapp-archetype</module>
         <module>elasticbeanstalk-service-webapp-archetype</module>
         <module>elasticbeanstalk-wrapper-webapp-archetype</module>
         <module>beanstalk-maven-plugin-it</module>

@@ -1,12 +1,12 @@
-# Welcome to your beanstalk-maven-plugin wrapper archetype project!
+# Welcome to your beanstalk-maven-plugin archetype project!
 
 ## About
 
 For up to date information, see http://docs.ingenieux.com.br/project/beanstalker/
 
-This project was generated from the elasticbeanstalk-wrapper-webapp-archetype. 
+This project was generated from the elasticbeanstalk-dropwizard-webapp-archetype. 
 
-As it is, it is a boilerplate code for wrapping an existing .war file and deploying into Amazon Web Services' Elastic Beanstalk Service.
+As it is, it is a boilerplate code for a generic, modern webapp using Amazon Web Services' Elastic Beanstalk Service with [Docker](http://docker.io) and [Dropwizard](http://dropwizard.github.io/)
 
 We hope you like it. If you run into any problems, please let us know by the [mailing list](http://groups.google.com/group/beanstalker-users) or the [issue tracker](http://github.com/ingenieux/beanstalker/issues) 
 
@@ -74,7 +74,7 @@ Ok, now you can launch.
 
 Once the application is launched (and there's a Green Icon), click in "Edit Configuration" and set your applications AWS Access Key / Shared Key, then you can set set the proper Health Check URL:
 
-```/services/api/v1/health/check```
+```/health/check```
 
 ## SCM Notes
 
@@ -85,6 +85,12 @@ Please never commit the contents of your ```tmp-git-staging``` directory.
 Its there to cache locally and enable fast deployments into elastic beanstalk via the git backend.
 
 (if you look closely, thats the reason for both .gitignore and .hgignore files)
+
+# Code Notes
+
+## Health Check
+
+The health check code tries to poll DynamoDB, S3, and EC2. If your EC2 keys are IAM-limited, comment-out the relevant sections.
 
 ## Misc Notes
 
