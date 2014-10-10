@@ -45,8 +45,6 @@ public class Main extends Application<ServiceConfiguration> {
   @Override
   public void run(ServiceConfiguration cfg,
                   Environment env) throws Exception {
-    env.getApplicationContext().setMaxFormContentSize((int) (4 * FileUtils.ONE_MB));
-
     JmxReporter.forRegistry(env.metrics()).build().start();
 
     /**
