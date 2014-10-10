@@ -3,6 +3,7 @@ package br.com.ingenieux.mojo.beanstalk;
 import junit.framework.Test;
 import junit.framework.TestResult;
 import junit.framework.TestSuite;
+
 import org.junit.Ignore;
 
 /*
@@ -20,18 +21,19 @@ import org.junit.Ignore;
  */
 @Ignore
 public class MinimalTestSuite {
-	public static Test suite() {
-		TestSuite suite = new TestSuite(MinimalTestSuite.class.getName());
-		
-		// $JUnit-BEGIN$
-		suite.addTestSuite(CheckAvailabilityMojoTest.class);
-		suite.addTestSuite(BootstrapTest.class);
-		// $JUnit-END$
 
-		return suite;
-	}
+  public static Test suite() {
+    TestSuite suite = new TestSuite(MinimalTestSuite.class.getName());
 
-	public static void run(TestResult result) {
-		suite().run(result);
-	}
+    // $JUnit-BEGIN$
+    suite.addTestSuite(CheckAvailabilityMojoTest.class);
+    suite.addTestSuite(BootstrapTest.class);
+    // $JUnit-END$
+
+    return suite;
+  }
+
+  public static void run(TestResult result) {
+    suite().run(result);
+  }
 }

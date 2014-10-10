@@ -15,66 +15,71 @@ package br.com.ingenieux.mojo.beanstalk.env;
  */
 
 
-import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
-import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesCommand;
-import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesContext;
-import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesContextBuilder;
 import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
+
 import org.apache.maven.plugin.AbstractMojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
+import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesCommand;
+import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesContext;
+import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesContextBuilder;
+
 /**
  * Lists the available solution stacks
- * 
- * See the docs for the <a href=
- * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_SwapEnvironmentCNAMEs.html"
+ *
+ * See the docs for the <a href= "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_SwapEnvironmentCNAMEs.html"
  * >SwapEnvironmentCNAMEs API</a> call.
- * 
+ *
  * @author Aldrin Leal
  * @since 0.2.3
  */
-@Mojo(name="swap-environment-cnames")
+@Mojo(name = "swap-environment-cnames")
 public class SwapEnvironmentCnamesMojo extends AbstractBeanstalkMojo {
-	/**
-	 * Beanstalk Application Name
-	 */
-	@Parameter(property="beanstalk.applicationName", defaultValue = "${project.artifactId}", required = true)
-	String applicationName;
 
-	/**
-	 * cname of source environment
-	 */
-	@Parameter(property="beanstalk.sourceEnvironmentCNamePrefix")
-	String sourceEnvironmentCNamePrefix;
+  /**
+   * Beanstalk Application Name
+   */
+  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
+             required = true)
+  String applicationName;
 
-	/**
-	 * cname of target environment
-	 */
-	@Parameter(property="beanstalk.targetEnvironmentCNamePrefix")
-	String targetEnvironmentCNamePrefix;
+  /**
+   * cname of source environment
+   */
+  @Parameter(property = "beanstalk.sourceEnvironmentCNamePrefix")
+  String sourceEnvironmentCNamePrefix;
 
-	@Override
-	protected Object executeInternal() throws AbstractMojoExecutionException {
-		EnvironmentDescription sourceEnvironment = lookupEnvironment(applicationName,
-				ensureSuffix(sourceEnvironmentCNamePrefix));
-		EnvironmentDescription targetEnvironment = lookupEnvironment(applicationName,
-				ensureSuffix(targetEnvironmentCNamePrefix));
+  /**
+   * cname of target environment
+   */
+  @Parameter(property = "beanstalk.targetEnvironmentCNamePrefix")
+  String targetEnvironmentCNamePrefix;
 
-		SwapCNamesContext context = SwapCNamesContextBuilder
-				.swapCNamesContext()//
-				.withSourceEnvironmentId(sourceEnvironment.getEnvironmentId())//
-				.withSourceEnvironmentName(
-						sourceEnvironment.getEnvironmentName())//
-				.withDestinationEnvironmentId(
-						targetEnvironment.getEnvironmentId())//
-				.withDestinationEnvironmentName(
-						targetEnvironment.getEnvironmentName())//
-				.build();
-		
-		SwapCNamesCommand command = new SwapCNamesCommand(this);
+  @Override
+  protected Object executeInternal() throws AbstractMojoExecutionException {
+    EnvironmentDescription sourceEnvironment = lookupEnvironment(applicationName,
+                                                                 ensureSuffix(
+                                                                     sourceEnvironmentCNamePrefix));
+    EnvironmentDescription targetEnvironment = lookupEnvironment(applicationName,
+                                                                 ensureSuffix(
+                                                                     targetEnvironmentCNamePrefix));
 
-		return command.execute(context);
+    SwapCNamesContext context = SwapCNamesContextBuilder
+        .swapCNamesContext()//
+        .withSourceEnvironmentId(sourceEnvironment.getEnvironmentId())//
+        .withSourceEnvironmentName(
+            sourceEnvironment.getEnvironmentName())//
+        .withDestinationEnvironmentId(
+            targetEnvironment.getEnvironmentId())//
+        .withDestinationEnvironmentName(
+            targetEnvironment.getEnvironmentName())//
+        .build();
 
-	}
+    SwapCNamesCommand command = new SwapCNamesCommand(this);
+
+    return command.execute(context);
+
+  }
 }

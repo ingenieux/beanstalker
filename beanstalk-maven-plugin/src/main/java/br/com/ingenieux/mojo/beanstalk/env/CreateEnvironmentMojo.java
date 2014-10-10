@@ -44,17 +44,15 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 
   /**
-   * Application Description
-   */
-  @Parameter(property = "beanstalk.applicationDescription", defaultValue = "${project.name}")
-  String applicationDescription;
-
-  /**
    * environmentName. Takes precedence over environmentRef.
    */
   @Parameter(property = "beanstalk.environmentName", required = true)
   protected String environmentName;
-
+  /**
+   * Application Description
+   */
+  @Parameter(property = "beanstalk.applicationDescription", defaultValue = "${project.name}")
+  String applicationDescription;
   /**
    * <p> Configuration Option Settings. Will evaluate as such: </p>
    *
@@ -202,9 +200,8 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
    * <p>Template Name.</p>
    *
    * <p>Could be either literal or a glob, like, <pre>ingenieux-services-prod-*</pre>. If a glob,
-   * there will
-   * be a lookup involved, and the first one in reverse ASCIIbetical order will be picked upon.
-   * </p>
+   * there will be a lookup involved, and the first one in reverse ASCIIbetical order will be picked
+   * upon. </p>
    */
   @Parameter(property = "beanstalk.templateName")
   String templateName;
@@ -250,7 +247,7 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
                                                       String newEnvironmentName)
       throws AbstractMojoExecutionException {
                 /*
-		 * Hey Aldrin, have you ever noticed we're getting pedantic on those validations?
+                 * Hey Aldrin, have you ever noticed we're getting pedantic on those validations?
 		 */
     Validate.isTrue(isNotBlank(newEnvironmentName), "No New Environment Name Supplied");
 

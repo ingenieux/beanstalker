@@ -14,6 +14,9 @@ package br.com.ingenieux.mojo.beanstalk.config;
  * limitations under the License.
  */
 
+import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationOptionsRequest;
+import com.amazonaws.services.elasticbeanstalk.model.OptionSpecification;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -21,48 +24,46 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 
-import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationOptionsRequest;
-import com.amazonaws.services.elasticbeanstalk.model.OptionSpecification;
-
 /**
  * Returns the Configuration Settings
- * 
- * See the <a href=
- * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_DescribeConfigurationOptions.html"
+ *
+ * See the <a href= "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_DescribeConfigurationOptions.html"
  * >DescribeConfigurationOptions API</a> call.
- * 
+ *
  * @since 0.2.0
  */
-@Mojo(name="describe-configuration-options")
+@Mojo(name = "describe-configuration-options")
 public class DescribeConfigurationOptionsMojo extends AbstractNeedsEnvironmentMojo {
-	/**
-	 * Template Name
-	 */
-	@Parameter(property="beanstalk.templateName")
-	String templateName;
 
-	/**
-	 * Solution Stack Name
-	 */
-	@Parameter(property="beanstalk.solutionStack", defaultValue="32bit Amazon Linux running Tomcat 7")
-	String solutionStack;
+  /**
+   * Template Name
+   */
+  @Parameter(property = "beanstalk.templateName")
+  String templateName;
 
-	/**
-	 * Option Specifications
-	 */
-	@Parameter
-	OptionSpecification[] optionSpecifications;
+  /**
+   * Solution Stack Name
+   */
+  @Parameter(property = "beanstalk.solutionStack",
+             defaultValue = "32bit Amazon Linux running Tomcat 7")
+  String solutionStack;
 
-	protected Object executeInternal() throws MojoExecutionException,
-	    MojoFailureException {
-		DescribeConfigurationOptionsRequest req = new DescribeConfigurationOptionsRequest()//
-		    .withApplicationName(this.applicationName)//
-		    .withEnvironmentName(curEnv.getEnvironmentName())//
-		    .withOptions(optionSpecifications)//
-		    .withSolutionStackName(solutionStack)//
-		    .withTemplateName(templateName)//
-		;
+  /**
+   * Option Specifications
+   */
+  @Parameter
+  OptionSpecification[] optionSpecifications;
 
-		return getService().describeConfigurationOptions(req);
-	}
+  protected Object executeInternal() throws MojoExecutionException,
+                                            MojoFailureException {
+    DescribeConfigurationOptionsRequest req = new DescribeConfigurationOptionsRequest()//
+        .withApplicationName(this.applicationName)//
+        .withEnvironmentName(curEnv.getEnvironmentName())//
+        .withOptions(optionSpecifications)//
+        .withSolutionStackName(solutionStack)//
+        .withTemplateName(templateName)//
+        ;
+
+    return getService().describeConfigurationOptions(req);
+  }
 }

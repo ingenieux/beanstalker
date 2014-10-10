@@ -22,56 +22,58 @@ package br.com.ingenieux.mojo.beanstalk.cmd.env.swap;
  */
 
 public class SwapCNamesContextBuilder extends
-    SwapCNamesContextBuilderBase<SwapCNamesContextBuilder> {
-	public static SwapCNamesContextBuilder swapCNamesContext() {
-		return new SwapCNamesContextBuilder();
-	}
+                                      SwapCNamesContextBuilderBase<SwapCNamesContextBuilder> {
 
-	public SwapCNamesContextBuilder() {
-		super(new SwapCNamesContext());
-	}
+  public SwapCNamesContextBuilder() {
+    super(new SwapCNamesContext());
+  }
 
-	public SwapCNamesContext build() {
-		return getInstance();
-	}
+  public static SwapCNamesContextBuilder swapCNamesContext() {
+    return new SwapCNamesContextBuilder();
+  }
+
+  public SwapCNamesContext build() {
+    return getInstance();
+  }
 }
 
 class SwapCNamesContextBuilderBase<GeneratorT extends SwapCNamesContextBuilderBase<GeneratorT>> {
-	private SwapCNamesContext instance;
 
-	protected SwapCNamesContextBuilderBase(SwapCNamesContext aInstance) {
-		instance = aInstance;
-	}
+  private SwapCNamesContext instance;
 
-	protected SwapCNamesContext getInstance() {
-		return instance;
-	}
+  protected SwapCNamesContextBuilderBase(SwapCNamesContext aInstance) {
+    instance = aInstance;
+  }
 
-	@SuppressWarnings("unchecked")
-	public GeneratorT withSourceEnvironmentName(String aValue) {
-		instance.setSourceEnvironmentName(aValue);
+  protected SwapCNamesContext getInstance() {
+    return instance;
+  }
 
-		return (GeneratorT) this;
-	}
+  @SuppressWarnings("unchecked")
+  public GeneratorT withSourceEnvironmentName(String aValue) {
+    instance.setSourceEnvironmentName(aValue);
 
-	@SuppressWarnings("unchecked")
-	public GeneratorT withSourceEnvironmentId(String aValue) {
-		instance.setSourceEnvironmentId(aValue);
+    return (GeneratorT) this;
+  }
 
-		return (GeneratorT) this;
-	}
+  @SuppressWarnings("unchecked")
+  public GeneratorT withSourceEnvironmentId(String aValue) {
+    instance.setSourceEnvironmentId(aValue);
 
-	@SuppressWarnings("unchecked")
-	public GeneratorT withDestinationEnvironmentName(String aValue) {
-		instance.setDestinationEnvironmentName(aValue);
+    return (GeneratorT) this;
+  }
 
-		return (GeneratorT) this;
-	}
+  @SuppressWarnings("unchecked")
+  public GeneratorT withDestinationEnvironmentName(String aValue) {
+    instance.setDestinationEnvironmentName(aValue);
 
-	@SuppressWarnings("unchecked")
-	public GeneratorT withDestinationEnvironmentId(String aValue) {
-		instance.setDestinationEnvironmentId(aValue);
+    return (GeneratorT) this;
+  }
 
-		return (GeneratorT) this;
-	}
+  @SuppressWarnings("unchecked")
+  public GeneratorT withDestinationEnvironmentId(String aValue) {
+    instance.setDestinationEnvironmentId(aValue);
+
+    return (GeneratorT) this;
+  }
 }

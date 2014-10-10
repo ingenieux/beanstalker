@@ -14,6 +14,12 @@ package br.com.ingenieux.mojo.beanstalk.version;
  * limitations under the License.
  */
 
+import com.amazonaws.services.elasticbeanstalk.model.CreateApplicationVersionRequest;
+import com.amazonaws.services.elasticbeanstalk.model.CreateApplicationVersionResult;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationVersionsRequest;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationVersionsResult;
+import com.amazonaws.services.elasticbeanstalk.model.S3Location;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -21,115 +27,116 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
-import com.amazonaws.services.elasticbeanstalk.model.CreateApplicationVersionRequest;
-import com.amazonaws.services.elasticbeanstalk.model.CreateApplicationVersionResult;
-import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationVersionsRequest;
-import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationVersionsResult;
-import com.amazonaws.services.elasticbeanstalk.model.S3Location;
-
 /**
  * Creates an Application Version, optionally creating the application itself.
- * 
- * See the <a href=
- * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_CreateApplicationVersion.html"
+ *
+ * See the <a href= "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_CreateApplicationVersion.html"
  * >CreateApplicationVersion API</a> call.
- * 
+ *
  * @since 0.1.0
  */
-@Mojo(name="create-application-version")
+@Mojo(name = "create-application-version")
 public class CreateApplicationVersionMojo extends AbstractBeanstalkMojo {
-	/**
-	 * Beanstalk Application Name
-	 */
-	@Parameter(property="beanstalk.applicationName", defaultValue="${project.artifactId}", required=true)
-	String applicationName;
 
-	/**
-	 * Version Description
-	 * 
-	 * Unfortunately, this is incorrectly named. Anyway...
-	 */
-	@Parameter(property="beanstalk.versionDescription", defaultValue="Update from beanstalk-maven-plugin")
-	String versionDescription;
+  /**
+   * Beanstalk Application Name
+   */
+  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
+             required = true)
+  String applicationName;
 
-	/**
-	 * Auto-Create Application? Defaults to true
-	 */
-	@Parameter(property="beanstalk.autoCreateApplication", defaultValue="true")
-	boolean autoCreateApplication;
+  /**
+   * Version Description
+   *
+   * Unfortunately, this is incorrectly named. Anyway...
+   */
+  @Parameter(property = "beanstalk.versionDescription",
+             defaultValue = "Update from beanstalk-maven-plugin")
+  String versionDescription;
 
-	/**
-	 * S3 Bucket
-	 */
-	@Parameter(property="beanstalk.s3Bucket", defaultValue="${project.artifactId}", required=true)
-	String s3Bucket;
+  /**
+   * Auto-Create Application? Defaults to true
+   */
+  @Parameter(property = "beanstalk.autoCreateApplication", defaultValue = "true")
+  boolean autoCreateApplication;
 
-	/**
-	 * S3 Key
-	 */
-	@Parameter(property="beanstalk.s3Key", defaultValue="${project.artifactId}/${project.build.finalName}-${beanstalk.versionLabel}.${project.packaging}", required=true)
-	String s3Key;
+  /**
+   * S3 Bucket
+   */
+  @Parameter(property = "beanstalk.s3Bucket", defaultValue = "${project.artifactId}",
+             required = true)
+  String s3Bucket;
 
-	/**
-	 * Version Label to use. Defaults to Project Version
-	 */
-	@Parameter(property="beanstalk.versionLabel", defaultValue="${project.version}", required=true)
-	String versionLabel;
+  /**
+   * S3 Key
+   */
+  @Parameter(property = "beanstalk.s3Key",
+             defaultValue = "${project.artifactId}/${project.build.finalName}-${beanstalk.versionLabel}.${project.packaging}",
+             required = true)
+  String s3Key;
 
-	/**
-	 * Skip when this versionLabel already exists?
-	 */
-	@Parameter(property="beanstalk.skipExisting", defaultValue="true")
-	boolean skipExisting;
+  /**
+   * Version Label to use. Defaults to Project Version
+   */
+  @Parameter(property = "beanstalk.versionLabel", defaultValue = "${project.version}",
+             required = true)
+  String versionLabel;
 
-	protected Object executeInternal() throws MojoExecutionException {
-		if (skipExisting) {
-			if (versionLabelExists()) {
-				getLog().info(
-						"VersionLabel "
-								+ versionLabel
-								+ " already exists. Skipping creation of new application-version");
+  /**
+   * Skip when this versionLabel already exists?
+   */
+  @Parameter(property = "beanstalk.skipExisting", defaultValue = "true")
+  boolean skipExisting;
 
-				return null;
-			}
-		}
+  protected Object executeInternal() throws MojoExecutionException {
+    if (skipExisting) {
+      if (versionLabelExists()) {
+        getLog().info(
+            "VersionLabel "
+            + versionLabel
+            + " already exists. Skipping creation of new application-version");
 
-		CreateApplicationVersionRequest request = new CreateApplicationVersionRequest();
+        return null;
+      }
+    }
 
-		request.setApplicationName(applicationName);
-		request.setDescription(versionDescription);
-		request.setAutoCreateApplication(autoCreateApplication);
+    CreateApplicationVersionRequest request = new CreateApplicationVersionRequest();
 
-		if (StringUtils.isNotBlank(s3Bucket) && StringUtils.isNotBlank(s3Key))
-			request.setSourceBundle(new S3Location(s3Bucket, s3Key));
+    request.setApplicationName(applicationName);
+    request.setDescription(versionDescription);
+    request.setAutoCreateApplication(autoCreateApplication);
 
-		request.setDescription(versionDescription);
+    if (StringUtils.isNotBlank(s3Bucket) && StringUtils.isNotBlank(s3Key)) {
+      request.setSourceBundle(new S3Location(s3Bucket, s3Key));
+    }
 
-		request.setVersionLabel(versionLabel);
+    request.setDescription(versionDescription);
 
-		CreateApplicationVersionResult result = getService()
-				.createApplicationVersion(request);
+    request.setVersionLabel(versionLabel);
 
-		return result.getApplicationVersion();
-	}
+    CreateApplicationVersionResult result = getService()
+        .createApplicationVersion(request);
 
-	private boolean versionLabelExists() {
-		/*
+    return result.getApplicationVersion();
+  }
+
+  private boolean versionLabelExists() {
+                /*
 		 * Builds a request for this very specific version label
 		 */
-		DescribeApplicationVersionsRequest davRequest = new DescribeApplicationVersionsRequest()
-				.withApplicationName(applicationName).withVersionLabels(
-						versionLabel);
+    DescribeApplicationVersionsRequest davRequest = new DescribeApplicationVersionsRequest()
+        .withApplicationName(applicationName).withVersionLabels(
+            versionLabel);
 
 		/*
 		 * Sends the request
 		 */
-		DescribeApplicationVersionsResult result = getService()
-				.describeApplicationVersions(davRequest);
+    DescribeApplicationVersionsResult result = getService()
+        .describeApplicationVersions(davRequest);
 
 		/*
 		 * Non-empty means the application version label *DOES* exist.
 		 */
-		return !result.getApplicationVersions().isEmpty();
-	}
+    return !result.getApplicationVersions().isEmpty();
+  }
 }

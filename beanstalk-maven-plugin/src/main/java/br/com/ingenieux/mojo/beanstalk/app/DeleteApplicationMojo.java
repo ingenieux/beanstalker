@@ -14,6 +14,8 @@ package br.com.ingenieux.mojo.beanstalk.app;
  * limitations under the License.
  */
 
+import com.amazonaws.services.elasticbeanstalk.model.DeleteApplicationRequest;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -21,35 +23,34 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
-import com.amazonaws.services.elasticbeanstalk.model.DeleteApplicationRequest;
-
 /**
  * Deletes an Application
- * 
- * See the docs for the <a href=
- * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_DeleteApplication.html"
+ *
+ * See the docs for the <a href= "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_DeleteApplication.html"
  * >DeleteApplication API</a> call.
- * 
+ *
  * @author Aldrin Leal
  * @since 0.1.0
  */
-@Mojo(name="delete-application")
+@Mojo(name = "delete-application")
 public class DeleteApplicationMojo extends AbstractBeanstalkMojo {
-	/**
-	 * Beanstalk Application Name
-	 **/
-	@Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}", required = true)
-	String applicationName;
 
-	@Override
-	protected Object executeInternal() throws MojoExecutionException,
-	    MojoFailureException {
-		DeleteApplicationRequest req = new DeleteApplicationRequest();
+  /**
+   * Beanstalk Application Name
+   */
+  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
+             required = true)
+  String applicationName;
 
-		req.setApplicationName(applicationName);
+  @Override
+  protected Object executeInternal() throws MojoExecutionException,
+                                            MojoFailureException {
+    DeleteApplicationRequest req = new DeleteApplicationRequest();
 
-		getService().deleteApplication(req);
+    req.setApplicationName(applicationName);
 
-		return null;
-	}
+    getService().deleteApplication(req);
+
+    return null;
+  }
 }

@@ -22,50 +22,52 @@ package br.com.ingenieux.mojo.beanstalk.cmd.env.terminate;
  */
 
 public class TerminateEnvironmentContextBuilder extends
-    TerminateEnvironmentContextBuilderBase<TerminateEnvironmentContextBuilder> {
-	public static TerminateEnvironmentContextBuilder terminateEnvironmentContext() {
-		return new TerminateEnvironmentContextBuilder();
-	}
+                                                TerminateEnvironmentContextBuilderBase<TerminateEnvironmentContextBuilder> {
 
-	public TerminateEnvironmentContextBuilder() {
-		super(new TerminateEnvironmentContext());
-	}
+  public TerminateEnvironmentContextBuilder() {
+    super(new TerminateEnvironmentContext());
+  }
 
-	public TerminateEnvironmentContext build() {
-		return getInstance();
-	}
+  public static TerminateEnvironmentContextBuilder terminateEnvironmentContext() {
+    return new TerminateEnvironmentContextBuilder();
+  }
+
+  public TerminateEnvironmentContext build() {
+    return getInstance();
+  }
 }
 
 class TerminateEnvironmentContextBuilderBase<GeneratorT extends TerminateEnvironmentContextBuilderBase<GeneratorT>> {
-	private TerminateEnvironmentContext instance;
 
-	protected TerminateEnvironmentContextBuilderBase(
-	    TerminateEnvironmentContext aInstance) {
-		instance = aInstance;
-	}
+  private TerminateEnvironmentContext instance;
 
-	protected TerminateEnvironmentContext getInstance() {
-		return instance;
-	}
+  protected TerminateEnvironmentContextBuilderBase(
+      TerminateEnvironmentContext aInstance) {
+    instance = aInstance;
+  }
 
-	@SuppressWarnings("unchecked")
-	public GeneratorT withEnvironmentId(String aValue) {
-		instance.setEnvironmentId(aValue);
+  protected TerminateEnvironmentContext getInstance() {
+    return instance;
+  }
 
-		return (GeneratorT) this;
-	}
+  @SuppressWarnings("unchecked")
+  public GeneratorT withEnvironmentId(String aValue) {
+    instance.setEnvironmentId(aValue);
 
-	@SuppressWarnings("unchecked")
-	public GeneratorT withEnvironmentName(String aValue) {
-		instance.setEnvironmentName(aValue);
+    return (GeneratorT) this;
+  }
 
-		return (GeneratorT) this;
-	}
+  @SuppressWarnings("unchecked")
+  public GeneratorT withEnvironmentName(String aValue) {
+    instance.setEnvironmentName(aValue);
 
-	@SuppressWarnings("unchecked")
-	public GeneratorT withTerminateResources(boolean aValue) {
-		instance.setTerminateResources(aValue);
+    return (GeneratorT) this;
+  }
 
-		return (GeneratorT) this;
-	}
+  @SuppressWarnings("unchecked")
+  public GeneratorT withTerminateResources(boolean aValue) {
+    instance.setTerminateResources(aValue);
+
+    return (GeneratorT) this;
+  }
 }

@@ -1,9 +1,9 @@
 package br.com.ingenieux.mojo.beanstalk.bundle;
 
-import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 import com.amazonaws.services.elasticbeanstalk.model.ApplicationVersionDescription;
 import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationVersionsRequest;
 import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationVersionsResult;
+
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
@@ -11,229 +11,248 @@ import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.Status;
-import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.RepositoryBuilder;
+import org.eclipse.jgit.lib.TextProgressMonitor;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RefSpec;
 
 import java.io.File;
 import java.util.Date;
 
+import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
+
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 
 /**
  * Uploads a packed war file to Amazon S3 for further Deployment.
- * 
+ *
  * @since 0.2.8
  */
 @Mojo(name = "fast-deploy")
 public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
-	/**
-	 * Artifact to Deploy
-	 */
-	@Parameter(defaultValue = "${project.build.directory}/${project.build.finalName}")
-	File sourceDirectory;
 
-	/**
-	 * Git Staging Dir (should not be under target/)
-	 */
-	@Parameter(property = "beanstalk.stagingDirectory", defaultValue = "${project.basedir}/tmp-git-deployment-staging")
-	File stagingDirectory;
+  /**
+   * Artifact to Deploy
+   */
+  @Parameter(defaultValue = "${project.build.directory}/${project.build.finalName}")
+  File sourceDirectory;
 
-	/**
-	 * Use Staging Directory?
-	 */
-	@Parameter(property = "beanstalk.useStagingDirectory", defaultValue = "false")
-	boolean useStagingDirectory = false;
+  /**
+   * Git Staging Dir (should not be under target/)
+   */
+  @Parameter(property = "beanstalk.stagingDirectory",
+             defaultValue = "${project.basedir}/tmp-git-deployment-staging")
+  File stagingDirectory;
 
-	@Parameter(defaultValue = "${project}")
-	MavenProject project;
+  /**
+   * Use Staging Directory?
+   */
+  @Parameter(property = "beanstalk.useStagingDirectory", defaultValue = "false")
+  boolean useStagingDirectory = false;
 
-	/**
-	 * Version Description
-	 */
-	@Parameter(property = "beanstalk.versionDescription", defaultValue = "Update from fast-deploy")
-	String versionDescription;
+  @Parameter(defaultValue = "${project}")
+  MavenProject project;
 
-	/**
-	 * Skip Environment Update?
-	 */
-	@Parameter(property = "beanstalk.skipEnvironmentUpdate", defaultValue = "false")
-	boolean skipEnvironmentUpdate = false;
+  /**
+   * Version Description
+   */
+  @Parameter(property = "beanstalk.versionDescription", defaultValue = "Update from fast-deploy")
+  String versionDescription;
 
-	/**
-	 * Silent Upload?
-	 */
-	@Parameter(property = "beanstalk.silentUpload", defaultValue = "false")
-	boolean silentUpload = false;
+  /**
+   * Skip Environment Update?
+   */
+  @Parameter(property = "beanstalk.skipEnvironmentUpdate", defaultValue = "false")
+  boolean skipEnvironmentUpdate = false;
 
-	@Override
-	protected void configure() {
-		try {
-			super.configure();
-		} catch (Exception exc) {
-            //getLog().warn(exc);
-		}
+  /**
+   * Silent Upload?
+   */
+  @Parameter(property = "beanstalk.silentUpload", defaultValue = "false")
+  boolean silentUpload = false;
 
-		region = defaultIfBlank(region, "us-east-1");
-	}
+  @Override
+  protected void configure() {
+    try {
+      super.configure();
+    } catch (Exception exc) {
+      //getLog().warn(exc);
+    }
 
-	@Override
-	protected Object executeInternal() throws Exception {
-		Git git = getGitRepo();
-		String versionLabel = null;
+    region = defaultIfBlank(region, "us-east-1");
+  }
 
-		String commitId = null;
+  @Override
+  protected Object executeInternal() throws Exception {
+    Git git = getGitRepo();
+    String versionLabel = null;
 
-		Ref masterRef = git.getRepository()
-				.getRef("master");
-		if (null != masterRef)
-			commitId = ObjectId.toString(masterRef.getObjectId());
+    String commitId = null;
 
-		Status status = git.status().call();
+    Ref masterRef = git.getRepository()
+        .getRef("master");
+    if (null != masterRef) {
+      commitId = ObjectId.toString(masterRef.getObjectId());
+    }
 
-		boolean pushAhead = false;
+    Status status = git.status().call();
 
-		if (null != commitId && status.isClean()) {
-			versionLabel = lookupVersionLabelForCommitId(commitId);
+    boolean pushAhead = false;
 
-			if (null == versionLabel) {
-				getLog().info("No Changes. However, we've didn't get something close in AWS Elastic Beanstalk and we're pushing ahead");
-				pushAhead = true;
-			} else {
-				getLog().info("No Changes. However, we've got something close in AWS Elastic Beanstalk and we're continuing");
+    if (null != commitId && status.isClean()) {
+      versionLabel = lookupVersionLabelForCommitId(commitId);
 
-				project.getProperties().put("beanstalk.versionLabel", versionLabel);
+      if (null == versionLabel) {
+        getLog().info(
+            "No Changes. However, we've didn't get something close in AWS Elastic Beanstalk and we're pushing ahead");
+        pushAhead = true;
+      } else {
+        getLog().info(
+            "No Changes. However, we've got something close in AWS Elastic Beanstalk and we're continuing");
 
-				return null;
-			}
-		}
+        project.getProperties().put("beanstalk.versionLabel", versionLabel);
 
-		if (!pushAhead) {
-			// Asks for Existing Files to get added
-			git.add().setUpdate(true).addFilepattern(".").call();
+        return null;
+      }
+    }
 
-			// Now as for any new files (untracked)
+    if (!pushAhead) {
+      // Asks for Existing Files to get added
+      git.add().setUpdate(true).addFilepattern(".").call();
 
-			AddCommand addCommand = git.add();
+      // Now as for any new files (untracked)
 
-			if (!status.getUntracked().isEmpty()) {
-				for (String s : status.getUntracked()) {
-					getLog().info("Adding file " + s);
-					addCommand.addFilepattern(s);
-				}
+      AddCommand addCommand = git.add();
 
-				addCommand.call();
-			}
+      if (!status.getUntracked().isEmpty()) {
+        for (String s : status.getUntracked()) {
+          getLog().info("Adding file " + s);
+          addCommand.addFilepattern(s);
+        }
 
-			git.commit().setAll(true).setMessage(versionDescription).call();
+        addCommand.call();
+      }
 
-			masterRef = git.getRepository()
-					.getRef("master");
+      git.commit().setAll(true).setMessage(versionDescription).call();
 
-			commitId = ObjectId.toString(masterRef.getObjectId());
-		}
+      masterRef = git.getRepository()
+          .getRef("master");
 
-		String environmentName = null;
+      commitId = ObjectId.toString(masterRef.getObjectId());
+    }
+
+    String environmentName = null;
 
 		/*
-		 * Builds the remote push URL
+                 * Builds the remote push URL
 		 */
-		if (null != curEnv && !skipEnvironmentUpdate)
-			environmentName = curEnv.getEnvironmentName();
+    if (null != curEnv && !skipEnvironmentUpdate) {
+      environmentName = curEnv.getEnvironmentName();
+    }
 
-		String remote = new RequestSigner(getAWSCredentials(), applicationName,
-				region, commitId, environmentName, new Date()).getPushUrl();
+    String remote = new RequestSigner(getAWSCredentials(), applicationName,
+                                      region, commitId, environmentName, new Date()).getPushUrl();
 
 		/*
 		 * Does the Push
 		 */
-		{
-			PushCommand cmd = git.//
-					push();
+    {
+      PushCommand cmd = git.//
+          push();
 
-			if (! silentUpload)
-				cmd.setProgressMonitor(new TextProgressMonitor());
+      if (!silentUpload) {
+        cmd.setProgressMonitor(new TextProgressMonitor());
+      }
 
-			Iterable<PushResult> pushResults = null;
-			try {
-				pushResults = cmd.setRefSpecs(new RefSpec("HEAD:refs/heads/master")).//
-						setForce(true).//
-						setRemote(remote).//
-						call();
-			} catch (Exception exc) {
-				// Ignore
-				getLog().debug("(Actually Expected) Exception", exc);
-			}
+      Iterable<PushResult> pushResults = null;
+      try {
+        pushResults = cmd.setRefSpecs(new RefSpec("HEAD:refs/heads/master")).//
+            setForce(true).//
+            setRemote(remote).//
+            call();
+      } catch (Exception exc) {
+        // Ignore
+        getLog().debug("(Actually Expected) Exception", exc);
+      }
 
 			/*
 			 * I wish someday it could work... :(
 			 */
-			if (null != pushResults)
-				for (PushResult pushResult : pushResults) {
-					getLog().debug(" * " + pushResult.getMessages());
-				}
-		}
-
-		versionLabel = lookupVersionLabelForCommitId(commitId);
-
-        if (null != versionLabel) {
-            getLog().info("Deployed version " + versionLabel);
-
-            project.getProperties().put("beanstalk.versionLabel", versionLabel);
-        } else {
-            getLog().warn("No version found. Ignoring.");
+      if (null != pushResults) {
+        for (PushResult pushResult : pushResults) {
+          getLog().debug(" * " + pushResult.getMessages());
         }
+      }
+    }
 
-		return null;
-	}
+    versionLabel = lookupVersionLabelForCommitId(commitId);
 
-	private String lookupVersionLabelForCommitId(String commitId) {
-		String versionLabel = null;
-		String prefixToLookup = format("git-%s-", commitId);
+    if (null != versionLabel) {
+      getLog().info("Deployed version " + versionLabel);
 
-		DescribeApplicationVersionsResult describeApplicationVersions = getService().describeApplicationVersions(new DescribeApplicationVersionsRequest().withApplicationName(applicationName));
+      project.getProperties().put("beanstalk.versionLabel", versionLabel);
+    } else {
+      getLog().warn("No version found. Ignoring.");
+    }
 
-		for (ApplicationVersionDescription avd : describeApplicationVersions.getApplicationVersions()) {
-			if (avd.getVersionLabel().startsWith(prefixToLookup)) {
-				versionLabel = avd.getVersionLabel();
-				break;
-			}
-		}
+    return null;
+  }
 
-		return versionLabel;
-	}
+  private String lookupVersionLabelForCommitId(String commitId) {
+    String versionLabel = null;
+    String prefixToLookup = format("git-%s-", commitId);
 
-	private Git getGitRepo() throws Exception {
-		Git git = null;
+    DescribeApplicationVersionsResult
+        describeApplicationVersions =
+        getService().describeApplicationVersions(
+            new DescribeApplicationVersionsRequest().withApplicationName(applicationName));
 
-		if (!useStagingDirectory) {
-			File gitRepo = new File(sourceDirectory, ".git");
+    for (ApplicationVersionDescription avd : describeApplicationVersions.getApplicationVersions()) {
+      if (avd.getVersionLabel().startsWith(prefixToLookup)) {
+        versionLabel = avd.getVersionLabel();
+        break;
+      }
+    }
 
-			if (!gitRepo.exists()) {
-				git = Git.init().setDirectory(sourceDirectory).call();
-			} else {
-				git = Git.open(gitRepo);
-			}
-		} else {
-			File gitRepo = stagingDirectory;
-			Repository r = null;
+    return versionLabel;
+  }
 
-			RepositoryBuilder b = new RepositoryBuilder().setGitDir(stagingDirectory).setWorkTree(sourceDirectory);
+  private Git getGitRepo() throws Exception {
+    Git git = null;
 
-			if (!gitRepo.exists()) {
-				gitRepo.getParentFile().mkdirs();
+    if (!useStagingDirectory) {
+      File gitRepo = new File(sourceDirectory, ".git");
 
-				r = b.build();
+      if (!gitRepo.exists()) {
+        git = Git.init().setDirectory(sourceDirectory).call();
+      } else {
+        git = Git.open(gitRepo);
+      }
+    } else {
+      File gitRepo = stagingDirectory;
+      Repository r = null;
 
-				r.create();
-			} else {
-				r = b.build();
-			}
+      RepositoryBuilder
+          b =
+          new RepositoryBuilder().setGitDir(stagingDirectory).setWorkTree(sourceDirectory);
 
-			git = Git.wrap(r);
-		}
+      if (!gitRepo.exists()) {
+        gitRepo.getParentFile().mkdirs();
 
-		return git;
-	}
+        r = b.build();
+
+        r.create();
+      } else {
+        r = b.build();
+      }
+
+      git = Git.wrap(r);
+    }
+
+    return git;
+  }
 }

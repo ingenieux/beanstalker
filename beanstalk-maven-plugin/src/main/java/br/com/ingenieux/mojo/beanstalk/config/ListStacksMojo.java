@@ -22,19 +22,19 @@ import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
 /**
  * Lists the available solution stacks
- * 
- * See the docs for the <a href=
- * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_ListAvailableSolutionStacks.html"
+ *
+ * See the docs for the <a href= "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_ListAvailableSolutionStacks.html"
  * >ListAvailableSolutionStacks API</a> call.
- * 
+ *
  * @author Aldrin Leal
- * @since 0.1.0 
+ * @since 0.1.0
  */
-@Mojo(name="list-stacks", requiresDirectInvocation=true)
+@Mojo(name = "list-stacks", requiresDirectInvocation = true)
 public class ListStacksMojo extends AbstractBeanstalkMojo {
-	@Override
-	protected Object executeInternal() throws MojoExecutionException,
-	    MojoFailureException {
-		return getService().listAvailableSolutionStacks();
-	}
+
+  @Override
+  protected Object executeInternal() throws MojoExecutionException,
+                                            MojoFailureException {
+    return getService().listAvailableSolutionStacks();
+  }
 }

@@ -14,6 +14,8 @@ package br.com.ingenieux.mojo.beanstalk.version;
  * limitations under the License.
  */
 
+import com.amazonaws.services.elasticbeanstalk.model.DeleteApplicationVersionRequest;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -21,47 +23,46 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
-import com.amazonaws.services.elasticbeanstalk.model.DeleteApplicationVersionRequest;
-
 /**
  * Deletes an Application Version
- * 
- * See the docs for <a href=
- * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_DeleteApplicationVersion.html"
+ *
+ * See the docs for <a href= "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_DeleteApplicationVersion.html"
  * >DeleteApplicationVersion API</a> call.
- * 
+ *
  * @author Aldrin Leal
  * @since 0.1.0
  */
-@Mojo(name="delete-application-version")
+@Mojo(name = "delete-application-version")
 public class DeleteApplicationVersionMojo extends AbstractBeanstalkMojo {
-	/**
-	 * Beanstalk Application Name
-	 */
-	@Parameter(property="beanstalk.applicationName", defaultValue="${project.artifactId}", required=true)
-	protected String applicationName;
 
-	@Parameter(property="beanstalk.versionLabel", defaultValue="${project.version}")
-	String versionLabel;
+  /**
+   * Beanstalk Application Name
+   */
+  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
+             required = true)
+  protected String applicationName;
 
-	/**
-	 * Delete the source bundle?
-	 */
-	@Parameter(property="beanstalk.deleteSourceBundle", defaultValue="false")
-	private boolean deleteSourceBundle;
+  @Parameter(property = "beanstalk.versionLabel", defaultValue = "${project.version}")
+  String versionLabel;
 
-	@Override
-	protected Object executeInternal() throws MojoExecutionException,
-	    MojoFailureException {
-		DeleteApplicationVersionRequest req = new DeleteApplicationVersionRequest();
+  /**
+   * Delete the source bundle?
+   */
+  @Parameter(property = "beanstalk.deleteSourceBundle", defaultValue = "false")
+  private boolean deleteSourceBundle;
 
-		req.setApplicationName(applicationName);
-		req.setDeleteSourceBundle(deleteSourceBundle);
-		req.setVersionLabel(versionLabel);
+  @Override
+  protected Object executeInternal() throws MojoExecutionException,
+                                            MojoFailureException {
+    DeleteApplicationVersionRequest req = new DeleteApplicationVersionRequest();
 
-		getService().deleteApplicationVersion(req);
+    req.setApplicationName(applicationName);
+    req.setDeleteSourceBundle(deleteSourceBundle);
+    req.setVersionLabel(versionLabel);
 
-		return null;
-	}
+    getService().deleteApplicationVersion(req);
+
+    return null;
+  }
 
 }

@@ -14,6 +14,9 @@ package br.com.ingenieux.mojo.beanstalk.dns;
  * limitations under the License.
  */
 
+import com.amazonaws.services.elasticbeanstalk.model.CheckDNSAvailabilityRequest;
+import com.amazonaws.services.elasticbeanstalk.model.CheckDNSAvailabilityResult;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -21,34 +24,31 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
-import com.amazonaws.services.elasticbeanstalk.model.CheckDNSAvailabilityRequest;
-import com.amazonaws.services.elasticbeanstalk.model.CheckDNSAvailabilityResult;
-
 /**
  * Checks the availability of a CNAME.
- * 
- * See the <a href=
- * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_CheckDNSAvailability.html"
+ *
+ * See the <a href= "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_CheckDNSAvailability.html"
  * >CheckDNSAvailability API</a> call.
- * 
+ *
  * @since 0.1.0
  */
-@Mojo(name="check-availability", requiresDirectInvocation=true)
+@Mojo(name = "check-availability", requiresDirectInvocation = true)
 public class CheckAvailabilityMojo extends AbstractBeanstalkMojo {
-	/**
-	 * DNS CName Prefix
-	 */
-	@Parameter(property="beanstalk.cnamePrefix", required=true)
-	String cnamePrefix;
 
-	protected Object executeInternal() throws MojoExecutionException,
-	    MojoFailureException {
-		CheckDNSAvailabilityRequest checkDNSAvailabilityRequest = new CheckDNSAvailabilityRequest(
-		    cnamePrefix);
+  /**
+   * DNS CName Prefix
+   */
+  @Parameter(property = "beanstalk.cnamePrefix", required = true)
+  String cnamePrefix;
 
-		CheckDNSAvailabilityResult result = getService()
-		    .checkDNSAvailability(checkDNSAvailabilityRequest);
+  protected Object executeInternal() throws MojoExecutionException,
+                                            MojoFailureException {
+    CheckDNSAvailabilityRequest checkDNSAvailabilityRequest = new CheckDNSAvailabilityRequest(
+        cnamePrefix);
 
-		return result;
-	}
+    CheckDNSAvailabilityResult result = getService()
+        .checkDNSAvailability(checkDNSAvailabilityRequest);
+
+    return result;
+  }
 }

@@ -14,6 +14,9 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
+import com.amazonaws.services.elasticbeanstalk.model.RetrieveEnvironmentInfoRequest;
+import com.amazonaws.services.elasticbeanstalk.model.RetrieveEnvironmentInfoResult;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -21,37 +24,35 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 
-import com.amazonaws.services.elasticbeanstalk.model.RetrieveEnvironmentInfoRequest;
-import com.amazonaws.services.elasticbeanstalk.model.RetrieveEnvironmentInfoResult;
-
 /**
  * Returns Environment Info
- * 
- * See the docs for <a href=
- * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_RetrieveEnvironmentInfo.html"
+ *
+ * See the docs for <a href= "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_RetrieveEnvironmentInfo.html"
  * >RetrieveEnvironmentInfo API</a> call.
- * 
+ *
  * @author Aldrin Leal
  * @since 0.2.6
  */
-@Mojo(name="retrieve-environment-info", requiresDirectInvocation=true)
+@Mojo(name = "retrieve-environment-info", requiresDirectInvocation = true)
 public class RetrieveEnvironmentInfoMojo extends AbstractNeedsEnvironmentMojo {
-	/**
-	 * Type of information ro retrieve. Accepted: <code>tail</code>
-	 */
-	@Parameter(property="beanstalk.infoType", defaultValue="tail", required=true)
-	private String infoType;
 
-	@Override
-	protected Object executeInternal() throws MojoExecutionException,
-	    MojoFailureException {
-		RetrieveEnvironmentInfoRequest request = new RetrieveEnvironmentInfoRequest()
-		    .withEnvironmentId(curEnv.getEnvironmentId()).withEnvironmentName(curEnv.getEnvironmentName())
-		    .withInfoType(infoType);
+  /**
+   * Type of information ro retrieve. Accepted: <code>tail</code>
+   */
+  @Parameter(property = "beanstalk.infoType", defaultValue = "tail", required = true)
+  private String infoType;
 
-		RetrieveEnvironmentInfoResult result = getService()
-		    .retrieveEnvironmentInfo(request);
+  @Override
+  protected Object executeInternal() throws MojoExecutionException,
+                                            MojoFailureException {
+    RetrieveEnvironmentInfoRequest request = new RetrieveEnvironmentInfoRequest()
+        .withEnvironmentId(curEnv.getEnvironmentId())
+        .withEnvironmentName(curEnv.getEnvironmentName())
+        .withInfoType(infoType);
 
-		return result;
-	}
+    RetrieveEnvironmentInfoResult result = getService()
+        .retrieveEnvironmentInfo(request);
+
+    return result;
+  }
 }

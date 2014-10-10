@@ -14,17 +14,6 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
-import java.io.File;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-
-import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
-
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
@@ -34,72 +23,86 @@ import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentResource
 import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentResourcesResult;
 import com.amazonaws.services.elasticbeanstalk.model.Instance;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+
+import java.io.File;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
+
 /**
  * Dump Environment Instance Addresses
- * 
- * See the docs for <a href=
- * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_DescribeEnvironmentResources.html"
+ *
+ * See the docs for <a href= "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_DescribeEnvironmentResources.html"
  * >DescribeEnvironmentResources API</a> call.
- * 
+ *
  * @author Aldrin Leal
  * @since 1.1.1
  */
-@Mojo(name = "dump-instances", requiresDirectInvocation=true)
+@Mojo(name = "dump-instances", requiresDirectInvocation = true)
 public class DumpInstancesMojo extends AbstractNeedsEnvironmentMojo {
-	/**
-	 * (Optional) output file to output to
-	 */
-	@Parameter(property = "beanstalk.outputFile")
-	private File outputFile;
 
-	/**
-	 * Dump private addresses? defaults to false
-	 */
-	@Parameter(property = "beanstalk.dumpPrivateAddresses", defaultValue = "false")
-	private boolean dumpPrivateAddresses;
+  /**
+   * (Optional) output file to output to
+   */
+  @Parameter(property = "beanstalk.outputFile")
+  private File outputFile;
 
-	@Override
-	protected Object executeInternal() throws Exception {
-		AmazonEC2 ec2 = clientFactory.getService(AmazonEC2Client.class);
+  /**
+   * Dump private addresses? defaults to false
+   */
+  @Parameter(property = "beanstalk.dumpPrivateAddresses", defaultValue = "false")
+  private boolean dumpPrivateAddresses;
 
-		DescribeEnvironmentResourcesResult envResources = getService()
-				.describeEnvironmentResources(
-						new DescribeEnvironmentResourcesRequest()
-								.withEnvironmentId(curEnv.getEnvironmentId())
-								.withEnvironmentName(
-										curEnv.getEnvironmentName()));
-		List<String> instanceIds = new ArrayList<String>();
+  @Override
+  protected Object executeInternal() throws Exception {
+    AmazonEC2 ec2 = clientFactory.getService(AmazonEC2Client.class);
 
-		for (Instance i : envResources.getEnvironmentResources().getInstances())
-			instanceIds.add(i.getId());
+    DescribeEnvironmentResourcesResult envResources = getService()
+        .describeEnvironmentResources(
+            new DescribeEnvironmentResourcesRequest()
+                .withEnvironmentId(curEnv.getEnvironmentId())
+                .withEnvironmentName(
+                    curEnv.getEnvironmentName()));
+    List<String> instanceIds = new ArrayList<String>();
 
-		DescribeInstancesResult ec2Instances = ec2
-				.describeInstances(new DescribeInstancesRequest()
-						.withInstanceIds(instanceIds));
+    for (Instance i : envResources.getEnvironmentResources().getInstances()) {
+      instanceIds.add(i.getId());
+    }
 
-		PrintStream printStream = null;
+    DescribeInstancesResult ec2Instances = ec2
+        .describeInstances(new DescribeInstancesRequest()
+                               .withInstanceIds(instanceIds));
 
-		if (null != outputFile)
-			printStream = new PrintStream(outputFile);
+    PrintStream printStream = null;
 
-		for (Reservation r : ec2Instances.getReservations()) {
-			for (com.amazonaws.services.ec2.model.Instance i : r.getInstances()) {
-				String ipAddress = dumpPrivateAddresses ? i
-						.getPrivateIpAddress() : StringUtils.defaultString(
-						i.getPublicIpAddress(), i.getPrivateDnsName());
-				String instanceId = i.getInstanceId();
+    if (null != outputFile) {
+      printStream = new PrintStream(outputFile);
+    }
 
-				if (null != printStream) {
-					printStream.println(ipAddress + " # " + instanceId);
-				} else {
-					getLog().info(" * " + instanceId + ": " + ipAddress);
-				}
-			}
-		}
+    for (Reservation r : ec2Instances.getReservations()) {
+      for (com.amazonaws.services.ec2.model.Instance i : r.getInstances()) {
+        String ipAddress = dumpPrivateAddresses ? i
+            .getPrivateIpAddress() : StringUtils.defaultString(
+            i.getPublicIpAddress(), i.getPrivateDnsName());
+        String instanceId = i.getInstanceId();
 
-		if (null != printStream)
-			printStream.close();
+        if (null != printStream) {
+          printStream.println(ipAddress + " # " + instanceId);
+        } else {
+          getLog().info(" * " + instanceId + ": " + ipAddress);
+        }
+      }
+    }
 
-		return null;
-	}
+    if (null != printStream) {
+      printStream.close();
+    }
+
+    return null;
+  }
 }

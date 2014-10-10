@@ -205,8 +205,9 @@ public abstract class AbstractBeanstalkMojo extends
 
   // TODO: Refactor w/ version lookup
   protected String lookupSolutionStack(final String solutionStack) {
-    if (!hasWildcards(solutionStack))
+    if (!hasWildcards(solutionStack)) {
       return solutionStack;
+    }
 
     getLog().info("Looking up for solution stacks matching '" + solutionStack + "'");
 
@@ -239,8 +240,10 @@ public abstract class AbstractBeanstalkMojo extends
 
     Collections.sort(matchingStacks, ComparatorUtils.reversedComparator(Collator.getInstance()));
 
-    if (matchingStacks.isEmpty())
-      throw new IllegalStateException("unable to lookup a solution stack matching '" + solutionStack + "'");
+    if (matchingStacks.isEmpty()) {
+      throw new IllegalStateException(
+          "unable to lookup a solution stack matching '" + solutionStack + "'");
+    }
 
     return matchingStacks.iterator().next();
   }

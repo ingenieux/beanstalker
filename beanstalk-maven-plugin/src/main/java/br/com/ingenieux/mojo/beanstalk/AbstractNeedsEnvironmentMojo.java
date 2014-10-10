@@ -48,81 +48,6 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext
 public abstract class AbstractNeedsEnvironmentMojo extends
                                                    AbstractBeanstalkMojo {
 
-  /**
-   * Beanstalk Application Name
-   */
-  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
-             required = true)
-  protected String applicationName;
-
-  /**
-   * Maven Project
-   */
-  @Parameter(defaultValue = "${project}", readonly = true)
-  protected MavenProject project;
-
-  /**
-   * Environment Ref
-   */
-  @Parameter(property = "beanstalk.environmentRef",
-             defaultValue = "${project.artifactId}.elasticbeanstalk.com")
-  protected String environmentRef;
-
-  /**
-   * Current Environment
-   */
-  protected EnvironmentDescription curEnv;
-
-  @Override
-  protected void configure() {
-    try {
-      curEnv = super.lookupEnvironment(applicationName, environmentRef);
-    } catch (MojoExecutionException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  /**
-   * Returns a list of environments for current application name
-   *
-   * @param cnamePrefix cname prefix to match
-   * @return found environment, if any. null otherwise
-   */
-  protected EnvironmentDescription getEnvironmentForCNamePrefix(
-      String applicationName, String cnamePrefix) {
-    for (final EnvironmentDescription env : getEnvironmentsFor(applicationName)) {
-      final String cnameToMatch = cnamePrefix + ".elasticbeanstalk.com";
-      if (verbose) {
-        getLog().info(
-            "Trying to match " + cnameToMatch + " with "
-            + env.getCNAME());
-      }
-
-      if (env.getCNAME().equalsIgnoreCase(cnameToMatch)) {
-        return env;
-      }
-    }
-
-    return null;
-  }
-
-  /**
-   * Returns a list of environments for applicationName
-   *
-   * @param applicationName applicationName
-   * @return environments
-   */
-  protected Collection<EnvironmentDescription> getEnvironmentsFor(
-      String applicationName) {
-                /*
-		 * Requests
-		 */
-    DescribeEnvironmentsRequest req = new DescribeEnvironmentsRequest()
-        .withApplicationName(applicationName).withIncludeDeleted(false);
-
-    return getService().describeEnvironments(req).getEnvironments();
-  }
-
   public static final Comparator<ConfigurationOptionSetting>
       COS_COMPARATOR =
       new Comparator<ConfigurationOptionSetting>() {
@@ -135,88 +60,6 @@ public abstract class AbstractNeedsEnvironmentMojo extends
               .append(o1.getValue(), o2.getValue()).toComparison();
         }
       };
-
-  protected ConfigurationOptionSetting[] introspectOptionSettings() {
-    Set<ConfigurationOptionSetting> configOptionSetting = new TreeSet<ConfigurationOptionSetting>(
-        COS_COMPARATOR);
-
-    Properties properties = new Properties();
-
-    if (null != project) {
-      for (Map.Entry<Object, Object> entry : project.getProperties()
-          .entrySet()) {
-        if (("" + entry.getKey()).startsWith("beanstalk")) {
-          properties.put(entry.getKey(), entry.getValue());
-        }
-      }
-    }
-
-    for (Map.Entry<Object, Object> entry : System.getProperties()
-        .entrySet()) {
-      if (("" + entry.getKey()).startsWith("beanstalk")) {
-        properties.put(entry.getKey(), entry.getValue());
-      }
-    }
-
-    for (Object o : properties.keySet()) {
-      String k = "" + o;
-
-      if (k.startsWith("beanstalk.env.aws.")) {
-        String realKey = k.substring("beanstalk.env.".length());
-        String v = "" + properties.get(k);
-        List<String> elements = new ArrayList<String>(
-            Arrays.asList(realKey.split("\\.")));
-
-        String namespace = StringUtils.join(
-            elements.subList(0, -1 + elements.size()), ":");
-        String optionName = elements.get(-1 + elements.size());
-
-        getLog().info(
-            "importing " + k + " as " + namespace + ":"
-            + optionName + "=" + v);
-
-        configOptionSetting.add(new ConfigurationOptionSetting()
-                                    .withNamespace(namespace).withOptionName(optionName)
-                                    .withValue(v));
-      } else if (COMMON_PARAMETERS.containsKey(k)) {
-        String v = "" + properties.get(k);
-        String namespace = COMMON_PARAMETERS.get(k).getNamespace();
-        String optionName = COMMON_PARAMETERS.get(k).getOptionName();
-
-        getLog().info(
-            "Found alias " + k + " for " + namespace + ":"
-            + optionName + "(value=" + v + ")");
-
-        configOptionSetting.add(new ConfigurationOptionSetting()
-                                    .withNamespace(namespace).withOptionName(optionName)
-                                    .withValue(v));
-      }
-    }
-
-    if (configOptionSetting.isEmpty()) {
-      return null;
-    }
-
-    return (ConfigurationOptionSetting[]) configOptionSetting
-        .toArray(new ConfigurationOptionSetting[configOptionSetting
-            .size()]);
-  }
-
-  protected void waitForNotUpdating()
-      throws AbstractMojoExecutionException, MojoFailureException,
-             MojoExecutionException {
-    WaitForEnvironmentContext context = new WaitForEnvironmentContextBuilder()
-        .withApplicationName(applicationName)//
-        .withStatusToWaitFor("!Updating")//
-        .withTimeoutMins(2)//
-        .withEnvironmentRef(environmentRef)//
-        .build();
-
-    WaitForEnvironmentCommand command = new WaitForEnvironmentCommand(this);
-
-    command.execute(context);
-  }
-
   public static final Map<String, ConfigurationOptionSetting>
       COMMON_PARAMETERS =
       new TreeMap<String, ConfigurationOptionSetting>() {
@@ -430,6 +273,158 @@ public abstract class AbstractNeedsEnvironmentMojo extends
               "aws:elasticbeanstalk:container:php:phpini", "composer_options", ""));
         }
       };
+  /**
+   * Beanstalk Application Name
+   */
+  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
+             required = true)
+  protected String applicationName;
+  /**
+   * Maven Project
+   */
+  @Parameter(defaultValue = "${project}", readonly = true)
+  protected MavenProject project;
+  /**
+   * Environment Ref
+   */
+  @Parameter(property = "beanstalk.environmentRef",
+             defaultValue = "${project.artifactId}.elasticbeanstalk.com")
+  protected String environmentRef;
+  /**
+   * Current Environment
+   */
+  protected EnvironmentDescription curEnv;
+
+  @Override
+  protected void configure() {
+    try {
+      curEnv = super.lookupEnvironment(applicationName, environmentRef);
+    } catch (MojoExecutionException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * Returns a list of environments for current application name
+   *
+   * @param cnamePrefix cname prefix to match
+   * @return found environment, if any. null otherwise
+   */
+  protected EnvironmentDescription getEnvironmentForCNamePrefix(
+      String applicationName, String cnamePrefix) {
+    for (final EnvironmentDescription env : getEnvironmentsFor(applicationName)) {
+      final String cnameToMatch = cnamePrefix + ".elasticbeanstalk.com";
+      if (verbose) {
+        getLog().info(
+            "Trying to match " + cnameToMatch + " with "
+            + env.getCNAME());
+      }
+
+      if (env.getCNAME().equalsIgnoreCase(cnameToMatch)) {
+        return env;
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Returns a list of environments for applicationName
+   *
+   * @param applicationName applicationName
+   * @return environments
+   */
+  protected Collection<EnvironmentDescription> getEnvironmentsFor(
+      String applicationName) {
+                /*
+                 * Requests
+		 */
+    DescribeEnvironmentsRequest req = new DescribeEnvironmentsRequest()
+        .withApplicationName(applicationName).withIncludeDeleted(false);
+
+    return getService().describeEnvironments(req).getEnvironments();
+  }
+
+  protected ConfigurationOptionSetting[] introspectOptionSettings() {
+    Set<ConfigurationOptionSetting> configOptionSetting = new TreeSet<ConfigurationOptionSetting>(
+        COS_COMPARATOR);
+
+    Properties properties = new Properties();
+
+    if (null != project) {
+      for (Map.Entry<Object, Object> entry : project.getProperties()
+          .entrySet()) {
+        if (("" + entry.getKey()).startsWith("beanstalk")) {
+          properties.put(entry.getKey(), entry.getValue());
+        }
+      }
+    }
+
+    for (Map.Entry<Object, Object> entry : System.getProperties()
+        .entrySet()) {
+      if (("" + entry.getKey()).startsWith("beanstalk")) {
+        properties.put(entry.getKey(), entry.getValue());
+      }
+    }
+
+    for (Object o : properties.keySet()) {
+      String k = "" + o;
+
+      if (k.startsWith("beanstalk.env.aws.")) {
+        String realKey = k.substring("beanstalk.env.".length());
+        String v = "" + properties.get(k);
+        List<String> elements = new ArrayList<String>(
+            Arrays.asList(realKey.split("\\.")));
+
+        String namespace = StringUtils.join(
+            elements.subList(0, -1 + elements.size()), ":");
+        String optionName = elements.get(-1 + elements.size());
+
+        getLog().info(
+            "importing " + k + " as " + namespace + ":"
+            + optionName + "=" + v);
+
+        configOptionSetting.add(new ConfigurationOptionSetting()
+                                    .withNamespace(namespace).withOptionName(optionName)
+                                    .withValue(v));
+      } else if (COMMON_PARAMETERS.containsKey(k)) {
+        String v = "" + properties.get(k);
+        String namespace = COMMON_PARAMETERS.get(k).getNamespace();
+        String optionName = COMMON_PARAMETERS.get(k).getOptionName();
+
+        getLog().info(
+            "Found alias " + k + " for " + namespace + ":"
+            + optionName + "(value=" + v + ")");
+
+        configOptionSetting.add(new ConfigurationOptionSetting()
+                                    .withNamespace(namespace).withOptionName(optionName)
+                                    .withValue(v));
+      }
+    }
+
+    if (configOptionSetting.isEmpty()) {
+      return null;
+    }
+
+    return (ConfigurationOptionSetting[]) configOptionSetting
+        .toArray(new ConfigurationOptionSetting[configOptionSetting
+            .size()]);
+  }
+
+  protected void waitForNotUpdating()
+      throws AbstractMojoExecutionException, MojoFailureException,
+             MojoExecutionException {
+    WaitForEnvironmentContext context = new WaitForEnvironmentContextBuilder()
+        .withApplicationName(applicationName)//
+        .withStatusToWaitFor("!Updating")//
+        .withTimeoutMins(2)//
+        .withEnvironmentRef(environmentRef)//
+        .build();
+
+    WaitForEnvironmentCommand command = new WaitForEnvironmentCommand(this);
+
+    command.execute(context);
+  }
 
   protected String lookupVersionLabel(String appName, String versionLabel) {
     if (StringUtils.isBlank(versionLabel)) {

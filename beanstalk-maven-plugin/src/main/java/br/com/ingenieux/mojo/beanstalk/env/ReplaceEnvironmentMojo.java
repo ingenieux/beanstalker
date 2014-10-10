@@ -160,7 +160,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
     }
 
 		/*
-		 * Decides on a environmentRef, and launches a new environment
+                 * Decides on a environmentRef, and launches a new environment
 		 */
     String cnamePrefixToCreate = getCNamePrefixToCreate();
 

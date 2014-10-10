@@ -1,8 +1,9 @@
 package br.com.ingenieux.mojo.beanstalk;
 
+import org.junit.Ignore;
+
 import br.com.ingenieux.mojo.beanstalk.app.CreateApplicationMojo;
 import br.com.ingenieux.mojo.beanstalk.version.CreateApplicationVersionMojo;
-import org.junit.Ignore;
 
 
 /*
@@ -21,21 +22,22 @@ import org.junit.Ignore;
 
 @Ignore
 public class DescribeConfigurationTemplatesTest extends BeanstalkTestBase {
-	@Override
-	protected void configureMojos() throws Exception {
-		createAppMojo = getMojo(CreateApplicationMojo.class);
 
-		createAppVersionMojo = getMojo(CreateApplicationVersionMojo.class);
-	}
-	
-	public void testDescribeConfigurationTemplates() throws Exception {
-		String appName = properties.getProperty("appname");
-		
-		setVariableValueToObject(createAppMojo, "applicationName", appName);
-		setVariableValueToObject(createConfigurationTemplateMojo, "applicationName", appName);
-		
-		createAppMojo.execute();
-		
-		createConfigurationTemplateMojo.execute();
-	}
+  @Override
+  protected void configureMojos() throws Exception {
+    createAppMojo = getMojo(CreateApplicationMojo.class);
+
+    createAppVersionMojo = getMojo(CreateApplicationVersionMojo.class);
+  }
+
+  public void testDescribeConfigurationTemplates() throws Exception {
+    String appName = properties.getProperty("appname");
+
+    setVariableValueToObject(createAppMojo, "applicationName", appName);
+    setVariableValueToObject(createConfigurationTemplateMojo, "applicationName", appName);
+
+    createAppMojo.execute();
+
+    createConfigurationTemplateMojo.execute();
+  }
 }

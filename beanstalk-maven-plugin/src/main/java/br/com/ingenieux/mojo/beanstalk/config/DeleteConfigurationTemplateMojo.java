@@ -14,6 +14,8 @@ package br.com.ingenieux.mojo.beanstalk.config;
  * limitations under the License.
  */
 
+import com.amazonaws.services.elasticbeanstalk.model.DeleteConfigurationTemplateRequest;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -23,56 +25,59 @@ import org.apache.maven.plugins.annotations.Parameter;
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 import br.com.ingenieux.mojo.beanstalk.ConfigurationTemplate;
 
-import com.amazonaws.services.elasticbeanstalk.model.DeleteConfigurationTemplateRequest;
-
 /**
  * Delete Configuration Template
- * 
+ *
  * @author Aldrin Leal
  * @since 0.2.7
  */
-@Mojo(name="delete-configuration-template")
+@Mojo(name = "delete-configuration-template")
 public class DeleteConfigurationTemplateMojo extends AbstractBeanstalkMojo {
-	/**
-	 * Beanstalk Application Name
-	 */
-	@Parameter(property="beanstalk.applicationName", defaultValue="${project.artifactId}", required=true)
-	String applicationName;
 
-	/**
-	 * Configuration Template Name (Optional)
-	 */
-	@Parameter(property="beanstalk.configurationTemplate")
-	String configurationTemplate;
-	
-	/**
-	 * Configuration Templates
-	 */
-	@Parameter
-	ConfigurationTemplate[] configurationTemplates;
-	
-	@Override
-	protected Object executeInternal() throws MojoExecutionException,
-	    MojoFailureException {
+  /**
+   * Beanstalk Application Name
+   */
+  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
+             required = true)
+  String applicationName;
 
-		boolean bConfigurationTemplateDefined = StringUtils
-		    .isNotBlank(configurationTemplate);
-		
-		if (bConfigurationTemplateDefined) {
-			deleteConfiguration(configurationTemplate);
-		} else {
-			for (ConfigurationTemplate template : configurationTemplates)
-				deleteConfiguration(template.getId());
-		}
-		
-		return null;
-	}
+  /**
+   * Configuration Template Name (Optional)
+   */
+  @Parameter(property = "beanstalk.configurationTemplate")
+  String configurationTemplate;
 
-	void deleteConfiguration(String templateName) {
-		
-		DeleteConfigurationTemplateRequest req = new DeleteConfigurationTemplateRequest(applicationName, templateName);
-		
-		getService().deleteConfigurationTemplate(req);
+  /**
+   * Configuration Templates
+   */
+  @Parameter
+  ConfigurationTemplate[] configurationTemplates;
+
+  @Override
+  protected Object executeInternal() throws MojoExecutionException,
+                                            MojoFailureException {
+
+    boolean bConfigurationTemplateDefined = StringUtils
+        .isNotBlank(configurationTemplate);
+
+    if (bConfigurationTemplateDefined) {
+      deleteConfiguration(configurationTemplate);
+    } else {
+      for (ConfigurationTemplate template : configurationTemplates) {
+        deleteConfiguration(template.getId());
+      }
+    }
+
+    return null;
+  }
+
+  void deleteConfiguration(String templateName) {
+
+    DeleteConfigurationTemplateRequest
+        req =
+        new DeleteConfigurationTemplateRequest(applicationName, templateName);
+
+    getService().deleteConfigurationTemplate(req);
   }
 
 }

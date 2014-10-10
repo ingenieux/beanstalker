@@ -14,20 +14,6 @@ package br.com.ingenieux.mojo.beanstalk.version;
  * limitations under the License.
  */
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.ListIterator;
-
-import org.apache.commons.lang.builder.CompareToBuilder;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-
-import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
-
 import com.amazonaws.services.elasticbeanstalk.model.ApplicationVersionDescription;
 import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationVersionsRequest;
 import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationVersionsResult;
@@ -36,109 +22,129 @@ import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsResult;
 import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
 import com.amazonaws.services.elasticbeanstalk.model.UpdateEnvironmentRequest;
 
+import org.apache.commons.lang.builder.CompareToBuilder;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.ListIterator;
+
+import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
+
 /**
  * Deletes application versions, either by count and/or by date old
- * 
+ *
  * @author Aldrin Leal
  * @since 0.2.3
  */
-@Mojo(name="rollback-version")
+@Mojo(name = "rollback-version")
 public class RollbackVersionMojo extends AbstractNeedsEnvironmentMojo {
-	/**
-	 * Simulate deletion changing algorithm?
-	 * 
-	 */
-	@Parameter(property="beanstalk.dryRun", defaultValue="true")
-	boolean dryRun;
 
-	/**
-	 * Updates to the latest version instead?
-	 */
-	@Parameter(property="beanstalk.latestVersionInstead")
-	boolean latestVersionInstead;
+  /**
+   * Simulate deletion changing algorithm?
+   */
+  @Parameter(property = "beanstalk.dryRun", defaultValue = "true")
+  boolean dryRun;
 
-	@Override
-	protected Object executeInternal() throws MojoExecutionException,
-	    MojoFailureException {
-		// TODO: Deal with withVersionLabels
-		DescribeApplicationVersionsRequest describeApplicationVersionsRequest = new DescribeApplicationVersionsRequest()
-		    .withApplicationName(applicationName);
+  /**
+   * Updates to the latest version instead?
+   */
+  @Parameter(property = "beanstalk.latestVersionInstead")
+  boolean latestVersionInstead;
 
-		DescribeApplicationVersionsResult appVersions = getService()
-		    .describeApplicationVersions(describeApplicationVersionsRequest);
+  @Override
+  protected Object executeInternal() throws MojoExecutionException,
+                                            MojoFailureException {
+    // TODO: Deal with withVersionLabels
+    DescribeApplicationVersionsRequest
+        describeApplicationVersionsRequest =
+        new DescribeApplicationVersionsRequest()
+            .withApplicationName(applicationName);
 
-		DescribeEnvironmentsRequest describeEnvironmentsRequest = new DescribeEnvironmentsRequest()
-		    .withApplicationName(applicationName).withEnvironmentIds(curEnv.getEnvironmentId())
-		    .withEnvironmentNames(curEnv.getEnvironmentName()).withIncludeDeleted(false);
+    DescribeApplicationVersionsResult appVersions = getService()
+        .describeApplicationVersions(describeApplicationVersionsRequest);
 
-		DescribeEnvironmentsResult environments = getService()
-		    .describeEnvironments(describeEnvironmentsRequest);
+    DescribeEnvironmentsRequest describeEnvironmentsRequest = new DescribeEnvironmentsRequest()
+        .withApplicationName(applicationName).withEnvironmentIds(curEnv.getEnvironmentId())
+        .withEnvironmentNames(curEnv.getEnvironmentName()).withIncludeDeleted(false);
 
-		List<ApplicationVersionDescription> appVersionList = new ArrayList<ApplicationVersionDescription>(
-		    appVersions.getApplicationVersions());
+    DescribeEnvironmentsResult environments = getService()
+        .describeEnvironments(describeEnvironmentsRequest);
 
-		List<EnvironmentDescription> environmentList = environments
-		    .getEnvironments();
+    List<ApplicationVersionDescription>
+        appVersionList =
+        new ArrayList<ApplicationVersionDescription>(
+            appVersions.getApplicationVersions());
 
-		if (environmentList.isEmpty())
-			throw new MojoFailureException("No environments were found");
+    List<EnvironmentDescription> environmentList = environments
+        .getEnvironments();
 
-		EnvironmentDescription d = environmentList.get(0);
+    if (environmentList.isEmpty()) {
+      throw new MojoFailureException("No environments were found");
+    }
 
-		Collections.sort(appVersionList,
-		    new Comparator<ApplicationVersionDescription>() {
-			    @Override
-			    public int compare(ApplicationVersionDescription o1,
-			        ApplicationVersionDescription o2) {
-				    return new CompareToBuilder().append(o1.getDateUpdated(),
-				        o2.getDateUpdated()).toComparison();
-			    }
-		    });
+    EnvironmentDescription d = environmentList.get(0);
 
-		Collections.reverse(appVersionList);
-		
-		if (latestVersionInstead) {
-			ApplicationVersionDescription latestVersionDescription = appVersionList
-			    .get(0);
+    Collections.sort(appVersionList,
+                     new Comparator<ApplicationVersionDescription>() {
+                       @Override
+                       public int compare(ApplicationVersionDescription o1,
+                                          ApplicationVersionDescription o2) {
+                         return new CompareToBuilder().append(o1.getDateUpdated(),
+                                                              o2.getDateUpdated()).toComparison();
+                       }
+                     });
 
-			return changeToVersion(d, latestVersionDescription);
-		}
+    Collections.reverse(appVersionList);
 
-		ListIterator<ApplicationVersionDescription> versionIterator = appVersionList
-		    .listIterator();
+    if (latestVersionInstead) {
+      ApplicationVersionDescription latestVersionDescription = appVersionList
+          .get(0);
 
-		String curVersionLabel = d.getVersionLabel();
+      return changeToVersion(d, latestVersionDescription);
+    }
 
-		while (versionIterator.hasNext()) {
-			ApplicationVersionDescription versionDescription = versionIterator.next();
+    ListIterator<ApplicationVersionDescription> versionIterator = appVersionList
+        .listIterator();
 
-			String versionLabel = versionDescription.getVersionLabel();
+    String curVersionLabel = d.getVersionLabel();
 
-			if (curVersionLabel.equals(versionLabel) && versionIterator.hasNext()) {
-				return changeToVersion(d, versionIterator.next());
-			}
-		}
+    while (versionIterator.hasNext()) {
+      ApplicationVersionDescription versionDescription = versionIterator.next();
 
-		throw new MojoFailureException(
-		    "No previous version was found (current version: " + curVersionLabel);
-	}
+      String versionLabel = versionDescription.getVersionLabel();
 
-	Object changeToVersion(EnvironmentDescription d,
-	    ApplicationVersionDescription latestVersionDescription) {
-		String curVersionLabel = d.getVersionLabel();
-		String versionLabel = latestVersionDescription.getVersionLabel();
+      if (curVersionLabel.equals(versionLabel) && versionIterator.hasNext()) {
+        return changeToVersion(d, versionIterator.next());
+      }
+    }
 
-		UpdateEnvironmentRequest request = new UpdateEnvironmentRequest()
-		    .withEnvironmentId(d.getEnvironmentId()).withVersionLabel(versionLabel);
+    throw new MojoFailureException(
+        "No previous version was found (current version: " + curVersionLabel);
+  }
 
-		getLog().info(
-		    "Changing versionLabel for Environment[name=" + curEnv.getEnvironmentName()
-		        + "; environmentId=" + curEnv.getEnvironmentId() + "] from version "
-		        + curVersionLabel + " to version " + latestVersionDescription.getVersionLabel());
+  Object changeToVersion(EnvironmentDescription d,
+                         ApplicationVersionDescription latestVersionDescription) {
+    String curVersionLabel = d.getVersionLabel();
+    String versionLabel = latestVersionDescription.getVersionLabel();
 
-		if (dryRun)
-			return null;
+    UpdateEnvironmentRequest request = new UpdateEnvironmentRequest()
+        .withEnvironmentId(d.getEnvironmentId()).withVersionLabel(versionLabel);
 
-		return getService().updateEnvironment(request);
-	}
+    getLog().info(
+        "Changing versionLabel for Environment[name=" + curEnv.getEnvironmentName()
+        + "; environmentId=" + curEnv.getEnvironmentId() + "] from version "
+        + curVersionLabel + " to version " + latestVersionDescription.getVersionLabel());
+
+    if (dryRun) {
+      return null;
+    }
+
+    return getService().updateEnvironment(request);
+  }
 }

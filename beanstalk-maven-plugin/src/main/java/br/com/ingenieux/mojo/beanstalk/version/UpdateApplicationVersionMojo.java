@@ -14,51 +14,52 @@ package br.com.ingenieux.mojo.beanstalk.version;
  * limitations under the License.
  */
 
+import com.amazonaws.services.elasticbeanstalk.model.UpdateApplicationVersionRequest;
+import com.amazonaws.services.elasticbeanstalk.model.UpdateApplicationVersionResult;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
-import com.amazonaws.services.elasticbeanstalk.model.UpdateApplicationVersionRequest;
-import com.amazonaws.services.elasticbeanstalk.model.UpdateApplicationVersionResult;
-
 /**
  * Updates an Application Version
- * 
- * See the <a href=
- * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_UpdateApplicationVersion.html"
+ *
+ * See the <a href= "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_UpdateApplicationVersion.html"
  * >CreateApplicationVersion API</a> call.
- * 
+ *
  * @since 0.2.1
  */
-@Mojo(name="update-application-version")
+@Mojo(name = "update-application-version")
 public class UpdateApplicationVersionMojo extends AbstractBeanstalkMojo {
-	/**
-	 * Beanstalk Application Name
-	 */
-	@Parameter(property="beanstalk.applicationName", defaultValue="${project.artifactId}", required=true)
-	String applicationName;
 
-	/**
-	 * Application Description
-	 */
-	@Parameter(property="beanstalk.applicationDescription", defaultValue="${project.name}")
-	String applicationDescription;
+  /**
+   * Beanstalk Application Name
+   */
+  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
+             required = true)
+  String applicationName;
 
-	@Parameter(property="beanstalk.versionLabel", defaultValue="${project.version}")
-	String versionLabel;
+  /**
+   * Application Description
+   */
+  @Parameter(property = "beanstalk.applicationDescription", defaultValue = "${project.name}")
+  String applicationDescription;
 
-	protected Object executeInternal() throws MojoExecutionException {
-		UpdateApplicationVersionRequest request = new UpdateApplicationVersionRequest();
+  @Parameter(property = "beanstalk.versionLabel", defaultValue = "${project.version}")
+  String versionLabel;
 
-		request.setApplicationName(applicationName);
-		request.setDescription(applicationDescription);
-		request.setVersionLabel(versionLabel);
+  protected Object executeInternal() throws MojoExecutionException {
+    UpdateApplicationVersionRequest request = new UpdateApplicationVersionRequest();
 
-		UpdateApplicationVersionResult result = getService()
-		    .updateApplicationVersion(request);
+    request.setApplicationName(applicationName);
+    request.setDescription(applicationDescription);
+    request.setVersionLabel(versionLabel);
 
-		return result.getApplicationVersion();
-	}
+    UpdateApplicationVersionResult result = getService()
+        .updateApplicationVersion(request);
+
+    return result.getApplicationVersion();
+  }
 }

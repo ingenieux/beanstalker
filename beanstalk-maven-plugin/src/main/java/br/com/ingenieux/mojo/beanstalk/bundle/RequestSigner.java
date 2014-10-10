@@ -2,132 +2,133 @@ package br.com.ingenieux.mojo.beanstalk.bundle;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
+
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.SimpleTimeZone;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 public class RequestSigner {
-	private static final String TERMINATOR = "aws4_request";
 
-	public static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat(
-			"yyyyMMdd'T'HHmmss");
+  public static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat(
+      "yyyyMMdd'T'HHmmss");
+  public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(
+      "yyyyMMdd");
+  private static final String TERMINATOR = "aws4_request";
+  private static final String SCHEME = "AWS4";
 
-	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(
-			"yyyyMMdd");
+  private static final String AWS_ALGORITHM = "HMAC-SHA256";
 
-	private static final String SCHEME = "AWS4";
+  static {
+    SimpleTimeZone timezone = new SimpleTimeZone(0, "UTC");
 
-	private static final String AWS_ALGORITHM = "HMAC-SHA256";
+    DATE_TIME_FORMAT.setTimeZone(timezone);
+    DATE_FORMAT.setTimeZone(timezone);
+  }
 
-	static {
-		SimpleTimeZone timezone = new SimpleTimeZone(0, "UTC");
+  AWSCredentials awsCredentials;
 
-		DATE_TIME_FORMAT.setTimeZone(timezone);
-		DATE_FORMAT.setTimeZone(timezone);
-	}
+  String applicationId;
 
-	AWSCredentials awsCredentials;
+  String region;
 
-	String applicationId;
+  String commitId;
 
-	String region;
+  String environmentName;
 
-	String commitId;
+  Date date;
 
-	String environmentName;
+  String service = "devtools";
 
-	Date date;
+  private String strDate;
 
-	String service = "devtools";
+  private String strDateTime;
 
-	private String strDate;
+  public RequestSigner(AWSCredentialsProvider awsCredentials, String applicationId,
+                       String region, String commitId, String environmentName, Date date) {
+    super();
+    this.awsCredentials = awsCredentials.getCredentials();
+    this.applicationId = applicationId;
+    this.region = region;
+    this.commitId = commitId;
+    this.environmentName = environmentName;
+    this.date = date;
+  }
 
-	private String strDateTime;
+  public String getPushUrl() {
+    strDate = DATE_FORMAT.format(date);
 
-	public String getPushUrl() {
-		strDate = DATE_FORMAT.format(date);
+    strDateTime = DATE_TIME_FORMAT.format(date);
 
-		strDateTime = DATE_TIME_FORMAT.format(date);
-		
-		String user = awsCredentials.getAWSAccessKeyId();
+    String user = awsCredentials.getAWSAccessKeyId();
 
-		String host = String.format("git.elasticbeanstalk.%s.amazonaws.com",
-				region);
+    String host = String.format("git.elasticbeanstalk.%s.amazonaws.com",
+                                region);
 
-		String path = String.format("/v1/repos/%s/commitid/%s",
-				hexEncode(applicationId), hexEncode(commitId));
-		
-		if (isNotBlank(environmentName))
-			path += String.format("/environment/%s", hexEncode(environmentName));
+    String path = String.format("/v1/repos/%s/commitid/%s",
+                                hexEncode(applicationId), hexEncode(commitId));
 
-		String scope = String.format("%s/%s/%s/%s", strDate,
-				region, service, TERMINATOR);
+    if (isNotBlank(environmentName)) {
+      path += String.format("/environment/%s", hexEncode(environmentName));
+    }
 
-		StringBuilder stringToSign = new StringBuilder();
-		
-		stringToSign.append(String.format("%s-%s\n%s\n%s\n", SCHEME,
-				AWS_ALGORITHM, strDateTime, scope));
+    String scope = String.format("%s/%s/%s/%s", strDate,
+                                 region, service, TERMINATOR);
 
-		stringToSign.append(DigestUtils.sha256Hex(String.format(
-				"GIT\n%s\n\nhost:%s\n\nhost\n", path, host).getBytes()));
+    StringBuilder stringToSign = new StringBuilder();
 
-		byte[] key = deriveKey();
-		
-		byte[] digest = hash(key, stringToSign.toString());
-		
-		String signature = Hex.encodeHexString(digest);
-		
-		String password = strDateTime.concat("Z").concat(signature);
+    stringToSign.append(String.format("%s-%s\n%s\n%s\n", SCHEME,
+                                      AWS_ALGORITHM, strDateTime, scope));
 
-		String returnUrl = String.format("https://%s:%s@%s%s", user, password,
-				host, path);
+    stringToSign.append(DigestUtils.sha256Hex(String.format(
+        "GIT\n%s\n\nhost:%s\n\nhost\n", path, host).getBytes()));
 
-		return returnUrl;
-	}
+    byte[] key = deriveKey();
 
-	private byte[] deriveKey() {
-		String secret = SCHEME.concat(awsCredentials.getAWSSecretKey());
-		byte[] kSecret = secret.getBytes();
-		byte[] kDate = hash(kSecret, strDate);
-		byte[] kRegion = hash(kDate, region);
-		byte[] kService = hash(kRegion, service);
-		byte[] key = hash(kService, TERMINATOR);
-		return key;
-	}
+    byte[] digest = hash(key, stringToSign.toString());
 
-	private byte[] hash(byte[] kSecret, String obj) {
-		try {
-			SecretKeySpec keySpec = new SecretKeySpec(kSecret, "HmacSHA256");
-			
-			Mac mac = Mac.getInstance("HmacSHA256");
-			
-			mac.init(keySpec);
-			
-			return mac.doFinal(obj.getBytes("UTF-8"));
-		} catch (Exception exc) {
-			throw new RuntimeException(exc);
-		}
-	}
+    String signature = Hex.encodeHexString(digest);
 
-	private String hexEncode(String obj) {
-		return Hex.encodeHexString(obj.getBytes());
-	}
+    String password = strDateTime.concat("Z").concat(signature);
 
-	public RequestSigner(AWSCredentialsProvider awsCredentials, String applicationId,
-			String region, String commitId, String environmentName, Date date) {
-		super();
-		this.awsCredentials = awsCredentials.getCredentials();
-		this.applicationId = applicationId;
-		this.region = region;
-		this.commitId = commitId;
-		this.environmentName = environmentName;
-		this.date = date;
-	}
+    String returnUrl = String.format("https://%s:%s@%s%s", user, password,
+                                     host, path);
+
+    return returnUrl;
+  }
+
+  private byte[] deriveKey() {
+    String secret = SCHEME.concat(awsCredentials.getAWSSecretKey());
+    byte[] kSecret = secret.getBytes();
+    byte[] kDate = hash(kSecret, strDate);
+    byte[] kRegion = hash(kDate, region);
+    byte[] kService = hash(kRegion, service);
+    byte[] key = hash(kService, TERMINATOR);
+    return key;
+  }
+
+  private byte[] hash(byte[] kSecret, String obj) {
+    try {
+      SecretKeySpec keySpec = new SecretKeySpec(kSecret, "HmacSHA256");
+
+      Mac mac = Mac.getInstance("HmacSHA256");
+
+      mac.init(keySpec);
+
+      return mac.doFinal(obj.getBytes("UTF-8"));
+    } catch (Exception exc) {
+      throw new RuntimeException(exc);
+    }
+  }
+
+  private String hexEncode(String obj) {
+    return Hex.encodeHexString(obj.getBytes());
+  }
 }

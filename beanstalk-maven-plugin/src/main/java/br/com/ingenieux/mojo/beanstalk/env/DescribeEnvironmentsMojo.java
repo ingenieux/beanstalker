@@ -14,11 +14,11 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
-import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsRequest;
 import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -26,64 +26,67 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.File;
 
+import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
+
 /**
  * Describe running environments
- * 
- * See the docs for the <a href=
- * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_DescribeEnvironments.html"
+ *
+ * See the docs for the <a href= "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_DescribeEnvironments.html"
  * >DescribeEnvironments API</a> call.
- * 
+ *
  * @author Aldrin Leal
  * @since 0.1.0
  */
-@Mojo(name="describe-environments", requiresDirectInvocation=true)
+@Mojo(name = "describe-environments", requiresDirectInvocation = true)
 public class DescribeEnvironmentsMojo extends AbstractBeanstalkMojo {
-	/**
-	 * Beanstalk Application Name
-	 */
-	@Parameter(property="beanstalk.applicationName", defaultValue="${project.artifactId}", required=true)
-	protected String applicationName;
 
-	/**
-	 * Include Deleted?
-	 */
-	@Parameter(property="beanstalk.includeDeleted")
-	boolean includeDeleted;
-	
-	/**
-	 * Output file (Optional)
-	 */
-	@Parameter(property="beanstalk.outputFile")
-	File outputFile;
+  /**
+   * Beanstalk Application Name
+   */
+  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
+             required = true)
+  protected String applicationName;
 
-	@Override
-	protected Object executeInternal() throws MojoExecutionException,
-	    MojoFailureException {
-		DescribeEnvironmentsRequest req = new DescribeEnvironmentsRequest();
+  /**
+   * Include Deleted?
+   */
+  @Parameter(property = "beanstalk.includeDeleted")
+  boolean includeDeleted;
 
-		req.setApplicationName(applicationName);
-		req.setIncludeDeleted(includeDeleted);
+  /**
+   * Output file (Optional)
+   */
+  @Parameter(property = "beanstalk.outputFile")
+  File outputFile;
 
-		// TODO add environmentNames / environmentIds / includeDeletedBackTo
+  @Override
+  protected Object executeInternal() throws MojoExecutionException,
+                                            MojoFailureException {
+    DescribeEnvironmentsRequest req = new DescribeEnvironmentsRequest();
 
-		DescribeEnvironmentsResult result = getService().describeEnvironments(req);
-		
-		if (null != outputFile) {
-			getLog().info("Writing results into " + outputFile.getName());
-			
-			try {
-				ObjectMapper objectMapper = new ObjectMapper();
-				
-				ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
-				
-				writer.writeValue(outputFile, result.getEnvironments());
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-			
-			return null;
-		}
-		
-		return result;
-	}
+    req.setApplicationName(applicationName);
+    req.setIncludeDeleted(includeDeleted);
+
+    // TODO add environmentNames / environmentIds / includeDeletedBackTo
+
+    DescribeEnvironmentsResult result = getService().describeEnvironments(req);
+
+    if (null != outputFile) {
+      getLog().info("Writing results into " + outputFile.getName());
+
+      try {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
+
+        writer.writeValue(outputFile, result.getEnvironments());
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+
+      return null;
+    }
+
+    return result;
+  }
 }

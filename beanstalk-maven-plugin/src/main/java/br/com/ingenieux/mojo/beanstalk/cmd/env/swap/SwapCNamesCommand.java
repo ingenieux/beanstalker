@@ -1,11 +1,11 @@
 package br.com.ingenieux.mojo.beanstalk.cmd.env.swap;
 
+import com.amazonaws.services.elasticbeanstalk.model.SwapEnvironmentCNAMEsRequest;
+
 import org.apache.maven.plugin.AbstractMojoExecutionException;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.BaseCommand;
-
-import com.amazonaws.services.elasticbeanstalk.model.SwapEnvironmentCNAMEsRequest;
 
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,32 +21,31 @@ import com.amazonaws.services.elasticbeanstalk.model.SwapEnvironmentCNAMEsReques
  * limitations under the License.
  */
 public class SwapCNamesCommand extends BaseCommand<SwapCNamesContext, Object> {
-	/**
-	 * Constructor
-	 * 
-	 * @param parentMojo
-	 *          parent mojo
-	 * @throws AbstractMojoExecutionException 
-	 */
-	public SwapCNamesCommand(AbstractBeanstalkMojo parentMojo) throws AbstractMojoExecutionException {
-		super(parentMojo);
-	}
 
-	@Override
-	protected Object executeInternal(SwapCNamesContext context) throws Exception {
-		SwapEnvironmentCNAMEsRequest request = new SwapEnvironmentCNAMEsRequest();
+  /**
+   * Constructor
+   *
+   * @param parentMojo parent mojo
+   */
+  public SwapCNamesCommand(AbstractBeanstalkMojo parentMojo) throws AbstractMojoExecutionException {
+    super(parentMojo);
+  }
 
-		request.setSourceEnvironmentName(context.getSourceEnvironmentName());
+  @Override
+  protected Object executeInternal(SwapCNamesContext context) throws Exception {
+    SwapEnvironmentCNAMEsRequest request = new SwapEnvironmentCNAMEsRequest();
 
-		request.setSourceEnvironmentId(context.getSourceEnvironmentId());
+    request.setSourceEnvironmentName(context.getSourceEnvironmentName());
 
-		request
-		    .setDestinationEnvironmentName(context.getDestinationEnvironmentName());
+    request.setSourceEnvironmentId(context.getSourceEnvironmentId());
 
-		request.setDestinationEnvironmentId(context.getDestinationEnvironmentId());
-		
-		service.swapEnvironmentCNAMEs(request);
+    request
+        .setDestinationEnvironmentName(context.getDestinationEnvironmentName());
 
-		return request;
-	}
+    request.setDestinationEnvironmentId(context.getDestinationEnvironmentId());
+
+    service.swapEnvironmentCNAMEs(request);
+
+    return request;
+  }
 }

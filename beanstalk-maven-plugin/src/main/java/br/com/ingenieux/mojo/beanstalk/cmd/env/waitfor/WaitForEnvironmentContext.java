@@ -14,60 +14,56 @@ package br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor;
  * limitations under the License.
  */
 public class WaitForEnvironmentContext {
-	String applicationName;
 
-	public String getApplicationName() {
-		return applicationName;
-	}
+  String applicationName;
+  Integer timeoutMins = 20;
+  String statusToWaitFor;
+  String environmentRef;
+  String health;
 
-	public void setApplicationName(String applicationName) {
-		this.applicationName = applicationName;
-	}
+  public String getApplicationName() {
+    return applicationName;
+  }
 
-	Integer timeoutMins = 20;
+  public void setApplicationName(String applicationName) {
+    this.applicationName = applicationName;
+  }
 
-	public Integer getTimeoutMins() {
-		return timeoutMins;
-	}
+  public Integer getTimeoutMins() {
+    return timeoutMins;
+  }
 
-	public void setTimeoutMins(Integer timeoutMins) {
-		this.timeoutMins = timeoutMins;
-	}
+  public void setTimeoutMins(Integer timeoutMins) {
+    this.timeoutMins = timeoutMins;
+  }
 
-	String statusToWaitFor;
+  public String getStatusToWaitFor() {
+    return statusToWaitFor;
+  }
 
-	public String getStatusToWaitFor() {
-		return statusToWaitFor;
-	}
+  public void setStatusToWaitFor(String statusToWaitFor) {
+    this.statusToWaitFor = statusToWaitFor;
+  }
 
-	public void setStatusToWaitFor(String statusToWaitFor) {
-		this.statusToWaitFor = statusToWaitFor;
-	}
+  /**
+   * @return the environmentRef
+   */
+  public String getEnvironmentRef() {
+    return environmentRef;
+  }
 
-	String environmentRef;
+  /**
+   * @param environmentRef the environmentRef to set
+   */
+  public void setEnvironmentRef(String environmentRef) {
+    this.environmentRef = environmentRef;
+  }
 
-	/**
-	 * @return the environmentRef
-	 */
-	public String getEnvironmentRef() {
-		return environmentRef;
-	}
+  public String getHealth() {
+    return health;
+  }
 
-	/**
-	 * @param environmentRef
-	 *          the environmentRef to set
-	 */
-	public void setEnvironmentRef(String environmentRef) {
-		this.environmentRef = environmentRef;
-	}
-
-    String health;
-
-    public String getHealth() {
-        return health;
-    }
-
-    public void setHealth(String health) {
-        this.health = health;
-    }
+  public void setHealth(String health) {
+    this.health = health;
+  }
 }
