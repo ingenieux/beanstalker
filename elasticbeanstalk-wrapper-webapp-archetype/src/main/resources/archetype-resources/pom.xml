@@ -17,9 +17,11 @@
         <maven.install.skip>true</maven.install.skip>
         <maven.deploy.skip>true</maven.deploy.skip>
 
+        <beanstalk.environmentRef>\${artifactId}-env.elasticbeanstalk.com</beanstalk.environmentRef>
         <beanstalk.environmentName>\${artifactId}-env</beanstalk.environmentName>
         <beanstalk.cnamePrefix>\${artifactId}-env</beanstalk.cnamePrefix>
-        <beanstalk.environmentRef>\${artifactId}-env.elasticbeanstalk.com</beanstalk.environmentRef>
+        <beanstalk.applicationName>\${artifactId}</beanstalk.applicationName>
+        <beanstalk.useStagingDirectory>true</beanstalk.useStagingDirectory>
         <beanstalker.region>us-east-1</beanstalker.region>
         <!-- review src/main/webapp/.ebextensions/java7.config if you change this setting
         -->
@@ -103,10 +105,6 @@
                     <artifactId>beanstalk-maven-plugin</artifactId>
                     <inherited>true</inherited>
                     <version>${project.version}</version>
-                    <configuration>
-                        <applicationName>\${artifactId}</applicationName>
-                        <useStagingDirectory>true</useStagingDirectory>
-                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
