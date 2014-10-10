@@ -63,6 +63,7 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 @Mojo(name = "replace-environment")
 // Best Guess Evar
 public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
+
   /**
    * Pattern for Increasing in Replace Environment
    */
@@ -130,10 +131,12 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 
   @Override
   protected Object executeInternal() throws AbstractMojoExecutionException {
-        /*
-                 * Is the desired cname not being used by other environments? If so,
-		 * just launch the environment
-		 */
+    solutionStack = lookupSolutionStack(solutionStack);
+
+    /*
+     * Is the desired cname not being used by other environments? If so,
+     * just launch the environment
+     */
     if (!hasEnvironmentFor(applicationName, cnamePrefix)) {
       if (getLog().isInfoEnabled()) {
         getLog().info("Just launching a new environment.");
@@ -143,7 +146,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
     }
 
 		/*
-		 * Gets the current environment using this cname
+                 * Gets the current environment using this cname
 		 */
     EnvironmentDescription curEnv = getEnvironmentFor(applicationName,
                                                       cnamePrefix);
@@ -167,9 +170,9 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
           + ".elasticbeanstalk.com");
     }
 
-        if(copyOptionSettings) {
-            copyOptionSettings(curEnv);
-        }
+    if (copyOptionSettings) {
+      copyOptionSettings(curEnv);
+    }
 
     if (!solutionStack.equals(curEnv.getSolutionStackName())) {
       if (getLog().isInfoEnabled()) {
@@ -382,11 +385,13 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
     if (null != domains) {
       List<String> domainsToUse = new ArrayList<String>();
 
-      for (String s : domains)
-        if (isNotBlank(s))
+      for (String s : domains) {
+        if (isNotBlank(s)) {
           domainsToUse.add(s.trim());
+        }
+      }
 
-      if (! domainsToUse.isEmpty()) {
+      if (!domainsToUse.isEmpty()) {
 
         final BindDomainsContext
             ctx =
