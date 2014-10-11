@@ -14,62 +14,66 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
 
 /**
  * Waits for Environment Status to Change
- * 
+ *
  * @since 0.2.2
  */
-@Mojo(name="wait-for-environment")
+@Mojo(name = "wait-for-environment")
 public class WaitForEnvironmentMojo extends AbstractBeanstalkMojo {
-	/**
-	 * Beanstalk Application Name
-	 */ 
-	@Parameter(property="beanstalk.applicationName", defaultValue="${project.artifactId}", required=true)
-	String applicationName;
 
-	/**
-	 * Minutes until timeout
-	 */
-	@Parameter(property="beanstalk.timeoutMins", defaultValue="20")
-	Integer timeoutMins;
+  /**
+   * Beanstalk Application Name
+   */
+  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
+             required = true)
+  String applicationName;
 
-	/**
-	 * Status to Wait For
-	 */
-	@Parameter(property="beanstalk.statusToWaitFor", defaultValue="Ready")
-	String statusToWaitFor;
+  /**
+   * Minutes until timeout
+   */
+  @Parameter(property = "beanstalk.timeoutMins", defaultValue = "20")
+  Integer timeoutMins;
 
-	/**
-	 * Health to Wait For
-	 */
-	@Parameter(property="beanstalk.healthToWaitFor", defaultValue="Green")
-	String healthToWaitFor;
+  /**
+   * Status to Wait For
+   */
+  @Parameter(property = "beanstalk.statusToWaitFor", defaultValue = "Ready")
+  String statusToWaitFor;
 
-	/**
-	 * Environment Ref
-	 */
-	@Parameter(property="beanstalk.environmentRef", defaultValue="${project.artifactId}.elasticbeanstalk.com")
-	String environmentRef;
+  /**
+   * Health to Wait For
+   */
+  @Parameter(property = "beanstalk.healthToWaitFor", defaultValue = "Green")
+  String healthToWaitFor;
 
-    @Override
-	protected Object executeInternal() throws Exception {
-		WaitForEnvironmentContext context = new WaitForEnvironmentContextBuilder()
-		    .withApplicationName(applicationName)//
-		    .withStatusToWaitFor(statusToWaitFor)//
-		    .withTimeoutMins(timeoutMins)//
-            .withHealth(healthToWaitFor)//
-            .withEnvironmentRef(environmentRef)//
-		    .build();
+  /**
+   * Environment Ref
+   */
+  @Parameter(property = "beanstalk.environmentRef",
+             defaultValue = "${project.artifactId}.elasticbeanstalk.com")
+  String environmentRef;
 
-		WaitForEnvironmentCommand command = new WaitForEnvironmentCommand(this);
+  @Override
+  protected Object executeInternal() throws Exception {
+    WaitForEnvironmentContext context = new WaitForEnvironmentContextBuilder()
+        .withApplicationName(applicationName)//
+        .withStatusToWaitFor(statusToWaitFor)//
+        .withTimeoutMins(timeoutMins)//
+        .withHealth(healthToWaitFor)//
+        .withEnvironmentRef(environmentRef)//
+        .build();
 
-		return command.execute(context);
-	}
+    WaitForEnvironmentCommand command = new WaitForEnvironmentCommand(this);
+
+    return command.execute(context);
+  }
 }

@@ -4,58 +4,54 @@ import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
 
 /**
  * Represents a Configuration Template
- * 
+ *
  * @author Aldrin Leal
- * 
  */
 public class ConfigurationTemplate {
-	String id;
 
-	/**
-	 * @return the id
-	 */
-	public String getId() {
-		return id;
-	}
+  String id;
+  ConfigurationOptionSetting[] optionSettings;
+  String solutionStack;
 
-	/**
-	 * @param id
-	 *          the id to set
-	 */
-	public void setId(String id) {
-		this.id = id;
-	}
+  /**
+   * @return the id
+   */
+  public String getId() {
+    return id;
+  }
 
-	ConfigurationOptionSetting[] optionSettings;
+  /**
+   * @param id the id to set
+   */
+  public void setId(String id) {
+    this.id = id;
+  }
 
-	/**
-	 * @return the optionSettings
-	 */
-	public ConfigurationOptionSetting[] getOptionSettings() {
-		return optionSettings;
-	}
+  /**
+   * @return the optionSettings
+   */
+  public ConfigurationOptionSetting[] getOptionSettings() {
+    return optionSettings;
+  }
 
-	/**
-	 * @param optionSettings
-	 *          the optionSettings to set
-	 */
-	public void setOptionSettings(ConfigurationOptionSetting[] optionSettings) {
-		this.optionSettings = optionSettings;
-	}
-	
-	String solutionStack;
+  /**
+   * @param optionSettings the optionSettings to set
+   */
+  public void setOptionSettings(ConfigurationOptionSetting[] optionSettings) {
+    this.optionSettings = optionSettings;
+  }
 
-	/**
+  /**
    * @return the solutionStack
    */
   public String getSolutionStack() {
-  	return solutionStack;
+    return solutionStack;
   }
 
-	/**
+  /**
    * @param solutionStack the solutionStack to set
    */
   public void setSolutionStack(String solutionStack) {
-  	this.solutionStack = solutionStack;
+    this.solutionStack = solutionStack;
   }
 }

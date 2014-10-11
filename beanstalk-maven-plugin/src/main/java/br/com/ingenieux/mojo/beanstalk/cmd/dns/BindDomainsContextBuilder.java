@@ -23,12 +23,12 @@ import java.util.Collection;
 public class BindDomainsContextBuilder extends
                                        BindDomainsContextBuilderBase<BindDomainsContextBuilder> {
 
-  public static BindDomainsContextBuilder createBindDomainsContext() {
-    return new BindDomainsContextBuilder();
-  }
-
   public BindDomainsContextBuilder() {
     super(new BindDomainsContext());
+  }
+
+  public static BindDomainsContextBuilder createBindDomainsContext() {
+    return new BindDomainsContextBuilder();
   }
 
   public BindDomainsContext build() {

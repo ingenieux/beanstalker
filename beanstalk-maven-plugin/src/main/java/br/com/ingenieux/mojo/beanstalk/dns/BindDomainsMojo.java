@@ -33,6 +33,7 @@ import static java.util.Arrays.asList;
  */
 @Mojo(name = "bind-domains")
 public class BindDomainsMojo extends AbstractNeedsEnvironmentMojo {
+
   /**
    * <p>List of Domains</p>
    *

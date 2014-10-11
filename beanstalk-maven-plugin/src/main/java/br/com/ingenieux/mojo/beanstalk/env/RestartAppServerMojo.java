@@ -14,36 +14,36 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
+import com.amazonaws.services.elasticbeanstalk.model.RestartAppServerRequest;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 
-import com.amazonaws.services.elasticbeanstalk.model.RestartAppServerRequest;
-
 /**
  * Restarts the Application Server
- * 
- * See the docs for the <a href=
- * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_RestartAppServer.html"
+ *
+ * See the docs for the <a href= "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_RestartAppServer.html"
  * >RestartAppServer API</a> call.
- * 
+ *
  * @author Aldrin Leal
  * @since 0.1.0
  */
-@Mojo(name="restart-application-server")
+@Mojo(name = "restart-application-server")
 public class RestartAppServerMojo extends AbstractNeedsEnvironmentMojo {
-	@Override
-	protected Object executeInternal() throws MojoExecutionException,
-	    MojoFailureException {
-		RestartAppServerRequest req = new RestartAppServerRequest();
 
-		req.setEnvironmentId(curEnv.getEnvironmentId());
-		req.setEnvironmentName(curEnv.getEnvironmentName());
+  @Override
+  protected Object executeInternal() throws MojoExecutionException,
+                                            MojoFailureException {
+    RestartAppServerRequest req = new RestartAppServerRequest();
 
-		getService().restartAppServer(req);
+    req.setEnvironmentId(curEnv.getEnvironmentId());
+    req.setEnvironmentName(curEnv.getEnvironmentName());
 
-		return null;
-	}
+    getService().restartAppServer(req);
+
+    return null;
+  }
 }

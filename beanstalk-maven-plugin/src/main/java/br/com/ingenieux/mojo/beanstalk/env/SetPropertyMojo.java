@@ -27,35 +27,37 @@ import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 
 /**
  * Sets a System Property in a Running Environment
- * 
+ *
  * @since 1.1.0
  */
 @Mojo(name = "set-property", requiresDirectInvocation = true)
 public class SetPropertyMojo extends AbstractNeedsEnvironmentMojo {
-	/**
-	 * System Property Name
-	 */
-	@Parameter(property = "beanstalk.envName", required = true)
-	String envName;
 
-	/**
-	 * System Property Value
-	 */
-	@Parameter(property = "beanstalk.envValue", required = true)
-	String envValue;
+  /**
+   * System Property Name
+   */
+  @Parameter(property = "beanstalk.envName", required = true)
+  String envName;
 
-	protected Object executeInternal() throws Exception {
-		waitForNotUpdating();
+  /**
+   * System Property Value
+   */
+  @Parameter(property = "beanstalk.envValue", required = true)
+  String envValue;
 
-		UpdateEnvironmentRequest req = new UpdateEnvironmentRequest()
-				.withEnvironmentId(curEnv.getEnvironmentId());
+  protected Object executeInternal() throws Exception {
+    waitForNotUpdating();
 
-		req.setOptionSettings(Arrays.asList(new ConfigurationOptionSetting()
-				.withNamespace("aws:elasticbeanstalk:application:environment")
-				.withOptionName(envName).withValue(envValue)));
+    UpdateEnvironmentRequest req = new UpdateEnvironmentRequest()
+        .withEnvironmentId(curEnv.getEnvironmentId());
 
-		UpdateEnvironmentResult result = getService().updateEnvironment(req);
+    req.setOptionSettings(Arrays.asList(new ConfigurationOptionSetting()
+                                            .withNamespace(
+                                                "aws:elasticbeanstalk:application:environment")
+                                            .withOptionName(envName).withValue(envValue)));
 
-		return result;
-	}
+    UpdateEnvironmentResult result = getService().updateEnvironment(req);
+
+    return result;
+  }
 }

@@ -12,6 +12,8 @@ We hope you like it. If you run into any problems, please let us know by the [ma
 
 ## Setting up your Maven Build
 
+TL;DR: Set AWS_ACCESS_KEY and AWS_SECRET_KEY from your environment.
+
 Create / Edit your settings.xml as suggested in the [Security Page](http://beanstalker.ingenieux.com.br/beanstalk-maven-plugin/security.html) 
 
 This project, as is, supports modes 1-2 (settings.xml), and it looks by default for aws.amazon.com. 
@@ -20,7 +22,7 @@ This project, as is, supports modes 1-2 (settings.xml), and it looks by default 
 
 ## Configuring your Project
 
-We suggest convention over configuration, but anyway. The only setting you're likely to set is your ```cnamePrefix``` value in your pom.xml file. 
+We suggest convention over configuration, but anyway. The only setting you're likely to set is your ```cnamePrefix``` and ```environmentRef```` properties on your pom.xml file. 
 
 Make sure you pick something unique and unlikely to conflict with other users.
 

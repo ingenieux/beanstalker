@@ -14,46 +14,47 @@ package br.com.ingenieux.mojo.beanstalk.app;
  * limitations under the License.
  */
 
+import com.amazonaws.services.elasticbeanstalk.model.CreateApplicationRequest;
+import com.amazonaws.services.elasticbeanstalk.model.CreateApplicationResult;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
-import com.amazonaws.services.elasticbeanstalk.model.CreateApplicationRequest;
-import com.amazonaws.services.elasticbeanstalk.model.CreateApplicationResult;
-
 /**
  * Creates an Application
- * 
- * See the <a href=
- * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_CreateApplication.html"
+ *
+ * See the <a href= "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_CreateApplication.html"
  * >CreateApplication API</a> call.
- * 
+ *
  * @since 0.1.0
  */
-@Mojo(name="create-application")
+@Mojo(name = "create-application")
 public class CreateApplicationMojo extends AbstractBeanstalkMojo {
-	/**
-	 * Beanstalk Application Name
-	 **/
-	@Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}", required = true)
-	String applicationName;
 
-	/**
-	 * Application Description
-	 **/
-	@Parameter(property = "beanstalk.applicationDescription", defaultValue = "${project.name}")
-	String applicationDescription;
+  /**
+   * Beanstalk Application Name
+   */
+  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
+             required = true)
+  String applicationName;
 
-	protected Object executeInternal() throws MojoExecutionException {
-		CreateApplicationRequest request = new CreateApplicationRequest(
-		    this.applicationName);
+  /**
+   * Application Description
+   */
+  @Parameter(property = "beanstalk.applicationDescription", defaultValue = "${project.name}")
+  String applicationDescription;
 
-		request.setDescription(applicationDescription);
+  protected Object executeInternal() throws MojoExecutionException {
+    CreateApplicationRequest request = new CreateApplicationRequest(
+        this.applicationName);
 
-		CreateApplicationResult result = getService().createApplication(request);
+    request.setDescription(applicationDescription);
 
-		return result;
-	}
+    CreateApplicationResult result = getService().createApplication(request);
+
+    return result;
+  }
 }

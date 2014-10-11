@@ -14,43 +14,45 @@ package br.com.ingenieux.mojo.beanstalk;
  * limitations under the License.
  */
 
-import br.com.ingenieux.mojo.beanstalk.version.RollbackVersionMojo;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.junit.Ignore;
 
 import java.io.File;
 
+import br.com.ingenieux.mojo.beanstalk.version.RollbackVersionMojo;
+
 @Ignore
 public class RollbackVersionMojoTest extends BeanstalkTestBase {
-	private RollbackVersionMojo mojo;
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+  private RollbackVersionMojo mojo;
 
-		File testPom = super.getBasePom("pom.xml");
+  @Override
+  protected void setUp() throws Exception {
+    super.setUp();
 
-		PlexusConfiguration pluginConfiguration = extractPluginConfiguration(
-		    "beanstalk-maven-plugin", testPom);
+    File testPom = super.getBasePom("pom.xml");
 
-		RollbackVersionMojo mojo = (RollbackVersionMojo) configureMojo(
-		    new RollbackVersionMojo(), pluginConfiguration);
+    PlexusConfiguration pluginConfiguration = extractPluginConfiguration(
+        "beanstalk-maven-plugin", testPom);
 
-		this.mojo = mojo;
-	}
+    RollbackVersionMojo mojo = (RollbackVersionMojo) configureMojo(
+        new RollbackVersionMojo(), pluginConfiguration);
 
-	public void ignoretestPreviousVersion() throws Exception {
-		setVariableValueToObject(mojo, "applicationName", "belemtransito");
-		setVariableValueToObject(mojo, "environmentName", "production");
+    this.mojo = mojo;
+  }
 
-		mojo.execute();
-	}
+  public void ignoretestPreviousVersion() throws Exception {
+    setVariableValueToObject(mojo, "applicationName", "belemtransito");
+    setVariableValueToObject(mojo, "environmentName", "production");
 
-	public void ignoretestLatestInstead() throws Exception {
-		setVariableValueToObject(mojo, "applicationName", "belemtransito");
-		setVariableValueToObject(mojo, "environmentName", "production");
-		setVariableValueToObject(mojo, "latestVersionInstead", true);
+    mojo.execute();
+  }
 
-		mojo.execute();
-	}
+  public void ignoretestLatestInstead() throws Exception {
+    setVariableValueToObject(mojo, "applicationName", "belemtransito");
+    setVariableValueToObject(mojo, "environmentName", "production");
+    setVariableValueToObject(mojo, "latestVersionInstead", true);
+
+    mojo.execute();
+  }
 }

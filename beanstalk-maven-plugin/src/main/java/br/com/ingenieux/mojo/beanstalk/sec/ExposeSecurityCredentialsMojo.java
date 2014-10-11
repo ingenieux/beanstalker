@@ -26,14 +26,11 @@ import br.com.ingenieux.mojo.aws.Expose;
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
 /**
- * Exposes (i.e., copies) the security credentials from settings.xml into
- * project properties
- * 
- * <p>
- * You can define the server, or not. If you don't, it will work if you did
- * something like that
+ * Exposes (i.e., copies) the security credentials from settings.xml into project properties
+ *
+ * <p> You can define the server, or not. If you don't, it will work if you did something like that
  * </p>
- * 
+ *
  * <pre>
  * &lt;configuration&gt;
  * &nbsp;&nbsp;&lt;exposes&gt;
@@ -45,97 +42,95 @@ import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
  * &nbsp;&nbsp;&lt;/exposes&gt;
  * &lt;/configuration&gt;
  * </pre>
- * 
- * <p>
- * While it might look silly (and silly enough to get its own Plugin instead of
- * beanstalker), it power comes when combined with the <a
- * href="http://mojo.codehaus.org/properties-maven-plugin/">Properties Maven
- * Plugin</a>
- * </p>
- * 
+ *
+ * <p> While it might look silly (and silly enough to get its own Plugin instead of beanstalker), it
+ * power comes when combined with the <a href="http://mojo.codehaus.org/properties-maven-plugin/">Properties
+ * Maven Plugin</a> </p>
+ *
  * @since 0.2.7-RC4
  */
 @Mojo(name = "expose-security-credentials", requiresProject = true)
 public class ExposeSecurityCredentialsMojo extends AbstractBeanstalkMojo {
-	/**
-	 * Which Server Settings to Expose?
-	 */
-	@Parameter
-	Expose[] exposes = new Expose[0];
 
-	@Parameter(defaultValue = "${project}")
-	MavenProject project;
+  /**
+   * Which Server Settings to Expose?
+   */
+  @Parameter
+  Expose[] exposes = new Expose[0];
 
-	protected Object executeInternal() throws MojoExecutionException,
-			MojoFailureException {
-		/**
-		 * Fill in defaults if needed
-		 */
-		if (0 == exposes.length) {
-			exposes = new Expose[1];
-			exposes[0] = new Expose();
-			exposes[0].setServerId(this.serverId);
-			exposes[0].setAccessKey("aws.accessKey");
-			exposes[0].setSharedKey("aws.secretKey");
-		} else {
-			/**
-			 * Validate parameters, for gods sake
-			 */
-			try {
-				for (Expose e : exposes) {
-					assertOrWarn(StringUtils.isNotBlank(e.getServerId()),
-							"serverId must be supplied");
-					assertOrWarn(StringUtils.isNotBlank(e.getAccessKey()),
-							"accessKey must be supplied");
-					assertOrWarn(StringUtils.isNotBlank(e.getSharedKey()),
-							"sharedKey must be supplied");
-				}
-			} catch (IllegalStateException e) {
-				return null;
-			}
-		}
+  @Parameter(defaultValue = "${project}")
+  MavenProject project;
+  /**
+   * @component
+   */
+  BuildContext buildContext;
 
-		for (Expose e : exposes) {
-			Expose realExpose = null;
+  protected Object executeInternal() throws MojoExecutionException,
+                                            MojoFailureException {
+    /**
+     * Fill in defaults if needed
+     */
+    if (0 == exposes.length) {
+      exposes = new Expose[1];
+      exposes[0] = new Expose();
+      exposes[0].setServerId(this.serverId);
+      exposes[0].setAccessKey("aws.accessKey");
+      exposes[0].setSharedKey("aws.secretKey");
+    } else {
+      /**
+       * Validate parameters, for gods sake
+       */
+      try {
+        for (Expose e : exposes) {
+          assertOrWarn(StringUtils.isNotBlank(e.getServerId()),
+                       "serverId must be supplied");
+          assertOrWarn(StringUtils.isNotBlank(e.getAccessKey()),
+                       "accessKey must be supplied");
+          assertOrWarn(StringUtils.isNotBlank(e.getSharedKey()),
+                       "sharedKey must be supplied");
+        }
+      } catch (IllegalStateException e) {
+        return null;
+      }
+    }
 
-			try {
-				realExpose = super.exposeSettings(e.getServerId());
-			} catch (Exception exc) {
-				getLog().warn("Failed to Expose Settings from serverId ('" + e.getServerId() + "')");
-				continue;
-			}
+    for (Expose e : exposes) {
+      Expose realExpose = null;
 
-			getLog().info(
-					String.format(
-							"Writing Security Settings from serverId ('%s') into properties '%s' (accessKey) and '%s' (secretKey)",
-							e.getServerId(), e.getAccessKey(), e.getSharedKey()));
+      try {
+        realExpose = super.exposeSettings(e.getServerId());
+      } catch (Exception exc) {
+        getLog().warn("Failed to Expose Settings from serverId ('" + e.getServerId() + "')");
+        continue;
+      }
 
-			project.getProperties().put(e.getAccessKey(),
-					realExpose.getAccessKey());
+      getLog().info(
+          String.format(
+              "Writing Security Settings from serverId ('%s') into properties '%s' (accessKey) and '%s' (secretKey)",
+              e.getServerId(), e.getAccessKey(), e.getSharedKey()));
 
-			project.getProperties().put(e.getSharedKey(),
-					realExpose.getSharedKey());
-		}
+      project.getProperties().put(e.getAccessKey(),
+                                  realExpose.getAccessKey());
 
-		return null;
-	}
+      project.getProperties().put(e.getSharedKey(),
+                                  realExpose.getSharedKey());
+    }
 
-	/**
-	 * @component
-	 */
-	BuildContext buildContext;
+    return null;
+  }
 
-	private void assertOrWarn(boolean condition, String message) {
-		if (condition)
-			return;
+  private void assertOrWarn(boolean condition, String message) {
+    if (condition) {
+      return;
+    }
 
-		if (null != buildContext) {
-			buildContext.addMessage(project.getFile(), 1, 1, message,
-					BuildContext.SEVERITY_WARNING, null);
-		} else {
-			getLog().warn(message);
-		}
+    if (null != buildContext) {
+      buildContext.addMessage(project.getFile(), 1, 1, message,
+                              BuildContext.SEVERITY_WARNING, null);
+    } else {
+      getLog().warn(message);
+    }
 
-		throw new IllegalStateException(message);
-	}
+    throw new IllegalStateException(message);
+  }
 }

@@ -24,106 +24,108 @@ package br.com.ingenieux.mojo.beanstalk.cmd.env.create;
 import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
 
 public class CreateEnvironmentContextBuilder extends
-    CreateEnvironmentContextBuilderBase<CreateEnvironmentContextBuilder> {
-	public static CreateEnvironmentContextBuilder createEnvironmentContext() {
-		return new CreateEnvironmentContextBuilder();
-	}
+                                             CreateEnvironmentContextBuilderBase<CreateEnvironmentContextBuilder> {
 
-	public CreateEnvironmentContextBuilder() {
-		super(new CreateEnvironmentContext());
-	}
+  public CreateEnvironmentContextBuilder() {
+    super(new CreateEnvironmentContext());
+  }
 
-	public CreateEnvironmentContext build() {
-		return getInstance();
-	}
+  public static CreateEnvironmentContextBuilder createEnvironmentContext() {
+    return new CreateEnvironmentContextBuilder();
+  }
+
+  public CreateEnvironmentContext build() {
+    return getInstance();
+  }
 }
 
 class CreateEnvironmentContextBuilderBase<GeneratorT extends CreateEnvironmentContextBuilderBase<GeneratorT>> {
-	private CreateEnvironmentContext instance;
 
-	protected CreateEnvironmentContextBuilderBase(
-	    CreateEnvironmentContext aInstance) {
-		instance = aInstance;
-	}
+  private CreateEnvironmentContext instance;
 
-	protected CreateEnvironmentContext getInstance() {
-		return instance;
-	}
+  protected CreateEnvironmentContextBuilderBase(
+      CreateEnvironmentContext aInstance) {
+    instance = aInstance;
+  }
 
-	@SuppressWarnings("unchecked")
-	public GeneratorT withApplicationName(String aValue) {
-		instance.setApplicationName(aValue);
+  protected CreateEnvironmentContext getInstance() {
+    return instance;
+  }
 
-		return (GeneratorT) this;
-	}
+  @SuppressWarnings("unchecked")
+  public GeneratorT withApplicationName(String aValue) {
+    instance.setApplicationName(aValue);
 
-	@SuppressWarnings("unchecked")
-	public GeneratorT withCnamePrefix(String aValue) {
-		instance.setCnamePrefix(aValue);
+    return (GeneratorT) this;
+  }
 
-		return (GeneratorT) this;
-	}
+  @SuppressWarnings("unchecked")
+  public GeneratorT withCnamePrefix(String aValue) {
+    instance.setCnamePrefix(aValue);
 
-	@SuppressWarnings("unchecked")
-	public GeneratorT withApplicationDescription(String aValue) {
-		instance.setApplicationDescription(aValue);
+    return (GeneratorT) this;
+  }
 
-		return (GeneratorT) this;
-	}
+  @SuppressWarnings("unchecked")
+  public GeneratorT withApplicationDescription(String aValue) {
+    instance.setApplicationDescription(aValue);
 
-	@SuppressWarnings("unchecked")
-	public GeneratorT withOptionSettings(ConfigurationOptionSetting[] aValue) {
-		instance.setOptionSettings(aValue);
+    return (GeneratorT) this;
+  }
 
-		return (GeneratorT) this;
-	}
+  @SuppressWarnings("unchecked")
+  public GeneratorT withOptionSettings(ConfigurationOptionSetting[] aValue) {
+    instance.setOptionSettings(aValue);
 
-	@SuppressWarnings("unchecked")
-	public GeneratorT withEnvironmentName(String aValue) {
-		instance.setEnvironmentName(aValue);
+    return (GeneratorT) this;
+  }
 
-		return (GeneratorT) this;
-	}
+  @SuppressWarnings("unchecked")
+  public GeneratorT withEnvironmentName(String aValue) {
+    instance.setEnvironmentName(aValue);
 
-	@SuppressWarnings("unchecked")
-	public GeneratorT withVersionLabel(String aValue) {
-		instance.setVersionLabel(aValue);
+    return (GeneratorT) this;
+  }
 
-		return (GeneratorT) this;
-	}
+  @SuppressWarnings("unchecked")
+  public GeneratorT withVersionLabel(String aValue) {
+    instance.setVersionLabel(aValue);
 
-	@SuppressWarnings("unchecked")
-	public GeneratorT withSolutionStack(String aValue) {
-		instance.setSolutionStack(aValue);
+    return (GeneratorT) this;
+  }
 
-		return (GeneratorT) this;
-	}
+  @SuppressWarnings("unchecked")
+  public GeneratorT withSolutionStack(String aValue) {
+    instance.setSolutionStack(aValue);
 
-	@SuppressWarnings("unchecked")
-	public GeneratorT withTemplateName(String aValue) {
-		instance.setTemplateName(aValue);
+    return (GeneratorT) this;
+  }
 
-		return (GeneratorT) this;
-	}
+  @SuppressWarnings("unchecked")
+  public GeneratorT withTemplateName(String aValue) {
+    instance.setTemplateName(aValue);
 
-	@SuppressWarnings("unchecked")
-	public GeneratorT withEnvironmentTierName(String aValue) {
-		instance.setEnvironmentTierName(aValue);
+    return (GeneratorT) this;
+  }
 
-		return (GeneratorT) this;
-	}
+  @SuppressWarnings("unchecked")
+  public GeneratorT withEnvironmentTierName(String aValue) {
+    instance.setEnvironmentTierName(aValue);
 
-	@SuppressWarnings("unchecked")
-	public GeneratorT withEnvironmentTierType(String aValue) {
-		instance.setEnvironmentTierType(aValue);
+    return (GeneratorT) this;
+  }
 
-		return (GeneratorT) this;
-	}
+  @SuppressWarnings("unchecked")
+  public GeneratorT withEnvironmentTierType(String aValue) {
+    instance.setEnvironmentTierType(aValue);
 
-	@SuppressWarnings("unchecked")
-	public GeneratorT withEnvironmentTierVersion(String aValue) {
-		instance.setEnvironmentTierVersion(aValue);
+    return (GeneratorT) this;
+  }
 
-		return (GeneratorT) this;
-	}
+  @SuppressWarnings("unchecked")
+  public GeneratorT withEnvironmentTierVersion(String aValue) {
+    instance.setEnvironmentTierVersion(aValue);
+
+    return (GeneratorT) this;
+  }
 }

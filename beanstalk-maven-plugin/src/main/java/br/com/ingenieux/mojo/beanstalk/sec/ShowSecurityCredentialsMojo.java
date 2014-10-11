@@ -14,27 +14,28 @@ package br.com.ingenieux.mojo.beanstalk.sec;
  * limitations under the License.
  */
 
+import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 
 import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
 
-import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
-
 /**
- * <p>Shows the IAM security credentials from settings.xml into
- * project properties</p>
- * 
- * <p>See <a href="http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/services/identitymanagement/AmazonIdentityManagement.html#getUser()">for more information</a></p>
- * 
+ * <p>Shows the IAM security credentials from settings.xml into project properties</p>
+ *
+ * <p>See <a href="http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/services/identitymanagement/AmazonIdentityManagement.html#getUser()">for
+ * more information</a></p>
+ *
  * @since 0.2.9-SNAPSHOT
  */
-@Mojo(name="show-security-credentials")
+@Mojo(name = "show-security-credentials")
 public class ShowSecurityCredentialsMojo extends AbstractAWSMojo<AmazonIdentityManagementClient> {
-	protected Object executeInternal() throws MojoExecutionException,
-			MojoFailureException {
-		return getService().getUser();
-	}
+
+  protected Object executeInternal() throws MojoExecutionException,
+                                            MojoFailureException {
+    return getService().getUser();
+  }
 
 }

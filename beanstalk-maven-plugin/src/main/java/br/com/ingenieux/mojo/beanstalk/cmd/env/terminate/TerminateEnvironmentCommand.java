@@ -1,12 +1,12 @@
 package br.com.ingenieux.mojo.beanstalk.cmd.env.terminate;
 
+import com.amazonaws.services.elasticbeanstalk.model.TerminateEnvironmentRequest;
+import com.amazonaws.services.elasticbeanstalk.model.TerminateEnvironmentResult;
+
 import org.apache.maven.plugin.AbstractMojoExecutionException;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.BaseCommand;
-
-import com.amazonaws.services.elasticbeanstalk.model.TerminateEnvironmentRequest;
-import com.amazonaws.services.elasticbeanstalk.model.TerminateEnvironmentResult;
 
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,26 +22,26 @@ import com.amazonaws.services.elasticbeanstalk.model.TerminateEnvironmentResult;
  * limitations under the License.
  */
 public class TerminateEnvironmentCommand extends
-    BaseCommand<TerminateEnvironmentContext, TerminateEnvironmentResult> {
-	/**
-	 * Constructor
-	 * 
-	 * @param parentMojo
-	 *          parent mojo
-	 * @throws AbstractMojoExecutionException 
-	 */
-	public TerminateEnvironmentCommand(AbstractBeanstalkMojo parentMojo) throws AbstractMojoExecutionException {
-		super(parentMojo);
-	}
+                                         BaseCommand<TerminateEnvironmentContext, TerminateEnvironmentResult> {
 
-	@Override
-	protected TerminateEnvironmentResult executeInternal(
-	    TerminateEnvironmentContext context) throws Exception {
-		TerminateEnvironmentRequest req = new TerminateEnvironmentRequest()
-		    .withEnvironmentId(context.environmentId)
-		    .withEnvironmentName(context.environmentName)
-		    .withTerminateResources(context.terminateResources);
+  /**
+   * Constructor
+   *
+   * @param parentMojo parent mojo
+   */
+  public TerminateEnvironmentCommand(AbstractBeanstalkMojo parentMojo)
+      throws AbstractMojoExecutionException {
+    super(parentMojo);
+  }
 
-		return service.terminateEnvironment(req);
-	}
+  @Override
+  protected TerminateEnvironmentResult executeInternal(
+      TerminateEnvironmentContext context) throws Exception {
+    TerminateEnvironmentRequest req = new TerminateEnvironmentRequest()
+        .withEnvironmentId(context.environmentId)
+        .withEnvironmentName(context.environmentName)
+        .withTerminateResources(context.terminateResources);
+
+    return service.terminateEnvironment(req);
+  }
 }

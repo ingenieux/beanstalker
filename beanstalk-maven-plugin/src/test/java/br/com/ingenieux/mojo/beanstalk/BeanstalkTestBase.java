@@ -14,6 +14,23 @@ package br.com.ingenieux.mojo.beanstalk;
  * limitations under the License.
  */
 
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalk;
+import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalkClient;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsResult;
+import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
+import com.amazonaws.services.elasticbeanstalk.model.TerminateEnvironmentRequest;
+
+import org.apache.commons.lang.text.StrSubstitutor;
+import org.apache.maven.plugin.testing.AbstractMojoTestCase;
+import org.codehaus.plexus.configuration.PlexusConfiguration;
+import org.junit.Ignore;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.net.URISyntaxException;
+import java.util.Properties;
+
 import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
 import br.com.ingenieux.mojo.beanstalk.app.CreateApplicationMojo;
 import br.com.ingenieux.mojo.beanstalk.bundle.UploadSourceBundleMojo;
@@ -25,149 +42,135 @@ import br.com.ingenieux.mojo.beanstalk.env.TerminateEnvironmentMojo;
 import br.com.ingenieux.mojo.beanstalk.env.UpdateEnvironmentMojo;
 import br.com.ingenieux.mojo.beanstalk.env.WaitForEnvironmentMojo;
 import br.com.ingenieux.mojo.beanstalk.version.CreateApplicationVersionMojo;
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalk;
-import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalkClient;
-import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsResult;
-import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
-import com.amazonaws.services.elasticbeanstalk.model.TerminateEnvironmentRequest;
-import org.apache.commons.lang.text.StrSubstitutor;
-import org.apache.maven.plugin.testing.AbstractMojoTestCase;
-import org.codehaus.plexus.configuration.PlexusConfiguration;
-import org.junit.Ignore;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.net.URISyntaxException;
-import java.util.Properties;
 
 @Ignore
 public abstract class BeanstalkTestBase extends AbstractMojoTestCase {
-	public static final String PROP_VERSION_LABEL = "versionLabel";
 
-	public static final String PROP_S3_KEY_MASK = "s3KeyMask";
+  public static final String PROP_VERSION_LABEL = "versionLabel";
 
-	public static final String PROP_S3_BUCKET = "s3Bucket";
+  public static final String PROP_S3_KEY_MASK = "s3KeyMask";
 
-	Properties properties;
+  public static final String PROP_S3_BUCKET = "s3Bucket";
 
-	StrSubstitutor strSub;
+  Properties properties;
 
-	CheckAvailabilityMojo checkAvailabilityMojo;
+  StrSubstitutor strSub;
 
-	CreateApplicationMojo createAppMojo;
+  CheckAvailabilityMojo checkAvailabilityMojo;
 
-	CreateApplicationVersionMojo createAppVersionMojo;
+  CreateApplicationMojo createAppMojo;
 
-	UploadSourceBundleMojo uploadSourceBundleMojo;
+  CreateApplicationVersionMojo createAppVersionMojo;
 
-	CreateEnvironmentMojo createEnvMojo;
+  UploadSourceBundleMojo uploadSourceBundleMojo;
 
-	TerminateEnvironmentMojo termEnvMojo;
+  CreateEnvironmentMojo createEnvMojo;
 
-	WaitForEnvironmentMojo waitForEnvMojo;
+  TerminateEnvironmentMojo termEnvMojo;
 
-	UpdateEnvironmentMojo updateEnvMojo;
+  WaitForEnvironmentMojo waitForEnvMojo;
 
-	DescribeConfigurationTemplatesMojo describeConfigTemplatesMojo;
+  UpdateEnvironmentMojo updateEnvMojo;
 
-	CreateConfigurationTemplateMojo createConfigurationTemplateMojo;
+  DescribeConfigurationTemplatesMojo describeConfigTemplatesMojo;
 
-	String versionLabel;
+  CreateConfigurationTemplateMojo createConfigurationTemplateMojo;
 
-	AWSCredentials credentials;
+  String versionLabel;
 
-	AWSElasticBeanstalk service;
+  AWSCredentials credentials;
 
-	public BeanstalkTestBase() {
-		super();
-	}
+  AWSElasticBeanstalk service;
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+  public BeanstalkTestBase() {
+    super();
+  }
 
-		Properties properties = new Properties();
+  @Override
+  protected void setUp() throws Exception {
+    super.setUp();
 
-		properties.load(new FileInputStream("test.properties"));
+    Properties properties = new Properties();
 
-		this.properties = properties;
+    properties.load(new FileInputStream("test.properties"));
 
-		configureMojos();
+    this.properties = properties;
 
-		this.credentials = uploadSourceBundleMojo.getAWSCredentials().getCredentials();
+    configureMojos();
 
-		this.service = new AWSElasticBeanstalkClient(credentials);
-	}
+    this.credentials = uploadSourceBundleMojo.getAWSCredentials().getCredentials();
 
-	protected void configureMojos() throws Exception {
-		createAppMojo = getMojo(CreateApplicationMojo.class);
+    this.service = new AWSElasticBeanstalkClient(credentials);
+  }
 
-		createAppVersionMojo = getMojo(CreateApplicationVersionMojo.class);
+  protected void configureMojos() throws Exception {
+    createAppMojo = getMojo(CreateApplicationMojo.class);
 
-		uploadSourceBundleMojo = getMojo(UploadSourceBundleMojo.class);
+    createAppVersionMojo = getMojo(CreateApplicationVersionMojo.class);
 
-		createAppMojo = getMojo(CreateApplicationMojo.class);
+    uploadSourceBundleMojo = getMojo(UploadSourceBundleMojo.class);
 
-		createAppVersionMojo = getMojo(CreateApplicationVersionMojo.class);
+    createAppMojo = getMojo(CreateApplicationMojo.class);
 
-		createEnvMojo = getMojo(CreateEnvironmentMojo.class);
+    createAppVersionMojo = getMojo(CreateApplicationVersionMojo.class);
 
-		waitForEnvMojo = getMojo(WaitForEnvironmentMojo.class);
+    createEnvMojo = getMojo(CreateEnvironmentMojo.class);
 
-		termEnvMojo = getMojo(TerminateEnvironmentMojo.class);
+    waitForEnvMojo = getMojo(WaitForEnvironmentMojo.class);
 
-		updateEnvMojo = getMojo(UpdateEnvironmentMojo.class);
+    termEnvMojo = getMojo(TerminateEnvironmentMojo.class);
 
-		describeConfigTemplatesMojo = getMojo(DescribeConfigurationTemplatesMojo.class);
+    updateEnvMojo = getMojo(UpdateEnvironmentMojo.class);
 
-		versionLabel = String.format("test-%08X", System.currentTimeMillis());
+    describeConfigTemplatesMojo = getMojo(DescribeConfigurationTemplatesMojo.class);
 
-		checkAvailabilityMojo = getMojo(CheckAvailabilityMojo.class);
+    versionLabel = String.format("test-%08X", System.currentTimeMillis());
 
-		createConfigurationTemplateMojo = getMojo(CreateConfigurationTemplateMojo.class);
-	}
+    checkAvailabilityMojo = getMojo(CheckAvailabilityMojo.class);
 
-	protected File getBasePom(String pomName) {
-		return new File(getBasedir(),
-		    "target/test-classes/br/com/ingenieux/mojo/beanstalk/" + pomName);
-	}
+    createConfigurationTemplateMojo = getMojo(CreateConfigurationTemplateMojo.class);
+  }
 
-	@SuppressWarnings("unchecked")
-	protected <T extends AbstractAWSMojo<?>> T getMojo(Class<T> mojoClazz)
-	    throws Exception {
-		File testPom = this.getBasePom("pom.xml");
+  protected File getBasePom(String pomName) {
+    return new File(getBasedir(),
+                    "target/test-classes/br/com/ingenieux/mojo/beanstalk/" + pomName);
+  }
 
-		PlexusConfiguration pluginConfiguration = extractPluginConfiguration(
-		    "beanstalk-maven-plugin", testPom);
+  @SuppressWarnings("unchecked")
+  protected <T extends AbstractAWSMojo<?>> T getMojo(Class<T> mojoClazz)
+      throws Exception {
+    File testPom = this.getBasePom("pom.xml");
 
-		return (T) configureMojo(mojoClazz.newInstance(), pluginConfiguration);
-	}
+    PlexusConfiguration pluginConfiguration = extractPluginConfiguration(
+        "beanstalk-maven-plugin", testPom);
 
-	protected File getWarFile() throws URISyntaxException {
-		return new File(BeanstalkTestBase.class.getResource("test-war.war").toURI());
-	}
+    return (T) configureMojo(mojoClazz.newInstance(), pluginConfiguration);
+  }
 
-	protected String getS3Path() {
-		properties.put(PROP_VERSION_LABEL, this.versionLabel);
+  protected File getWarFile() throws URISyntaxException {
+    return new File(BeanstalkTestBase.class.getResource("test-war.war").toURI());
+  }
 
-		strSub = new StrSubstitutor(properties);
-		return strSub.replace(properties.get(PROP_S3_KEY_MASK));
-	}
+  protected String getS3Path() {
+    properties.put(PROP_VERSION_LABEL, this.versionLabel);
 
-	protected String getS3Bucket() {
-		return properties.getProperty(PROP_S3_BUCKET);
-	}
+    strSub = new StrSubstitutor(properties);
+    return strSub.replace(properties.get(PROP_S3_KEY_MASK));
+  }
 
-	public void clearEnvironments() {
-		DescribeEnvironmentsResult environments = service.describeEnvironments();
+  protected String getS3Bucket() {
+    return properties.getProperty(PROP_S3_BUCKET);
+  }
 
-		for (EnvironmentDescription d : environments.getEnvironments()) {
-			service
-			    .terminateEnvironment(new TerminateEnvironmentRequest()
-			        .withEnvironmentId(d.getEnvironmentId()).withTerminateResources(
-			            true));
-		}
-	}
+  public void clearEnvironments() {
+    DescribeEnvironmentsResult environments = service.describeEnvironments();
+
+    for (EnvironmentDescription d : environments.getEnvironments()) {
+      service
+          .terminateEnvironment(new TerminateEnvironmentRequest()
+                                    .withEnvironmentId(d.getEnvironmentId()).withTerminateResources(
+                  true));
+    }
+  }
 
 }

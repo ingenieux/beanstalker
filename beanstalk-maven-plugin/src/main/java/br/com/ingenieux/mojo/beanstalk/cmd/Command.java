@@ -17,5 +17,6 @@ import org.apache.maven.plugin.AbstractMojoExecutionException;
  */
 
 public interface Command<I, O> {
-	public O execute(I context) throws AbstractMojoExecutionException;
+
+  public O execute(I context) throws AbstractMojoExecutionException;
 }

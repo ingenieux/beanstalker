@@ -25,31 +25,31 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.terminate.TerminateEnvironmentCon
 
 /**
  * Terminates the Environment
- * 
- * See the docs for <a href=
- * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_TerminateEnvironment.html"
+ *
+ * See the docs for <a href= "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_TerminateEnvironment.html"
  * >TerminateEnvironment API</a> call.
- * 
+ *
  * @author Aldrin Leal
  * @since 0.1.0
  */
-@Mojo(name="terminate-environment")
+@Mojo(name = "terminate-environment")
 public class TerminateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
-	/**
-	 * Terminate resources as well?
-	 */
-	@Parameter(property="beanstalk.terminateResources", defaultValue="true")
-	boolean terminateResources;
 
-	@Override
-	protected Object executeInternal() throws AbstractMojoExecutionException {
-		TerminateEnvironmentContext context = TerminateEnvironmentContextBuilder
-		    .terminateEnvironmentContext().withEnvironmentId(curEnv.getEnvironmentId())
-		    .withEnvironmentName(curEnv.getEnvironmentName())
-		    .withTerminateResources(terminateResources).build();
-		TerminateEnvironmentCommand command = new TerminateEnvironmentCommand(this);
+  /**
+   * Terminate resources as well?
+   */
+  @Parameter(property = "beanstalk.terminateResources", defaultValue = "true")
+  boolean terminateResources;
 
-		return command.execute(context);
-	}
+  @Override
+  protected Object executeInternal() throws AbstractMojoExecutionException {
+    TerminateEnvironmentContext context = TerminateEnvironmentContextBuilder
+        .terminateEnvironmentContext().withEnvironmentId(curEnv.getEnvironmentId())
+        .withEnvironmentName(curEnv.getEnvironmentName())
+        .withTerminateResources(terminateResources).build();
+    TerminateEnvironmentCommand command = new TerminateEnvironmentCommand(this);
+
+    return command.execute(context);
+  }
 
 }

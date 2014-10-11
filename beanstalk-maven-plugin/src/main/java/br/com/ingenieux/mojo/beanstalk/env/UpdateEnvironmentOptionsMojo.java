@@ -14,6 +14,9 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
+import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
+import com.amazonaws.services.elasticbeanstalk.model.UpdateEnvironmentRequest;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -21,78 +24,71 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 
-import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
-import com.amazonaws.services.elasticbeanstalk.model.UpdateEnvironmentRequest;
-
 /**
  * Updates the environment configuration (optionsSettings / optionsToRemove)
- * 
- * See the <a href=
- * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_UpdateEnvironment.html"
+ *
+ * See the <a href= "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_UpdateEnvironment.html"
  * >UpdateEnvironment API</a> call.
- * 
+ *
  * @since 0.2.2
  */
 @Mojo(name = "update-environment-options", requiresDirectInvocation = true)
 public class UpdateEnvironmentOptionsMojo extends AbstractNeedsEnvironmentMojo {
-	public enum WhatToSet {
-		description, optionSettings, templateName, versionLabel
-	}
 
-	/**
-	 * Configuration Option Settings
-	 */
-	@Parameter
-	ConfigurationOptionSetting[] optionSettings;
+  /**
+   * Configuration Option Settings
+   */
+  @Parameter
+  ConfigurationOptionSetting[] optionSettings;
+  /**
+   * Environment Name
+   */
+  @Parameter(property = "beanstalk.environmentDescription", defaultValue = "default")
+  String environmentDescription;
+  /**
+   * Version Label to use.
+   */
+  @Parameter(property = "beanstalk.versionLabel")
+  String versionLabel;
+  /**
+   * <p>Template Name.</p>
+   *
+   * <p>Could be either literal or a glob, like, <pre>ingenieux-services-prod-*</pre>. If a glob,
+   * there will
+   * be a lookup involved, and the first one in reverse ASCIIbetical order will be picked upon.
+   * </p>
+   */
+  @Parameter(property = "beanstalk.templateName")
+  String templateName;
+  /**
+   * What to set?
+   */
+  @Parameter(property = "beanstalk.whatToSet", defaultValue = "versionLabel", required = true)
+  WhatToSet whatToSet;
 
-	/**
-	 * Environment Name
-	 */
-	@Parameter(property = "beanstalk.environmentDescription", defaultValue = "default")
-	String environmentDescription;
+  protected Object executeInternal() throws MojoExecutionException,
+                                            MojoFailureException {
+    UpdateEnvironmentRequest req = new UpdateEnvironmentRequest();
 
-	/**
-	 * Version Label to use.
-	 */
-	@Parameter(property = "beanstalk.versionLabel")
-	String versionLabel;
+    req.setEnvironmentId(curEnv.getEnvironmentId());
+    req.setEnvironmentName(curEnv.getEnvironmentName());
 
-	/**
-	 * <p>Template Name.</p>
-	 * 
-	 * <p>Could be either literal or a glob, like, <pre>ingenieux-services-prod-*</pre>. If a glob, there will
-	 * be a lookup involved, and the first one in reverse ASCIIbetical order
-	 * will be picked upon.
-	 * </p>
-	 */
-	@Parameter(property = "beanstalk.templateName")
-	String templateName;
+    if (WhatToSet.versionLabel.equals(whatToSet)) {
+      req.setVersionLabel(versionLabel);
+    } else if (WhatToSet.description.equals(whatToSet)) {
+      req.setDescription(environmentDescription);
+    } else if (WhatToSet.optionSettings.equals(whatToSet)) {
+      req.setOptionSettings(getOptionSettings(optionSettings));
+    } else if (WhatToSet.templateName.equals(whatToSet)) {
+      req.setTemplateName(lookupTemplateName(applicationName, templateName));
+      // } else if (WhatToSet.optionsToRemove.equals(whatToSet)) {
+      // req.setOptionsToRemove(optionsToRemove)
+    }
 
-	/**
-	 * What to set?
-	 */
-	@Parameter(property = "beanstalk.whatToSet", defaultValue = "versionLabel", required = true)
-	WhatToSet whatToSet;
+    return getService().updateEnvironment(req);
+  }
 
-	protected Object executeInternal() throws MojoExecutionException,
-			MojoFailureException {
-		UpdateEnvironmentRequest req = new UpdateEnvironmentRequest();
-
-		req.setEnvironmentId(curEnv.getEnvironmentId());
-		req.setEnvironmentName(curEnv.getEnvironmentName());
-
-		if (WhatToSet.versionLabel.equals(whatToSet)) {
-			req.setVersionLabel(versionLabel);
-		} else if (WhatToSet.description.equals(whatToSet)) {
-			req.setDescription(environmentDescription);
-		} else if (WhatToSet.optionSettings.equals(whatToSet)) {
-			req.setOptionSettings(getOptionSettings(optionSettings));
-		} else if (WhatToSet.templateName.equals(whatToSet)) {
-			req.setTemplateName(lookupTemplateName(applicationName, templateName));
-			// } else if (WhatToSet.optionsToRemove.equals(whatToSet)) {
-			// req.setOptionsToRemove(optionsToRemove)
-		}
-
-		return getService().updateEnvironment(req);
-	}
+  public enum WhatToSet {
+    description, optionSettings, templateName, versionLabel
+  }
 }

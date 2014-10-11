@@ -23,85 +23,87 @@ import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
  * limitations under the License.
  */
 public class UpdateEnvironmentContextBuilder extends
-    UpdateEnvironmentContextBuilderBase<UpdateEnvironmentContextBuilder> {
-	public static UpdateEnvironmentContextBuilder updateEnvironmentContext() {
-		return new UpdateEnvironmentContextBuilder();
-	}
+                                             UpdateEnvironmentContextBuilderBase<UpdateEnvironmentContextBuilder> {
 
-	public UpdateEnvironmentContextBuilder() {
-		super(new UpdateEnvironmentContext());
-	}
+  public UpdateEnvironmentContextBuilder() {
+    super(new UpdateEnvironmentContext());
+  }
 
-	public UpdateEnvironmentContext build() {
-		return getInstance();
-	}
+  public static UpdateEnvironmentContextBuilder updateEnvironmentContext() {
+    return new UpdateEnvironmentContextBuilder();
+  }
+
+  public UpdateEnvironmentContext build() {
+    return getInstance();
+  }
 }
 
 class UpdateEnvironmentContextBuilderBase<GeneratorT extends UpdateEnvironmentContextBuilderBase<GeneratorT>> {
-	private UpdateEnvironmentContext instance;
 
-	protected UpdateEnvironmentContextBuilderBase(
-	    UpdateEnvironmentContext aInstance) {
-		instance = aInstance;
-	}
+  private UpdateEnvironmentContext instance;
 
-	protected UpdateEnvironmentContext getInstance() {
-		return instance;
-	}
+  protected UpdateEnvironmentContextBuilderBase(
+      UpdateEnvironmentContext aInstance) {
+    instance = aInstance;
+  }
 
-	@SuppressWarnings("unchecked")
-	public GeneratorT withEnvironmentName(String aValue) {
-		instance.setEnvironmentName(aValue);
+  protected UpdateEnvironmentContext getInstance() {
+    return instance;
+  }
 
-		return (GeneratorT) this;
-	}
+  @SuppressWarnings("unchecked")
+  public GeneratorT withEnvironmentName(String aValue) {
+    instance.setEnvironmentName(aValue);
 
-	@SuppressWarnings("unchecked")
-	public GeneratorT withEnvironmentId(String aValue) {
-		instance.setEnvironmentId(aValue);
+    return (GeneratorT) this;
+  }
 
-		return (GeneratorT) this;
-	}
+  @SuppressWarnings("unchecked")
+  public GeneratorT withEnvironmentId(String aValue) {
+    instance.setEnvironmentId(aValue);
 
-	@SuppressWarnings("unchecked")
-	public GeneratorT withVersionLabel(String aValue) {
-		instance.setVersionLabel(aValue);
+    return (GeneratorT) this;
+  }
 
-		return (GeneratorT) this;
-	}
+  @SuppressWarnings("unchecked")
+  public GeneratorT withVersionLabel(String aValue) {
+    instance.setVersionLabel(aValue);
 
-	@SuppressWarnings("unchecked")
-	public GeneratorT withEnvironmentDescription(String aValue) {
-		instance.setEnvironmentDescription(aValue);
+    return (GeneratorT) this;
+  }
 
-		return (GeneratorT) this;
-	}
+  @SuppressWarnings("unchecked")
+  public GeneratorT withEnvironmentDescription(String aValue) {
+    instance.setEnvironmentDescription(aValue);
 
-	@SuppressWarnings("unchecked")
-	public GeneratorT withOptionSettings(ConfigurationOptionSetting[] aValue) {
-		instance.setOptionSettings(aValue);
+    return (GeneratorT) this;
+  }
 
-		return (GeneratorT) this;
-	}
+  @SuppressWarnings("unchecked")
+  public GeneratorT withOptionSettings(ConfigurationOptionSetting[] aValue) {
+    instance.setOptionSettings(aValue);
 
-	@SuppressWarnings("unchecked")
-	public GeneratorT withTemplateName(String aValue) {
-		instance.setTemplateName(aValue);
+    return (GeneratorT) this;
+  }
 
-		return (GeneratorT) this;
-	}
-	
-	@SuppressWarnings("unchecked")
-	public GeneratorT withLatestVersionLabel(String aValue) {
-		instance.setLatestVersionLabel(aValue);
+  @SuppressWarnings("unchecked")
+  public GeneratorT withTemplateName(String aValue) {
+    instance.setTemplateName(aValue);
 
-		return (GeneratorT) this;
-	}
+    return (GeneratorT) this;
+  }
 
-	@SuppressWarnings("unchecked")
-	public GeneratorT withEnvironmentTierName(String aValue) {
-		instance.setEnvironmentTierName(aValue);
+  @SuppressWarnings("unchecked")
+  public GeneratorT withLatestVersionLabel(String aValue) {
+    instance.setLatestVersionLabel(aValue);
 
-		return (GeneratorT) this;
-	}
+    return (GeneratorT) this;
+  }
+
+  @SuppressWarnings("unchecked")
+  public GeneratorT withEnvironmentTierName(String aValue) {
+    instance.setEnvironmentTierName(aValue);
+
+    return (GeneratorT) this;
+  }
 }

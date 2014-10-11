@@ -14,35 +14,35 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
+import com.amazonaws.services.elasticbeanstalk.model.RebuildEnvironmentRequest;
+
 import org.apache.maven.plugin.AbstractMojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 
-import com.amazonaws.services.elasticbeanstalk.model.RebuildEnvironmentRequest;
-
 /**
  * Rebuilds an Environment
- * 
- * See the docs for the <a href=
- * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_RebuildEnvironment.html"
+ *
+ * See the docs for the <a href= "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_RebuildEnvironment.html"
  * >RebuildEnvironment API</a> call.
- * 
+ *
  * @author Aldrin Leal
  * @since 0.1.0
  */
-@Mojo(name="rebuild-environment")
+@Mojo(name = "rebuild-environment")
 public class RebuildEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
-	@Override
-	protected Object executeInternal() throws AbstractMojoExecutionException {
-		RebuildEnvironmentRequest req = new RebuildEnvironmentRequest();
 
-		req.setEnvironmentId(curEnv.getEnvironmentId());
-		req.setEnvironmentName(curEnv.getEnvironmentName());
+  @Override
+  protected Object executeInternal() throws AbstractMojoExecutionException {
+    RebuildEnvironmentRequest req = new RebuildEnvironmentRequest();
 
-		getService().rebuildEnvironment(req);
+    req.setEnvironmentId(curEnv.getEnvironmentId());
+    req.setEnvironmentName(curEnv.getEnvironmentName());
 
-		return null;
-	}
+    getService().rebuildEnvironment(req);
+
+    return null;
+  }
 
 }

@@ -33,76 +33,53 @@ import com.amazonaws.services.s3.transfer.TransferManagerConfiguration;
 import com.amazonaws.services.s3.transfer.TransferProgress;
 import com.amazonaws.services.s3.transfer.Upload;
 import com.amazonaws.services.s3.transfer.internal.TransferManagerUtils;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Date;
 
 public class BeanstalkerS3Client extends AmazonS3Client {
-	private boolean multipartUpload = true;
 
+  private static final String BLANK_LINE = StringUtils.repeat(" ", 24);
+  private boolean multipartUpload = true;
   private boolean silentUpload = false;
-	
-	private final class XProgressListener implements ProgressListener {
-		private long contentLen;
-		private Upload upload;
-    private boolean silentUpload;
+  private TransferManager transferManager;
 
-		public void setContentLen(long contentLen) {
-			this.contentLen = contentLen;
-		}
-
-    public void setUpload(Upload upload) {
-      this.upload = upload;
-    }
-
-		public void setSilentUpload(boolean silentUpload) {
-			this.silentUpload = silentUpload;
-		}
-
-		public Upload getUpload() {
-			return upload;
-		}
-
-    @Override
-    public void progressChanged(ProgressEvent e) {
-      if (null == upload)
-          return;
-
-      TransferProgress xProgress = upload.getProgress();
-
-      if (! silentUpload)
-        System.out.print("\r  "
-                + String.format("%.2f", xProgress.getPercentTransferred())
-                + "% " + asNumber(xProgress.getBytesTransferred()) + "/"
-                + asNumber(contentLen) + BLANK_LINE);
-
-      switch (e.getEventCode()) {
-          case ProgressEvent.COMPLETED_EVENT_CODE: {
-              System.out.println("Done");
-              break;
-          }
-          case ProgressEvent.FAILED_EVENT_CODE: {
-            try {
-              AmazonClientException exc = upload.waitForException();
-
-              System.err.println("Unable to upload file: "
-                      + exc.getMessage());
-            } catch (InterruptedException ignored) {
-            }
-            break;
-        }
-      }
-    }
+  public BeanstalkerS3Client() {
+    super();
+    init();
   }
-	
-	public boolean isMultipartUpload() {
-		return multipartUpload;
-	}
 
-	public void setMultipartUpload(boolean multipartUploadP) {
-		this.multipartUpload = multipartUploadP;
-	}
+  public BeanstalkerS3Client(AWSCredentials awsCredentials,
+                             ClientConfiguration clientConfiguration) {
+    super(awsCredentials, clientConfiguration);
+    init();
+  }
+
+  public BeanstalkerS3Client(AWSCredentials awsCredentials) {
+    super(awsCredentials);
+    init();
+  }
+
+  public BeanstalkerS3Client(AWSCredentialsProvider credentialsProvider,
+                             ClientConfiguration clientConfiguration) {
+    super(credentialsProvider, clientConfiguration);
+    init();
+  }
+
+  public BeanstalkerS3Client(AWSCredentialsProvider credentialsProvider) {
+    super(credentialsProvider);
+    init();
+  }
+
+  public boolean isMultipartUpload() {
+    return multipartUpload;
+  }
+
+  public void setMultipartUpload(boolean multipartUploadP) {
+    this.multipartUpload = multipartUploadP;
+  }
 
   public boolean isSilentUpload() {
     return silentUpload;
@@ -112,92 +89,118 @@ public class BeanstalkerS3Client extends AmazonS3Client {
     this.silentUpload = silentUpload;
   }
 
-	private static final String BLANK_LINE = StringUtils.repeat(" ", 24);
-	
-	private TransferManager transferManager;
+  protected void init() {
+    transferManager = new TransferManager(this);
+    TransferManagerConfiguration configuration = new TransferManagerConfiguration();
+    configuration.setMultipartUploadThreshold(100 * Constants.KB);
+    transferManager.setConfiguration(configuration);
+  }
 
-	public BeanstalkerS3Client() {
-		super();
-		init();
-	}
+  public TransferManager getTransferManager() {
+    return transferManager;
+  }
 
-	public BeanstalkerS3Client(AWSCredentials awsCredentials,
-			ClientConfiguration clientConfiguration) {
-		super(awsCredentials, clientConfiguration);
-		init();
-	}
+  public String asNumber(long bytesTransfered) {
+    // Extra Pedantry: I love *-ibytes
+    return FileUtils.byteCountToDisplaySize(bytesTransfered).replaceAll(
+        "B$", "iB");
+  }
 
-	public BeanstalkerS3Client(AWSCredentials awsCredentials) {
-		super(awsCredentials);
-		init();
-	}
+  @Override
+  public PutObjectResult putObject(PutObjectRequest req)
+      throws AmazonClientException, AmazonServiceException {
+    if (!multipartUpload) {
+      return super.putObject(req);
+    }
 
-	public BeanstalkerS3Client(AWSCredentialsProvider credentialsProvider,
-			ClientConfiguration clientConfiguration) {
-		super(credentialsProvider, clientConfiguration);
-		init();
-	}
+    final long contentLen = TransferManagerUtils.getContentLength(req);
 
-	public BeanstalkerS3Client(AWSCredentialsProvider credentialsProvider) {
-		super(credentialsProvider);
-		init();
-	}
-	
-	protected void init() {
-		transferManager = new TransferManager(this);
-		TransferManagerConfiguration configuration = new TransferManagerConfiguration();
-		configuration.setMultipartUploadThreshold(100 * Constants.KB);
-		transferManager.setConfiguration(configuration);
-	}
-	
-	public TransferManager getTransferManager() {
-		return transferManager;
-	}
+    String tempFilename = req.getKey() + ".tmp";
+    String origFilename = req.getKey();
 
-	public String asNumber(long bytesTransfered) {
-		// Extra Pedantry: I love *-ibytes
-		return FileUtils.byteCountToDisplaySize(bytesTransfered).replaceAll(
-				"B$", "iB");
-	}
+    req.setKey(tempFilename);
 
-	@Override
-	public PutObjectResult putObject(PutObjectRequest req)
-			throws AmazonClientException, AmazonServiceException {
-		if (!multipartUpload)
-			return super.putObject(req);
-
-		final long contentLen = TransferManagerUtils.getContentLength(req);
-		
-		String tempFilename = req.getKey() + ".tmp";
-		String origFilename = req.getKey();
-
-		req.setKey(tempFilename);
-
-		XProgressListener progressListener = new XProgressListener();
+    XProgressListener progressListener = new XProgressListener();
 
     req.setGeneralProgressListener(new ProgressListenerChain(progressListener));
 
-		progressListener.setContentLen(contentLen);
-		progressListener.setUpload(transferManager.upload(req));
+    progressListener.setContentLen(contentLen);
+    progressListener.setUpload(transferManager.upload(req));
     progressListener.setSilentUpload(silentUpload);
 
-		try {
-			progressListener.getUpload().waitForCompletion();
-		} catch (InterruptedException e) {
-			throw new AmazonClientException(e.getMessage(), e);
-		}
+    try {
+      progressListener.getUpload().waitForCompletion();
+    } catch (InterruptedException e) {
+      throw new AmazonClientException(e.getMessage(), e);
+    }
 
-		CopyObjectRequest copyReq = new CopyObjectRequest(req.getBucketName(), tempFilename,
-				req.getBucketName(), origFilename);
+    CopyObjectRequest copyReq = new CopyObjectRequest(req.getBucketName(), tempFilename,
+                                                      req.getBucketName(), origFilename);
 
-		copyObject(copyReq);
-		
-		deleteObject(new DeleteObjectRequest(req.getBucketName(), tempFilename));
-		
-		return null;
-	}
-	
-	public void deleteMultiparts(String bucketName, Date since) {
-		transferManager.abortMultipartUploads(bucketName, since);
-	}
+    copyObject(copyReq);
+
+    deleteObject(new DeleteObjectRequest(req.getBucketName(), tempFilename));
+
+    return null;
+  }
+
+  public void deleteMultiparts(String bucketName, Date since) {
+    transferManager.abortMultipartUploads(bucketName, since);
+  }
+
+  private final class XProgressListener implements ProgressListener {
+
+    private long contentLen;
+    private Upload upload;
+    private boolean silentUpload;
+
+    public void setContentLen(long contentLen) {
+      this.contentLen = contentLen;
+    }
+
+    public void setSilentUpload(boolean silentUpload) {
+      this.silentUpload = silentUpload;
+    }
+
+    public Upload getUpload() {
+      return upload;
+    }
+
+    public void setUpload(Upload upload) {
+      this.upload = upload;
+    }
+
+    @Override
+    public void progressChanged(ProgressEvent e) {
+      if (null == upload) {
+        return;
+      }
+
+      TransferProgress xProgress = upload.getProgress();
+
+      if (!silentUpload) {
+        System.out.print("\r  "
+                         + String.format("%.2f", xProgress.getPercentTransferred())
+                         + "% " + asNumber(xProgress.getBytesTransferred()) + "/"
+                         + asNumber(contentLen) + BLANK_LINE);
+      }
+
+      switch (e.getEventCode()) {
+        case ProgressEvent.COMPLETED_EVENT_CODE: {
+          System.out.println("Done");
+          break;
+        }
+        case ProgressEvent.FAILED_EVENT_CODE: {
+          try {
+            AmazonClientException exc = upload.waitForException();
+
+            System.err.println("Unable to upload file: "
+                               + exc.getMessage());
+          } catch (InterruptedException ignored) {
+          }
+          break;
+        }
+      }
+    }
+  }
 }

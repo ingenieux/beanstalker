@@ -15,83 +15,80 @@ package br.com.ingenieux.mojo.beanstalk.cmd.env.swap;
  */
 
 public class SwapCNamesContext {
-	/**
-	 * Source Environment Name
-	 */
-	String sourceEnvironmentName;
 
-	/**
-	 * Source Environment Id
-	 */
-	String sourceEnvironmentId;
+  /**
+   * Source Environment Name
+   */
+  String sourceEnvironmentName;
 
-	/**
-	 * Destination Environment Name
-	 */
-	String destinationEnvironmentName;
+  /**
+   * Source Environment Id
+   */
+  String sourceEnvironmentId;
 
-	/**
-	 * Destination Environment Id
-	 */
-	String destinationEnvironmentId;
+  /**
+   * Destination Environment Name
+   */
+  String destinationEnvironmentName;
 
-	/**
-	 * @return the sourceEnvironmentName
-	 */
-	public String getSourceEnvironmentName() {
-		return sourceEnvironmentName;
-	}
+  /**
+   * Destination Environment Id
+   */
+  String destinationEnvironmentId;
 
-	/**
-	 * @return the sourceEnvironmentId
-	 */
-	public String getSourceEnvironmentId() {
-		return sourceEnvironmentId;
-	}
+  /**
+   * @return the sourceEnvironmentName
+   */
+  public String getSourceEnvironmentName() {
+    return sourceEnvironmentName;
+  }
 
-	/**
-	 * @return the destinationEnvironmentName
-	 */
-	public String getDestinationEnvironmentName() {
-		return destinationEnvironmentName;
-	}
+  /**
+   * @param sourceEnvironmentName the sourceEnvironmentName to set
+   */
+  public void setSourceEnvironmentName(String sourceEnvironmentName) {
+    this.sourceEnvironmentName = sourceEnvironmentName;
+  }
 
-	/**
-	 * @return the destinationEnvironmentId
-	 */
-	public String getDestinationEnvironmentId() {
-		return destinationEnvironmentId;
-	}
+  /**
+   * @return the sourceEnvironmentId
+   */
+  public String getSourceEnvironmentId() {
+    return sourceEnvironmentId;
+  }
 
-	/**
-	 * @param sourceEnvironmentName
-	 *          the sourceEnvironmentName to set
-	 */
-	public void setSourceEnvironmentName(String sourceEnvironmentName) {
-		this.sourceEnvironmentName = sourceEnvironmentName;
-	}
+  /**
+   * @param sourceEnvironmentId the sourceEnvironmentId to set
+   */
+  public void setSourceEnvironmentId(String sourceEnvironmentId) {
+    this.sourceEnvironmentId = sourceEnvironmentId;
+  }
 
-	/**
-	 * @param sourceEnvironmentId
-	 *          the sourceEnvironmentId to set
-	 */
-	public void setSourceEnvironmentId(String sourceEnvironmentId) {
-		this.sourceEnvironmentId = sourceEnvironmentId;
-	}
+  /**
+   * @return the destinationEnvironmentName
+   */
+  public String getDestinationEnvironmentName() {
+    return destinationEnvironmentName;
+  }
 
-	/**
-	 * @param destinationEnvironmentName
-	 *          the destinationEnvironmentName to set
-	 */
-	public void setDestinationEnvironmentName(String destinationEnvironmentName) {
-		this.destinationEnvironmentName = destinationEnvironmentName;
-	}
+  /**
+   * @param destinationEnvironmentName the destinationEnvironmentName to set
+   */
+  public void setDestinationEnvironmentName(String destinationEnvironmentName) {
+    this.destinationEnvironmentName = destinationEnvironmentName;
+  }
 
-	/**
-	 * @param destinationEnvironmentId
-	 *          the destinationEnvironmentId to set
-	 */
-	public void setDestinationEnvironmentId(String destinationEnvironmentId) {
-		this.destinationEnvironmentId = destinationEnvironmentId;
-	}
+  /**
+   * @return the destinationEnvironmentId
+   */
+  public String getDestinationEnvironmentId() {
+    return destinationEnvironmentId;
+  }
+
+  /**
+   * @param destinationEnvironmentId the destinationEnvironmentId to set
+   */
+  public void setDestinationEnvironmentId(String destinationEnvironmentId) {
+    this.destinationEnvironmentId = destinationEnvironmentId;
+  }
 }

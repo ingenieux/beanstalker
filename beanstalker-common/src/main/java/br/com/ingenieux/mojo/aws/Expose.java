@@ -16,38 +16,38 @@ package br.com.ingenieux.mojo.aws;
 
 /**
  * Represents a Server Security to Expose Locally (via Maven Project Properties)
- * 
- * @author Aldrin Leal
  *
+ * @author Aldrin Leal
  */
 public class Expose {
-	String serverId;
 
-	String accessKey;
+  String serverId;
 
-	String sharedKey;
+  String accessKey;
 
-	public String getServerId() {
-		return serverId;
-	}
+  String sharedKey;
 
-	public void setServerId(String serverId) {
-		this.serverId = serverId;
-	}
+  public String getServerId() {
+    return serverId;
+  }
 
-	public String getAccessKey() {
-		return accessKey;
-	}
+  public void setServerId(String serverId) {
+    this.serverId = serverId;
+  }
 
-	public void setAccessKey(String accessKey) {
-		this.accessKey = accessKey;
-	}
+  public String getAccessKey() {
+    return accessKey;
+  }
 
-	public String getSharedKey() {
-		return sharedKey;
-	}
+  public void setAccessKey(String accessKey) {
+    this.accessKey = accessKey;
+  }
 
-	public void setSharedKey(String sharedKey) {
-		this.sharedKey = sharedKey;
-	}
+  public String getSharedKey() {
+    return sharedKey;
+  }
+
+  public void setSharedKey(String sharedKey) {
+    this.sharedKey = sharedKey;
+  }
 }

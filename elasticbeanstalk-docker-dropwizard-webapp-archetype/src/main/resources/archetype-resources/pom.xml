@@ -1,0 +1,196 @@
+#set( $symbol_pound = '#' )
+#set( $symbol_dollar = '%' )
+#set( $symbol_escape = '\' )
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>\${groupId}</groupId>
+    <artifactId>\${artifactId}</artifactId>
+    <version>\${version}</version>
+    <packaging>jar</packaging>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <app.mainClass>${package}.Main</app.mainClass>
+
+        <beanstalker.region>us-east-1</beanstalker.region>
+
+        <environmentName>\${project.artifactId}-prod</environmentName>
+
+        <beanstalk.applicationName>\${project.artifactId}</beanstalk.applicationName>
+
+        <beanstalk.environmentName>\${environmentName}</beanstalk.environmentName>
+        <beanstalk.cnamePrefix>\${environmentName}</beanstalk.cnamePrefix>
+        <beanstalk.environmentRef>\${environmentName}.elasticbeanstalk.com</beanstalk.environmentRef>
+
+        <beanstalk.useStagingDirectory>true</beanstalk.useStagingDirectory>
+        <beanstalk.solutionStack>64bit Amazon Linux 2014.* running Docker 1.*</beanstalk.solutionStack>
+        <beanstalk.applicationHealthCheckURL>/health/check</beanstalk.applicationHealthCheckURL>
+        <beanstalk.environmentType>SingleInstance</beanstalk.environmentType>
+
+        <beanstalk.instanceType>m1.small</beanstalk.instanceType>
+        <!--
+        <beanstalk.keyName>your-ec2-key</beanstalk.keyName>
+        <beanstalk.iamInstanceProfile>aws-elasticbeanstalk-ec2-role</beanstalk.iamInstanceProfile>
+        <beanstalk.availabilityZones>us-east-1d</beanstalk.availabilityZones>
+        <beanstalk.blockDeviceMappings>/dev/sdb=ephemeral0</beanstalk.blockDeviceMappings>
+        -->
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.4.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.4.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.4.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>br.com.ingenieux.cloudy</groupId>
+            <artifactId>cloudy-awseb</artifactId>
+            <version>0.0.5</version>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-core</artifactId>
+            <version>0.7.1</version>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-client</artifactId>
+            <version>0.7.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk</artifactId>
+            <version>1.8.10.2</version>
+        </dependency>
+        <dependency>
+            <groupId>br.com.ingenieux.dropwizard</groupId>
+            <artifactId>dropwizard-governator</artifactId>
+            <version>0.7.0.4</version>
+        </dependency>
+        <dependency>
+            <groupId>br.com.ingenieux.dropwizard</groupId>
+            <artifactId>dropwizard-envvar</artifactId>
+            <version>0.0.1</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>\${project.artifactId}</finalName>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+            </testResource>
+        </testResources>
+
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
+        </plugins>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>br.com.ingenieux</groupId>
+                    <artifactId>beanstalk-maven-plugin</artifactId>
+                    <inherited>true</inherited>
+                    <version>${project.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>awseb</id>
+            <properties>
+                <maven.test.skip>true</maven.test.skip>
+                <maven.install.skip>true</maven.install.skip>
+                <maven.deploy.skip>true</maven.deploy.skip>
+            </properties>
+            <build>
+                <defaultGoal>deploy</defaultGoal>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>appassembler-maven-plugin</artifactId>
+                        <version>1.8</version>
+                        <executions>
+                            <execution>
+                                <id>package</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>assemble</goal>
+                                </goals>
+                                <configuration>
+                                    <jvmSettings>
+                                        <initialMemorySize>512m</initialMemorySize>
+                                        <maxMemorySize>1024m</maxMemorySize>
+                                        <maxStackSize>512m</maxStackSize>
+                                    </jvmSettings>
+                                    <extraJvmArguments>-server -d64 -Djava.net.preferIPv4Stack=true -XX:+UseNUMA -XX:+UseCompressedOops -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -XX:+UseBiasedLocking -XX:NewRatio=2 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/var/log -Djava.security.egd=file:/dev/urandom -XX:-ReduceInitialCardMarks</extraJvmArguments>
+                                    <binFileExtensions>
+                                        <unix>.sh</unix>
+                                    </binFileExtensions>
+                                    <configurationDirectory>.</configurationDirectory>
+                                    <copyConfigurationDirectory>true</copyConfigurationDirectory>
+                                    <programs>
+                                        <program>
+                                            <mainClass>${app.mainClass}</mainClass>
+                                            <id>app</id>
+                                            <platforms>
+                                                <platform>unix</platform>
+                                            </platforms>
+                                        </program>
+                                    </programs>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>br.com.ingenieux</groupId>
+                        <artifactId>beanstalk-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>deploy</id>
+                                <phase>deploy</phase>
+                                <goals>
+                                    <goal>fast-deploy</goal>
+                                </goals>
+                                <configuration>
+                                    <sourceDirectory>target/appassembler</sourceDirectory>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

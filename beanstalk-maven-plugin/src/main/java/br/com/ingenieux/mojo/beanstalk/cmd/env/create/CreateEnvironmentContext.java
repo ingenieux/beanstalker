@@ -16,170 +16,161 @@ import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
  * limitations under the License.
  */
 public class CreateEnvironmentContext {
-	String applicationName;
 
-	String cnamePrefix;
+  String applicationName;
 
-	String applicationDescription;
+  String cnamePrefix;
 
-	ConfigurationOptionSetting[] optionSettings = new ConfigurationOptionSetting[0];
+  String applicationDescription;
 
-	String environmentName;
+  ConfigurationOptionSetting[] optionSettings = new ConfigurationOptionSetting[0];
 
-	String versionLabel;
+  String environmentName;
 
-	String solutionStack;
+  String versionLabel;
 
-	String templateName;
+  String solutionStack;
 
-    /**
-	 * @return the applicationName
-	 */
-	public String getApplicationName() {
-		return applicationName;
-	}
+  String templateName;
+  String environmentTierName = "WebServer";
+  String environmentTierType = "Standard";
+  String environmentTierVersion = "1.0";
 
-	/**
-	 * @return the cnamePrefix
-	 */
-	public String getCnamePrefix() {
-		return cnamePrefix;
-	}
+  /**
+   * @return the applicationName
+   */
+  public String getApplicationName() {
+    return applicationName;
+  }
 
-	/**
-	 * @return the versionDescription
-	 */
-	public String getApplicationDescription() {
-		return applicationDescription;
-	}
+  /**
+   * @param applicationName the applicationName to set
+   */
+  public void setApplicationName(String applicationName) {
+    this.applicationName = applicationName;
+  }
 
-	/**
-	 * @return the optionSettings
-	 */
-	public ConfigurationOptionSetting[] getOptionSettings() {
-		return optionSettings;
-	}
+  /**
+   * @return the cnamePrefix
+   */
+  public String getCnamePrefix() {
+    return cnamePrefix;
+  }
 
-	/**
-	 * @return the environmentName
-	 */
-	public String getEnvironmentName() {
-		return environmentName;
-	}
+  /**
+   * @param cnamePrefix the cnamePrefix to set
+   */
+  public void setCnamePrefix(String cnamePrefix) {
+    this.cnamePrefix = cnamePrefix;
+  }
 
-	/**
-	 * @return the versionLabel
-	 */
-	public String getVersionLabel() {
-		return versionLabel;
-	}
+  /**
+   * @return the versionDescription
+   */
+  public String getApplicationDescription() {
+    return applicationDescription;
+  }
 
-	/**
-	 * @return the solutionStack
-	 */
-	public String getSolutionStack() {
-		return solutionStack;
-	}
+  /**
+   * @param applicationDescription the applicationDescription to set
+   */
+  public void setApplicationDescription(String applicationDescription) {
+    this.applicationDescription = applicationDescription;
+  }
 
-	/**
-	 * @return the templateName
-	 */
-	public String getTemplateName() {
-		return templateName;
-	}
+  /**
+   * @return the optionSettings
+   */
+  public ConfigurationOptionSetting[] getOptionSettings() {
+    return optionSettings;
+  }
 
-	/**
-	 * @param applicationName
-	 *          the applicationName to set
-	 */
-	public void setApplicationName(String applicationName) {
-		this.applicationName = applicationName;
-	}
-
-	/**
-	 * @param cnamePrefix
-	 *          the cnamePrefix to set
-	 */
-	public void setCnamePrefix(String cnamePrefix) {
-		this.cnamePrefix = cnamePrefix;
-	}
-
-	/**
-	 * @param applicationDescription
-	 *          the applicationDescription to set
-	 */
-	public void setApplicationDescription(String applicationDescription) {
-		this.applicationDescription = applicationDescription;
-	}
-
-	/**
-	 * @param optionSettings
-	 *          the optionSettings to set
-	 */
-	public void setOptionSettings(ConfigurationOptionSetting[] optionSettings) {
-		if (null != optionSettings)
-			this.optionSettings = optionSettings;
-	}
-
-	/**
-	 * @param environmentName
-	 *          the environmentName to set
-	 */
-	public void setEnvironmentName(String environmentName) {
-		this.environmentName = environmentName;
-	}
-
-	/**
-	 * @param versionLabel
-	 *          the versionLabel to set
-	 */
-	public void setVersionLabel(String versionLabel) {
-		this.versionLabel = versionLabel;
-	}
-
-	/**
-	 * @param solutionStack
-	 *          the solutionStack to set
-	 */
-	public void setSolutionStack(String solutionStack) {
-		this.solutionStack = solutionStack;
-	}
-
-	/**
-	 * @param templateName
-	 *          the templateName to set
-	 */
-	public void setTemplateName(String templateName) {
-		this.templateName = templateName;
-	}
-
-    String environmentTierName = "WebServer";
-
-    public String getEnvironmentTierName() {
-        return environmentTierName;
+  /**
+   * @param optionSettings the optionSettings to set
+   */
+  public void setOptionSettings(ConfigurationOptionSetting[] optionSettings) {
+    if (null != optionSettings) {
+      this.optionSettings = optionSettings;
     }
+  }
 
-    public void setEnvironmentTierName(String environmentTierName) {
-        this.environmentTierName = environmentTierName;
-    }
+  /**
+   * @return the environmentName
+   */
+  public String getEnvironmentName() {
+    return environmentName;
+  }
 
-    String environmentTierType = "Standard";
+  /**
+   * @param environmentName the environmentName to set
+   */
+  public void setEnvironmentName(String environmentName) {
+    this.environmentName = environmentName;
+  }
 
-    public String getEnvironmentTierType() {
-        return environmentTierType;
-    }
+  /**
+   * @return the versionLabel
+   */
+  public String getVersionLabel() {
+    return versionLabel;
+  }
 
-    public void setEnvironmentTierType(String environmentTierType) {
-        this.environmentTierType = environmentTierType;
-    }
+  /**
+   * @param versionLabel the versionLabel to set
+   */
+  public void setVersionLabel(String versionLabel) {
+    this.versionLabel = versionLabel;
+  }
 
-    String environmentTierVersion = "1.0";
+  /**
+   * @return the solutionStack
+   */
+  public String getSolutionStack() {
+    return solutionStack;
+  }
 
-    public String getEnvironmentTierVersion() {
-        return environmentTierVersion;
-    }
+  /**
+   * @param solutionStack the solutionStack to set
+   */
+  public void setSolutionStack(String solutionStack) {
+    this.solutionStack = solutionStack;
+  }
 
-    public void setEnvironmentTierVersion(String environmentTierVersion) {
-        this.environmentTierVersion = environmentTierVersion;
-    }
+  /**
+   * @return the templateName
+   */
+  public String getTemplateName() {
+    return templateName;
+  }
+
+  /**
+   * @param templateName the templateName to set
+   */
+  public void setTemplateName(String templateName) {
+    this.templateName = templateName;
+  }
+
+  public String getEnvironmentTierName() {
+    return environmentTierName;
+  }
+
+  public void setEnvironmentTierName(String environmentTierName) {
+    this.environmentTierName = environmentTierName;
+  }
+
+  public String getEnvironmentTierType() {
+    return environmentTierType;
+  }
+
+  public void setEnvironmentTierType(String environmentTierType) {
+    this.environmentTierType = environmentTierType;
+  }
+
+  public String getEnvironmentTierVersion() {
+    return environmentTierVersion;
+  }
+
+  public void setEnvironmentTierVersion(String environmentTierVersion) {
+    this.environmentTierVersion = environmentTierVersion;
+  }
 }

@@ -52,407 +52,389 @@ import static java.lang.String.format;
 
 /**
  * Represents a Mojo which keeps AWS passwords
- * 
- * TODO: Refactor into tiny, delegated classes. Currently its a huge bloat, but
- * it works, right?
- * 
- * <p>
- * <b>NOTE:</b> Settings in this class use properties based in "beanstalker",
- * which is the project. The beanstalk module, though, prefixes then as
- * "beanstalk" instead
- * </p>
- * 
- * Parts of this class come from <a
- * href="http://code.google.com/p/maven-gae-plugin">maven-gae-plugin</a>'s
+ *
+ * TODO: Refactor into tiny, delegated classes. Currently its a huge bloat, but it works, right?
+ *
+ * <p> <b>NOTE:</b> Settings in this class use properties based in "beanstalker", which is the
+ * project. The beanstalk module, though, prefixes then as "beanstalk" instead </p>
+ *
+ * Parts of this class come from <a href="http://code.google.com/p/maven-gae-plugin">maven-gae-plugin</a>'s
  * source code.
  */
 public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
-		AbstractMojo implements Contextualizable {
-	private static final String SECURITY_DISPATCHER_CLASS_NAME = "org.sonatype.plexus.components.sec.dispatcher.SecDispatcher";
+                                                                        AbstractMojo
+    implements Contextualizable {
 
-	/**
-	 * Plexus container, needed to manually lookup components.
-	 * 
-	 * To be able to use Password Encryption
-	 * http://maven.apache.org/guides/mini/guide-encryption.html
-	 */
-	private PlexusContainer container;
+  private static final String
+      SECURITY_DISPATCHER_CLASS_NAME =
+      "org.sonatype.plexus.components.sec.dispatcher.SecDispatcher";
+  /**
+   * Maven Settings Reference
+   */
+  @Parameter(property = "settings", required = true, readonly = true)
+  protected Settings settings;
+  /**
+   * AWS Credentials
+   */
+  protected AWSCredentialsProvider awsCredentialsProvider;
+  /**
+   * The server id in maven settings.xml to use for AWS Services Credentials (accessKey /
+   * secretKey)
+   */
+  @Parameter(property = "beanstalker.serverId", defaultValue = "aws.amazon.com")
+  protected String serverId;
+  /**
+   * Verbose Logging?
+   */
+  @Parameter(property = "beanstalker.verbose", defaultValue = "false")
+  protected boolean verbose;
+  /**
+   * Ignore Exceptions?
+   */
+  @Parameter(property = "beanstalker.ignoreExceptions", defaultValue = "false")
+  protected boolean ignoreExceptions;
+  protected String version = "?";
+  protected Context context;
+  /**
+   * <p> Service region e.g. &quot;us-east-1&quot; </p>
+   *
+   * <p> <b>Note: Does not apply to all services.</b> </p>
+   *
+   * <p> <i>&quot;-Cloudfront, I'm talking to you! Look at me when I do that!&quot;</i> </p>
+   *
+   * <p> See <a href="http://docs.amazonwebservices.com/general/latest/gr/rande.html" >this list</a>
+   * for reference. </p>
+   */
+  @Parameter(property = "beanstalker.region")
+  protected String region;
+  protected AWSClientFactory clientFactory;
+  /**
+   * Plexus container, needed to manually lookup components.
+   *
+   * To be able to use Password Encryption http://maven.apache.org/guides/mini/guide-encryption.html
+   */
+  private PlexusContainer container;
+  private S service;
 
-	/**
-	 * Maven Settings Reference
-	 */
-	@Parameter(property = "settings", required = true, readonly = true)
-	protected Settings settings;
+  protected AbstractAWSMojo() {
+    setupVersion();
+  }
 
-	/**
-	 * AWS Credentials
-	 */
-	protected AWSCredentialsProvider awsCredentialsProvider;
-
-	/**
-	 * The server id in maven settings.xml to use for AWS Services Credentials
-	 * (accessKey / secretKey)
-	 */
-	@Parameter(property = "beanstalker.serverId", defaultValue = "aws.amazon.com")
-	protected String serverId;
-
-	/**
-	 * Verbose Logging?
-	 */
-	@Parameter(property = "beanstalker.verbose", defaultValue = "false")
-	protected boolean verbose;
-
-	/**
-	 * Ignore Exceptions?
-	 */
-	@Parameter(property = "beanstalker.ignoreExceptions", defaultValue = "false")
-	protected boolean ignoreExceptions;
-
-	protected String version = "?";
-
-	protected Context context;
-
-	public AWSCredentialsProvider getAWSCredentials() throws MojoFailureException {
-        if (null != this.awsCredentialsProvider)
-            return this.awsCredentialsProvider;
+  public AWSCredentialsProvider getAWSCredentials() throws MojoFailureException {
+    if (null != this.awsCredentialsProvider) {
+      return this.awsCredentialsProvider;
+    }
 
         /*
          * Are you using aws.accessKey and aws.secretKey? j'accuse!
          */
-        if (hasServerSettings()) {
+    if (hasServerSettings()) {
             /*
              * This actually is the right way...
              */
-            Expose expose = exposeSettings(serverId);
+      Expose expose = exposeSettings(serverId);
 
-            String awsAccessKey = expose.getAccessKey();
-            String awsSecretKey = expose.getSharedKey();
+      String awsAccessKey = expose.getAccessKey();
+      String awsSecretKey = expose.getSharedKey();
 
-            this.awsCredentialsProvider = new StaticCredentialsProvider(new BasicAWSCredentials(awsAccessKey, awsSecretKey));
-        } else if (null != (awsCredentialsProvider = getEnvironmentKeys())) {
-            // Already assigned. \o/
-        } else {
+      this.awsCredentialsProvider =
+          new StaticCredentialsProvider(new BasicAWSCredentials(awsAccessKey, awsSecretKey));
+    } else if (null != (awsCredentialsProvider = getEnvironmentKeys())) {
+      // Already assigned. \o/
+    } else {
             /*
              * Throws up. We have nowhere to get our credentials...
              */
-            String errorMessage = "Entries in settings.xml for server "
-                    + serverId
-                    + " not defined. See http://docs.ingenieux.com.br/project/beanstalker/aws-config.html for more information";
-            getLog().error(errorMessage);
+      String errorMessage = "Entries in settings.xml for server "
+                            + serverId
+                            + " not defined. See http://docs.ingenieux.com.br/project/beanstalker/aws-config.html for more information";
+      getLog().error(errorMessage);
 
-            throw new MojoFailureException(errorMessage);
-        }
-
-		return this.awsCredentialsProvider;
-	}
-
-    /**
-     * Attempts to use Environment-based Provider Variables
-     *
-     * @return AWS Credentials Provider if available. Null otherwise.
-     */
-    private AWSCredentialsProvider getEnvironmentKeys() {
-        final EnvironmentVariableCredentialsProvider provider = new EnvironmentVariableCredentialsProvider();
-
-        try {
-            provider.getCredentials();
-
-            return provider;
-        } catch (AmazonClientException exc) {
-            return null;
-        }
+      throw new MojoFailureException(errorMessage);
     }
+
+    return this.awsCredentialsProvider;
+  }
+
+  /**
+   * Attempts to use Environment-based Provider Variables
+   *
+   * @return AWS Credentials Provider if available. Null otherwise.
+   */
+  private AWSCredentialsProvider getEnvironmentKeys() {
+    final EnvironmentVariableCredentialsProvider
+        provider =
+        new EnvironmentVariableCredentialsProvider();
+
+    try {
+      provider.getCredentials();
+
+      return provider;
+    } catch (AmazonClientException exc) {
+      return null;
+    }
+  }
 
   public AWSClientFactory getClientFactory() {
     return clientFactory;
   }
 
   protected Expose exposeSettings(String serverId) throws MojoFailureException {
-		Server server = settings.getServer(serverId);
+    Server server = settings.getServer(serverId);
 
-        Expose expose = new Expose();
+    Expose expose = new Expose();
 
-        if (null != server) {
-            expose.setServerId(serverId);
-            expose.setAccessKey(server.getUsername());
-            expose.setSharedKey(getDecryptedAwsKey(server.getPassword().trim()));
-        } else {
-            getLog().warn(format("serverId['%s'] not found. Using runtime defaults", serverId));
+    if (null != server) {
+      expose.setServerId(serverId);
+      expose.setAccessKey(server.getUsername());
+      expose.setSharedKey(getDecryptedAwsKey(server.getPassword().trim()));
+    } else {
+      getLog().warn(format("serverId['%s'] not found. Using runtime defaults", serverId));
 
-            expose.setServerId("runtime");
-            expose.setAccessKey(getAWSCredentials().getCredentials().getAWSAccessKeyId());
-            expose.setSharedKey(getAWSCredentials().getCredentials().getAWSSecretKey());
-        }
+      expose.setServerId("runtime");
+      expose.setAccessKey(getAWSCredentials().getCredentials().getAWSAccessKeyId());
+      expose.setSharedKey(getAWSCredentials().getCredentials().getAWSSecretKey());
+    }
 
-        return expose;
-	}
+    return expose;
+  }
 
-	/**
-	 * Decrypts (or warns) a supplied user password
-	 * 
-	 * @param awsSecretKey
-	 *            Aws Secret Key
-	 * @return The same awsSecretKey - Decrypted
-	 */
-	private String getDecryptedAwsKey(final String awsSecretKey) {
-		/*
+  /**
+   * Decrypts (or warns) a supplied user password
+   *
+   * @param awsSecretKey Aws Secret Key
+   * @return The same awsSecretKey - Decrypted
+   */
+  private String getDecryptedAwsKey(final String awsSecretKey) {
+                /*
 		 * Checks if we have a encrypted key. And warn if we don't.
 		 */
-		if (!(awsSecretKey.startsWith("{") && awsSecretKey.endsWith("}"))) {
-			getLog().warn(
-					"You should encrypt your passwords. See http://beanstalker.ingenieux.com.br/security.html for more information");
-		} else {
+    if (!(awsSecretKey.startsWith("{") && awsSecretKey.endsWith("}"))) {
+      getLog().warn(
+          "You should encrypt your passwords. See http://beanstalker.ingenieux.com.br/security.html for more information");
+    } else {
 			/*
 			 * ... but we do have a valid key. Lets decrypt and return it.
 			 */
-			return decryptPassword(awsSecretKey);
-		}
-		return awsSecretKey;
-	}
+      return decryptPassword(awsSecretKey);
+    }
+    return awsSecretKey;
+  }
 
-	public void contextualize(final Context context) throws ContextException {
-		this.context = context;
-		this.container = (PlexusContainer) context
-				.get(PlexusConstants.PLEXUS_KEY);
-	}
+  public void contextualize(final Context context) throws ContextException {
+    this.context = context;
+    this.container = (PlexusContainer) context
+        .get(PlexusConstants.PLEXUS_KEY);
+  }
 
-	private boolean hasServerSettings() {
-		if (serverId == null) {
-			return false;
-		} else {
-			final Server srv = settings.getServer(serverId);
-			return srv != null;
-		}
-	}
+  private boolean hasServerSettings() {
+    if (serverId == null) {
+      return false;
+    } else {
+      final Server srv = settings.getServer(serverId);
+      return srv != null;
+    }
+  }
 
-	private String decryptPassword(final String password) {
-		if (password != null) {
-			try {
-				final Class<?> securityDispatcherClass = container.getClass()
-						.getClassLoader()
-						.loadClass(SECURITY_DISPATCHER_CLASS_NAME);
-				final Object securityDispatcher = container.lookup(
-						SECURITY_DISPATCHER_CLASS_NAME, "maven");
-				final Method decrypt = securityDispatcherClass.getMethod(
-						"decrypt", String.class);
+  private String decryptPassword(final String password) {
+    if (password != null) {
+      try {
+        final Class<?> securityDispatcherClass = container.getClass()
+            .getClassLoader()
+            .loadClass(SECURITY_DISPATCHER_CLASS_NAME);
+        final Object securityDispatcher = container.lookup(
+            SECURITY_DISPATCHER_CLASS_NAME, "maven");
+        final Method decrypt = securityDispatcherClass.getMethod(
+            "decrypt", String.class);
 
-				return (String) decrypt.invoke(securityDispatcher, password);
-			} catch (final Exception e) {
-				getLog().warn(
-						"security features are disabled. Cannot find plexus security dispatcher",
-						e);
-			}
-		}
-		getLog().debug("password could not be decrypted");
+        return (String) decrypt.invoke(securityDispatcher, password);
+      } catch (final Exception e) {
+        getLog().warn(
+            "security features are disabled. Cannot find plexus security dispatcher",
+            e);
+      }
+    }
+    getLog().debug("password could not be decrypted");
 
-		return password;
-	}
+    return password;
+  }
 
-	protected ClientConfiguration getClientConfiguration() {
-		ClientConfiguration clientConfiguration = new ClientConfiguration()
-				.withUserAgent(getUserAgent());
+  protected ClientConfiguration getClientConfiguration() {
+    ClientConfiguration clientConfiguration = new ClientConfiguration()
+        .withUserAgent(getUserAgent());
 
-		if (null != this.settings && null != settings.getActiveProxy()) {
-			Proxy proxy = settings.getActiveProxy();
+    if (null != this.settings && null != settings.getActiveProxy()) {
+      Proxy proxy = settings.getActiveProxy();
 
-			clientConfiguration.setProxyHost(proxy.getHost());
-			clientConfiguration.setProxyUsername(proxy.getUsername());
-			clientConfiguration.setProxyPassword(proxy.getPassword());
-			clientConfiguration.setProxyPort(proxy.getPort());
-		}
+      clientConfiguration.setProxyHost(proxy.getHost());
+      clientConfiguration.setProxyUsername(proxy.getUsername());
+      clientConfiguration.setProxyPassword(proxy.getPassword());
+      clientConfiguration.setProxyPort(proxy.getPort());
+    }
 
-		return clientConfiguration;
-	}
+    return clientConfiguration;
+  }
 
-	/**
-	 * <p>
-	 * Service region e.g. &quot;us-east-1&quot;
-	 * </p>
-	 * 
-	 * <p>
-	 * <b>Note: Does not apply to all services.</b>
-	 * </p>
-	 * 
-	 * <p>
-	 * <i>&quot;-Cloudfront, I'm talking to you! Look at me when I do
-	 * that!&quot;</i>
-	 * </p>
-	 * 
-	 * <p>
-	 * See <a
-	 * href="http://docs.amazonwebservices.com/general/latest/gr/rande.html"
-	 * >this list</a> for reference.
-	 * </p>
-	 */
-	@Parameter(property = "beanstalker.region")
-	protected String region;
+  protected final String getUserAgent() {
+    return
+        format("Apache Maven/3.0 (ingenieux beanstalker/%s; http://beanstalker.ingenieux.com.br)",
+               version);
+  }
 
-	protected final String getUserAgent() {
-		return
-                format("Apache Maven/3.0 (ingenieux beanstalker/%s; http://beanstalker.ingenieux.com.br)",
-                        version);
-	}
+  protected void setupVersion() {
+    InputStream is = null;
 
-	protected void setupVersion() {
-		InputStream is = null;
+    try {
+      Properties properties = new Properties();
 
-		try {
-			Properties properties = new Properties();
+      is = getClass().getResourceAsStream("/beanstalker-core.properties");
 
-			is = getClass().getResourceAsStream("/beanstalker-core.properties");
+      if (null != is) {
+        properties.load(is);
 
-			if (null != is) {
-				properties.load(is);
+        this.version = properties.getProperty("beanstalker.version");
+      }
+    } catch (Exception exc) {
 
-				this.version = properties.getProperty("beanstalker.version");
-			}
-		} catch (Exception exc) {
+    } finally {
+      IOUtils.closeQuietly(is);
+    }
+  }
 
-		} finally {
-			IOUtils.closeQuietly(is);
-		}
-	}
+  protected void setupService() throws MojoExecutionException {
+    @SuppressWarnings("unchecked")
+    Class<S> serviceClass = (Class<S>) TypeUtil.getServiceClass(getClass());
 
-	protected AbstractAWSMojo() {
-		setupVersion();
-	}
+    try {
+      clientFactory = new AWSClientFactory(getAWSCredentials(), getClientConfiguration(), region);
 
-	protected void setupService() throws MojoExecutionException {
-		@SuppressWarnings("unchecked")
-		Class<S> serviceClass = (Class<S>) TypeUtil.getServiceClass(getClass());
+      this.service = clientFactory.getService(serviceClass);
+    } catch (Exception exc) {
+      throw new MojoExecutionException("Unable to create service", exc);
+    }
+  }
 
-		try {
-			clientFactory = new AWSClientFactory(getAWSCredentials(), getClientConfiguration(), region);
-			
-			this.service = clientFactory.getService(serviceClass);
-		} catch (Exception exc) {
-			throw new MojoExecutionException("Unable to create service", exc);
-		}
-	}
+  public S getService() {
+    if (null == service) {
+      try {
+        setupService();
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    }
 
-	private S service;
+    return service;
+  }
 
-	protected AWSClientFactory clientFactory;
-	
-	public S getService() {
-		if (null == service) {
-			try {
-				setupService();
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		}
+  @Override
+  public final void execute() throws MojoExecutionException,
+                                     MojoFailureException {
+    Object result = null;
 
-		return service;
-	}
+    try {
 
-	@Override
-	public final void execute() throws MojoExecutionException,
-			MojoFailureException {
-		Object result = null;
+      configure();
 
-		try {
+      result = executeInternal();
 
-			configure();
+      getLog().info("SUCCESS");
+    } catch (Exception e) {
+      getLog().warn("FAILURE", e);
 
-			result = executeInternal();
+      handleException(e);
+      return;
+    }
 
-			getLog().info("SUCCESS");
-		} catch (Exception e) {
-			getLog().warn("FAILURE", e);
+    displayResults(result, 0);
+  }
 
-			handleException(e);
-			return;
-		}
+  /**
+   * Extension Point - Meant for others to declare and redefine variables as needed.
+   */
+  protected void configure() {
+  }
 
-		displayResults(result, 0);
-	}
-
-	/**
-	 * Extension Point - Meant for others to declare and redefine variables as
-	 * needed.
-	 * 
-	 */
-	protected void configure() {
-	}
-
-	public void handleException(Exception e) throws MojoExecutionException,
-			MojoFailureException {
+  public void handleException(Exception e) throws MojoExecutionException,
+                                                  MojoFailureException {
 		/*
 		 * This is actually the feature I really didn't want to have written,
 		 * ever.
 		 * 
 		 * Thank you for reading this comment.
 		 */
-		if (ignoreExceptions) {
-			getLog().warn(
-					"Ok. ignoreExceptions is set to true. No result for you!");
+    if (ignoreExceptions) {
+      getLog().warn(
+          "Ok. ignoreExceptions is set to true. No result for you!");
 
-			return;
-		} else if (MojoExecutionException.class.isAssignableFrom(e.getClass())) {
-			throw (MojoExecutionException) e;
-		} else if (MojoFailureException.class.isAssignableFrom(e.getClass())) {
-			throw (MojoFailureException) e;
-		} else {
-			throw new MojoFailureException("Failed", e);
-		}
-	}
+      return;
+    } else if (MojoExecutionException.class.isAssignableFrom(e.getClass())) {
+      throw (MojoExecutionException) e;
+    } else if (MojoFailureException.class.isAssignableFrom(e.getClass())) {
+      throw (MojoFailureException) e;
+    } else {
+      throw new MojoFailureException("Failed", e);
+    }
+  }
 
-	protected void displayResults(Object result, int level) {
-		if (null == result)
-			return;
-		
-		String prefix = StringUtils.repeat(" ", level * 2) + " * ";
+  protected void displayResults(Object result, int level) {
+    if (null == result) {
+      return;
+    }
 
-		if (Collection.class.isAssignableFrom(result.getClass())) {
-			@SuppressWarnings("unchecked")
-			Collection<Object> coll = Collection.class.cast(result);
-			
-			for (Object o : coll)
-				displayResults(o, 1 + level);
-			
-			return;
-		} else if ("java.lang".equals(result.getClass().getPackage().getName())) {
-			getLog().info(prefix + CredentialsUtil.redact("" + result) + " [class: "
-					+ result.getClass().getSimpleName() + "]");
-			
-			return;
-		}
+    String prefix = StringUtils.repeat(" ", level * 2) + " * ";
 
-		BeanMap beanMap = new BeanMap(result);
+    if (Collection.class.isAssignableFrom(result.getClass())) {
+      @SuppressWarnings("unchecked")
+      Collection<Object> coll = Collection.class.cast(result);
 
-		for (Iterator<?> itProperty = beanMap.keyIterator(); itProperty
-				.hasNext();) {
-			String propertyName = "" + itProperty.next();
-			Object propertyValue = beanMap.get(propertyName);
+      for (Object o : coll) {
+        displayResults(o, 1 + level);
+      }
 
-			if ("class".equals(propertyName))
-				continue;
+      return;
+    } else if ("java.lang".equals(result.getClass().getPackage().getName())) {
+      getLog().info(prefix + CredentialsUtil.redact("" + result) + " [class: "
+                    + result.getClass().getSimpleName() + "]");
 
-			if (null == propertyValue)
-				continue;
+      return;
+    }
 
-			Class<?> propertyClass = null;
+    BeanMap beanMap = new BeanMap(result);
 
-			try {
-				propertyClass = beanMap.getType(propertyName);
-			} catch (Exception e) {
-				getLog().warn("Failure on property " + propertyName, e);
-			}
-			
-			if (null == propertyClass) {
-				getLog().info(prefix + propertyName + ": " + CredentialsUtil.redact("" + propertyValue));
-			} else {
-				getLog().info(prefix + 
-						propertyName + ": " + CredentialsUtil.redact("" + propertyValue) + " [class: "
-								+ propertyClass.getSimpleName() + "]");
-			}
-		}
-	}
+    for (Iterator<?> itProperty = beanMap.keyIterator(); itProperty
+        .hasNext(); ) {
+      String propertyName = "" + itProperty.next();
+      Object propertyValue = beanMap.get(propertyName);
 
-	protected abstract Object executeInternal() throws Exception;
+      if ("class".equals(propertyName)) {
+        continue;
+      }
 
-	public boolean isVerbose() {
-		return verbose;
-	}
+      if (null == propertyValue) {
+        continue;
+      }
+
+      Class<?> propertyClass = null;
+
+      try {
+        propertyClass = beanMap.getType(propertyName);
+      } catch (Exception e) {
+        getLog().warn("Failure on property " + propertyName, e);
+      }
+
+      if (null == propertyClass) {
+        getLog().info(prefix + propertyName + ": " + CredentialsUtil.redact("" + propertyValue));
+      } else {
+        getLog().info(prefix +
+                      propertyName + ": " + CredentialsUtil.redact("" + propertyValue) + " [class: "
+                      + propertyClass.getSimpleName() + "]");
+      }
+    }
+  }
+
+  protected abstract Object executeInternal() throws Exception;
+
+  public boolean isVerbose() {
+    return verbose;
+  }
 }

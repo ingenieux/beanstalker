@@ -18,19 +18,18 @@ import java.util.Collection;
  * limitations under the License.
  */
 public class BindDomainsContext {
+
   String elbHostedZoneId;
+  Collection<String> domains;
+  EnvironmentDescription curEnv;
 
   public String getElbHostedZoneId() {
     return elbHostedZoneId;
   }
 
-  Collection<String> domains;
-
   public Collection<String> getDomains() {
     return domains;
   }
-
-  EnvironmentDescription curEnv;
 
   public EnvironmentDescription getCurEnv() {
     return curEnv;

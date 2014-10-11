@@ -9,7 +9,7 @@
     <groupId>br.com.ingenieux</groupId>
     <artifactId>beanstalker</artifactId>
     <packaging>pom</packaging>
-    <version>1.3.3-SNAPSHOT</version>
+    <version>1.3.4-SNAPSHOT</version>
 
     <name>beanstalker</name>
     <description>Beanstalker is a set of maven-tooling. It includes both an archetype and a plugin.</description>
@@ -78,6 +78,7 @@
         <module>beanstalk-maven-plugin</module>
         <module>cloudfront-maven-plugin</module>
         <module>simpledb-maven-plugin</module>
+        <module>elasticbeanstalk-docker-dropwizard-webapp-archetype</module>
         <module>elasticbeanstalk-service-webapp-archetype</module>
         <module>elasticbeanstalk-wrapper-webapp-archetype</module>
         <module>beanstalk-maven-plugin-it</module>

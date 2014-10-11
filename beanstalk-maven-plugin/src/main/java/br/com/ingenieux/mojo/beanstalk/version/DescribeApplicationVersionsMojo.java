@@ -14,38 +14,40 @@ package br.com.ingenieux.mojo.beanstalk.version;
  * limitations under the License.
  */
 
+import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationVersionsRequest;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
-import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationVersionsRequest;
-
 /**
  * Describe Existing Application Versions
- * 
- * See the <a href=
- * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_DescribeApplicationVersions.html"
+ *
+ * See the <a href= "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_DescribeApplicationVersions.html"
  * >DescribeApplicationVersions API</a> call.
- * 
+ *
  * @since 0.2.4
  */
-@Mojo(name="describe-application-versions")
+@Mojo(name = "describe-application-versions")
 public class DescribeApplicationVersionsMojo extends AbstractBeanstalkMojo {
-	/**
-	 * Beanstalk Application Name
-	 * 
-	 */
-	@Parameter(property="beanstalk.applicationName", defaultValue="${project.artifactId}", required=true)
-	protected String applicationName;
 
-	protected Object executeInternal() throws MojoExecutionException {
-		DescribeApplicationVersionsRequest describeApplicationVersionsRequest = new DescribeApplicationVersionsRequest();
+  /**
+   * Beanstalk Application Name
+   */
+  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
+             required = true)
+  protected String applicationName;
 
-		describeApplicationVersionsRequest.setApplicationName(applicationName);
+  protected Object executeInternal() throws MojoExecutionException {
+    DescribeApplicationVersionsRequest
+        describeApplicationVersionsRequest =
+        new DescribeApplicationVersionsRequest();
 
-		return getService()
-		    .describeApplicationVersions(describeApplicationVersionsRequest);
-	}
+    describeApplicationVersionsRequest.setApplicationName(applicationName);
+
+    return getService()
+        .describeApplicationVersions(describeApplicationVersionsRequest);
+  }
 }
