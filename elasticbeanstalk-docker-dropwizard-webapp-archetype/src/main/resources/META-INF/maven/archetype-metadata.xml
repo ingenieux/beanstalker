@@ -12,11 +12,7 @@
     <fileSet encoding="UTF-8">
       <directory>src/main/config</directory>
       <includes>
-        <include>**/*.</include>
-        <include>**/*.yml</include>
-        <include>**/*.json</include>
-        <include>**/*.conf</include>
-        <include>**/*.config</include>
+        <include>**/*</include>
       </includes>
     </fileSet>
     <fileSet encoding="UTF-8">
