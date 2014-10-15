@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 
-import ${groupId}.dropwizard.guice.InjectableHealthCheck;
+import br.com.ingenieux.dropwizard.guice.InjectableHealthCheck;
 import io.dropwizard.setup.Environment;
 
 public class MemoryHealthCheck extends InjectableHealthCheck {

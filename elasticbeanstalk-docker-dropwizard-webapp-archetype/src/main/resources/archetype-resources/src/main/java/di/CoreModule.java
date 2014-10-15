@@ -12,7 +12,7 @@ import org.apache.http.client.HttpClient;
 
 import javax.inject.Inject;
 
-import ${groupId}.cloudy.awseb.di.BaseAWSModule;
+import br.com.ingenieux.cloudy.awseb.di.BaseAWSModule;
 import ${package}.ServiceConfiguration;
 import io.dropwizard.client.HttpClientBuilder;
 import io.dropwizard.setup.Environment;
