@@ -14,7 +14,6 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
-import org.apache.maven.plugin.AbstractMojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 
 import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentCommand;
@@ -42,7 +41,7 @@ public class PutEnvironmentMojo extends CreateEnvironmentMojo {
   }
 
   @Override
-  protected Object executeInternal() throws AbstractMojoExecutionException {
+  protected Object executeInternal() throws Exception {
                 /*
 		 * We *DO* have an existing environment. So we're just calling update-environment instead
 		 */

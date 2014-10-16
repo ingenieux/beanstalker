@@ -37,6 +37,7 @@ import java.util.Set;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.BaseCommand;
+import br.com.ingenieux.mojo.beanstalk.util.ConfigUtil;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
@@ -100,19 +101,13 @@ public class BindDomainsCommand extends
         describeConfigurationSettingsResult.getConfigurationSettings().get(0).getOptionSettings();
 
     for (ConfigurationOptionSetting optionSetting : optionSettings) {
-      if (optionSettingMatchesP(optionSetting, "aws:elasticbeanstalk:environment",
-                                "EnvironmentType")) {
+      if (ConfigUtil.optionSettingMatchesP(optionSetting, "aws:elasticbeanstalk:environment",
+                                           "EnvironmentType")) {
         return "SingleInstance".equals(optionSetting.getValue());
       }
     }
 
     throw new IllegalStateException("Unreachable code!");
-  }
-
-  private boolean optionSettingMatchesP(ConfigurationOptionSetting optionSetting, String namespace,
-                                        String option) {
-    return namespace.equals(optionSetting.getNamespace()) && option
-        .equals(optionSetting.getOptionName());
   }
 
   @Override

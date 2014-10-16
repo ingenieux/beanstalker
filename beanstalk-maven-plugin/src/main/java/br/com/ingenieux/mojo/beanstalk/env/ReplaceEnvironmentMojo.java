@@ -130,7 +130,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
   }
 
   @Override
-  protected Object executeInternal() throws AbstractMojoExecutionException {
+  protected Object executeInternal() throws Exception {
     solutionStack = lookupSolutionStack(solutionStack);
 
     /*
@@ -282,7 +282,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
    *
    * @param curEnv current environment
    */
-  private void copyOptionSettings(EnvironmentDescription curEnv) {
+  private void copyOptionSettings(EnvironmentDescription curEnv) throws Exception {
     /**
      * Skip if we don't have anything
      */
