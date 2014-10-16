@@ -23,6 +23,8 @@ public class BindDomainsContext {
   Collection<String> domains;
   EnvironmentDescription curEnv;
 
+  public boolean singleInstance;
+
   public String getElbHostedZoneId() {
     return elbHostedZoneId;
   }
