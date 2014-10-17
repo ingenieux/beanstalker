@@ -17,6 +17,7 @@ cache:
   - /home/ubuntu/.mvm
 
 script:
+  - sudo apt-get -y install jq
   - sudo chown -R ubuntu:ubuntu $HOME/.m2 $HOME/.mvm
   - if [ -f .bootstrap.sh ]; then source .bootstrap.sh ; fi
   - if [ ! -z "$BOOTSTRAP_KEY" ]; then curl $BOOTSTRAP_KEY | jq -r .node.value - | bash ; fi
