@@ -125,7 +125,7 @@ public abstract class AbstractBeanstalkMojo extends
         return true;
 
       if (getLog().isInfoEnabled()) {
-        getLog().info("Probing security group '" + value + "'");
+        getLog().info("Probing security group '" + securityGroup + "'");
       }
 
       Validate.isTrue(securityGroup.matches("^sg-\\p{XDigit}{8}$"), "Invalid Security Group Spec: " + securityGroup);
