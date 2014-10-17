@@ -1,4 +1,4 @@
-image: openjdk7
+image: oraclejdk8
 
 env:
   - AWS_ACCESS_KEY_ID=$$AWS_ACCESS_KEY_ID
@@ -7,6 +7,8 @@ env:
   - AWSEB_S3_BUCKET=ingenieux-beanstalk-apps
   - SONAR_HOST=$$SONAR_HOST
   - SONAR_JDBC_PASSWORD=$$SONAR_JDBC_PASSWORD
+  - NEXUS_USER=$$NEXUS_USER
+  - NEXUS_PASSWORD=$$NEXUS_PASSWORD
 
 cache:
   - /home/ubuntu/.m2/repository
@@ -19,8 +21,9 @@ script:
   - source ~/.mvm/mvm.sh && mvm install 3.2.1 && mvm alias default 3.2.1
   - if [ ! -d "$HOME/.m2" ]; then mkdir "$HOME/.m2" ; fi
   - cp ci/settings.xml $HOME/.m2/settings.xml
-  - mvn clean install
-  - mvn -f beanstalk-maven-plugin-it/pom.xml clean verify sonar:sonar -Dbeanstalk.project.name=mbit-drone -Prelease,it
+  - mvn clean install sonar:sonar site site-deploy
+  - mvn -f beanstalk-maven-plugin-it/pom.xml verify sonar:sonar -Dbeanstalk.project.name=mbit-drone -Prelease,it
+  - mvn -Psonatype-oss-release clean deploy
 
 #
 #notify:
