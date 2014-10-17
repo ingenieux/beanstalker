@@ -8,11 +8,18 @@ env:
   - SONAR_HOST=$$SONAR_HOST
   - SONAR_JDBC_PASSWORD=$$SONAR_JDBC_PASSWORD
 
+cache:
+  - /home/ubuntu/.m2/repository
+  - /home/ubuntu/.mvm
+
 script:
+  - sudo chown -R ubuntu:ubuntu $HOME/.m2 $HOME/.mvm
+  - if [ -f .bootstrap.sh ]; then source .bootstrap.sh ; fi
   - curl -sSL https://raw.github.com/ingenieux/mvm/master/install.sh | bash
   - source ~/.mvm/mvm.sh && mvm install 3.2.1 && mvm alias default 3.2.1
   - if [ ! -d "$HOME/.m2" ]; then mkdir "$HOME/.m2" ; fi
   - cp ci/settings.xml $HOME/.m2/settings.xml
+  - mvn clean install
   - mvn -f beanstalk-maven-plugin-it/pom.xml clean verify sonar:sonar -Dbeanstalk.project.name=mbit-drone -Prelease,it
 
 #
