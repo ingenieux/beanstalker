@@ -31,6 +31,7 @@ import com.amazonaws.services.elasticbeanstalk.model.SolutionStackDescription;
 
 import org.apache.commons.collections.ComparatorUtils;
 import org.apache.commons.collections.comparators.ReverseComparator;
+import org.apache.commons.lang.Validate;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import java.text.Collator;
@@ -118,11 +119,16 @@ public abstract class AbstractBeanstalkMojo extends
     //aws:autoscaling:launchconfiguration:SecurityGroups['sg-18585f7d']
     if (ConfigUtil.optionSettingMatchesP(optionSetting, "aws:autoscaling:launchconfiguration",
                                          "SecurityGroups")) {
+      final String securityGroup = optionSetting.getValue();
+
+      if (-1 != securityGroup.indexOf(environmentId))
+        return true;
+
       if (getLog().isInfoEnabled()) {
-        getLog().info("Probing security group '" + optionSetting.getValue() + "'");
+        getLog().info("Probing security group '" + value + "'");
       }
 
-      String securityGroup = optionSetting.getValue();
+      Validate.isTrue(securityGroup.matches("^sg-\\p{XDigit}{8}$"), "Invalid Security Group Spec: " + securityGroup);
 
       final AmazonEC2 ec2 = this.getClientFactory().getService(AmazonEC2Client.class);
 
