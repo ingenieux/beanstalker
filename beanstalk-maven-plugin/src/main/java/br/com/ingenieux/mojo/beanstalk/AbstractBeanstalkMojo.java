@@ -118,6 +118,10 @@ public abstract class AbstractBeanstalkMojo extends
     //aws:autoscaling:launchconfiguration:SecurityGroups['sg-18585f7d']
     if (ConfigUtil.optionSettingMatchesP(optionSetting, "aws:autoscaling:launchconfiguration",
                                          "SecurityGroups")) {
+      if (getLog().isInfoEnabled()) {
+        getLog().info("Probing security group '" + optionSetting.getValue() + "'");
+      }
+
       String securityGroup = optionSetting.getValue();
 
       final AmazonEC2 ec2 = this.getClientFactory().getService(AmazonEC2Client.class);
