@@ -2,7 +2,7 @@ language: java
 before_install:
 - if [ ! -d "$HOME/.m2" ]; then mkdir .m2 ; fi
 - cp ci/settings.xml $HOME/.m2/settings.xml
-script: mvn -f beanstalk-maven-plugin-it/pom.xml clean verify sonar:sonar -Dbeanstalk.project.name=mbit-travis
+script: mvn -f beanstalk-maven-plugin-it/pom.xml clean verify -Dbeanstalk.project.name=mbit-travis
   -Prelease,it
 jdk:
 - openjdk7
@@ -11,5 +11,3 @@ env:
   - secure: uz02og5+IWdVl2C0XzATR/9ZdKCLhRVeUS7CmnFDQQF5wwMhhm377QinnLFsXIMI+W+DVuHb8ooq9sD0odji6ztH5YUcYmYKqD3QBpo3o70IIFWwBF5geiFJ3XHrKdfIUZ+7ihifAGitkL3j+qPNZm/xHqVqRzLaOzEF2akT44w=
   - secure: qGMwNeZZ7ECzUwqU0G8UO9FNIE5faXfXBaTZ+sYTGm+WhpJl8SC92BQsFjaJAQeVwFU2WeM/7DtwMu9wzhtnfzPvAIaHKgdLvl3acGyhG5Npu0TuhSd/BNlPQ6XTjmrS+KT5OVNJB4GhwniDhk2h7vMtuDIqCWQmQvY7ODcOa8g=
   - EC2_KEY_NAME=aldrin@leal.eng.br AWSEB_S3_BUCKET=ingenieux-beanstalk-apps
-  - secure: Hpt4PKCF/cGnLM3bYrmWzS/imPIy32V075afbEvkdpWPGfeXr89NV0HcBe+qcWBkFho1dzklCvZWC8IA3IAOYKc7WPVLlfnqtYfMCmzLJgXOh6/o70f9UCk/8jISQyKosw+M8tSd/UzNB6vEGUO2pLzTLjOeUFdaF/Jn3xEFcbA=
-  - secure: eipOmEu4jd44C3OkhAni26H8Z6QmN1/Q6El4SbBgHxNGh29eUQw2DQM7fuSp+o0TGWTK3MUmfqOaEQd1NBovauPIJ2dxzvdjwudaDbi2fcA4Iu2uZW1mt9VN/BxfXdTjvVythvAkJkSh02tkWnuIQSVCFLESVKFa0CHjdQjSAgY=
