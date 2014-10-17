@@ -23,6 +23,7 @@
                 <beanstalk.instanceType>m1.small</beanstalk.instanceType>
                 <beanstalk.s3Bucket>${env.AWSEB_S3_BUCKET}</beanstalk.s3Bucket>
                 <beanstalk.silentUpload>true</beanstalk.silentUpload>
+                <gpg.passphrase/>
             </properties>
         </profile>
         <profile>
