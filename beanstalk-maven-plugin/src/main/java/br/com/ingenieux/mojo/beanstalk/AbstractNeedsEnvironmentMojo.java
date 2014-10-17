@@ -402,10 +402,6 @@ public abstract class AbstractNeedsEnvironmentMojo extends
       }
     }
 
-    if (configOptionSetting.isEmpty()) {
-      return null;
-    }
-
     return (ConfigurationOptionSetting[]) configOptionSetting
         .toArray(new ConfigurationOptionSetting[configOptionSetting
             .size()]);
