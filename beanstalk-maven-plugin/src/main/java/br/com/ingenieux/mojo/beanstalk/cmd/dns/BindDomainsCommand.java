@@ -2,7 +2,11 @@ package br.com.ingenieux.mojo.beanstalk.cmd.dns;
 
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2Client;
+import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettingsRequest;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettingsResult;
 import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentResourcesRequest;
+import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
 import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancing;
 import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancingClient;
 import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersRequest;
@@ -18,23 +22,25 @@ import com.amazonaws.services.route53.model.HostedZone;
 import com.amazonaws.services.route53.model.ListResourceRecordSetsRequest;
 import com.amazonaws.services.route53.model.ListResourceRecordSetsResult;
 import com.amazonaws.services.route53.model.RRType;
+import com.amazonaws.services.route53.model.ResourceRecord;
 import com.amazonaws.services.route53.model.ResourceRecordSet;
 
 import org.apache.commons.lang.Validate;
 import org.apache.maven.plugin.AbstractMojoExecutionException;
 import org.apache.maven.plugin.MojoExecutionException;
 
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
+import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.BaseCommand;
+import br.com.ingenieux.mojo.beanstalk.util.ConfigUtil;
 
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 import static org.apache.commons.lang.StringUtils.join;
 import static org.apache.commons.lang.StringUtils.strip;
 
@@ -63,7 +69,7 @@ public class BindDomainsCommand extends
    *
    * @param parentMojo parent mojo
    */
-  public BindDomainsCommand(AbstractBeanstalkMojo parentMojo)
+  public BindDomainsCommand(AbstractNeedsEnvironmentMojo parentMojo)
       throws AbstractMojoExecutionException {
     super(parentMojo);
 
@@ -71,14 +77,44 @@ public class BindDomainsCommand extends
       this.r53 = parentMojo.getClientFactory().getService(AmazonRoute53Client.class);
       this.ec2 = parentMojo.getClientFactory().getService(AmazonEC2Client.class);
       this.elb = parentMojo.getClientFactory().getService(AmazonElasticLoadBalancingClient.class);
+
     } catch (Exception exc) {
       throw new MojoExecutionException("Failure", exc);
     }
   }
 
+  protected boolean isSingleInstance(EnvironmentDescription env) {
+    Validate.isTrue("WebServer".equals(env.getTier().getName()), "Not a Web Server environment!");
+
+    final DescribeConfigurationSettingsResult
+        describeConfigurationSettingsResult =
+        parentMojo.getService().describeConfigurationSettings(
+            new DescribeConfigurationSettingsRequest()
+                .withApplicationName(env.getApplicationName())
+                .withEnvironmentName(env.getEnvironmentName()));
+
+    Validate.isTrue(1 == describeConfigurationSettingsResult.getConfigurationSettings().size(),
+                    "There should be one environment");
+
+    final List<ConfigurationOptionSetting>
+        optionSettings =
+        describeConfigurationSettingsResult.getConfigurationSettings().get(0).getOptionSettings();
+
+    for (ConfigurationOptionSetting optionSetting : optionSettings) {
+      if (ConfigUtil.optionSettingMatchesP(optionSetting, "aws:elasticbeanstalk:environment",
+                                           "EnvironmentType")) {
+        return "SingleInstance".equals(optionSetting.getValue());
+      }
+    }
+
+    throw new IllegalStateException("Unreachable code!");
+  }
+
   @Override
   protected Void executeInternal(BindDomainsContext ctx) throws Exception {
     Map<String, String> recordsToAssign = new LinkedHashMap<String, String>();
+
+    ctx.singleInstance = isSingleInstance(ctx.getCurEnv());
 
     /**
      * Step #2: Validate Parameters
@@ -176,9 +212,9 @@ public class BindDomainsCommand extends
     }
 
     /**
-     * Step #5: Get ELB Hosted Zone Id
+     * Step #5: Get ELB Hosted Zone Id - if appliable
      */
-    {
+    if (!ctx.singleInstance) {
       String
           loadBalancerName =
           parentMojo.getService().describeEnvironmentResources(
@@ -187,7 +223,7 @@ public class BindDomainsCommand extends
               .getLoadBalancers().get(0).getName();
 
       DescribeLoadBalancersRequest req = new DescribeLoadBalancersRequest(
-          Arrays.asList(loadBalancerName));
+          asList(loadBalancerName));
 
       List<LoadBalancerDescription> loadBalancers = elb.describeLoadBalancers(req)
           .getLoadBalancerDescriptions();
@@ -214,6 +250,8 @@ public class BindDomainsCommand extends
   protected void assignDomain(BindDomainsContext ctx, String record, String zoneId) {
     ChangeBatch changeBatch = new ChangeBatch();
 
+    changeBatch.setComment(format("Updated for env %s", ctx.getCurEnv().getCNAME()));
+
     /**
      * Look for Existing Resource Record Sets
      */
@@ -230,44 +268,59 @@ public class BindDomainsCommand extends
           continue;
         }
 
-        if (!"A".equals(rrs.getType())) {
+        boolean matchesTypes = "A".equals(rrs.getType()) || "CNAME".equals(rrs.getType());
+
+        if (!matchesTypes) {
           continue;
         }
 
-        resourceRecordSet = rrs;
-        break;
-      }
-
-      if (null != resourceRecordSet) {
         if (isInfoEnabled()) {
-          info("Excluding resourceRecordSet %s for domain %s", resourceRecordSet, record);
+          info("Excluding resourceRecordSet %s for domain %s", rrs, record);
         }
+
         changeBatch.getChanges().add(new Change(ChangeAction.DELETE,
-                                                resourceRecordSet));
+                                                rrs));
       }
     }
 
     /**
      * Then Add Ours
      */
-    AliasTarget aliasTarget = new AliasTarget();
-
-    aliasTarget.setHostedZoneId(ctx.getElbHostedZoneId());
-    aliasTarget.setDNSName(ctx.getCurEnv().getEndpointURL());
-
     ResourceRecordSet resourceRecordSet = new ResourceRecordSet();
 
     resourceRecordSet.setName(record);
     resourceRecordSet.setType(RRType.A);
 
-    resourceRecordSet.setAliasTarget(aliasTarget);
+    if (ctx.singleInstance) {
+      final String address = ctx.getCurEnv().getEndpointURL();
+      ResourceRecord resourceRecord = new ResourceRecord(address);
 
-    if (isInfoEnabled()) {
-      info("Adding resourceRecordSet %s for domain %s mapped to %s", resourceRecordSet, record,
-           aliasTarget.getDNSName());
+      resourceRecordSet.setTTL(60L);
+      resourceRecordSet.setResourceRecords(asList(resourceRecord));
+
+      if (isInfoEnabled()) {
+        info("Adding resourceRecordSet %s for domain %s mapped to %s", resourceRecordSet, record,
+             address);
+      }
+    } else {
+      AliasTarget aliasTarget = new AliasTarget();
+
+      aliasTarget.setHostedZoneId(ctx.getElbHostedZoneId());
+      aliasTarget.setDNSName(ctx.getCurEnv().getEndpointURL());
+
+      resourceRecordSet.setAliasTarget(aliasTarget);
+
+      if (isInfoEnabled()) {
+        info("Adding resourceRecordSet %s for domain %s mapped to %s", resourceRecordSet, record,
+             aliasTarget.getDNSName());
+      }
     }
 
     changeBatch.getChanges().add(new Change(ChangeAction.CREATE, resourceRecordSet));
+
+    if (isInfoEnabled()) {
+      info("Changes to be sent: %s", changeBatch.getChanges());
+    }
 
     ChangeResourceRecordSetsRequest req = new ChangeResourceRecordSetsRequest(
         zoneId, changeBatch);

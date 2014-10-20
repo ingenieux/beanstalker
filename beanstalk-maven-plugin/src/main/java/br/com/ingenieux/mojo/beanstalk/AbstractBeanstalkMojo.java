@@ -18,6 +18,11 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 
+import com.amazonaws.services.ec2.AmazonEC2;
+import com.amazonaws.services.ec2.AmazonEC2Client;
+import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
+import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
+import com.amazonaws.services.ec2.model.SecurityGroup;
 import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalkClient;
 import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
 import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationsRequest;
@@ -26,6 +31,7 @@ import com.amazonaws.services.elasticbeanstalk.model.SolutionStackDescription;
 
 import org.apache.commons.collections.ComparatorUtils;
 import org.apache.commons.collections.comparators.ReverseComparator;
+import org.apache.commons.lang.Validate;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import java.text.Collator;
@@ -41,6 +47,7 @@ import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
+import br.com.ingenieux.mojo.beanstalk.util.ConfigUtil;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.defaultString;
@@ -106,8 +113,43 @@ public abstract class AbstractBeanstalkMojo extends
    * @param optionSetting option setting
    * @return true if this is not needed
    */
-  protected boolean harmfulOptionSettingP(String environmentId,
-                                          ConfigurationOptionSetting optionSetting) {
+  protected boolean harmfulOptionSettingP(final String environmentId,
+                                          ConfigurationOptionSetting optionSetting)
+      throws Exception {
+    //aws:autoscaling:launchconfiguration:SecurityGroups['sg-18585f7d']
+    if (ConfigUtil.optionSettingMatchesP(optionSetting, "aws:autoscaling:launchconfiguration",
+                                         "SecurityGroups")) {
+      final String securityGroup = optionSetting.getValue();
+
+      if (-1 != securityGroup.indexOf(environmentId))
+        return true;
+
+      if (getLog().isInfoEnabled()) {
+        getLog().info("Probing security group '" + securityGroup + "'");
+      }
+
+      Validate.isTrue(securityGroup.matches("^sg-\\p{XDigit}{8}$"), "Invalid Security Group Spec: " + securityGroup);
+
+      final AmazonEC2 ec2 = this.getClientFactory().getService(AmazonEC2Client.class);
+
+      final DescribeSecurityGroupsResult
+          describeSecurityGroupsResult =
+          ec2.describeSecurityGroups(
+              new DescribeSecurityGroupsRequest().withGroupIds(securityGroup));
+
+      if (!describeSecurityGroupsResult.getSecurityGroups().isEmpty()) {
+        final Predicate<SecurityGroup> predicate = new Predicate<SecurityGroup>() {
+          @Override
+          public boolean apply(SecurityGroup input) {
+            return -1 == input.getGroupName().indexOf(environmentId);
+          }
+        };
+
+        return Collections2.filter(describeSecurityGroupsResult.getSecurityGroups(),
+                                   predicate).isEmpty();
+      }
+    }
+
     boolean bInvalid = isBlank(optionSetting.getValue());
 
     if (!bInvalid) {

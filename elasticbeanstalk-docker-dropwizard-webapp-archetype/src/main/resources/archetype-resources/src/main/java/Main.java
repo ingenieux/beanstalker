@@ -5,8 +5,8 @@ package ${package};
 
 import com.codahale.metrics.JmxReporter;
 
-import ${groupId}.dropwizard.guice.GuiceBundle;
-import ${groupId}.dropwizard.interpolation.EnvironmentVariableInterpolationBundle;
+import br.com.ingenieux.dropwizard.guice.GuiceBundle;
+import br.com.ingenieux.dropwizard.interpolation.EnvironmentVariableInterpolationBundle;
 import ${package}.di.CoreModule;
 import ${package}.di.WebModule;
 import io.dropwizard.Application;

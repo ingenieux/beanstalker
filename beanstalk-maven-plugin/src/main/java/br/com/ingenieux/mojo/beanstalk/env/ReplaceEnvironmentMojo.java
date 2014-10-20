@@ -130,7 +130,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
   }
 
   @Override
-  protected Object executeInternal() throws AbstractMojoExecutionException {
+  protected Object executeInternal() throws Exception {
     solutionStack = lookupSolutionStack(solutionStack);
 
     /*
@@ -226,7 +226,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
       for (int i = 1; i <= maxAttempts; i++) {
         try {
           swapEnvironmentCNames(newEnvDesc.getEnvironmentId(),
-                                curEnv.getEnvironmentId(), cnamePrefix);
+                                curEnv.getEnvironmentId(), cnamePrefix, newEnvDesc);
           swapped = true;
           break;
         } catch (Throwable exc) {
@@ -236,8 +236,8 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
           }
 
           getLog().warn(
-              format("Attempt #%d/%d failed. Sleeping and retrying. Reason: %s",
-                     i, maxAttempts, exc.getMessage()));
+              format("Attempt #%d/%d failed. Sleeping and retrying. Reason: %s (type: %s)",
+                     i, maxAttempts, exc.getMessage(), exc.getClass()));
 
           sleepInterval(attemptRetryInterval);
         }
@@ -283,7 +283,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
    *
    * @param curEnv current environment
    */
-  private void copyOptionSettings(EnvironmentDescription curEnv) {
+  private void copyOptionSettings(EnvironmentDescription curEnv) throws Exception {
     /**
      * Skip if we don't have anything
      */
@@ -358,12 +358,13 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 
   /**
    * Swaps environment cnames
-   *
-   * @param newEnvironmentId environment id
+   *  @param newEnvironmentId environment id
    * @param curEnvironmentId environment id
+   * @param newEnv
    */
   protected void swapEnvironmentCNames(String newEnvironmentId,
-                                       String curEnvironmentId, String cnamePrefix)
+                                       String curEnvironmentId, String cnamePrefix,
+                                       EnvironmentDescription newEnv)
       throws AbstractMojoExecutionException {
     getLog().info(
         "Swapping environment cnames " + newEnvironmentId + " and "
@@ -396,7 +397,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 
         final BindDomainsContext
             ctx =
-            new BindDomainsContextBuilder().withCurEnv(this.curEnv).withDomains(domainsToUse)
+            new BindDomainsContextBuilder().withCurEnv(newEnv).withDomains(domainsToUse)
                 .build();
 
         new BindDomainsCommand(this).execute(

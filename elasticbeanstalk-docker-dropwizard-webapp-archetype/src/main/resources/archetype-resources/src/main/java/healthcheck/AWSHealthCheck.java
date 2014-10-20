@@ -13,7 +13,7 @@ import java.io.File;
 
 import javax.inject.Inject;
 
-import ${groupId}.dropwizard.guice.InjectableHealthCheck;
+import br.com.ingenieux.dropwizard.guice.InjectableHealthCheck;
 import ${package}.ServiceConfiguration;
 
 public class AWSHealthCheck extends InjectableHealthCheck {

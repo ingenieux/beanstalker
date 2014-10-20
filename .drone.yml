@@ -1,0 +1,41 @@
+image: oraclejdk8
+
+env:
+  - AWS_ACCESS_KEY_ID=$$AWS_ACCESS_KEY_ID
+  - AWS_SECRET_ACCESS_KEY=$$AWS_SECRET_ACCESS_KEY
+  - EC2_KEY_NAME=aldrin@leal.eng.br
+  - AWSEB_S3_BUCKET=ingenieux-beanstalk-apps
+  - SONAR_HOST=$$SONAR_HOST
+  - SONAR_JDBC_HOST=$$SONAR_JDBC_HOST
+  - SONAR_JDBC_PASSWORD=$$SONAR_JDBC_PASSWORD
+  - NEXUS_USER=$$NEXUS_USER
+  - NEXUS_PASSWORD=$$NEXUS_PASSWORD
+  - BOOTSTRAP_KEY=$$BOOTSTRAP_KEY
+
+cache:
+  - /home/ubuntu/.m2/repository
+  - /home/ubuntu/.mvm
+
+script:
+  - curl -sSL http://stedolan.github.io/jq/download/linux64/jq > /tmp/jq && chmod 755 /tmp/jq
+  - sudo chown -R ubuntu:ubuntu $HOME/.m2 $HOME/.mvm
+  - if [ -f .bootstrap.sh ]; then source .bootstrap.sh ; fi
+  - if [ ! -z "$BOOTSTRAP_KEY" ]; then curl $BOOTSTRAP_KEY | /tmp/jq -r .node.value - | bash ; fi
+  - curl -sSL https://raw.github.com/ingenieux/mvm/master/install.sh | bash
+  - source ~/.mvm/mvm.sh && mvm install 3.2.1 && mvm alias default 3.2.1
+  - if [ ! -d "$HOME/.m2" ]; then mkdir "$HOME/.m2" ; fi
+  - cp ci/settings.xml $HOME/.m2/settings.xml
+  - mvn clean install sonar:sonar site site-deploy verify -Dbeanstalk.project.name=mbit-drone -Prelease,it
+  - mvn -Psonatype-oss-release clean deploy
+
+#
+#notify:
+#  email:
+#    recipients:
+#      - brad@drone.io
+#  gitter:
+#    room_id: $$GITTER_ROOM
+#    token: $$GITTER_KEY
+#    on_started: false
+#    on_success: true
+#    on_failure: true

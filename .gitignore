@@ -9,4 +9,4 @@ bin/
 target/
 
 release.properties
-pom.xml.releaseBackup
+pom.xml.releaseBackup.bootstrap.sh

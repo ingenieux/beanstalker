@@ -24,7 +24,6 @@ import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettin
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -69,8 +68,7 @@ public class DescribeConfigurationTemplatesMojo extends AbstractBeanstalkMojo {
   File outputFile;
 
   @Override
-  protected Object executeInternal() throws MojoExecutionException,
-                                            MojoFailureException {
+  protected Object executeInternal() throws Exception {
     DescribeApplicationsRequest req = new DescribeApplicationsRequest()
         .withApplicationNames(applicationName);
     boolean bConfigurationTemplateDefined = StringUtils
@@ -105,7 +103,7 @@ public class DescribeConfigurationTemplatesMojo extends AbstractBeanstalkMojo {
     return null;
   }
 
-  void describeConfigurationTemplate(String configTemplateName) {
+  void describeConfigurationTemplate(String configTemplateName) throws Exception {
     DescribeConfigurationSettingsRequest req = new DescribeConfigurationSettingsRequest()
         .withApplicationName(applicationName).withTemplateName(
             configTemplateName);

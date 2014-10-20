@@ -1,14 +1,11 @@
 language: java
-
-before_install: 
-  - if [ ! -d "$HOME/.m2" ]; then mkdir .m2 ; fi
-  - cp ci/settings.xml $HOME/.m2/settings.xml
-
-script: mvn -f beanstalk-maven-plugin-it/pom.xml clean verify -Dbeanstalk.project.name=mbit-travis -Prelease,it
-
+before_install:
+- if [ ! -d "$HOME/.m2" ]; then mkdir .m2 ; fi
+- cp ci/settings.xml $HOME/.m2/settings.xml
+script: mvn -f beanstalk-maven-plugin-it/pom.xml clean verify -Dbeanstalk.project.name=mbit-travis
+  -Prelease,it
 jdk:
 - openjdk7
-
 env:
   global:
   - secure: uz02og5+IWdVl2C0XzATR/9ZdKCLhRVeUS7CmnFDQQF5wwMhhm377QinnLFsXIMI+W+DVuHb8ooq9sD0odji6ztH5YUcYmYKqD3QBpo3o70IIFWwBF5geiFJ3XHrKdfIUZ+7ihifAGitkL3j+qPNZm/xHqVqRzLaOzEF2akT44w=
