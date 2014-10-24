@@ -315,6 +315,76 @@
         </pluginManagement>
     </build>
 
+    <profiles>
+      <profile>
+       <id>it</id>
+       <properties>
+         <sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
+       </properties>
+       <build>
+         <plugins>
+            <plugin>
+              <groupId>org.jacoco</groupId>
+              <artifactId>jacoco-maven-plugin</artifactId>
+              <version>0.7.2.201409121644</version>
+              <configuration>
+                <destFile>${project.basedir}/../target/jacoco-it.exec</destFile>
+              </configuration>
+          
+              <executions>
+                <execution>
+                  <id>default-prepare-agent</id>
+                   <goals>
+                      <goal>prepare-agent</goal>
+                    </goals>
+                </execution>
+                    <execution>
+                      <id>default-prepare-agent-integration</id>
+                      <goals>
+                        <goal>prepare-agent-integration</goal>
+                      </goals>
+                    </execution>
+                    <execution>
+                      <id>default-post-integration-test</id>
+                      <goals>
+                        <goal>report</goal>
+                      </goals>
+                    </execution>
+                    <execution>
+                      <id>default-report-integration</id>
+                      <goals>
+                        <goal>report-integration</goal>
+                      </goals>
+                    </execution>
+<!--
+                    <execution>
+                      <id>default-check</id>
+                      <goals>
+                        <goal>check</goal>
+                      </goals>
+                      <configuration>
+                        <rules>
+                          <rule>
+                            <element>BUNDLE</element>
+                            <limits>
+                              <limit>
+                                <counter>COMPLEXITY</counter>
+                                <value>COVEREDRATIO</value>
+                                <minimum>0.60</minimum>
+                              </limit>
+                            </limits>
+                          </rule>
+                        </rules>
+                      </configuration>
+                  </execution>
+-->
+                  </executions>
+                </plugin>
+         </plugins>
+       </build>
+      </profile>
+    </profiles>
+
     <reporting>
         <plugins>
             <plugin>

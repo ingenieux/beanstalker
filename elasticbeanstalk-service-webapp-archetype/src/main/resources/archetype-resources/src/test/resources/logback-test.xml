@@ -11,9 +11,9 @@
 
 	<logger name="org.eclipse.jetty.util.log" level="WARN" />
 	
-	<logger name="org.apache.http.client.wire" level="WARN" />
+	<logger name="org.apache" level="OFF" />
 
-	<root level="DEBUG">
+	<root level="INFO">
 		<appender-ref ref="STDOUT" />
 	</root>
 </configuration>
