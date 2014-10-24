@@ -58,10 +58,14 @@ The classical:
 
   * Add ELB Tweaks / Support (healthchecks / other options)
   * Introduce a Docker archetype
+  * Fix my typos in descriptions
   * Allow more flexible support for other platforms (e.g., for Docker, switch the namespace and option settings as such)
   * Consider using an hybrid platform so gradle/others could rely upon
+    * B plan: Using @RequiresDirectInvocation Mojos
   * Coverage Testing / SonarQube
   * clone-environment
+  * Upgrade to Java 8 to leverage Lambdas
+  * Employ better parameter validation
   * debug-environment:
     * https://github.com/aws/aws-toolkit-eclipse/blob/7641a135dbb0571e40aff32f81e11dbf34366431/com.amazonaws.eclipse.elasticbeanstalk/src/com/amazonaws/eclipse/elasticbeanstalk/EnvironmentBehavior.java
     * https://github.com/aws/aws-toolkit-eclipse/blob/911c2c3402b357ed94857e06c1f4fbe0b040b930/com.amazonaws.eclipse.elasticbeanstalk/src/com/amazonaws/eclipse/elasticbeanstalk/Environment.java
