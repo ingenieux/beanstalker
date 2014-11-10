@@ -22,6 +22,11 @@ package br.com.ingenieux.mojo.beanstalk.cmd.env.create;
  */
 
 import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
+import com.amazonaws.services.elasticbeanstalk.model.Tag;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class CreateEnvironmentContextBuilder extends
                                              CreateEnvironmentContextBuilderBase<CreateEnvironmentContextBuilder> {
@@ -128,4 +133,17 @@ class CreateEnvironmentContextBuilderBase<GeneratorT extends CreateEnvironmentCo
 
     return (GeneratorT) this;
   }
+
+  @SuppressWarnings("unchecked")
+  public GeneratorT withTags(Map<String, String> tags) {
+    if (tags != null) {
+      List<Tag> tagList = new ArrayList<Tag>(tags.size());
+      for(String key : tags.keySet()) {
+        tagList.add(new Tag().withKey(key).withValue(tags.get(key)));
+      }
+      instance.setTags(tagList);
+    }
+    return (GeneratorT) this;
+  }
 }
+

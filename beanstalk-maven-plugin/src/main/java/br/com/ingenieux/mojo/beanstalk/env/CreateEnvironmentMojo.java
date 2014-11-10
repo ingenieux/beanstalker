@@ -30,6 +30,8 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentCommand
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
 
+import java.util.Map;
+
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 /**
@@ -226,6 +228,21 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
   @Parameter(property = "beanstalk.cnamePrefix")
   String cnamePrefix;
 
+   /**
+    * <p>Environment Tag List</p>
+    *
+    * To set up environment tags put this under plugin configuration tag.
+    * <pre>
+    * {@code
+    * <beanstalkTags>
+    *   <tagName>tagValue</tagName>
+    * </beanstalkTags>
+    * }
+    * </pre>
+    */
+  @Parameter
+  Map<String, String> beanstalkTags;
+
   /**
    * Overrides parent in order to avoid a thrown exception as there's not an environment to lookup
    */
@@ -267,7 +284,8 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
         .withEnvironmentName(newEnvironmentName)//
         .withOptionSettings(optionSettings)//
         .withEnvironmentTierName(environmentTierName)//
-        .withVersionLabel(versionLabel);//
+        .withVersionLabel(versionLabel)//
+        .withTags(beanstalkTags);//
 
     CreateEnvironmentContext context = builder.build();
 
