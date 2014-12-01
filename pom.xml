@@ -20,6 +20,10 @@
     <url>http://beanstalker.ingenieux.com.br</url>
     <inceptionYear>2011</inceptionYear>
 
+    <prerequisites>
+        <maven>3.2.1</maven>
+    </prerequisites>
+
     <licenses>
         <license>
             <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
@@ -69,6 +73,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <slf4j.version>1.6.4</slf4j.version>
         <preparationGoals>clean install verify</preparationGoals>
+        <aws.sdk.version>1.9.8</aws.sdk.version>
     </properties>
 
     <scm>
@@ -94,7 +99,7 @@
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk</artifactId>
-                <version>1.8.10.2</version>
+                <version>${aws.sdk.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.maven</groupId>

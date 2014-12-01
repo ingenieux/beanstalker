@@ -25,7 +25,6 @@ import java.util.Date;
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 
 /**
  * Uploads a packed war file to Amazon S3 for further Deployment.
@@ -82,8 +81,6 @@ public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
     } catch (Exception exc) {
       //getLog().warn(exc);
     }
-
-    region = defaultIfBlank(region, "us-east-1");
   }
 
   @Override
@@ -155,10 +152,13 @@ public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
     }
 
     String remote = new RequestSigner(getAWSCredentials(), applicationName,
-                                      region, commitId, environmentName, new Date()).getPushUrl();
+                                      regionName, commitId, environmentName, new Date())
+        .getPushUrl();
+
+    getLog().info("Using remote: " + remote);
 
 		/*
-		 * Does the Push
+                 * Does the Push
 		 */
     {
       PushCommand cmd = git.//
@@ -180,7 +180,7 @@ public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
       }
 
 			/*
-			 * I wish someday it could work... :(
+                         * I wish someday it could work... :(
 			 */
       if (null != pushResults) {
         for (PushResult pushResult : pushResults) {

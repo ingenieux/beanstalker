@@ -14,16 +14,14 @@ package br.com.ingenieux.mojo.beanstalk.bundle;
  * limitations under the License.
  */
 
-import com.amazonaws.AmazonClientException;
-import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 
 import java.io.File;
 
@@ -41,8 +39,7 @@ public class UploadSourceBundleMojo extends AbstractBeanstalkMojo {
   /**
    * S3 Bucket
    */
-  @Parameter(property = "beanstalk.s3Bucket", defaultValue = "${project.artifactId}",
-             required = true)
+  @Parameter(property = "beanstalk.s3Bucket")
   String s3Bucket;
 
   /**
@@ -54,15 +51,6 @@ public class UploadSourceBundleMojo extends AbstractBeanstalkMojo {
   String s3Key;
 
   /**
-   * S3 Service Region.
-   *
-   * <p> See <a href= "http://docs.amazonwebservices.com/general/latest/gr/rande.html#s3_region"
-   * >this list</a> for reference. </p>
-   */
-  @Parameter(property = "beanstalk.s3Region")
-  String s3Region;
-
-  /**
    * <p> Should we do a multipart upload? Defaults to true </p> <p> Disable when you want to be
    * charged slightly less :) </p>
    */
@@ -72,8 +60,9 @@ public class UploadSourceBundleMojo extends AbstractBeanstalkMojo {
   /**
    * Artifact to Deploy
    */
-  @Parameter(
-      defaultValue = "${project.build.directory}/${project.build.finalName}.${project.packaging}")
+  @Parameter(property = "beanstalk.artifactFile",
+             defaultValue = "${project.build.directory}/${project.build.finalName}-bin.zip",
+             required = true)
   File artifactFile;
 
   /**
@@ -82,9 +71,16 @@ public class UploadSourceBundleMojo extends AbstractBeanstalkMojo {
   @Parameter(property = "beanstalk.silentUpload", defaultValue = "false")
   boolean silentUpload = false;
 
-  protected Object executeInternal() throws MojoExecutionException,
-                                            MojoFailureException, AmazonServiceException,
-                                            AmazonClientException, InterruptedException {
+  /**
+   * Version Label to use. Defaults to Project Version
+   */
+  @Parameter(property = "beanstalk.versionLabel", required = true)
+  String versionLabel;
+
+  @Parameter(defaultValue = "${project}")
+  MavenProject project;
+
+  protected Object executeInternal() throws Exception {
     String path = artifactFile.getPath();
 
     if (!(path.endsWith(".war") || path.endsWith(".jar") || path.endsWith(".zip"))) {
@@ -99,13 +95,18 @@ public class UploadSourceBundleMojo extends AbstractBeanstalkMojo {
     }
 
     BeanstalkerS3Client client = new BeanstalkerS3Client(getAWSCredentials(),
-                                                         getClientConfiguration());
+                                                         getClientConfiguration(), getRegion());
 
     client.setMultipartUpload(multipartUpload);
     client.setSilentUpload(silentUpload);
 
-    if (StringUtils.isNotBlank(s3Region)) {
-      client.setEndpoint(String.format("s3-%s.amazonaws.com", s3Region));
+    if (StringUtils.isBlank(s3Bucket)) {
+      getLog().info("S3 Bucket not defined.");
+      s3Bucket = getService().createStorageLocation().getS3Bucket();
+
+      getLog().info("Using defaults, like: " + s3Bucket);
+
+      project.getProperties().put("beanstalk.s3Bucket", s3Bucket);
     }
 
     getLog().info("Target Path: s3://" + s3Bucket + "/" + s3Key);
@@ -114,6 +115,8 @@ public class UploadSourceBundleMojo extends AbstractBeanstalkMojo {
     PutObjectResult result = client.putObject(new PutObjectRequest(s3Bucket, s3Key, artifactFile));
 
     getLog().info("Artifact Uploaded");
+
+    project.getProperties().put("beanstalk.s3Key", s3Key);
 
     return result;
   }

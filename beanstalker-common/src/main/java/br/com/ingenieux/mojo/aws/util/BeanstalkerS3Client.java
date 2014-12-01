@@ -17,11 +17,11 @@ package br.com.ingenieux.mojo.aws.util;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.ClientConfiguration;
-import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.event.ProgressEvent;
 import com.amazonaws.event.ProgressListener;
 import com.amazonaws.event.ProgressListenerChain;
+import com.amazonaws.regions.Region;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.internal.Constants;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
@@ -46,31 +46,11 @@ public class BeanstalkerS3Client extends AmazonS3Client {
   private boolean silentUpload = false;
   private TransferManager transferManager;
 
-  public BeanstalkerS3Client() {
-    super();
-    init();
-  }
-
-  public BeanstalkerS3Client(AWSCredentials awsCredentials,
-                             ClientConfiguration clientConfiguration) {
-    super(awsCredentials, clientConfiguration);
-    init();
-  }
-
-  public BeanstalkerS3Client(AWSCredentials awsCredentials) {
-    super(awsCredentials);
-    init();
-  }
-
   public BeanstalkerS3Client(AWSCredentialsProvider credentialsProvider,
-                             ClientConfiguration clientConfiguration) {
+                             ClientConfiguration clientConfiguration, Region region) {
     super(credentialsProvider, clientConfiguration);
-    init();
-  }
 
-  public BeanstalkerS3Client(AWSCredentialsProvider credentialsProvider) {
-    super(credentialsProvider);
-    init();
+    init(region);
   }
 
   public boolean isMultipartUpload() {
@@ -89,11 +69,12 @@ public class BeanstalkerS3Client extends AmazonS3Client {
     this.silentUpload = silentUpload;
   }
 
-  protected void init() {
+  protected void init(Region region) {
     transferManager = new TransferManager(this);
     TransferManagerConfiguration configuration = new TransferManagerConfiguration();
     configuration.setMultipartUploadThreshold(100 * Constants.KB);
     transferManager.setConfiguration(configuration);
+    this.setRegion(region);
   }
 
   public TransferManager getTransferManager() {

@@ -3,6 +3,8 @@ package br.com.ingenieux.mojo.aws.util;
 import com.amazonaws.AmazonWebServiceClient;
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.regions.RegionUtils;
+import com.amazonaws.services.s3.AmazonS3Client;
 
 import org.apache.commons.lang.reflect.ConstructorUtils;
 
@@ -42,6 +44,11 @@ public class AWSClientFactory {
         if (formatter.matches(resultObj)) {
           ((AmazonWebServiceClient) resultObj).setEndpoint(getEndpointFor(formatter));
           break;
+        }
+
+        // extra fix for eu-central-1
+        if (resultObj instanceof AmazonS3Client) {
+          ((AmazonS3Client) resultObj).setRegion(RegionUtils.getRegion(region));
         }
       }
     }

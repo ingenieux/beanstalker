@@ -50,7 +50,8 @@ public class BluegreenDeploymentMojo extends AbstractNeedsEnvironmentMojo {
   /**
    * Version Label to use. Defaults to Project Version
    */
-  @Parameter(property = "beanstalk.versionLabel", defaultValue = "${project.version}")
+  @Parameter(property = "beanstalk.versionLabel",
+             defaultValue = "${project.version}-${maven.build.timestamp}")
   String versionLabel;
 
   @Override

@@ -2,7 +2,8 @@
 #set( $symbol_dollar = '%' )
 #set( $symbol_escape = '\' )
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -32,7 +33,8 @@
         -->
         <beanstalk.solutionStack>64bit Amazon Linux running Tomcat 7</beanstalk.solutionStack>
         <!-- switch to .../health/check when you set iamInstanceProfile below -->
-        <beanstalk.applicationHealthCheckURL>/services/api/v1/debug</beanstalk.applicationHealthCheckURL>
+        <beanstalk.applicationHealthCheckURL>/services/api/v1/debug
+        </beanstalk.applicationHealthCheckURL>
         <beanstalk.environmentType>SingleInstance</beanstalk.environmentType>
         <!-- replace with your environment details -->
         <!--
@@ -96,7 +98,7 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk</artifactId>
-            <version>1.6.12</version>
+            <version>${aws.sdk.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.inject</groupId>
