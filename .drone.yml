@@ -28,8 +28,8 @@ script:
   - if [ ! -d "$M2_HOME/lib/ext" ]; then mkdir -p "$M2_HOME/lib/ext" ; fi
   - cp ci/settings.xml $HOME/.m2/settings.xml
   - if [ ! -f "$M2_HOME/lib/ext/maven-profiler-2.0.jar" ] ; then curl -sSL http://dl.bintray.com/jcgay/maven/com/github/jcgay/maven/maven-profiler/2.0/maven-profiler-2.0.jar > $M2_HOME/lib/ext/maven-profiler-2.0.jar ; fi
-  - mvn clean install verify sonar:sonar site site-deploy -Dbeanstalk.project.name=mbit-drone -Ptest,it -Dprofile
-  - if [ ! -z "$BOOTSTRAP_KEY" ]; then mvn -Psonatype-oss-release deploy -Dprofile ; fi
+  - mvn -e clean install verify sonar:sonar site site-deploy -Dbeanstalk.project.name=mbit-drone -Ptest,it -Dprofile
+  - if [ ! -z "$BOOTSTRAP_KEY" ]; then mvn -Psonatype-oss-release clean deploy -Dprofile ; fi
 
 #
 #notify:
