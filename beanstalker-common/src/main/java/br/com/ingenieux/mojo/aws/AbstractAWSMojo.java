@@ -7,10 +7,13 @@ import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.EnvironmentVariableCredentialsProvider;
 import com.amazonaws.internal.StaticCredentialsProvider;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.RegionUtils;
 
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.Validate;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -106,7 +109,22 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
    * for reference. </p>
    */
   @Parameter(property = "beanstalker.region")
-  protected String region;
+  protected String regionName = "us-east-1";
+
+  protected Region regionObj;
+
+  protected Region getRegion() {
+    if (null != regionObj) {
+      return regionObj;
+    }
+
+    regionObj = RegionUtils.getRegion(regionName);
+
+    Validate.notNull(regionObj, "Invalid region: " + regionName);
+
+    return regionObj;
+  }
+
   protected AWSClientFactory clientFactory;
   /**
    * Plexus container, needed to manually lookup components.
@@ -207,7 +225,7 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
    */
   private String getDecryptedAwsKey(final String awsSecretKey) {
                 /*
-		 * Checks if we have a encrypted key. And warn if we don't.
+                 * Checks if we have a encrypted key. And warn if we don't.
 		 */
     if (!(awsSecretKey.startsWith("{") && awsSecretKey.endsWith("}"))) {
       getLog().warn(
@@ -295,7 +313,7 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
         this.version = properties.getProperty("beanstalker.version");
       }
     } catch (Exception exc) {
-
+      getLog().warn("Oops?", exc);
     } finally {
       IOUtils.closeQuietly(is);
     }
@@ -306,7 +324,8 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
     Class<S> serviceClass = (Class<S>) TypeUtil.getServiceClass(getClass());
 
     try {
-      clientFactory = new AWSClientFactory(getAWSCredentials(), getClientConfiguration(), region);
+      clientFactory = new AWSClientFactory(getAWSCredentials(), getClientConfiguration(),
+                                           regionName);
 
       this.service = clientFactory.getService(serviceClass);
     } catch (Exception exc) {

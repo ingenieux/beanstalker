@@ -4,7 +4,6 @@ import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsResult;
 import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
 
 import org.apache.maven.shared.invoker.InvocationResult;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -13,9 +12,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@Ignore
-public class CreateAndDeployIT extends BaseBeanstalkIntegrationTest {
-
+public class DummyIT extends BaseBeanstalkIntegrationTest {
   @Test
   public void testAppCreation() throws Exception {
     InvocationResult result = null;
@@ -70,22 +67,5 @@ public class CreateAndDeployIT extends BaseBeanstalkIntegrationTest {
     result = invoke("package deploy -Pdeploy", envDesc.getCNAME());
 
     assertThat("Previous deployment should have worked.", result.getExitCode(), is(equalTo(0)));
-  }
-
-  @Test
-  public void testWorkerLifecycle() throws Exception {
-    InvocationResult
-        result =
-        invoke("clean deploy beanstalk:put-environment -Pfast-deploy,worker -DskipTests");
-
-    assertThat(result.getExitCode(), is(equalTo(0)));
-
-    DescribeEnvironmentsResult envs = getEnvironments();
-
-    assertThat(envs.getEnvironments().size(), is(equalTo(1)));
-
-    EnvironmentDescription envDesc = envs.getEnvironments().get(0);
-
-    assertThat(envDesc.getEnvironmentName(), is(equalTo(r("${beanstalk.project.name}-worker"))));
   }
 }

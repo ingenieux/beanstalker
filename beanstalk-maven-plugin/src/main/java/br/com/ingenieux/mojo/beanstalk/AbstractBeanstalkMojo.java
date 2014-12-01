@@ -33,6 +33,7 @@ import org.apache.commons.collections.ComparatorUtils;
 import org.apache.commons.collections.comparators.ReverseComparator;
 import org.apache.commons.lang.Validate;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import java.text.Collator;
 import java.util.ArrayList;
@@ -121,14 +122,16 @@ public abstract class AbstractBeanstalkMojo extends
                                          "SecurityGroups")) {
       final String securityGroup = optionSetting.getValue();
 
-      if (-1 != securityGroup.indexOf(environmentId))
+      if (-1 != securityGroup.indexOf(environmentId)) {
         return true;
+      }
 
       if (getLog().isInfoEnabled()) {
         getLog().info("Probing security group '" + securityGroup + "'");
       }
 
-      Validate.isTrue(securityGroup.matches("^sg-\\p{XDigit}{8}$"), "Invalid Security Group Spec: " + securityGroup);
+      Validate.isTrue(securityGroup.matches("^sg-\\p{XDigit}{8}$"),
+                      "Invalid Security Group Spec: " + securityGroup);
 
       final AmazonEC2 ec2 = this.getClientFactory().getService(AmazonEC2Client.class);
 
@@ -290,4 +293,20 @@ public abstract class AbstractBeanstalkMojo extends
     return matchingStacks.iterator().next();
   }
 
+  /**
+   * Environment Ref
+   */
+  @Parameter(property = "beanstalk.endpointUrl")
+  protected String endpointUrl;
+
+  @Override
+  public AWSElasticBeanstalkClient getService() {
+    final AWSElasticBeanstalkClient service = super.getService();
+
+    if (isNotBlank(endpointUrl)) {
+      service.setEndpoint(endpointUrl);
+    }
+
+    return service;
+  }
 }

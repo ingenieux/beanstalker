@@ -44,15 +44,6 @@ public class DeleteMultipartsMojo extends AbstractBeanstalkMojo {
   String s3Bucket;
 
   /**
-   * S3 Service Region.
-   *
-   * <p> See <a href= "http://docs.amazonwebservices.com/general/latest/gr/rande.html#s3_region"
-   * >this list</a> for reference. </p>
-   */
-  @Parameter(property = "beanstalk.s3Region")
-  String s3Region;
-
-  /**
    * How many delete to delete? Defaults to 365 days
    */
   @Parameter(property = "beanstalk.daysToDelete", defaultValue = "365")
@@ -62,7 +53,7 @@ public class DeleteMultipartsMojo extends AbstractBeanstalkMojo {
                                             MojoFailureException, AmazonServiceException,
                                             AmazonClientException, InterruptedException {
     BeanstalkerS3Client client = new BeanstalkerS3Client(getAWSCredentials(),
-                                                         getClientConfiguration());
+                                                         getClientConfiguration(), getRegion());
 
     Calendar c = Calendar.getInstance();
 
