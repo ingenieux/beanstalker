@@ -61,7 +61,7 @@ public class UploadSourceBundleMojo extends AbstractBeanstalkMojo {
    * Artifact to Deploy
    */
   @Parameter(property = "beanstalk.artifactFile",
-             defaultValue = "${project.build.directory}/${project.build.finalName}-bin.zip",
+             defaultValue="${project.build.directory}/${project.build.finalName}.${project.packaging}",
              required = true)
   File artifactFile;
 
@@ -91,7 +91,7 @@ public class UploadSourceBundleMojo extends AbstractBeanstalkMojo {
 
     if (!artifactFile.exists()) {
       throw new MojoFailureException(
-          "Artifact File does not exists! (file=" + path);
+          "Artifact File does not exist! (file=" + path + ")");
     }
 
     BeanstalkerS3Client client = new BeanstalkerS3Client(getAWSCredentials(),
