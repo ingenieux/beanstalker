@@ -178,7 +178,7 @@
                                     <copyConfigurationDirectory>true</copyConfigurationDirectory>
                                     <programs>
                                         <program>
-                                            <mainClass>$\{app.mainClass}</mainClass>
+                                            <mainClass>\${app.mainClass}</mainClass>
                                             <id>app</id>
                                             <platforms>
                                                 <platform>unix</platform>
