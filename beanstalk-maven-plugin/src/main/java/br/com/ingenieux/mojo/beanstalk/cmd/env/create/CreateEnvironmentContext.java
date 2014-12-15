@@ -1,6 +1,9 @@
 package br.com.ingenieux.mojo.beanstalk.cmd.env.create;
 
 import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
+import com.amazonaws.services.elasticbeanstalk.model.Tag;
+
+import java.util.List;
 
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,6 +38,7 @@ public class CreateEnvironmentContext {
   String environmentTierName = "WebServer";
   String environmentTierType = "Standard";
   String environmentTierVersion = "1.0";
+  List<Tag> tags;
 
   /**
    * @return the applicationName
@@ -172,5 +176,18 @@ public class CreateEnvironmentContext {
 
   public void setEnvironmentTierVersion(String environmentTierVersion) {
     this.environmentTierVersion = environmentTierVersion;
+  }
+
+  /**
+   * @return the environment tag list
+   */
+  public List<Tag> getTags() {
+    return tags;
+  }
+  /**
+   * @param tags list of environment tags
+   */
+  public void setTags(List<Tag> tags) {
+    this.tags = tags;
   }
 }
