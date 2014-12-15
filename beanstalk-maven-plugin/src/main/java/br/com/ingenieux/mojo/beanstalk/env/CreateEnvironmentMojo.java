@@ -14,14 +14,6 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
-import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
-import com.amazonaws.services.elasticbeanstalk.model.CreateEnvironmentResult;
-
-import org.apache.commons.lang.Validate;
-import org.apache.maven.plugin.AbstractMojoExecutionException;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.create.CreateEnvironmentCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.create.CreateEnvironmentContext;
@@ -29,8 +21,16 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.create.CreateEnvironmentContextBu
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
+import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
+import com.amazonaws.services.elasticbeanstalk.model.CreateEnvironmentResult;
+import org.apache.commons.lang.Validate;
+import org.apache.maven.plugin.AbstractMojoExecutionException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
@@ -44,6 +44,8 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
  */
 @Mojo(name = "create-environment")
 public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
+
+  public static final String BEANSTALK_TAG = "beanstalk.tag.";
 
   /**
    * environmentName. Takes precedence over environmentRef.
@@ -228,18 +230,20 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
   @Parameter(property = "beanstalk.cnamePrefix")
   String cnamePrefix;
 
-   /**
-    * <p>Environment Tag List</p>
-    *
-    * To set up environment tags put this under plugin configuration tag.
-    * <pre>
-    * {@code
-    * <beanstalkTags>
-    *   <tagName>tagValue</tagName>
-    * </beanstalkTags>
-    * }
-    * </pre>
-    */
+  /**
+   * <p>Environment Tag List</p>
+   *
+   * To set up environment tags put this under plugin configuration tag
+   * <pre>
+   * {@code
+   * <beanstalkTags>
+   *   <tagName>tagValue</tagName>
+   * </beanstalkTags>
+   * }
+   * </pre>
+   * or use system property in the following format:
+   * beanstalk.tag.TAG_NAME=TAG_VALUE
+   */
   @Parameter
   Map<String, String> beanstalkTags;
 
@@ -254,10 +258,7 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
   @Override
   protected Object executeInternal() throws Exception {
     versionLabel = lookupVersionLabel(applicationName, versionLabel);
-
-    CreateEnvironmentResult result = createEnvironment(cnamePrefix, this.environmentName);
-
-    return result;
+    return createEnvironment(cnamePrefix, environmentName);
   }
 
   protected CreateEnvironmentResult createEnvironment(String cnameToCreate,
@@ -270,6 +271,10 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 
     if (null == optionSettings) {
       optionSettings = introspectOptionSettings();
+    }
+
+    if (beanstalkTags == null) {
+        beanstalkTags = introspectEnvironmentTags();
     }
 
     versionLabel = lookupVersionLabel(applicationName, versionLabel);
@@ -305,6 +310,23 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
     }
 
     return result;
+  }
+
+  private Map<String, String> introspectEnvironmentTags() {
+    Map<String, String> tags = extractTagsFromProperties(project.getProperties());
+    tags.putAll(extractTagsFromProperties(System.getProperties()));
+    return tags;
+  }
+
+  private static Map<String, String> extractTagsFromProperties(Properties systemProperties) {
+    Map<String, String> tags = new HashMap<String, String>();
+    for (String propertyName : systemProperties.stringPropertyNames()) {
+      if (propertyName.startsWith(BEANSTALK_TAG)) {
+        tags.put(propertyName.substring(BEANSTALK_TAG.length()),
+            systemProperties.getProperty(propertyName));
+      }
+    }
+    return tags;
   }
 
 }
