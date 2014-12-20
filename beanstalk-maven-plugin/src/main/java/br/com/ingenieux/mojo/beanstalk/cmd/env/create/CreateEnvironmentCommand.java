@@ -1,18 +1,16 @@
 package br.com.ingenieux.mojo.beanstalk.cmd.env.create;
 
+import br.com.ingenieux.mojo.aws.util.CredentialsUtil;
+import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
+import br.com.ingenieux.mojo.beanstalk.cmd.BaseCommand;
 import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
 import com.amazonaws.services.elasticbeanstalk.model.CreateEnvironmentRequest;
 import com.amazonaws.services.elasticbeanstalk.model.CreateEnvironmentResult;
 import com.amazonaws.services.elasticbeanstalk.model.EnvironmentTier;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.AbstractMojoExecutionException;
 
 import java.util.Arrays;
-
-import br.com.ingenieux.mojo.aws.util.CredentialsUtil;
-import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
-import br.com.ingenieux.mojo.beanstalk.cmd.BaseCommand;
 
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -49,6 +47,7 @@ public class CreateEnvironmentCommand extends
     request.setCNAMEPrefix(parentMojo.ensureSuffixStripped(context.getCnamePrefix()));
     request.setDescription(context.getApplicationDescription());
     request.setEnvironmentName(context.getEnvironmentName());
+    request.setTags(context.getTags());
 
     request.setOptionSettings(Arrays.asList(context.getOptionSettings()));
 
