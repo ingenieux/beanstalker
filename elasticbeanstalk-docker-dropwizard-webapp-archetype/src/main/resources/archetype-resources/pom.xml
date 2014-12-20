@@ -67,27 +67,7 @@
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
-            <version>0.7.1</version>
-        </dependency>
-        <dependency>
-            <groupId>io.dropwizard</groupId>
-            <artifactId>dropwizard-client</artifactId>
-            <version>0.7.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk</artifactId>
-            <version>${aws.sdk.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>br.com.ingenieux.dropwizard</groupId>
-            <artifactId>dropwizard-governator</artifactId>
-            <version>0.7.0.4</version>
-        </dependency>
-        <dependency>
-            <groupId>br.com.ingenieux.dropwizard</groupId>
-            <artifactId>dropwizard-envvar</artifactId>
-            <version>0.0.1</version>
+            <version>0.8.0-rc1</version>
         </dependency>
     </dependencies>
 

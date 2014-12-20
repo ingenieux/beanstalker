@@ -1,5 +1,3 @@
-graphiteHost: ${GRAPHITE_HOST:}
-
 server:
   applicationConnectors:
     - type: http
