@@ -171,19 +171,20 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
     }
 
     if (copyOptionSettings) {
-      copyOptionSettings(curEnv);
-    }
 
-    if (!solutionStack.equals(curEnv.getSolutionStackName())) {
-      if (getLog().isInfoEnabled()) {
-        getLog().warn(
-            format(
-                "(btw, we're launching with solutionStack/ set to '%s' instead of the default ('%s'). "
-                + "If this is not the case, then we kindly ask you to file a bug report on the mailing list :)",
-                curEnv.getSolutionStackName(), solutionStack));
-      }
+        copyOptionSettings(curEnv);
 
-      solutionStack = curEnv.getSolutionStackName();
+        if (!solutionStack.equals(curEnv.getSolutionStackName())) {
+            if (getLog().isInfoEnabled()) {
+                getLog().warn(
+                        format(
+                                "(btw, we're launching with solutionStack/ set to '%s' instead of the default ('%s'). "
+                                        + "If this is not the case, then we kindly ask you to file a bug report on the mailing list :)",
+                                curEnv.getSolutionStackName(), solutionStack));
+            }
+
+            solutionStack = curEnv.getSolutionStackName();
+        }
     }
 
     String newEnvironmentName = getNewEnvironmentName(StringUtils
