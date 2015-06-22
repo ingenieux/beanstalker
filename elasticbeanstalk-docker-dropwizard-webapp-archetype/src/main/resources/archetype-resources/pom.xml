@@ -29,7 +29,7 @@
         </beanstalk.environmentRef>
 
         <beanstalk.useStagingDirectory>true</beanstalk.useStagingDirectory>
-        <beanstalk.solutionStack>64bit Amazon Linux 2014.* running Docker 1.*</beanstalk.solutionStack>
+        <beanstalk.solutionStack>64bit Amazon Linux 201* running Docker 1.*</beanstalk.solutionStack>
         <beanstalk.applicationHealthCheckURL>/health/check</beanstalk.applicationHealthCheckURL>
         <beanstalk.environmentType>SingleInstance</beanstalk.environmentType>
 
