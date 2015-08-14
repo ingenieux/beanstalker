@@ -29,12 +29,12 @@
         <repository>
             <id>${repository.release.id}</id>
             <uniqueVersion>false</uniqueVersion>
-            <url>${repository.release.url}</url>
+            <url>${repository.release.deploy}</url>
         </repository>
         <snapshotRepository>
             <id>${repository.snapshot.id}</id>
             <uniqueVersion>false</uniqueVersion>
-            <url>${repository.snapshot.url}</url>
+            <url>${repository.snapshot.deploy}</url>
         </snapshotRepository>
     </distributionManagement>
 
