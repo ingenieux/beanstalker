@@ -27,45 +27,16 @@
 
     <distributionManagement>
         <repository>
-            <id>release.nexus.babelcentral.com</id>
+            <id>${repository.release.id}</id>
             <uniqueVersion>false</uniqueVersion>
-            <url>http://admin.babelcentral.com:10080/content/repositories/releases</url>
+            <url>${repository.release.url}</url>
         </repository>
         <snapshotRepository>
-            <id>snapshot.nexus.babelcentral.com</id>
+            <id>${repository.snapshot.id}</id>
             <uniqueVersion>false</uniqueVersion>
-            <url>http://admin.babelcentral.com:10080/content/repositories/snapshots</url>
+            <url>${repository.snapshot.url}</url>
         </snapshotRepository>
     </distributionManagement>
-
-    <mailingLists>
-        <mailingList>
-            <name>beanstalker-users</name>
-            <archive>http://groups.google.com/group/beanstalker-users</archive>
-        </mailingList>
-        <mailingList>
-            <name>beanstalker-dev</name>
-            <archive>http://groups.google.com/group/beanstalker-dev</archive>
-        </mailingList>
-    </mailingLists>
-
-    <organization>
-        <name>ingenieux</name>
-        <url>http://ingenieux.com.br</url>
-    </organization>
-
-    <developers>
-        <developer>
-            <id>aldrinleal</id>
-            <name>Aldrin Leal</name>
-            <timezone>-3</timezone>
-        </developer>
-    </developers>
-
-    <issueManagement>
-        <system>github</system>
-        <url>https://github.com/ingenieux/beanstalker/issues</url>
-    </issueManagement>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -73,13 +44,6 @@
         <slf4j.version>1.6.4</slf4j.version>
         <preparationGoals>clean install verify</preparationGoals>
     </properties>
-
-    <scm>
-        <connection>scm:hg:http://bitbucket.org/aldrinleal/beanstalker</connection>
-        <developerConnection>scm:hg:ssh://hg@bitbucket.org/aldrinleal/beanstalker
-        </developerConnection>
-        <url>http://bitbucket.org/aldrinleal/beanstalker</url>
-    </scm>
 
     <modules>
         <module>beanstalker-common</module>
