@@ -1,1 +1,0 @@
-package -DskipTests -Pfast-deploy
