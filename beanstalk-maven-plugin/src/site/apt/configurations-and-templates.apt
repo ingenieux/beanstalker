@@ -15,7 +15,7 @@ Intro
 <build>
     <plugins>
       <plugin>
-        <groupId>br.com.ingenieux</groupId>
+        <groupId>com.babelcentral</groupId>
         <artifactId>beanstalk-maven-plugin</artifactId>
         <configuration>
           (...)

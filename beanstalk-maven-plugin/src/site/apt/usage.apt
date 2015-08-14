@@ -11,7 +11,7 @@ Quick Start
 <build>
   <plugins>
     <plugin>
-      <groupId>br.com.ingenieux</groupId>
+      <groupId>com.babelcentral</groupId>
       <artifactId>beanstalk-maven-plugin</artifactId>
       <version>[plugin version]</version>
     </plugin>
@@ -59,7 +59,7 @@ Uploading your Application
   <build>
     <plugins>
       <plugin>
-        <groupId>br.com.ingenieux</groupId>
+        <groupId>com.babelcentral</groupId>
         <artifactId>beanstalk-maven-plugin</artifactId>
         <version>[plugin version]</version>
         <configuration>
@@ -83,7 +83,7 @@ Uploading your Application
   <build>
     <plugins>
       <plugin>
-        <groupId>br.com.ingenieux</groupId>
+        <groupId>com.babelcentral</groupId>
         <artifactId>beanstalk-maven-plugin</artifactId>
         <version>[plugin version]</version>
         <configuration>

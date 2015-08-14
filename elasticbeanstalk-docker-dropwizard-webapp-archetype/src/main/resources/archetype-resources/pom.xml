@@ -34,7 +34,7 @@
         <!--
         <beanstalk.keyName>your-ec2-key</beanstalk.keyName>
         <beanstalk.iamInstanceProfile>aws-elasticbeanstalk-ec2-role</beanstalk.iamInstanceProfile>
-        <beanstalk.availabilityZones>us-east-1d</beanstalk.availabilityZones>
+        <beanstalk.scalingAvailabilityZones>us-east-1d</beanstalk.scalingAvailabilityZones>
         <beanstalk.blockDeviceMappings>/dev/sdb=ephemeral0</beanstalk.blockDeviceMappings>
         -->
     </properties>
@@ -117,7 +117,7 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <groupId>br.com.ingenieux</groupId>
+                    <groupId>com.babelcentral</groupId>
                     <artifactId>beanstalk-maven-plugin</artifactId>
                     <inherited>true</inherited>
                     <version>${project.version}</version>
@@ -174,7 +174,7 @@
                         </executions>
                     </plugin>
                     <plugin>
-                        <groupId>br.com.ingenieux</groupId>
+                        <groupId>com.babelcentral</groupId>
                         <artifactId>beanstalk-maven-plugin</artifactId>
                         <executions>
                             <execution>

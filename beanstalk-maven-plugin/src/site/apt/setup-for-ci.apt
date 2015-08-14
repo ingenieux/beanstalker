@@ -30,7 +30,7 @@ Key Concepts
   
 +---+
   <plugin>
-    <groupId>br.com.ingenieux</groupId>
+    <groupId>com.babelcentral</groupId>
     <artifactId>beanstalk-maven-plugin</artifactId>
     <configuration>
       <applicationName>name of your application</applicationName>
@@ -74,7 +74,7 @@ mvn beanstalk:upload-source-bundle beanstalk:create-application-version beanstal
 
 +---+
 <plugin>
-  <groupId>br.com.ingenieux</groupId>
+  <groupId>com.babelcentral</groupId>
   <artifactId>beanstalk-maven-plugin</artifactId>
   <configuration>
     <...>

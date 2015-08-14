@@ -39,7 +39,7 @@
         <beanstalk.keyName>[your-key-name]</beanstalk.keyName>
         <beanstalk.iamInstanceProfile>aws-elasticbeanstalk-ec2-role</beanstalk.iamInstanceProfile>
         <beanstalk.instanceType>m1.small</beanstalk.instanceType>
-        <beanstalk.availabilityZones>us-east-1e, us-east-1d</beanstalk.availabilityZones>
+        <beanstalk.scalingAvailabilityZones>us-east-1e, us-east-1d</beanstalk.scalingAvailabilityZones>
         <beanstalk.s3Bucket>your-s3-bucket</beanstalk.s3Bucket>
         -->
     </properties>
@@ -166,7 +166,7 @@
         </testResources>
         <plugins>
             <plugin>
-                <groupId>br.com.ingenieux</groupId>
+                <groupId>com.babelcentral</groupId>
                 <artifactId>beanstalk-maven-plugin</artifactId>
                 <executions>
                     <execution>
@@ -216,7 +216,7 @@
                     <version>2.7</version>
                 </plugin>
                 <plugin>
-                    <groupId>br.com.ingenieux</groupId>
+                    <groupId>com.babelcentral</groupId>
                     <artifactId>beanstalk-maven-plugin</artifactId>
                     <inherited>true</inherited>
                     <version>${project.version}</version>
@@ -237,7 +237,7 @@
                 <defaultGoal>deploy</defaultGoal>
                 <plugins>
                     <plugin>
-                        <groupId>br.com.ingenieux</groupId>
+                        <groupId>com.babelcentral</groupId>
                         <artifactId>beanstalk-maven-plugin</artifactId>
                         <executions>
                             <execution>
@@ -279,7 +279,7 @@
                         </executions>
                     </plugin>
                     <plugin>
-                        <groupId>br.com.ingenieux</groupId>
+                        <groupId>com.babelcentral</groupId>
                         <artifactId>beanstalk-maven-plugin</artifactId>
                         <executions>
                             <execution>
@@ -315,7 +315,7 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>br.com.ingenieux</groupId>
+                        <groupId>com.babelcentral</groupId>
                         <artifactId>beanstalk-maven-plugin</artifactId>
                         <executions>
                             <execution>
@@ -346,7 +346,7 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>br.com.ingenieux</groupId>
+                        <groupId>com.babelcentral</groupId>
                         <artifactId>beanstalk-maven-plugin</artifactId>
                         <executions>
                             <execution>

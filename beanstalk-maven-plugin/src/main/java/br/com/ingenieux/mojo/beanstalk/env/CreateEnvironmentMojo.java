@@ -132,6 +132,7 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
    * <li>beanstalk.healthcheckTimeout, to aws:elb:healthcheck/Timeout</li>
    * <li>beanstalk.healthcheckUnhealthyThreshold, to aws:elb:healthcheck/UnhealthyThreshold</li>
    *
+   * <li>beanstalk.loadBalancerCrossZone, to aws:elb:loadbalancer/CrossZone</li>
    * <li>beanstalk.loadBalancerHTTPPort, to aws:elb:loadbalancer/LoadBalancerHTTPPort</li>
    * <li>beanstalk.loadBalancerPortProtocol, to aws:elb:loadbalancer/LoadBalancerPortProtocol</li>
    * <li>beanstalk.loadBalancerHTTPSPort, to aws:elb:loadbalancer/LoadBalancerHTTPSPort</li>

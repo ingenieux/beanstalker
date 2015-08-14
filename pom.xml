@@ -8,7 +8,7 @@
         <version>7</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <groupId>br.com.ingenieux</groupId>
+    <groupId>com.babelcentral</groupId>
     <artifactId>beanstalker</artifactId>
     <packaging>pom</packaging>
     <version>1.4.0-SNAPSHOT</version>
@@ -28,11 +28,16 @@
     </licenses>
 
     <distributionManagement>
-        <site>
-            <id>beanstalker.ingenieux.com.br</id>
-            <name>ingenieux Beanstalker Site</name>
-            <url>s3://beanstalker.ingenieux.com.br</url>
-        </site>
+        <repository>
+            <id>release.nexus.babelcentral.com</id>
+            <uniqueVersion>false</uniqueVersion>
+            <url>http://admin.babelcentral.com:10080/content/repositories/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshot.nexus.babelcentral.com</id>
+            <uniqueVersion>false</uniqueVersion>
+            <url>http://admin.babelcentral.com:10080/content/repositories/snapshots</url>
+        </snapshotRepository>
     </distributionManagement>
 
     <mailingLists>
@@ -154,7 +159,7 @@
                 <version>1.9.10</version>
             </dependency>
             <dependency>
-                <groupId>br.com.ingenieux</groupId>
+                <groupId>com.babelcentral</groupId>
                 <artifactId>beanstalker-common</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -284,7 +289,7 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
                     <version>3.3</version>
-                    <configuration>
+                    <!--configuration>
                         <reportPlugins>
                             <plugin>
                                 <groupId>org.apache.maven.plugins</groupId>
@@ -294,10 +299,10 @@
                                 </configuration>
                             </plugin>
                         </reportPlugins>
-                    </configuration>
+                    </configuration-->
                 </plugin>
                 <plugin>
-                    <groupId>br.com.ingenieux</groupId>
+                    <groupId>com.babelcentral</groupId>
                     <artifactId>beanstalk-maven-plugin</artifactId>
                     <version>${project.version}</version>
                 </plugin>
@@ -315,7 +320,7 @@
         </pluginManagement>
     </build>
 
-    <reporting>
+    <!--reporting>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -341,5 +346,5 @@
                 <version>2.3</version>
             </plugin>
         </plugins>
-    </reporting>
+    </reporting-->
 </project>

@@ -7,7 +7,7 @@
   License for the specific language governing permissions and * limitations 
   under the License. */ -->
 <project>
-  <groupId>br.com.ingenieux</groupId>
+  <groupId>com.babelcentral</groupId>
   <artifactId>bmp-demo</artifactId>
   <version>0.0.1-SNAPSHOT</version>
 
@@ -16,7 +16,7 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>br.com.ingenieux</groupId>
+        <groupId>com.babelcentral</groupId>
         <artifactId>beanstalk-maven-plugin</artifactId>
         <configuration>
           <accessKey>${aws.accessKey}</accessKey>

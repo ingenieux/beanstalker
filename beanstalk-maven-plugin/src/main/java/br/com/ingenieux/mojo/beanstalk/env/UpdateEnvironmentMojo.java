@@ -15,10 +15,19 @@ package br.com.ingenieux.mojo.beanstalk.env;
  */
 
 import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettingsRequest;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettingsResult;
 
 import org.apache.maven.plugin.AbstractMojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Set;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentCommand;
@@ -56,15 +65,13 @@ public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
    *
    * <p> A Property might be aliased. Current aliases include: </p>
    *
-   * <ul> <li>beanstalk.scalingAvailabilityZones, to aws:autoscaling:asg/Availability Zones</li>
-   * <li>beanstalk.scalingCooldown, to aws:autoscaling:asg/Cooldown</li>
-   * <li>beanstalk.scalingCustomAvailabilityZones, to aws:autoscaling:asg/Custom Availability
-   * Zones</li> <li>beanstalk.scalingMinSize, to aws:autoscaling:asg/MinSize</li>
-   * <li>beanstalk.scalingMaxSize, to aws:autoscaling:asg/MaxSize</li>
-   * <li>beanstalk.availabilityZones, to aws:autoscaling:asg/Custom Availability Zones (SAME AS
-   * beanstalk.scalingCustomAvailabilityZones FOR BACKWARD COMPATIBILITY</li>
-   *
-   * <li>beanstalk.keyName, to aws:autoscaling:launchconfiguration/EC2KeyName (EC2 Instance
+   * <ul>
+   *    <li>beanstalk.scalingAvailabilityZones, to aws:autoscaling:asg/Availability Zones</li>
+   *    <li>beanstalk.scalingCooldown, to aws:autoscaling:asg/Cooldown</li>
+   *    <li>beanstalk.scalingCustomAvailabilityZones, to aws:autoscaling:asg/Custom AvailabilityZones</li>
+   *    <li>beanstalk.scalingMinSize, to aws:autoscaling:asg/MinSize</li>
+   *    <li>beanstalk.scalingMaxSize, to aws:autoscaling:asg/MaxSize</li>
+   *    <li>beanstalk.keyName, to aws:autoscaling:launchconfiguration/EC2KeyName (EC2 Instance
    * Key)</li> <li>beanstalk.iamInstanceProfile, to aws:autoscaling:launchconfiguration/IamInstanceProfile
    * (IAM Instance Profile Role Name)</li> <li>beanstalk.imageId, to aws:autoscaling:launchconfiguration/ImageId</li>
    * <li>beanstalk.instanceType, to aws:autoscaling:launchconfiguration/InstanceType (EC2 Instance
@@ -129,6 +136,7 @@ public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
    * <li>beanstalk.healthcheckTimeout, to aws:elb:healthcheck/Timeout</li>
    * <li>beanstalk.healthcheckUnhealthyThreshold, to aws:elb:healthcheck/UnhealthyThreshold</li>
    *
+   * <li>beanstalk.loadBalancerCrossZone, to aws:elb:loadbalancer/CrossZone</li>
    * <li>beanstalk.loadBalancerHTTPPort, to aws:elb:loadbalancer/LoadBalancerHTTPPort</li>
    * <li>beanstalk.loadBalancerPortProtocol, to aws:elb:loadbalancer/LoadBalancerPortProtocol</li>
    * <li>beanstalk.loadBalancerHTTPSPort, to aws:elb:loadbalancer/LoadBalancerHTTPSPort</li>
@@ -215,14 +223,73 @@ public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
         .withEnvironmentId(curEnv.getEnvironmentId())//
         .withEnvironmentDescription(environmentDescription)//
         .withEnvironmentName(curEnv.getEnvironmentName())//
-        .withOptionSettings(optionSettings)//
         .withTemplateName(lookupTemplateName(applicationName, templateName))//
         .withVersionLabel(versionLabel)//
         .withLatestVersionLabel(curEnv.getVersionLabel());
+
+    if (isOptionSettingsUpdateRequired()) {
+      builder.withOptionSettings(optionSettings);
+    }
 
     UpdateEnvironmentContext context = builder.build();
     UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(this);
 
     return command.execute(context);
   }
+
+  /**
+   * Determine if update on option settings is necessary Look to see if new settings are different
+   * than existing settings
+   *
+   * Will only detect if change is to add a new settings option or to change the value of a settings
+   * option
+   *
+   * Will not detect removal of a settings option. Will not detect changes to the
+   * aws:autoscaling:launchconfiguration:SecurityGroups setting
+   */
+  protected boolean isOptionSettingsUpdateRequired() {
+
+    Set<ConfigurationOptionSetting> newOptionSettings = new HashSet<ConfigurationOptionSetting>();
+    int l = optionSettings.length;
+    for (int i = 0; i < l; i++) {
+      ConfigurationOptionSetting optionSetting = optionSettings[i];
+      if (!(optionSetting.getNamespace().equals("aws:autoscaling:launchconfiguration") &&
+            optionSetting.getOptionName().equals("SecurityGroups"))) {
+        newOptionSettings.add(optionSettings[i]);
+      }
+    }
+
+    DescribeConfigurationSettingsResult configurationSettingsResult = getService()
+        .describeConfigurationSettings(
+            new DescribeConfigurationSettingsRequest()
+                .withApplicationName(applicationName)
+                .withEnvironmentName(
+                    curEnv.getEnvironmentName()));
+
+    List<ConfigurationOptionSetting>
+        existingOptionSettings =
+        new ArrayList<ConfigurationOptionSetting>(
+            configurationSettingsResult.getConfigurationSettings().get(0)
+                .getOptionSettings());
+
+    ListIterator<ConfigurationOptionSetting>
+        existingIterator =
+        existingOptionSettings.listIterator();
+    while (existingIterator.hasNext()) {
+
+      ConfigurationOptionSetting existingOptionSetting = existingIterator.next();
+      Iterator<ConfigurationOptionSetting> newIterator = newOptionSettings.iterator();
+
+      while (newIterator.hasNext()) {
+        ConfigurationOptionSetting newOptionSetting = newIterator.next();
+        if (newOptionSetting.equals(existingOptionSetting)) {
+          newOptionSettings.remove(newOptionSetting);
+          break;
+        }
+      }
+    }
+
+    return newOptionSettings.size() > 0;
+  }
+
 }
