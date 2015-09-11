@@ -533,7 +533,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 		 * Finds a matching environment
 		 */
     for (EnvironmentDescription envDesc : environments) {
-      if (envDesc.getCNAME().equals(cnameToMatch)) {
+      if (cnameToMatch.equals(envDesc.getCNAME())) {
         return envDesc;
       }
     }
