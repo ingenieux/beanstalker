@@ -54,6 +54,10 @@ The classical:
 
 ```$ mvn release:prepare release:perform -DautoVersionSubmodules=true```
 
+## Building on Windows?
+
+ * [Oh crap, its' mvn.cmd](https://issues.apache.org/jira/browse/ARCHETYPE-488?focusedCommentId=14730954&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-14730954)
+
 ## TODO
 
   * Add ELB Tweaks / Support (healthchecks / other options)
