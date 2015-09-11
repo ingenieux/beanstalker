@@ -119,7 +119,7 @@
                 <maven.deploy.skip>true</maven.deploy.skip>
                 <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
                 <beanstalk.versionLabel>\${maven.build.timestamp}</beanstalk.versionLabel>
-                <beanstalk.s3Key>apps/\${project.artifactId}/$\{project.build.finalName}-$\{beanstalk.versionLabel}.zip</beanstalk.s3Key>
+                <beanstalk.s3Key>apps/\${project.artifactId}/\${project.build.finalName}-\${beanstalk.versionLabel}.zip</beanstalk.s3Key>
                 <beanstalk.artifactFile>\${project.build.directory}/\${project.build.finalName}-bin.zip</beanstalk.artifactFile>
             </properties>
             <build>
