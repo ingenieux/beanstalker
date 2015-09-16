@@ -9,10 +9,11 @@ import com.amazonaws.auth.EnvironmentVariableCredentialsProvider;
 import com.amazonaws.internal.StaticCredentialsProvider;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.RegionUtils;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
-import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -29,12 +30,11 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Contextualizable;
 
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 import br.com.ingenieux.mojo.aws.util.AWSClientFactory;
-import br.com.ingenieux.mojo.aws.util.CredentialsUtil;
 import br.com.ingenieux.mojo.aws.util.TypeUtil;
 
 import static java.lang.String.format;
@@ -364,7 +364,7 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
       return;
     }
 
-    displayResults(result, 0);
+    displayResults(result);
   }
 
   /**
@@ -395,59 +395,20 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
     }
   }
 
-  protected void displayResults(Object result, int level) {
-    if (null == result) {
-      return;
-    }
+  protected void displayResults(Object result) {
+    ObjectMapper mapper = new ObjectMapper();
 
-    String prefix = StringUtils.repeat(" ", level * 2) + " * ";
+    mapper.enable(SerializationFeature.INDENT_OUTPUT);
+    mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
-    if (Collection.class.isAssignableFrom(result.getClass())) {
-      @SuppressWarnings("unchecked")
-      Collection<Object> coll = Collection.class.cast(result);
+    try {
+      List<String> lines = Arrays.asList(mapper.writeValueAsString(result).split("\n"));
 
-      for (Object o : coll) {
-        displayResults(o, 1 + level);
+      for (String line : lines) {
+        getLog().info(line);
       }
-
-      return;
-    } else if ("java.lang".equals(result.getClass().getPackage().getName())) {
-      getLog().info(prefix + CredentialsUtil.redact("" + result) + " [class: "
-                    + result.getClass().getSimpleName() + "]");
-
-      return;
-    }
-
-    BeanMap beanMap = new BeanMap(result);
-
-    for (Iterator<?> itProperty = beanMap.keyIterator(); itProperty
-        .hasNext(); ) {
-      String propertyName = "" + itProperty.next();
-      Object propertyValue = beanMap.get(propertyName);
-
-      if ("class".equals(propertyName)) {
-        continue;
-      }
-
-      if (null == propertyValue) {
-        continue;
-      }
-
-      Class<?> propertyClass = null;
-
-      try {
-        propertyClass = beanMap.getType(propertyName);
-      } catch (Exception e) {
-        getLog().warn("Failure on property " + propertyName, e);
-      }
-
-      if (null == propertyClass) {
-        getLog().info(prefix + propertyName + ": " + CredentialsUtil.redact("" + propertyValue));
-      } else {
-        getLog().info(prefix +
-                      propertyName + ": " + CredentialsUtil.redact("" + propertyValue) + " [class: "
-                      + propertyClass.getSimpleName() + "]");
-      }
+    } catch (Exception exc) {
+      getLog().warn("Oops", exc);
     }
   }
 
