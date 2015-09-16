@@ -305,30 +305,6 @@ public abstract class AbstractNeedsEnvironmentMojo extends
   }
 
   /**
-   * Returns a list of environments for current application name
-   *
-   * @param cnamePrefix cname prefix to match
-   * @return found environment, if any. null otherwise
-   */
-  protected EnvironmentDescription getEnvironmentForCNamePrefix(
-      String applicationName, String cnamePrefix) {
-    for (final EnvironmentDescription env : getEnvironmentsFor(applicationName)) {
-      final String cnameToMatch = cnamePrefix + ".elasticbeanstalk.com";
-      if (verbose) {
-        getLog().info(
-            "Trying to match " + cnameToMatch + " with "
-            + env.getCNAME());
-      }
-
-      if (env.getCNAME().equalsIgnoreCase(cnameToMatch)) {
-        return env;
-      }
-    }
-
-    return null;
-  }
-
-  /**
    * Returns a list of environments for applicationName
    *
    * @param applicationName applicationName
