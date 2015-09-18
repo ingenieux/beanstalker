@@ -1,4 +1,4 @@
-FROM aldrinleal/base-dropwizard-docker
+FROM aldrinleal/base-awseb-docker-java8
 
 RUN mkdir /app /app/log
 ADD . /app
