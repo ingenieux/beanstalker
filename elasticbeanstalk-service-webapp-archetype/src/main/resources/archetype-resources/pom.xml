@@ -28,7 +28,8 @@
         <beanstalk.useStagingDirectory>true</beanstalk.useStagingDirectory>
 
         <beanstalk.cnamePrefix>\${artifactId}-env</beanstalk.cnamePrefix>
-        <beanstalker.region>us-east-1</beanstalker.region>
+        <beanstalker.region>us-west-1</beanstalker.region>
+        <beanstalker.iamProfile>superadmin</beanstalker.iamProfile>
         <!-- review src/main/webapp/.ebextensions/java7.config if you change this setting
         -->
         <beanstalk.solutionStack>64bit Amazon Linux running Tomcat 7</beanstalk.solutionStack>

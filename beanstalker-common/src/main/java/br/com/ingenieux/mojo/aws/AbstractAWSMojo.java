@@ -6,6 +6,7 @@ import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.EnvironmentVariableCredentialsProvider;
+import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.internal.StaticCredentialsProvider;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.RegionUtils;
@@ -108,8 +109,8 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
    * <p> See <a href="http://docs.amazonwebservices.com/general/latest/gr/rande.html" >this list</a>
    * for reference. </p>
    */
-  @Parameter(property = "beanstalker.region")
-  protected String regionName = "us-east-1";
+  @Parameter(property = "beanstalker.region", defaultValue = "us-east-1")
+  protected String regionName;
 
   protected Region regionObj;
 
@@ -138,6 +139,9 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
     setupVersion();
   }
 
+  @Parameter(property = "beanstalker.iamProfile", defaultValue = "default")
+  protected String iamProfile;
+  
   public AWSCredentialsProvider getAWSCredentials() throws MojoFailureException {
     if (null != this.awsCredentialsProvider) {
       return this.awsCredentialsProvider;
@@ -159,13 +163,16 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
           new StaticCredentialsProvider(new BasicAWSCredentials(awsAccessKey, awsSecretKey));
     } else if (null != (awsCredentialsProvider = getEnvironmentKeys())) {
       // Already assigned. \o/
-    } else {
+    } else if (null != (awsCredentialsProvider = getIAMProfileCredentials(iamProfile))) {
+        // This is the highly encouraged method by AWS \o/
+      } else {
             /*
              * Throws up. We have nowhere to get our credentials...
              */
       String errorMessage = "Entries in settings.xml for server "
                             + serverId
-                            + " not defined. See http://docs.ingenieux.com.br/project/beanstalker/aws-config.html for more information";
+                            + " not defined. See http://docs.ingenieux.com.br/project/beanstalker/aws-config.html for more information"
+                            +" Or add your credentials to AWS credentials file, See http://docs.aws.amazon.com/AWSSdkDocsJava/latest/DeveloperGuide/credentials.html";
       getLog().error(errorMessage);
 
       throw new MojoFailureException(errorMessage);
@@ -193,6 +200,25 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
     }
   }
 
+  /**
+   * Attempts to get credentials from default AWS credentials file
+   *
+   * @return AWS Credentials Provider if available. Null otherwise.
+   */
+  private AWSCredentialsProvider getIAMProfileCredentials(String profile) {
+    final ProfileCredentialsProvider
+        profile_provider =
+        new ProfileCredentialsProvider(profile);
+
+    try {
+      profile_provider.getCredentials();
+      getLog().info("Credentials gathered from default credentials file: AccessID::" +profile_provider.getCredentials().getAWSAccessKeyId());
+      return profile_provider;
+    } catch (AmazonClientException exc) {
+      return null;
+    }
+  }
+  
   public AWSClientFactory getClientFactory() {
     return clientFactory;
   }
