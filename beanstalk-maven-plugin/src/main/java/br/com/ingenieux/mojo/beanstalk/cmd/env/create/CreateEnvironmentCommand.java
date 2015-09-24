@@ -50,6 +50,7 @@ public class CreateEnvironmentCommand extends
     request.setTags(context.getTags());
 
     request.setOptionSettings(Arrays.asList(context.getOptionSettings()));
+    request.setOptionsToRemove(Arrays.asList(context.getOptionsToRemove()));
 
     if ("Worker".equals(context.getEnvironmentTierName())) {
       if (contextDoesNotContainsEC2Role(context)) {

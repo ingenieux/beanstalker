@@ -8,6 +8,7 @@
 package br.com.ingenieux.mojo.beanstalk.cmd.env.update;
 
 import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
+import com.amazonaws.services.elasticbeanstalk.model.OptionSpecification;
 
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -82,6 +83,13 @@ class UpdateEnvironmentContextBuilderBase<GeneratorT extends UpdateEnvironmentCo
   @SuppressWarnings("unchecked")
   public GeneratorT withOptionSettings(ConfigurationOptionSetting[] aValue) {
     instance.setOptionSettings(aValue);
+
+    return (GeneratorT) this;
+  }
+
+  @SuppressWarnings("unchecked")
+  public GeneratorT withOptionsToRemove(OptionSpecification[] aValue) {
+    instance.setOptionsToRemove(aValue);
 
     return (GeneratorT) this;
   }

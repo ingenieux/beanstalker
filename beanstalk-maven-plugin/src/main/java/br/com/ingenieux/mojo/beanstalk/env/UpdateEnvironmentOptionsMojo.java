@@ -15,6 +15,7 @@ package br.com.ingenieux.mojo.beanstalk.env;
  */
 
 import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
+import com.amazonaws.services.elasticbeanstalk.model.OptionSpecification;
 import com.amazonaws.services.elasticbeanstalk.model.UpdateEnvironmentRequest;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -40,6 +41,13 @@ public class UpdateEnvironmentOptionsMojo extends AbstractNeedsEnvironmentMojo {
    */
   @Parameter
   ConfigurationOptionSetting[] optionSettings;
+
+  /**
+   * Configuration Options To Remove
+   */
+  @Parameter
+  OptionSpecification[] optionsToRemove;
+
   /**
    * Environment Name
    */
@@ -81,14 +89,14 @@ public class UpdateEnvironmentOptionsMojo extends AbstractNeedsEnvironmentMojo {
       req.setOptionSettings(getOptionSettings(optionSettings));
     } else if (WhatToSet.templateName.equals(whatToSet)) {
       req.setTemplateName(lookupTemplateName(applicationName, templateName));
-      // } else if (WhatToSet.optionsToRemove.equals(whatToSet)) {
-      // req.setOptionsToRemove(optionsToRemove)
+    } else if (WhatToSet.optionsToRemove.equals(whatToSet)) {
+       req.setOptionsToRemove(getOptionsToRemove(optionsToRemove));
     }
 
     return getService().updateEnvironment(req);
   }
 
   public enum WhatToSet {
-    description, optionSettings, templateName, versionLabel
+    description, optionSettings, templateName, versionLabel, optionsToRemove
   }
 }
