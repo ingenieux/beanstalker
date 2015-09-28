@@ -22,6 +22,7 @@ package br.com.ingenieux.mojo.beanstalk.cmd.env.create;
  */
 
 import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
+import com.amazonaws.services.elasticbeanstalk.model.OptionSpecification;
 import com.amazonaws.services.elasticbeanstalk.model.Tag;
 
 import java.util.ArrayList;
@@ -81,6 +82,13 @@ class CreateEnvironmentContextBuilderBase<GeneratorT extends CreateEnvironmentCo
   @SuppressWarnings("unchecked")
   public GeneratorT withOptionSettings(ConfigurationOptionSetting[] aValue) {
     instance.setOptionSettings(aValue);
+
+    return (GeneratorT) this;
+  }
+
+  @SuppressWarnings("unchecked")
+  public GeneratorT withOptionsToRemove(OptionSpecification[] aValue) {
+    instance.setOptionsToRemove(aValue);
 
     return (GeneratorT) this;
   }

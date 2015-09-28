@@ -14,6 +14,7 @@ package br.com.ingenieux.mojo.beanstalk;
  * limitations under the License.
  */
 
+import com.amazonaws.services.elasticbeanstalk.model.*;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
@@ -24,10 +25,6 @@ import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
 import com.amazonaws.services.ec2.model.SecurityGroup;
 import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalkClient;
-import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
-import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationsRequest;
-import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
-import com.amazonaws.services.elasticbeanstalk.model.SolutionStackDescription;
 
 import org.apache.commons.collections.ComparatorUtils;
 import org.apache.commons.collections.comparators.ReverseComparator;
@@ -61,6 +58,17 @@ public abstract class AbstractBeanstalkMojo extends
   protected List<ConfigurationOptionSetting> getOptionSettings(
       ConfigurationOptionSetting[] optionSettings) {
     ConfigurationOptionSetting[] arrOptionSettings = optionSettings;
+
+    if (null == arrOptionSettings || 0 == arrOptionSettings.length) {
+      return Collections.emptyList();
+    }
+
+    return Arrays.asList(arrOptionSettings);
+  }
+
+  protected List<OptionSpecification> getOptionsToRemove(
+      OptionSpecification[] optionSettings) {
+    OptionSpecification[] arrOptionSettings = optionSettings;
 
     if (null == arrOptionSettings || 0 == arrOptionSettings.length) {
       return Collections.emptyList();

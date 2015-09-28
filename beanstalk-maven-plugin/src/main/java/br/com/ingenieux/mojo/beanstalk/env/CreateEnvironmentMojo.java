@@ -23,6 +23,7 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
 import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
 import com.amazonaws.services.elasticbeanstalk.model.CreateEnvironmentResult;
+import com.amazonaws.services.elasticbeanstalk.model.OptionSpecification;
 import org.apache.commons.lang.Validate;
 import org.apache.maven.plugin.AbstractMojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -187,6 +188,9 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
   @Parameter
   ConfigurationOptionSetting[] optionSettings;
 
+  @Parameter
+  OptionSpecification[] optionsToRemove;
+
   /**
    * Version Label to use
    */
@@ -288,6 +292,7 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
         .withTemplateName(templateName)//
         .withEnvironmentName(newEnvironmentName)//
         .withOptionSettings(optionSettings)//
+        .withOptionsToRemove(optionsToRemove)//
         .withEnvironmentTierName(environmentTierName)//
         .withVersionLabel(versionLabel)//
         .withTags(beanstalkTags);//

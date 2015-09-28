@@ -16,6 +16,7 @@ package br.com.ingenieux.mojo.beanstalk.env;
 
 import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
 
+import com.amazonaws.services.elasticbeanstalk.model.OptionSpecification;
 import org.apache.maven.plugin.AbstractMojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -180,6 +181,9 @@ public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
   @Parameter
   ConfigurationOptionSetting[] optionSettings;
 
+  @Parameter
+  OptionSpecification[] optionsToRemove;
+
   /**
    * <p> Template Name. </p>
    *
@@ -216,6 +220,7 @@ public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
         .withEnvironmentDescription(environmentDescription)//
         .withEnvironmentName(curEnv.getEnvironmentName())//
         .withOptionSettings(optionSettings)//
+        .withOptionsToRemove(optionsToRemove)//
         .withTemplateName(lookupTemplateName(applicationName, templateName))//
         .withVersionLabel(versionLabel)//
         .withLatestVersionLabel(curEnv.getVersionLabel());

@@ -1,6 +1,7 @@
 package br.com.ingenieux.mojo.beanstalk.cmd.env.create;
 
 import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
+import com.amazonaws.services.elasticbeanstalk.model.OptionSpecification;
 import com.amazonaws.services.elasticbeanstalk.model.Tag;
 
 import java.util.List;
@@ -27,6 +28,7 @@ public class CreateEnvironmentContext {
   String applicationDescription;
 
   ConfigurationOptionSetting[] optionSettings = new ConfigurationOptionSetting[0];
+  OptionSpecification[] optionsToRemove = new OptionSpecification[0];
 
   String environmentName;
 
@@ -90,11 +92,27 @@ public class CreateEnvironmentContext {
   }
 
   /**
+   * @return the optionsToRemove
+   */
+  public OptionSpecification[] getOptionsToRemove() {
+    return optionsToRemove;
+  }
+
+  /**
    * @param optionSettings the optionSettings to set
    */
   public void setOptionSettings(ConfigurationOptionSetting[] optionSettings) {
     if (null != optionSettings) {
       this.optionSettings = optionSettings;
+    }
+  }
+
+  /**
+   * @param optionSettings the optionsToRemove to set
+   */
+  public void setOptionsToRemove(OptionSpecification[] optionSettings) {
+    if (null != optionSettings) {
+      this.optionsToRemove = optionSettings;
     }
   }
 

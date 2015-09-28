@@ -1,6 +1,7 @@
 package br.com.ingenieux.mojo.beanstalk.cmd.env.update;
 
 import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
+import com.amazonaws.services.elasticbeanstalk.model.OptionSpecification;
 
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,6 +28,7 @@ public class UpdateEnvironmentContext {
   String environmentDescription;
 
   ConfigurationOptionSetting[] optionSettings = new ConfigurationOptionSetting[0];
+  OptionSpecification[] optionsToRemove = new OptionSpecification[0];
 
   String templateName;
 
@@ -110,6 +112,15 @@ public class UpdateEnvironmentContext {
   public void setOptionSettings(ConfigurationOptionSetting[] optionSettings) {
     if (null != optionSettings) {
       this.optionSettings = optionSettings;
+    }
+  }
+
+  /**
+   * @param optionSettings the optionsToRemove to set
+   */
+  public void setOptionsToRemove(OptionSpecification[] optionSettings) {
+    if (null != optionsToRemove) {
+      this.optionsToRemove = optionSettings;
     }
   }
 
