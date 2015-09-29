@@ -223,6 +223,17 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
   boolean waitForReady;
 
   /**
+   * <p>If waiting for the environment to become ready, this indicates wether or not we require the Green health checks to pass.</p>
+   *
+   * <p>One reason to avoid such a requirement is if we are frantically replacing one failed environment with another one trying to get a ring of interdependant services to operate.</p>
+   *
+   * <p>Optional, but usually true. Under normal circumstances we *only* want to swap in a healthy service.</p>
+   */
+  @Parameter(property = "beanstalk.mustBeHealthy", defaultValue = "true")
+  boolean mustBeHealthy;
+
+
+  /**
    * <p>Environment Tier Name (defaults to "WebServer")</p>
    */
   @Parameter(property = "beanstalk.environmentTierName", defaultValue = "WebServer")
@@ -307,7 +318,7 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
       WaitForEnvironmentContext ctx = new WaitForEnvironmentContextBuilder()//
           .withEnvironmentRef(result.getEnvironmentId())//
           .withApplicationName(result.getApplicationName())//
-          .withHealth("Green")//
+          .withHealth((mustBeHealthy?"Green":null))//
           .withStatusToWaitFor("Ready")//
           .build();
 

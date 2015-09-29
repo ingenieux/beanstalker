@@ -100,6 +100,12 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
   boolean mockTerminateEnvironment = false;
 
   /**
+   * Allows one Red (broken) environment to replace another Red (broken) environment.
+   */
+  @Parameter(property = "beanstalk.redToRedOkay", defaultValue = "true")
+  boolean redToRedOkay = true;
+
+  /**
    * Retry Interval, in Seconds
    */
   @Parameter(property = "beanstalk.attemptRetryInterval", defaultValue = "60")
@@ -186,6 +192,21 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
       solutionStack = curEnv.getSolutionStackName();
     }
 
+	final
+	boolean userWantsHealthyExitStatus;
+
+	final
+	boolean currentEnvironmentIsRed=curEnv.getHealth().equals("Red");
+	{
+		userWantsHealthyExitStatus=mustBeHealthy;
+
+		if (redToRedOkay)
+		{
+			//Side-effect: must be before createEnvironment() and waitForEnvironment() to effect superclass behavior.
+			mustBeHealthy=!currentEnvironmentIsRed;
+		}
+	}
+
     String newEnvironmentName = getNewEnvironmentName(StringUtils
                                                           .defaultString(this.environmentName,
                                                                          curEnv
@@ -193,6 +214,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 
     if (getLog().isInfoEnabled()) {
       getLog().info("And it'll be named " + newEnvironmentName);
+		getLog().info("And it will replace a '"+curEnv.getHealth()+"' enviroment");
     }
 
     CreateEnvironmentResult createEnvResult = createEnvironment(
@@ -263,7 +285,25 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 		 */
     terminateEnvironment(curEnv.getEnvironmentId());
 
-    return createEnvResult;
+	if (currentEnvironmentIsRed && userWantsHealthyExitStatus)
+	{
+		final
+		String newHealth=newEnvDesc.getHealth();
+
+		if (newHealth.equals("Green"))
+		{
+			getLog().info("Previous environment was 'Red', new environment is 'Green' (for the moment)");
+		}
+		else
+		{
+			getLog().warn(format("Previous environment was 'Red', replacement environment is currently '%s'", newHealth));
+
+			//NB: we have already switched from one broken service to another, so this is more for the build status indicator...
+			newEnvDesc = waitForGreenEnvironment(createEnvResult.getEnvironmentId());
+		}
+	}
+
+	return createEnvResult;
   }
 
   public void sleepInterval(int pollInterval) {
@@ -475,6 +515,30 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
     getLog().info(
         "Waiting for environmentId " + environmentId
         + " to get into Ready state");
+
+    WaitForEnvironmentContext context = new WaitForEnvironmentContextBuilder()
+        .withApplicationName(applicationName)
+        .withStatusToWaitFor("Ready").withEnvironmentRef(environmentId)
+        .withHealth((mustBeHealthy?"Green":null))
+        .withTimeoutMins(timeoutMins).build();
+
+    WaitForEnvironmentCommand command = new WaitForEnvironmentCommand(this);
+
+    return command.execute(context);
+  }
+
+  /**
+   * Waits for an environment to become green. Throws an exception either if this environment couldn't
+   * get into a green state, or there was a timeout.
+   *
+   * @param environmentId environmentId to wait for
+   * @return EnvironmentDescription in Ready state
+   */
+  protected EnvironmentDescription waitForGreenEnvironment(String environmentId)
+      throws AbstractMojoExecutionException {
+    getLog().info(
+        "Waiting for environmentId " + environmentId
+        + " to become 'Green'");
 
     WaitForEnvironmentContext context = new WaitForEnvironmentContextBuilder()
         .withApplicationName(applicationName)
