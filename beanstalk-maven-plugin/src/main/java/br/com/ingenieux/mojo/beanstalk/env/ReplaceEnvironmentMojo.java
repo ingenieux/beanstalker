@@ -120,6 +120,12 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
   @Parameter(property = "beanstalk.copyOptionSettings", defaultValue = "true")
   boolean copyOptionSettings = true;
 
+  /**
+   * Whether or not to keep the Elastic Beanstalk platform (aka solutionStack) from the old environment when replacing
+   */
+  @Parameter(property = "beanstalk.copySolutionStack", defaultValue = "true")
+  boolean copySolutionStack = true;
+
   @Override
   protected EnvironmentDescription handleResults(
       Collection<EnvironmentDescription> environments)
@@ -146,7 +152,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
     }
 
 		/*
-                 * Gets the current environment using this cname
+         * Gets the current environment using this cname
 		 */
     EnvironmentDescription curEnv = getEnvironmentFor(applicationName,
                                                       cnamePrefix);
@@ -166,30 +172,28 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 
     if (getLog().isInfoEnabled()) {
       getLog().info(
-          "Creating a new environment on " + cnamePrefixToCreate
-          + ".elasticbeanstalk.com");
+          "Creating a new environment on " + cnamePrefixToCreate + ".elasticbeanstalk.com");
     }
 
     if (copyOptionSettings) {
       copyOptionSettings(curEnv);
     }
 
-    if (!solutionStack.equals(curEnv.getSolutionStackName())) {
-      if (getLog().isInfoEnabled()) {
-        getLog().warn(
+    if (!solutionStack.equals(curEnv.getSolutionStackName()) && copySolutionStack) {
+      if (getLog().isWarnEnabled()) {
+          getLog().warn(
             format(
-                "(btw, we're launching with solutionStack/ set to '%s' instead of the default ('%s'). "
-                + "If this is not the case, then we kindly ask you to file a bug report on the mailing list :)",
+                "(btw, we're launching with solutionStack/ set to '%s' based on the existing env instead of the "
+                + "default ('%s'). If this is not the desired behavior please set the copySolutionStack property to"
+                + " false.",
                 curEnv.getSolutionStackName(), solutionStack));
       }
 
       solutionStack = curEnv.getSolutionStackName();
     }
 
-    String newEnvironmentName = getNewEnvironmentName(StringUtils
-                                                          .defaultString(this.environmentName,
-                                                                         curEnv
-                                                                             .getEnvironmentName()));
+    String newEnvironmentName = getNewEnvironmentName(StringUtils.defaultString(this.environmentName,
+                                                                                curEnv.getEnvironmentName()));
 
     if (getLog().isInfoEnabled()) {
       getLog().info("And it'll be named " + newEnvironmentName);
