@@ -81,8 +81,14 @@ public abstract class AbstractNeedsEnvironmentMojo extends
 
           put("beanstalk.keyName", new ConfigurationOptionSetting(
               "aws:autoscaling:launchconfiguration", "EC2KeyName", ""));
+
+
           put("beanstalk.iamInstanceProfile", new ConfigurationOptionSetting(
               "aws:autoscaling:launchconfiguration", "IamInstanceProfile", ""));
+
+          put("beanstalk.serviceRole", new ConfigurationOptionSetting(
+              "aws:elasticbeanstalk:environment", "ServiceRole", ""));
+
           put("beanstalk.imageId", new ConfigurationOptionSetting(
               "aws:autoscaling:launchconfiguration", "ImageId", ""));
           put("beanstalk.instanceType", new ConfigurationOptionSetting(
