@@ -33,10 +33,3 @@ We also have a couple of interesting children ready for adoption. It includes:
   * [cedarhero](http://docs.ingenieux.com.br/project/cedarhero/): Our approach to a no-BS Heroku Deployment
   * [cloudy](http://bitbucket.org/ingenieux/cloudy): A Set of Guice-based Modules for AWS usage
   * [jbake-maven-plugin](http://bitbucket.org/ingenieux/jbake-maven-plugin): Maven-Driven Flat File CMS using JBake
-
-## Anything else?
-
-Or course, we're also available for consulting, in particular on [oDesk](http://www.odesk.com).
-*We're all in when it is about Big Data (we're hadoop badasses, mind that!), Maven and AWS Deployment problems.*
-
-  * [Hire me now](https://www.odesk.com/users/~01f5a7beb29d6f96b7)
