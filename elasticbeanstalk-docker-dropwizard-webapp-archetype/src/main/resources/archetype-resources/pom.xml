@@ -85,6 +85,11 @@
                     <artifactId>beanstalk-maven-plugin</artifactId>
                     <inherited>true</inherited>
                     <version>${project.version}</version>
+                    <configuration>
+                    	<tags>
+                    		<Uses>ingenieux Beanstalker, http://beanstalker.ingenieux.com.br/</Uses>
+                    	</tags>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -101,6 +106,7 @@
                 <beanstalk.versionLabel>\${maven.build.timestamp}</beanstalk.versionLabel>
                 <beanstalk.s3Key>apps/\${project.artifactId}/\${project.build.finalName}-\${beanstalk.versionLabel}.zip</beanstalk.s3Key>
                 <beanstalk.artifactFile>\${project.build.directory}/\${project.build.finalName}-bin.zip</beanstalk.artifactFile>
+                <beanstalk.tag.DeployedInto>Production</beanstalk.tag.DeployedInto>
             </properties>
             <build>
                 <defaultGoal>deploy</defaultGoal>
