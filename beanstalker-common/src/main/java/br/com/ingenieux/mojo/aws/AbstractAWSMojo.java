@@ -431,7 +431,15 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
         try {
-            List<String> lines = Arrays.asList(mapper.writeValueAsString(result).split("\n"));
+            String resultAsJsonString = mapper.writeValueAsString(result);
+
+            if ("null".equals(resultAsJsonString)) {
+                getLog().info("null/void result");
+
+                return;
+            }
+
+            List<String> lines = Arrays.asList(resultAsJsonString.split("\n"));
 
             for (String line : lines) {
                 getLog().info(line);

@@ -87,7 +87,7 @@
                     <version>${project.version}</version>
                     <configuration>
                     	<tags>
-                    		<Uses>ingenieux Beanstalker, http://beanstalker.ingenieux.com.br/</Uses>
+                    		<Uses>ingenieux Beanstalker at http://beanstalker.ingenieux.com.br/</Uses>
                     	</tags>
                     </configuration>
                 </plugin>
