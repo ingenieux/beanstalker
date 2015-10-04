@@ -13,7 +13,7 @@ env:
   - BOOTSTRAP_KEY=$$BOOTSTRAP_KEY
   - MAVEN_VERSION=3.3.3
   - M2_HOME=/home/ubuntu/.mvm/3.3.3
-  - MAVEN_OPTS="-Xmx2048m -Xmn1536m"
+  - MAVEN_OPTS=-Xmx2048m -Xmn1536m
 
 cache:
   - /home/ubuntu/.m2/repository
@@ -25,7 +25,6 @@ script:
   - if [ ! -z "$BOOTSTRAP_KEY" ]; then curl -sSL "$BOOTSTRAP_KEY" | /tmp/jq -r .node.value - | bash ; fi
   - curl -sSL https://raw.github.com/ingenieux/mvm/master/install.sh | bash -xe -
   - source ~/.mvm/mvm.sh && mvm install $MAVEN_VERSION && mvm alias default $MAVEN_VERSION
-  - if [ ! -d "$M2_HOME/lib/ext" ]; then mkdir -p "$M2_HOME/lib/ext" ; fi
   - cp ci/settings.xml $HOME/.m2/settings.xml
   - mvn -B -e clean install verify site site-deploy -Dbeanstalk.project.name=mbit-drone -Ptest,it
   - if [ ! -z "$BOOTSTRAP_KEY" ]; then mvn -B -Psonatype-oss-release clean deploy ; fi
