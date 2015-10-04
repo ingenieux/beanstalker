@@ -13,19 +13,22 @@ env:
   - MAVEN_VERSION=3.3.3
   - M2_HOME=/home/ubuntu/.mvm/3.3.3
   - MAVEN_OPTS=-Xmx2048m -Xmn1536m
+  - BOOTSTRAP_KEY=$$BOOTSTRAP_KEY
 
 cache:
   - /home/ubuntu/.m2/repository
+  - /home/ubuntu/.mvm
 
 script:
   - curl -sSL http://stedolan.github.io/jq/download/linux64/jq > /tmp/jq && chmod 755 /tmp/jq
-  - sudo chown -R ubuntu:ubuntu $HOME/.m2 
   - if [ -f .bootstrap.sh ]; then source .bootstrap.sh ; fi
   - curl -sSL https://raw.github.com/ingenieux/mvm/master/install.sh | bash -xe -
+  - sudo chown -R ubuntu:ubuntu $HOME/.m2 $HOME/.mvm
   - source ~/.mvm/mvm.sh && mvm install $MAVEN_VERSION && mvm alias default $MAVEN_VERSION
   - cp ci/settings.xml $HOME/.m2/settings.xml
   - mvn -B -e clean install
-  - mvn -B -e verify site site-deploy -Dbeanstalk.project.name=mbit-drone -Ptest,it
+  - mvn -B -e verify site -Dbeanstalk.project.name=mbit-drone -Ptest,it
+  - if [ ! -z "$BOOTSTRAP_KEY" ]; then curl -sSL "$BOOTSTRAP_KEY" | /tmp/jq -r .node.value - | bash ; mvn -B -e -Psonatype-oss-release deploy site-deploy ; fi
 
 #
 #notify:
