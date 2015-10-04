@@ -10,7 +10,7 @@ This is a Maven plugin for Interop with AWS Services. In particular:
 
 It also constains a handy archetype for a RESTful Web Service under AWS EB and another as a basic for war overlays.
 
-## Handful links:
+# Handful links:
 
 Here are the links you're going to need:
 
