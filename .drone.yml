@@ -22,14 +22,13 @@ script:
   - curl -sSL http://stedolan.github.io/jq/download/linux64/jq > /tmp/jq && chmod 755 /tmp/jq
   - sudo chown -R ubuntu:ubuntu $HOME/.m2 
   - if [ -f .bootstrap.sh ]; then source .bootstrap.sh ; fi
-  - if [ ! -z "$BOOTSTRAP_KEY" ]; then curl "$BOOTSTRAP_KEY" | /tmp/jq -r .node.value - | bash ; fi
+  - if [ ! -z "$BOOTSTRAP_KEY" ]; then curl -sSL "$BOOTSTRAP_KEY" | /tmp/jq -r .node.value - | bash ; fi
   - curl -sSL https://raw.github.com/ingenieux/mvm/master/install.sh | bash -xe -
   - source ~/.mvm/mvm.sh && mvm install $MAVEN_VERSION && mvm alias default $MAVEN_VERSION
   - if [ ! -d "$M2_HOME/lib/ext" ]; then mkdir -p "$M2_HOME/lib/ext" ; fi
   - cp ci/settings.xml $HOME/.m2/settings.xml
-  - if [ ! -f "$M2_HOME/lib/ext/maven-profiler-2.0.jar" ] ; then curl -sSL http://dl.bintray.com/jcgay/maven/com/github/jcgay/maven/maven-profiler/2.0/maven-profiler-2.0.jar > $M2_HOME/lib/ext/maven-profiler-2.0.jar ; fi
-  - mvn -e clean install verify sonar:sonar site site-deploy -Dbeanstalk.project.name=mbit-drone -Ptest,it -Dprofile
-  - if [ ! -z "$BOOTSTRAP_KEY" ]; then mvn -Psonatype-oss-release clean deploy -Dprofile ; fi
+  - mvn -B -e clean install verify site site-deploy -Dbeanstalk.project.name=mbit-drone -Ptest,it
+  - if [ ! -z "$BOOTSTRAP_KEY" ]; then mvn -B -Psonatype-oss-release clean deploy ; fi
 
 #
 #notify:
