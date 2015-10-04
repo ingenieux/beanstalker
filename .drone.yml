@@ -1,5 +1,9 @@
 image: oraclejdk8
 
+cache:
+  - /home/ubuntu/.m2/repository
+  - /home/ubuntu/.mvm
+
 env:
   - AWS_ACCESS_KEY_ID=$$AWS_ACCESS_KEY_ID
   - AWS_SECRET_ACCESS_KEY=$$AWS_SECRET_ACCESS_KEY
@@ -14,10 +18,6 @@ env:
   - M2_HOME=/home/ubuntu/.mvm/3.3.3
   - MAVEN_OPTS=-Xmx2048m -Xmn1536m
   - BOOTSTRAP_KEY=$$BOOTSTRAP_KEY
-
-cache:
-  - /home/ubuntu/.m2/repository
-  - /home/ubuntu/.mvm
 
 script:
   - curl -sSL http://stedolan.github.io/jq/download/linux64/jq > /tmp/jq && chmod 755 /tmp/jq
