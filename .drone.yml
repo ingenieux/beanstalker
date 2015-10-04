@@ -11,8 +11,8 @@ env:
   - NEXUS_USER=$$NEXUS_USER
   - NEXUS_PASSWORD=$$NEXUS_PASSWORD
   - BOOTSTRAP_KEY=$$BOOTSTRAP_KEY
-  - MAVEN_VERSION=3.2.3
-  - M2_HOME=/home/ubuntu/.mvm/3.2.3
+  - MAVEN_VERSION=3.3.3
+  - M2_HOME=/home/ubuntu/.mvm/3.3.3
   - MAVEN_OPTS="-Xmx2048m -Xmn1536m"
 
 cache:
