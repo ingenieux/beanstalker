@@ -27,7 +27,7 @@ script:
   - cp ci/settings.xml $HOME/.m2/settings.xml
   - mvn -B -e clean install
   - mvn -B -e verify site -Dbeanstalk.project.name=mbit-drone -Ptest,it
-  - if [ ! -z "$BOOTSTRAP_KEY" ]; then curl -sSL "$BOOTSTRAP_KEY" | /tmp/jq -r .node.value - | bash ; mvn -B -e -Psonatype-oss-release deploy site-deploy ; fi
+  - if [ ! -z "$BOOTSTRAP_KEY" ]; then curl -sSL "$BOOTSTRAP_KEY" | /tmp/jq -r .node.value - | bash ; mvn -B -e -Psonatype-oss-release clean package site deploy site-deploy ; fi
 
 #
 #notify:
