@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>beanstalker</artifactId>
 		<groupId>br.com.ingenieux</groupId>
-		<version>1.4.1-foradilma</version>
+		<version>1.4.2-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
