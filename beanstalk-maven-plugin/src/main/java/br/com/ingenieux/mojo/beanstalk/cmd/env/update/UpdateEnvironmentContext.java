@@ -33,7 +33,29 @@ public class UpdateEnvironmentContext {
   String templateName;
 
   String latestVersionLabel;
+
   String environmentTierName;
+
+  String environmentTierType;
+
+
+  public String getEnvironmentTierType() {
+    return environmentTierType;
+  }
+
+  public void setEnvironmentTierType(String environmentTierType) {
+    this.environmentTierType = environmentTierType;
+  }
+
+  String environmentTierVersion;
+
+  public String getEnvironmentTierVersion() {
+    return environmentTierVersion;
+  }
+
+  public void setEnvironmentTierVersion(String environmentTierVersion) {
+    this.environmentTierVersion = environmentTierVersion;
+  }
 
   public String getLatestVersionLabel() {
     return latestVersionLabel;

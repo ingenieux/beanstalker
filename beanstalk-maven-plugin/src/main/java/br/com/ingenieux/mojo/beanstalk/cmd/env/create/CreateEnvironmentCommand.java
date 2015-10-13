@@ -58,7 +58,7 @@ public class CreateEnvironmentCommand extends
             "It is meaningless to launch a worker without an IAM Role. If you set in templateName, thats fine, but here's a warning for you");
       }
       ;
-      context.setEnvironmentTierType("SQS/HTTP");
+      context.setEnvironmentTierType(StringUtils.defaultString(context.getEnvironmentTierType(), "SQS/HTTP"));
       request.setCNAMEPrefix(null);
       request.setTier(new EnvironmentTier().withName(context.getEnvironmentTierName())
                           .withType(context.getEnvironmentTierType())

@@ -240,6 +240,18 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
     String environmentTierName;
 
     /**
+     * <p>Environment Tier Type</p>
+     */
+    @Parameter(property = "beanstalk.environmentTierType")
+    String environmentTierType;
+
+    /**
+     * <p>Environment Tier Version</p>
+     */
+    @Parameter(property = "beanstalk.environmentTierVersion")
+    String environmentTierVersion;
+
+    /**
      * <p>CNAME Prefix</p>
      */
     @Parameter(property = "beanstalk.cnamePrefix")
@@ -369,6 +381,8 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
                 .withOptionSettings(optionSettings)//
                 .withOptionsToRemove(optionsToRemove)//
                 .withEnvironmentTierName(environmentTierName)//
+                .withEnvironmentTierType(environmentTierType)//
+                .withEnvironmentTierVersion(environmentTierVersion)//
                 .withVersionLabel(versionLabel)//
                 .withTags(tagsToUse);//
 
