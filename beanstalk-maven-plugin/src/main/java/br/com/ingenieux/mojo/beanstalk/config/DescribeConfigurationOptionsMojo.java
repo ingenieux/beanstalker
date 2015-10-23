@@ -52,7 +52,7 @@ public class DescribeConfigurationOptionsMojo extends AbstractNeedsEnvironmentMo
    * Option Specifications
    */
   @Parameter
-  OptionSpecification[] optionSpecifications;
+  OptionSpecification[] optionSpecifications = new OptionSpecification[0];
 
   protected Object executeInternal() throws MojoExecutionException,
                                             MojoFailureException {

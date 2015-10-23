@@ -1,5 +1,8 @@
 image: oraclejdk8
 
+cache:
+  - /home/ubuntu/.m2/repository
+
 env:
   - AWS_ACCESS_KEY_ID=$$AWS_ACCESS_KEY_ID
   - AWS_SECRET_ACCESS_KEY=$$AWS_SECRET_ACCESS_KEY
@@ -10,26 +13,21 @@ env:
   - SONAR_JDBC_PASSWORD=$$SONAR_JDBC_PASSWORD
   - NEXUS_USER=$$NEXUS_USER
   - NEXUS_PASSWORD=$$NEXUS_PASSWORD
+  - MAVEN_VERSION=3.3.3
+  - M2_HOME=/home/ubuntu/.mvm/3.3.3
+  - MAVEN_OPTS=-Xmx2048m -Xmn1536m
   - BOOTSTRAP_KEY=$$BOOTSTRAP_KEY
-  - MAVEN_VERSION=3.2.3
-  - M2_HOME=/home/ubuntu/.mvm/3.2.3
-  - MAVEN_OPTS="-Xmx2048m -Xmn1536m"
-
-cache:
-  - /home/ubuntu/.m2/repository
 
 script:
   - curl -sSL http://stedolan.github.io/jq/download/linux64/jq > /tmp/jq && chmod 755 /tmp/jq
-  - sudo chown -R ubuntu:ubuntu $HOME/.m2 
   - if [ -f .bootstrap.sh ]; then source .bootstrap.sh ; fi
-  - if [ ! -z "$BOOTSTRAP_KEY" ]; then curl "$BOOTSTRAP_KEY" | /tmp/jq -r .node.value - | bash ; fi
-  - curl -sSL https://raw.github.com/ingenieux/mvm/master/install.sh | bash -xe -
+  - (curl -sSL https://raw.github.com/ingenieux/mvm/master/install.sh | bash 2>&1 >/dev/null)
+  - sudo chown -R ubuntu:ubuntu $HOME/.m2 $HOME/.mvm
   - source ~/.mvm/mvm.sh && mvm install $MAVEN_VERSION && mvm alias default $MAVEN_VERSION
-  - if [ ! -d "$M2_HOME/lib/ext" ]; then mkdir -p "$M2_HOME/lib/ext" ; fi
   - cp ci/settings.xml $HOME/.m2/settings.xml
-  - if [ ! -f "$M2_HOME/lib/ext/maven-profiler-2.0.jar" ] ; then curl -sSL http://dl.bintray.com/jcgay/maven/com/github/jcgay/maven/maven-profiler/2.0/maven-profiler-2.0.jar > $M2_HOME/lib/ext/maven-profiler-2.0.jar ; fi
-  - mvn -e clean install verify sonar:sonar site site-deploy -Dbeanstalk.project.name=mbit-drone -Ptest,it -Dprofile
-  - if [ ! -z "$BOOTSTRAP_KEY" ]; then mvn -Psonatype-oss-release clean deploy -Dprofile ; fi
+  - mvn -B -e clean install
+  - mvn -B -e verify site -Dbeanstalk.project.name=mbit-drone -Ptest,it
+  - if [ ! -z "$BOOTSTRAP_KEY" ]; then curl -sSL "$BOOTSTRAP_KEY" | /tmp/jq -r .node.value - | bash ; mvn -B -e -Psonatype-oss-release clean package site deploy site-deploy ; fi
 
 #
 #notify:

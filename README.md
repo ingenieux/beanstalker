@@ -2,8 +2,6 @@
 
 [![Join the chat at https://gitter.im/ingenieux/beanstalker](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/ingenieux/beanstalker?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-[![Build Status](https://travis-ci.org/ingenieux/beanstalker.png?branch=master)](https://travis-ci.org/ingenieux/beanstalker)
-
 This is a Maven plugin for Interop with AWS Services. In particular:
 
   * [AWS Elastic Beanstalk](http://aws.amazon.com/elasticbeanstalk/)
@@ -12,7 +10,7 @@ This is a Maven plugin for Interop with AWS Services. In particular:
 
 It also constains a handy archetype for a RESTful Web Service under AWS EB and another as a basic for war overlays.
 
-## Handful links:
+# Handful links:
 
 Here are the links you're going to need:
 
@@ -33,10 +31,3 @@ We also have a couple of interesting children ready for adoption. It includes:
   * [cedarhero](http://docs.ingenieux.com.br/project/cedarhero/): Our approach to a no-BS Heroku Deployment
   * [cloudy](http://bitbucket.org/ingenieux/cloudy): A Set of Guice-based Modules for AWS usage
   * [jbake-maven-plugin](http://bitbucket.org/ingenieux/jbake-maven-plugin): Maven-Driven Flat File CMS using JBake
-
-## Anything else?
-
-Or course, we're also available for consulting, in particular on [oDesk](http://www.odesk.com).
-*We're all in when it is about Big Data (we're hadoop badasses, mind that!), Maven and AWS Deployment problems.*
-
-  * [Hire me now](https://www.odesk.com/users/~01f5a7beb29d6f96b7)

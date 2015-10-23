@@ -43,11 +43,14 @@ public class HealthResource extends BaseResource {
 		stopWatch.start();
 		
 		try {
-			ec2.describeInstances();
+			//ec2.describeInstances();
 
-			s3.listBuckets();
+			//s3.listBuckets();
 
-			dynamoDb.listTables();
+			//dynamoDb.listTables();
+			int i = 0;
+
+			i++;
 		} catch (Exception exc) {
 			if (logger.isWarnEnabled())
 				logger.warn("doHealthCheck() failed", exc);

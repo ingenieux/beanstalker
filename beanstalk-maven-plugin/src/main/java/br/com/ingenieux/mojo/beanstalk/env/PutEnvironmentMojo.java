@@ -14,15 +14,14 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
-import org.apache.maven.plugins.annotations.Mojo;
-
 import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentContextBuilder;
+import org.apache.maven.plugins.annotations.Mojo;
 
 /**
  * Creates (if needed) or Updates an Elastic Beanstalk Environment
- *
+ * <p/>
  * See the docs for the <a href= "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_CreateEnvironment.html"
  * >CreateEnvironment API</a> call.
  *
@@ -31,33 +30,34 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentContextBu
 @Mojo(name = "put-environment")
 public class PutEnvironmentMojo extends CreateEnvironmentMojo {
 
-  @Override
-  protected void configure() {
-    try {
-      curEnv = super.lookupEnvironment(applicationName, environmentRef);
-    } catch (Exception exc) {
-      // Previous Environment Does Not Exists. So its fine to just create the new environment.
+    @Override
+    protected void configure() {
+        try {
+            super.projectTags();
+            curEnv = super.lookupEnvironment(applicationName, environmentRef);
+        } catch (Exception exc) {
+            // Previous Environment Does Not Exists. So its fine to just create the new environment.
+        }
     }
-  }
 
-  @Override
-  protected Object executeInternal() throws Exception {
-                /*
-		 * We *DO* have an existing environment. So we're just calling update-environment instead
+    @Override
+    protected Object executeInternal() throws Exception {
+        /*
+         * We *DO* have an existing environment. So we're just calling update-environment instead
 		 */
-    if (null != curEnv) {
-      UpdateEnvironmentContext context = UpdateEnvironmentContextBuilder
-          .updateEnvironmentContext()
-          .withEnvironmentId(curEnv.getEnvironmentId())//
-          .withVersionLabel(versionLabel)//
-          .build();
+        if (null != curEnv) {
+            UpdateEnvironmentContext context = UpdateEnvironmentContextBuilder
+                    .updateEnvironmentContext()
+                    .withEnvironmentId(curEnv.getEnvironmentId())//
+                    .withVersionLabel(versionLabel)//
+                    .build();
 
-      UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(
-          this);
+            UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(
+                    this);
 
-      return command.execute(context);
+            return command.execute(context);
+        }
+
+        return super.executeInternal();
     }
-
-    return super.executeInternal();
-  }
 }
