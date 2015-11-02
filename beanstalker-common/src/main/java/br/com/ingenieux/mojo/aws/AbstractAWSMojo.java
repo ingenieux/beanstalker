@@ -212,11 +212,11 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
     private AWSCredentialsProvider getProfileEntry(String credentialId) {
         try {
             final ProfileCredentialsProvider provider = new ProfileCredentialsProvider(defaultString(credentialId, "default"));
-
             provider.getCredentials();
 
             return provider;
-        } catch (AmazonClientException exc) {
+        } catch (Exception exc) {
+            getLog().info("ProfileCredentialsProvider failed to obtain credentials: "  + exc.getMessage());
             return null;
         }
     }
