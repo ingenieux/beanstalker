@@ -8,6 +8,7 @@ import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.EnvironmentVariableCredentialsProvider;
+import com.amazonaws.auth.InstanceProfileCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.internal.StaticCredentialsProvider;
 import com.amazonaws.regions.Region;
@@ -147,6 +148,17 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
         setupVersion();
     }
 
+    /**
+     * Step through a sequence of prioritized credential providers using the first available type:
+     * <ol>
+     *     <li>{@link BasicAWSCredentials}</li>
+     *     <li>{@link EnvironmentVariableCredentialsProvider}</li>
+     *     <li>{@link ProfileCredentialsProvider}</li> (see {@link #getProfileEntry})
+     *     <li>{@link InstanceProfileCredentialsProvider}</li>
+     * </ol>
+     * @return
+     * @throws MojoFailureException
+     */
     public AWSCredentialsProvider getAWSCredentials() throws MojoFailureException {
         if (null != this.awsCredentialsProvider) {
             return this.awsCredentialsProvider;
@@ -168,8 +180,10 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
                     new StaticCredentialsProvider(new BasicAWSCredentials(awsAccessKey, awsSecretKey));
         } else if (null != (awsCredentialsProvider = getEnvironmentKeys())) { // Attempts Environment
             // Already assigned. \o/
-        } else if (null != (awsCredentialsProvider = getProfileEntry(credentialId))) { // Then Credential File
+        } else if (null != (awsCredentialsProvider = getProfileEntry(credentialId))) { // Then Credential File (allows local testing)
             // meh
+        } else if (null != (awsCredentialsProvider = getInstanceProfile())) { // Finally add IAM instance profile if present
+            // still nothing
         } else {
             /*
              * Throws up. We have nowhere to get our credentials...
@@ -185,6 +199,10 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
         return this.awsCredentialsProvider;
     }
 
+    private AWSCredentialsProvider getInstanceProfile() {
+        return new InstanceProfileCredentialsProvider();
+    }
+
     /**
      * Attempts to use the File Credentials Provider (~/.aws/credentials)
      *
@@ -194,11 +212,11 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
     private AWSCredentialsProvider getProfileEntry(String credentialId) {
         try {
             final ProfileCredentialsProvider provider = new ProfileCredentialsProvider(defaultString(credentialId, "default"));
-
             provider.getCredentials();
 
             return provider;
-        } catch (AmazonClientException exc) {
+        } catch (Exception exc) {
+            getLog().info("ProfileCredentialsProvider failed to obtain credentials: "  + exc.getMessage());
             return null;
         }
     }
