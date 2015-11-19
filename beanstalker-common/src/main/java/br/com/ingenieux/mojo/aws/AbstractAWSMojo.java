@@ -5,9 +5,7 @@ import br.com.ingenieux.mojo.aws.util.TypeUtil;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonWebServiceClient;
 import com.amazonaws.ClientConfiguration;
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.EnvironmentVariableCredentialsProvider;
+import com.amazonaws.auth.*;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.internal.StaticCredentialsProvider;
 import com.amazonaws.regions.Region;
@@ -147,79 +145,55 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
         setupVersion();
     }
 
+    class BeanstalkerAWSCredentialsProviderChain extends AWSCredentialsProviderChain {
+        public BeanstalkerAWSCredentialsProviderChain(String serverId, String profileName) {
+            super(new ExposeCredentialsProvider(serverId),
+                    new EnvironmentVariableCredentialsProvider(),
+                    new SystemPropertiesCredentialsProvider(),
+                    new ProfileCredentialsProvider(profileName),
+                    new InstanceProfileCredentialsProvider());
+        }
+    }
+
+    class ExposeCredentialsProvider implements AWSCredentialsProvider {
+        private final String serverId;
+
+        public ExposeCredentialsProvider(String serverId) {
+            this.serverId = serverId;
+        }
+
+        @Override
+        public AWSCredentials getCredentials() {
+            if (!hasServerSettings())
+                return null;
+
+            try {
+                Expose expose = exposeSettings(serverId);
+
+                String awsAccessKey = expose.getAccessKey();
+                String awsSecretKey = expose.getSharedKey();
+
+                return new StaticCredentialsProvider(new BasicAWSCredentials(awsAccessKey, awsSecretKey)).getCredentials();
+            } catch (Exception exc) {
+                throw new RuntimeException("Oops", exc);
+            }
+        }
+
+        @Override
+        public void refresh() {
+        }
+    }
+
+
+
     public AWSCredentialsProvider getAWSCredentials() throws MojoFailureException {
         if (null != this.awsCredentialsProvider) {
             return this.awsCredentialsProvider;
         }
 
-        /*
-         * Looks up on settings.xml for encrypted settings (the recommended way)
-         */
-        if (hasServerSettings()) {
-            /*
-             * This actually is the right way...
-             */
-            Expose expose = exposeSettings(serverId);
+        this.awsCredentialsProvider = new BeanstalkerAWSCredentialsProviderChain(serverId, credentialId);
 
-            String awsAccessKey = expose.getAccessKey();
-            String awsSecretKey = expose.getSharedKey();
-
-            this.awsCredentialsProvider =
-                    new StaticCredentialsProvider(new BasicAWSCredentials(awsAccessKey, awsSecretKey));
-        } else if (null != (awsCredentialsProvider = getEnvironmentKeys())) { // Attempts Environment
-            // Already assigned. \o/
-        } else if (null != (awsCredentialsProvider = getProfileEntry(credentialId))) { // Then Credential File
-            // meh
-        } else {
-            /*
-             * Throws up. We have nowhere to get our credentials...
-             */
-            String errorMessage = "Entries in settings.xml for server "
-                    + serverId
-                    + " not defined. See http://docs.ingenieux.com.br/project/beanstalker/aws-config.html for more information";
-            getLog().error(errorMessage);
-
-            throw new MojoFailureException(errorMessage);
-        }
-
-        return this.awsCredentialsProvider;
-    }
-
-    /**
-     * Attempts to use the File Credentials Provider (~/.aws/credentials)
-     *
-     * @param credentialId Credential Id to use (default: "default")
-     * @return credentials provider if successful, null otherwise
-     */
-    private AWSCredentialsProvider getProfileEntry(String credentialId) {
-        try {
-            final ProfileCredentialsProvider provider = new ProfileCredentialsProvider(defaultString(credentialId, "default"));
-
-            provider.getCredentials();
-
-            return provider;
-        } catch (AmazonClientException exc) {
-            return null;
-        }
-    }
-
-    /**
-     * Attempts to use Environment-based Provider Variables
-     *
-     * @return AWS Credentials Provider if available. Null otherwise.
-     */
-    private AWSCredentialsProvider getEnvironmentKeys() {
-        final EnvironmentVariableCredentialsProvider
-                provider =
-                new EnvironmentVariableCredentialsProvider();
-
-        try {
-            provider.getCredentials();
-
-            return provider;
-        } catch (AmazonClientException exc) {
-            return null;
-        }
+        return awsCredentialsProvider;
     }
 
     public AWSClientFactory getClientFactory() {
