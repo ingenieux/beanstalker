@@ -63,7 +63,7 @@ public class CreateApplicationVersionMojo extends AbstractBeanstalkMojo {
   /**
    * S3 Bucket
    */
-  @Parameter(property = "beanstalk.s3Bucket", defaultValue = "${project.artifactId}",
+  @Parameter(property = "beanstalk.s3Bucket", defaultValue = "${project.groupId}.${project.artifactId}",
              required = true)
   String s3Bucket;
 
@@ -71,7 +71,7 @@ public class CreateApplicationVersionMojo extends AbstractBeanstalkMojo {
    * S3 Key
    */
   @Parameter(property = "beanstalk.s3Key",
-             defaultValue = "${project.artifactId}/${project.build.finalName}-${beanstalk.versionLabel}.${project.packaging}",
+             defaultValue = "${project.artifactId}/${project.build.finalName}.${project.packaging}",
              required = true)
   String s3Key;
 
@@ -122,21 +122,21 @@ public class CreateApplicationVersionMojo extends AbstractBeanstalkMojo {
 
   private boolean versionLabelExists() {
                 /*
-		 * Builds a request for this very specific version label
-		 */
+                 * Builds a request for this very specific version label
+                 */
     DescribeApplicationVersionsRequest davRequest = new DescribeApplicationVersionsRequest()
         .withApplicationName(applicationName).withVersionLabels(
             versionLabel);
 
-		/*
-		 * Sends the request
-		 */
+                /*
+                 * Sends the request
+                 */
     DescribeApplicationVersionsResult result = getService()
         .describeApplicationVersions(davRequest);
 
-		/*
-		 * Non-empty means the application version label *DOES* exist.
-		 */
+                /*
+                 * Non-empty means the application version label *DOES* exist.
+                 */
     return !result.getApplicationVersions().isEmpty();
   }
 }
