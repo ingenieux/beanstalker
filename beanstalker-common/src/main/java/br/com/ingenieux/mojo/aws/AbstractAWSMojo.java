@@ -2,7 +2,6 @@ package br.com.ingenieux.mojo.aws;
 
 import br.com.ingenieux.mojo.aws.util.AWSClientFactory;
 import br.com.ingenieux.mojo.aws.util.TypeUtil;
-import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonWebServiceClient;
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.*;
@@ -35,7 +34,6 @@ import java.util.List;
 import java.util.Properties;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.defaultString;
 
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -326,11 +324,15 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
         @SuppressWarnings("unchecked")
         Class<S> serviceClass = (Class<S>) TypeUtil.getServiceClass(getClass());
 
+        this.service = createServiceFor(serviceClass);
+    }
+
+    protected <T> T createServiceFor(Class<T> serviceClass) throws MojoExecutionException {
         try {
             clientFactory = new AWSClientFactory(getAWSCredentials(), getClientConfiguration(),
                     regionName);
 
-            this.service = clientFactory.getService(serviceClass);
+            return clientFactory.getService(serviceClass);
         } catch (Exception exc) {
             throw new MojoExecutionException("Unable to create service", exc);
         }
@@ -351,7 +353,7 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
     @Override
     public final void execute() throws MojoExecutionException,
             MojoFailureException {
-        Object result = null;
+        Object result;
 
         try {
 
@@ -387,8 +389,6 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
         if (ignoreExceptions) {
             getLog().warn(
                     "Ok. ignoreExceptions is set to true. No result for you!");
-
-            return;
         } else if (MojoExecutionException.class.isAssignableFrom(e.getClass())) {
             throw (MojoExecutionException) e;
         } else if (MojoFailureException.class.isAssignableFrom(e.getClass())) {

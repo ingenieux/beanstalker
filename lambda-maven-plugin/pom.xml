@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>beanstalker</artifactId>
+        <groupId>br.com.ingenieux</groupId>
+        <version>1.4.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>lambda-maven-plugin</artifactId>
+    <packaging>maven-plugin</packaging>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-plugin-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+    <scm>
+        <connection>scm:hg:http://bitbucket.org/aldrinleal/beanstalker</connection>
+        <developerConnection>scm:hg:https://bitbucket.org/aldrinleal/beanstalker</developerConnection>
+    </scm>
+
+    <dependencies>
+        <dependency>
+            <groupId>br.com.ingenieux</groupId>
+            <artifactId>beanstalker-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.plugin-tools</groupId>
+            <artifactId>maven-plugin-annotations</artifactId>
+        </dependency>
+    </dependencies>
+
+    <description>This Maven Plugin Simplifies Deployment of AWS Lambda Functions</description>
+</project>

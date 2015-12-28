@@ -14,18 +14,22 @@ package br.com.ingenieux.mojo.beanstalk;
  * limitations under the License.
  */
 
-import com.amazonaws.services.elasticbeanstalk.model.*;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-
+import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
+import br.com.ingenieux.mojo.aws.util.GlobUtil;
+import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentCommand;
+import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext;
+import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
+import br.com.ingenieux.mojo.beanstalk.util.ConfigUtil;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
 import com.amazonaws.services.ec2.model.SecurityGroup;
 import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalkClient;
-
+import com.amazonaws.services.elasticbeanstalk.model.*;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 import org.apache.commons.collections.ComparatorUtils;
 import org.apache.commons.collections.comparators.ReverseComparator;
 import org.apache.commons.lang.Validate;
@@ -33,24 +37,12 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import java.text.Collator;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
-import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentCommand;
-import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext;
-import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
-import br.com.ingenieux.mojo.beanstalk.util.ConfigUtil;
-
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.defaultString;
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang.StringUtils.*;
 
 public abstract class AbstractBeanstalkMojo extends
                                             AbstractAWSMojo<AWSElasticBeanstalkClient> {
@@ -186,7 +178,7 @@ public abstract class AbstractBeanstalkMojo extends
   }
 
   public String lookupTemplateName(String applicationName, String templateName) {
-    if (!hasWildcards(defaultString(templateName))) {
+      if (!GlobUtil.hasWildcards(defaultString(templateName))) {
       return templateName;
     }
 
@@ -204,7 +196,7 @@ public abstract class AbstractBeanstalkMojo extends
      */
     Pattern
         templateMask =
-        globify(templateName);
+            GlobUtil.globify(templateName);
 
     for (String s : configurationTemplates) {
       Matcher m = templateMask.matcher(s);
@@ -217,15 +209,6 @@ public abstract class AbstractBeanstalkMojo extends
     getLog().info("Not found");
 
     return null;
-  }
-
-  protected Pattern globify(String templateName) {
-    return Pattern.compile(templateName.replaceAll("\\.", "\\\\.").replaceAll("\\Q*\\E", ".*")
-                               .replaceAll("\\Q?\\E", "."));
-  }
-
-  public boolean hasWildcards(String input) {
-    return (input.indexOf('*') != -1 || input.indexOf('?') != -1);
   }
 
   @SuppressWarnings("unchecked")
@@ -258,7 +241,7 @@ public abstract class AbstractBeanstalkMojo extends
 
   // TODO: Refactor w/ version lookup
   protected String lookupSolutionStack(final String solutionStack) {
-    if (!hasWildcards(solutionStack)) {
+      if (!GlobUtil.hasWildcards(solutionStack)) {
       return solutionStack;
     }
 
@@ -280,7 +263,7 @@ public abstract class AbstractBeanstalkMojo extends
         Collections2.transform(stackDetails,
                                stackTransformer);
 
-    final Pattern stackPattern = globify(solutionStack);
+      final Pattern stackPattern = GlobUtil.globify(solutionStack);
 
     List<String>
         matchingStacks = new ArrayList<String>(
