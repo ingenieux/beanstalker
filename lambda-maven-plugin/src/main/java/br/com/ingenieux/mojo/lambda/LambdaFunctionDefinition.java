@@ -15,7 +15,7 @@ public class LambdaFunctionDefinition implements Serializable, Comparable<Lambda
         this.name = name;
     }
 
-    String description;
+    String description = "";
 
     public String getDescription() {
         return description;

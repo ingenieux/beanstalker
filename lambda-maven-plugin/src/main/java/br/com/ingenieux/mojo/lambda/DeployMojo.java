@@ -12,6 +12,7 @@ import com.amazonaws.services.s3.AmazonS3URI;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.builder.CompareToBuilder;
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -190,15 +191,15 @@ public class DeployMojo extends AbstractLambdaMojo {
         return createFunctionResult;
     }
 
-    private void updateIfNeeded(LambdaFunctionDefinition d, UpdateFunctionCodeResult curFc) {
-        boolean bDiffers = 0 == new CompareToBuilder().
+    private UpdateFunctionConfigurationResult updateIfNeeded(LambdaFunctionDefinition d, UpdateFunctionCodeResult curFc) {
+        boolean bEquals = new EqualsBuilder().
                 append(d.getDescription(), curFc.getDescription()).
                 append(d.getHandler(), curFc.getHandler()).
                 append(d.getMemorySize(), curFc.getMemorySize().intValue()).
                 append(d.getRole(), curFc.getRole()).
-                append(d.getTimeout(), curFc.getTimeout().intValue()).toComparison();
+                append(d.getTimeout(), curFc.getTimeout().intValue()).isEquals();
 
-        if (bDiffers) {
+        if (!bEquals) {
             final UpdateFunctionConfigurationRequest updRequest = new UpdateFunctionConfigurationRequest();
 
             updRequest.setFunctionName(d.getName());
@@ -209,7 +210,11 @@ public class DeployMojo extends AbstractLambdaMojo {
             updRequest.setTimeout(d.getTimeout());
 
             final UpdateFunctionConfigurationResult result = lambdaClient.updateFunctionConfiguration(updRequest);
+
+            return result;
         }
+
+        return null;
     }
 
     private Map<String, LambdaFunctionDefinition> parseFunctionDefinions() throws Exception {
