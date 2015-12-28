@@ -11,8 +11,10 @@ import com.amazonaws.services.lambda.model.Runtime;
 import com.amazonaws.services.s3.AmazonS3URI;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.text.StrSubstitutor;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -218,8 +220,11 @@ public class DeployMojo extends AbstractLambdaMojo {
     }
 
     private Map<String, LambdaFunctionDefinition> parseFunctionDefinions() throws Exception {
-        List<LambdaFunctionDefinition> definitionList = OBJECT_MAPPER.readValue(new FileInputStream(definitionFile), new TypeReference<List<LambdaFunctionDefinition>>() {
-        });
+        String source = IOUtils.toString(new FileInputStream(definitionFile));
+
+        source = new StrSubstitutor(this.getPluginContext()).replace(source);
+
+        List<LambdaFunctionDefinition> definitionList = OBJECT_MAPPER.readValue(source, new TypeReference<List<LambdaFunctionDefinition>>() {});
 
         Map<String, LambdaFunctionDefinition> result = new TreeMap<String, LambdaFunctionDefinition>();
 
