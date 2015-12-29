@@ -285,7 +285,7 @@ public abstract class AbstractBeanstalkMojo extends
   }
 
   /**
-   * Environment Ref
+   * Endpoint URL
    */
   @Parameter(property = "beanstalk.endpointUrl")
   protected String endpointUrl;

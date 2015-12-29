@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.util.*;
 import java.util.regex.Pattern;
 
+import static java.lang.String.format;
 import static org.codehaus.plexus.util.StringUtils.isBlank;
 
 /**
@@ -31,7 +32,9 @@ import static org.codehaus.plexus.util.StringUtils.isBlank;
  * <p/>
  * <ul>
  * <li>Parsing the function-definition file</li>
- * <li>For each declared function, create or update the remote definition of it</li>
+ * <li>For each declared function, tries to update the function</li>
+ * <li>if the function is missing, create it</li>
+ * <li>Otherwise, compare the function definition with the expected parameters, and changes the function configuration if needed</li>
  * </ul>
  */
 @Mojo(name = "deploy-functions")
@@ -39,25 +42,27 @@ public class DeployMojo extends AbstractLambdaMojo {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     /**
-     * Lambda Function URL on S3
+     * Lambda Function URL on S3, e.g. <code>s3://somebucket/object/key/path.zip</code>
      */
     @Parameter(required = true, property = "lambda.s3url")
     String s3Url;
 
     /**
-     * AWS Lambda Default Timeout, in seconds
+     * AWS Lambda Default Timeout, in seconds (used when missing in function definition)
      */
     @Parameter(required = true, property = "lambda.default.timeout", defaultValue = "5")
     Integer defaultTimeout;
 
     /**
-     * AWS Lambda Default Memory Size, in MB
+     * AWS Lambda Default Memory Size, in MB (used when missing in function definition)
      */
     @Parameter(required = true, property = "lambda.default.memorySize", defaultValue = "128")
     Integer defaultMemorySize;
 
     /**
-     * AWS Lambda Default IAM Role
+     * <p>AWS Lambda Default IAM Role (used when missing in function definition)</p>
+     *
+     * <p>Allows wildcards like '*' and '?' - will be looked up upon when deploying</p>
      */
     @Parameter(required = true, property = "lambda.default.role", defaultValue = "arn:aws:iam::*:role/lambda_basic_execution")
     String defaultRole;
@@ -164,12 +169,15 @@ public class DeployMojo extends AbstractLambdaMojo {
         String s3Key = s3Uri.getKey();
 
         for (LambdaFunctionDefinition d : functionDefinitions.values()) {
-            try {
+            getLog().info(format("Deploying Function: %s (handler: %s)", d.getName(), d.getHandler()));
 
+            try {
                 final UpdateFunctionCodeResult updateFunctionCodeResult = lambdaClient.updateFunctionCode(new UpdateFunctionCodeRequest().withFunctionName(d.getName()).withS3Bucket(s3Bucket).withS3Key(s3Key));
 
                 updateIfNeeded(d, updateFunctionCodeResult);
             } catch (ResourceNotFoundException exc) {
+                getLog().info("Function does not exist. Creating it instead.");
+
                 createFunction(d);
             }
         }
@@ -211,6 +219,8 @@ public class DeployMojo extends AbstractLambdaMojo {
             updRequest.setRole(d.getRole());
             updRequest.setTimeout(d.getTimeout());
 
+            getLog().info(format("Function Configuration doesn't match expected defaults. Updating it to %s.", updRequest));
+
             final UpdateFunctionConfigurationResult result = lambdaClient.updateFunctionConfiguration(updRequest);
 
             return result;
@@ -224,7 +234,11 @@ public class DeployMojo extends AbstractLambdaMojo {
 
         source = new StrSubstitutor(this.getPluginContext()).replace(source);
 
+        getLog().info(format("Loaded and replaced definitions from file '%s'", definitionFile.getPath()));
+
         List<LambdaFunctionDefinition> definitionList = OBJECT_MAPPER.readValue(source, new TypeReference<List<LambdaFunctionDefinition>>() {});
+
+        getLog().info(format("Found %d definitions: ", definitionList.size()));
 
         Map<String, LambdaFunctionDefinition> result = new TreeMap<String, LambdaFunctionDefinition>();
 
@@ -246,21 +260,29 @@ public class DeployMojo extends AbstractLambdaMojo {
             result.put(d.getName(), d);
         }
 
+        getLog().info(format("Merged into %d definitions: ", result.size()));
+
         return result;
     }
 
     private String lookupRoleGlob(String role) {
         if (GlobUtil.hasWildcards(role)) {
+            getLog().info(format("Looking up IAM Role '%s'", role));
+
             Pattern p = GlobUtil.globify(role);
 
             for (String s : roles) {
                 if (p.matcher(s).matches()) {
+                    getLog().info(format("Found Role: '%s'", s));
+
                     return s;
                 }
             }
 
             throw new IllegalStateException("Unable to lookup role '" + role + "': Not found");
         } else {
+            getLog().info(format("Using Role as is: '%s'", role));
+
             return role;
         }
     }
