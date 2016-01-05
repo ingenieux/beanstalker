@@ -106,7 +106,7 @@ public class CodeCommitFastDeployMojo extends FastDeployMojo {
 
         final String payloadAsString = objectMapper.writeValueAsString(payload);
 
-        getLog().info("Calling beanstalk-codecommit-deployer with arguments set to: " + redactRegardlessOfGit(payloadAsString));
+        getLog().info("Calling beanstalk-codecommit-deployer with arguments set to: " + redact(payloadAsString));
 
         final InvokeResult invoke = lambda.invoke(new InvokeRequest().withFunctionName("beanstalk-codecommit-deployer").withPayload(payloadAsString));
 

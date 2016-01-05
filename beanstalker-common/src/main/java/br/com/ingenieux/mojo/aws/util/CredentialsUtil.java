@@ -1,5 +1,8 @@
 package br.com.ingenieux.mojo.aws.util;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import static org.apache.commons.lang.StringUtils.defaultString;
 
 /*
@@ -23,6 +26,11 @@ import static org.apache.commons.lang.StringUtils.defaultString;
  */
 public class CredentialsUtil {
 
+  public static final Pattern PATTERN_ALNUM_40 = Pattern.compile("[\\p{Alnum}\\/\\+]{40}");
+
+  public static final Pattern PATTERN_HEX_40 = Pattern.compile("[\\p{XDigit}\\/\\+]{40}", Pattern.CASE_INSENSITIVE);
+  public static final String MESSAGE = "/** REDACTED POSSIBLE AWS CREDENTIAL **/";
+
   /**
    * <p> Huge thanks to Eric Hammond from Alestic on this one (source: <a
    * href="http://alestic.com/2009/11/ec2-credentials">Understanding Access Credentials for
@@ -43,14 +51,41 @@ public class CredentialsUtil {
   public static String redact(String s) {
     s = defaultString(s);
 
-    if (-1 != s.indexOf("git-")) {
-      return s;
-    }
+    StringBuilder stringBuilder = new StringBuilder(s);
 
-    return redactRegardlessOfGit(s);
+    boolean found;
+
+    int lastPos = 0;
+
+    do {
+      final Matcher matcher = PATTERN_ALNUM_40.matcher(stringBuilder);
+
+      found = matcher.find(lastPos);
+
+      if (found) {
+        CharSequence segment = stringBuilder.subSequence(matcher.start(), matcher.end());
+
+        if (! PATTERN_HEX_40.matcher(segment).matches()) {
+          stringBuilder.replace(matcher.start(), matcher.end(), MESSAGE);
+
+          lastPos = matcher.start() + MESSAGE.length();
+        } else {
+          lastPos = matcher.end();
+        }
+      }
+    } while (found);
+
+    return stringBuilder.toString();
   }
 
-  public static String redactRegardlessOfGit(String s) {
-    return s.replaceAll("[\\p{Alnum}\\/\\+]{40}", "/***REDACTED POSSIBLE AWS CREDENTIAL***/");
+  public static void main(String[] args) throws Exception {
+    System.out.println(redact("{\n" +
+            "  \"accessKey\": \"0THISISANACCESSKEYh3\",\n" +
+            "  \"secretKey\": \"abc123abdefasad32ldasdlj323lkjaR+secretk\",\n" +
+            "  \"applicationName\": \"multipackage-example\",\n" +
+            "  \"commitId\": \"73031a04846d8adaee6fc1eb1b4bb98af9878c3b\",\n" +
+            "  \"repoName\": \"ingenieux-image-blobs\",\n" +
+            "  \"targetPath\": \"s3://elasticbeanstalk-us-east-1-235368163414/apps/multipackage-example/versions/git-73031a04846d8adaee6fc1eb1b4bb98af9878c3b.zip\"\n" +
+            "}"));
   }
 }
