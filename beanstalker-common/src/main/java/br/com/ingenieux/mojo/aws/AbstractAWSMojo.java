@@ -118,6 +118,8 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 
     protected Region regionObj;
 
+    protected final ObjectMapper objectMapper = new ObjectMapper();
+
     protected Region getRegion() {
         if (null != regionObj) {
             return regionObj;
@@ -141,6 +143,9 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 
     protected AbstractAWSMojo() {
         setupVersion();
+
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
     class BeanstalkerAWSCredentialsProviderChain extends AWSCredentialsProviderChain {
@@ -399,13 +404,8 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
     }
 
     protected void displayResults(Object result) {
-        ObjectMapper mapper = new ObjectMapper();
-
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-
         try {
-            String resultAsJsonString = mapper.writeValueAsString(result);
+            String resultAsJsonString = objectMapper.writeValueAsString(result);
 
             if ("null".equals(resultAsJsonString)) {
                 getLog().info("null/void result");

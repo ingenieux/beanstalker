@@ -47,6 +47,10 @@ public class CredentialsUtil {
       return s;
     }
 
+    return redactRegardlessOfGit(s);
+  }
+
+  public static String redactRegardlessOfGit(String s) {
     return s.replaceAll("[\\p{Alnum}\\/\\+]{40}", "/***REDACTED POSSIBLE AWS CREDENTIAL***/");
   }
 }
