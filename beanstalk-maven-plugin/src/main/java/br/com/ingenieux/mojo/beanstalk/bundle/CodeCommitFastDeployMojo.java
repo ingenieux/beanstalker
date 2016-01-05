@@ -20,7 +20,6 @@ import java.util.Date;
 import java.util.List;
 
 import static br.com.ingenieux.mojo.aws.util.CredentialsUtil.redact;
-import static br.com.ingenieux.mojo.aws.util.CredentialsUtil.redactRegardlessOfGit;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
