@@ -1,30 +1,16 @@
 package br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor;
 
+import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
+import br.com.ingenieux.mojo.beanstalk.cmd.BaseCommand;
+import com.amazonaws.services.elasticbeanstalk.model.*;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
-
-import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsRequest;
-import com.amazonaws.services.elasticbeanstalk.model.DescribeEventsRequest;
-import com.amazonaws.services.elasticbeanstalk.model.DescribeEventsResult;
-import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
-import com.amazonaws.services.elasticbeanstalk.model.EventDescription;
-
 import org.apache.commons.lang.Validate;
-import org.apache.maven.plugin.AbstractMojoExecutionException;
 import org.apache.maven.plugin.MojoExecutionException;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.regex.Pattern;
-
-import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
-import br.com.ingenieux.mojo.beanstalk.cmd.BaseCommand;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.defaultString;
@@ -252,8 +238,7 @@ public class WaitForEnvironmentCommand extends
           eventList.addAll(events.getEvents());
 
           for (EventDescription d : eventList) {
-            info(String.format("%s %s %s", d.getSeverity(),
-                               d.getEventDate(), d.getMessage()));
+            info("%s %s %s", d.getSeverity(), d.getEventDate(), d.getMessage());
 
             if (d.getSeverity().equals(("ERROR"))) {
               throw new MojoExecutionException(
