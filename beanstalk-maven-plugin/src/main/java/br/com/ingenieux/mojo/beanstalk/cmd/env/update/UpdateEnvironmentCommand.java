@@ -1,15 +1,12 @@
 package br.com.ingenieux.mojo.beanstalk.cmd.env.update;
 
-import com.amazonaws.services.elasticbeanstalk.model.EnvironmentTier;
+import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
+import br.com.ingenieux.mojo.beanstalk.cmd.BaseCommand;
 import com.amazonaws.services.elasticbeanstalk.model.UpdateEnvironmentRequest;
 import com.amazonaws.services.elasticbeanstalk.model.UpdateEnvironmentResult;
-
 import org.apache.maven.plugin.AbstractMojoExecutionException;
 
 import java.util.Arrays;
-
-import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
-import br.com.ingenieux.mojo.beanstalk.cmd.BaseCommand;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
@@ -54,22 +51,22 @@ public class UpdateEnvironmentCommand extends
       req.setEnvironmentId(context.environmentId);
     }
 
-    if (null != context.getEnvironmentTierName()) {
-      String envTierType = "Standard";
-      String envTierVersion = "1.0";
-
-      if ("Worker".equals(context.getEnvironmentTierName())) {
-        envTierType = "SQS/JSON";
-      }
-
-      if (null != context.getEnvironmentTierVersion()) {
-        envTierVersion = context.getEnvironmentTierVersion();
-      }
-
-      req.setTier(
-          new EnvironmentTier().withName(context.getEnvironmentTierName()).withType(envTierType)
-              .withVersion(envTierVersion));
-    }
+//    if (null != context.getEnvironmentTierName()) {
+//      String envTierType = "Standard";
+//      String envTierVersion = "1.0";
+//
+//      if ("Worker".equals(context.getEnvironmentTierName())) {
+//        envTierType = "SQS/JSON";
+//      }
+//
+//      if (null != context.getEnvironmentTierVersion()) {
+//        envTierVersion = context.getEnvironmentTierVersion();
+//      }
+//
+//      req.setTier(
+//          new EnvironmentTier().withName(context.getEnvironmentTierName()).withType(envTierType)
+//              .withVersion(envTierVersion));
+//    }
 
     if (null != context.optionSettings && 0 != context.optionSettings.length) {
       req.setOptionSettings(Arrays.asList(context.optionSettings));
