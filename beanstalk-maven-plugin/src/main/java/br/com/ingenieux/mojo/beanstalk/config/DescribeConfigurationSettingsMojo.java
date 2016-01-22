@@ -14,17 +14,16 @@ package br.com.ingenieux.mojo.beanstalk.config;
  * limitations under the License.
  */
 
+import br.com.ingenieux.mojo.aws.util.GlobUtil;
+import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettingsRequest;
 import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
-
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import java.util.Collection;
-
-import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
@@ -60,7 +59,7 @@ public class DescribeConfigurationSettingsMojo extends
 
   protected Object executeInternal() throws MojoExecutionException,
                                             MojoFailureException {
-    boolean bTemplateNameDefined = isNotBlank(templateName) && !hasWildcards(templateName);
+    boolean bTemplateNameDefined = isNotBlank(templateName) && !GlobUtil.hasWildcards(templateName);
 
     DescribeConfigurationSettingsRequest
         req =

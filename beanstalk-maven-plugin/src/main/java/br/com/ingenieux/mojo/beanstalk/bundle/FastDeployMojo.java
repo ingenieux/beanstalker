@@ -151,9 +151,7 @@ public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
       environmentName = curEnv.getEnvironmentName();
     }
 
-    String remote = new RequestSigner(getAWSCredentials(), applicationName,
-                                      regionName, commitId, environmentName, new Date())
-        .getPushUrl();
+    String remote = getRemoteUrl(commitId, environmentName);
 
     getLog().info("Using remote: " + remote);
 
@@ -202,7 +200,13 @@ public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
     return null;
   }
 
-  private String lookupVersionLabelForCommitId(String commitId) {
+  protected String getRemoteUrl(String commitId, String environmentName) throws org.apache.maven.plugin.MojoFailureException {
+    return new RequestSigner(getAWSCredentials(), applicationName,
+                                      regionName, commitId, environmentName, new Date())
+        .getPushUrl();
+  }
+
+  protected String lookupVersionLabelForCommitId(String commitId) throws Exception {
     String versionLabel = null;
     String prefixToLookup = format("git-%s-", commitId);
 
@@ -221,7 +225,7 @@ public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
     return versionLabel;
   }
 
-  private Git getGitRepo() throws Exception {
+  protected Git getGitRepo() throws Exception {
     Git git = null;
 
     if (!useStagingDirectory) {

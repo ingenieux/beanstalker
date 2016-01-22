@@ -62,6 +62,10 @@ public class UpdateEnvironmentCommand extends
         envTierType = "SQS/JSON";
       }
 
+      if (null != context.getEnvironmentTierVersion()) {
+        envTierVersion = context.getEnvironmentTierVersion();
+      }
+
       req.setTier(
           new EnvironmentTier().withName(context.getEnvironmentTierName()).withType(envTierType)
               .withVersion(envTierVersion));
