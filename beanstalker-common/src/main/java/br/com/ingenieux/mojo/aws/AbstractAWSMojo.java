@@ -144,6 +144,8 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
     protected AbstractAWSMojo() {
         setupVersion();
 
+        //https://github.com/ingenieux/beanstalker/issues/87 - Decouple the serialization of AWS responses to avoid warning mgs
+        objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
