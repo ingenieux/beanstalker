@@ -18,6 +18,7 @@ import com.amazonaws.services.elasticbeanstalk.model.ApplicationVersionDescripti
 import com.amazonaws.services.elasticbeanstalk.model.DeleteApplicationVersionRequest;
 import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationVersionsRequest;
 import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationVersionsResult;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsRequest;
 import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsResult;
 import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
 
@@ -36,6 +37,8 @@ import java.util.ListIterator;
 import java.util.regex.Pattern;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
+
+import static java.lang.String.format;
 
 /**
  * Deletes application versions, either by count and/or by date old
@@ -104,8 +107,10 @@ public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
     DescribeApplicationVersionsResult appVersions = getService()
         .describeApplicationVersions(describeApplicationVersionsRequest);
 
-    DescribeEnvironmentsResult environments = getService()
-        .describeEnvironments();
+    DescribeEnvironmentsRequest 
+        req = new DescribeEnvironmentsRequest().withApplicationName(applicationName);
+
+    DescribeEnvironmentsResult environments = getService().describeEnvironments(req);
 
     List<ApplicationVersionDescription>
         appVersionList =
