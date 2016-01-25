@@ -120,7 +120,7 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 
     protected final ObjectMapper objectMapper = new ObjectMapper();
 
-    protected Region getRegion() {
+    public Region getRegion() {
         if (null != regionObj) {
             return regionObj;
         }

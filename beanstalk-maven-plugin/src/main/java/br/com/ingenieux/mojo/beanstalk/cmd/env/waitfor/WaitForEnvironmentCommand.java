@@ -2,6 +2,8 @@ package br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.BaseCommand;
+import br.com.ingenieux.mojo.beanstalk.util.EnvironmentHostnameUtil;
+import com.amazonaws.regions.Region;
 import com.amazonaws.services.elasticbeanstalk.model.*;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
@@ -10,6 +12,7 @@ import org.apache.commons.lang.Validate;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static java.lang.String.format;
@@ -32,7 +35,7 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 public class WaitForEnvironmentCommand extends
                                        BaseCommand<WaitForEnvironmentContext, EnvironmentDescription> {
 
-  /**
+    /**
    * Poll Interval
    */
   public static final long POLL_INTERVAL = 30 * 1000;
@@ -68,7 +71,6 @@ public class WaitForEnvironmentCommand extends
     return Collections2.filter(envs, Predicates.and(envPredicates));
   }
 
-    /* TODO: Revise Suffix Dynamics */
   protected List<Predicate<EnvironmentDescription>> getEnvironmentDescriptionPredicate(
       WaitForEnvironmentContext context) {
     // as well as those (which are used as predicate variables, thus being
@@ -90,6 +92,8 @@ public class WaitForEnvironmentCommand extends
         result =
         new ArrayList<Predicate<EnvironmentDescription>>();
 
+      Matcher hostMatcher = EnvironmentHostnameUtil.PATTERN_HOSTNAME.matcher(environmentRef);
+
     if (environmentRef.matches("e-\\p{Alnum}{10}")) {
       result.add(new Predicate<EnvironmentDescription>() {
         @Override
@@ -99,14 +103,15 @@ public class WaitForEnvironmentCommand extends
       });
 
       info("... with environmentId equal to '%s'", environmentRef);
-    } else if (environmentRef.matches(".*\\Q.elasticbeanstalk.com\\E")) {
-      result.add(new Predicate<EnvironmentDescription>() {
-        @Override
-        public boolean apply(EnvironmentDescription t) {
-          return defaultString(t.getCNAME()).equals(environmentRef);
-        }
-      });
-      info("... with cname set to '%s'", environmentRef);
+    } else if (hostMatcher.matches()) {
+        final Region region = parentMojo.getRegion();
+        final String cnamePrefix = hostMatcher.group("cnamePrefix");
+
+        final Predicate<EnvironmentDescription> predicate = EnvironmentHostnameUtil.getHostnamePredicate(region, cnamePrefix);
+
+        result.add(predicate);
+
+        info(predicate.toString());
     } else {
       String tmpRE = Pattern.quote(environmentRef);
 
@@ -167,7 +172,7 @@ public class WaitForEnvironmentCommand extends
     return result;
   }
 
-  public EnvironmentDescription executeInternal(
+    public EnvironmentDescription executeInternal(
       WaitForEnvironmentContext context) throws Exception {
     // Those are invariants
     long timeoutMins = context.getTimeoutMins();
