@@ -165,6 +165,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 		 */
         String cnamePrefixToCreate = getCNamePrefixToCreate();
 
+        /* TODO: Revise Suffix Dynamics */
         if (getLog().isInfoEnabled()) {
             getLog().info(
                     "Creating a new environment on " + cnamePrefixToCreate + ".elasticbeanstalk.com");
@@ -586,6 +587,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
     protected EnvironmentDescription getEnvironmentFor(String applicationName,
                                                        String cnamePrefix) {
         Collection<EnvironmentDescription> environments = getEnvironmentsFor(applicationName);
+    /* TODO: Revise Suffix Dynamics */
         String cnameToMatch = String.format("%s.elasticbeanstalk.com",
                 cnamePrefix);
 

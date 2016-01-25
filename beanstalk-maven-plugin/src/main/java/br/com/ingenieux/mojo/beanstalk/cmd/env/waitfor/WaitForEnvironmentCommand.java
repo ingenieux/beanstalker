@@ -68,6 +68,7 @@ public class WaitForEnvironmentCommand extends
     return Collections2.filter(envs, Predicates.and(envPredicates));
   }
 
+    /* TODO: Revise Suffix Dynamics */
   protected List<Predicate<EnvironmentDescription>> getEnvironmentDescriptionPredicate(
       WaitForEnvironmentContext context) {
     // as well as those (which are used as predicate variables, thus being

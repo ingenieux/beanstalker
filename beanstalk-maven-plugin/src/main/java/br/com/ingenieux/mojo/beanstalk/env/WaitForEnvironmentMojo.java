@@ -55,6 +55,7 @@ public class WaitForEnvironmentMojo extends AbstractBeanstalkMojo {
   @Parameter(property = "beanstalk.healthToWaitFor", defaultValue = "Green")
   String healthToWaitFor;
 
+    /* TODO: Revise Suffix Dynamics */
   /**
    * Environment Ref
    */

@@ -355,6 +355,8 @@ public abstract class AbstractNeedsEnvironmentMojo extends
      */
     @Parameter(defaultValue = "${project}", readonly = true)
     protected MavenProject project;
+
+    /* TODO: Revise Suffix Dynamics */
     /**
      * Environment Ref
      */
