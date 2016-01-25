@@ -146,6 +146,8 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        //https://github.com/ingenieux/beanstalker/issues/87 - Decouple the serialization of AWS responses to avoid warning mgs
+        objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
     }
 
     class BeanstalkerAWSCredentialsProviderChain extends AWSCredentialsProviderChain {
