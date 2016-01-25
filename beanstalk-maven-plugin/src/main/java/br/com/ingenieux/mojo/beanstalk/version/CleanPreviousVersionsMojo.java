@@ -14,12 +14,7 @@ package br.com.ingenieux.mojo.beanstalk.version;
  * limitations under the License.
  */
 
-import com.amazonaws.services.elasticbeanstalk.model.ApplicationVersionDescription;
-import com.amazonaws.services.elasticbeanstalk.model.DeleteApplicationVersionRequest;
-import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationVersionsRequest;
-import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationVersionsResult;
-import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsResult;
-import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
+import com.amazonaws.services.elasticbeanstalk.model.*;
 
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -105,7 +100,7 @@ public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
         .describeApplicationVersions(describeApplicationVersionsRequest);
 
     DescribeEnvironmentsResult environments = getService()
-        .describeEnvironments();
+        .describeEnvironments(new DescribeEnvironmentsRequest().withApplicationName(applicationName));
 
     List<ApplicationVersionDescription>
         appVersionList =
