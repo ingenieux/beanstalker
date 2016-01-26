@@ -225,6 +225,7 @@ public abstract class AbstractBeanstalkMojo extends
     return configurationTemplates;
   }
 
+    /* TODO: Revise Suffix Dynamics */
   public String ensureSuffix(String cname) {
     cname = defaultString(cname);
     if (!cname.endsWith(".elasticbeanstalk.com")) {
@@ -234,6 +235,7 @@ public abstract class AbstractBeanstalkMojo extends
     return cname;
   }
 
+    /* TODO: Revise Suffix Dynamics */
   public String ensureSuffixStripped(String cnamePrefix) {
     return defaultString(cnamePrefix).replaceAll("\\Q.elasticbeanstalk.com\\E$", "");
   }

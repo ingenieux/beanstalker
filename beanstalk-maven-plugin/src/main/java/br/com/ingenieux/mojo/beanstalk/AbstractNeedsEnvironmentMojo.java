@@ -355,12 +355,14 @@ public abstract class AbstractNeedsEnvironmentMojo extends
      */
     @Parameter(defaultValue = "${project}", readonly = true)
     protected MavenProject project;
+
     /**
      * Environment Ref
      */
     @Parameter(property = "beanstalk.environmentRef",
             defaultValue = "${project.artifactId}.elasticbeanstalk.com")
     protected String environmentRef;
+
     /**
      * Current Environment
      */
@@ -369,6 +371,8 @@ public abstract class AbstractNeedsEnvironmentMojo extends
     @Override
     protected void configure() {
         try {
+            // TODO Add Convenient Warning Later
+
             curEnv = super.lookupEnvironment(applicationName, environmentRef);
         } catch (MojoExecutionException e) {
             throw new RuntimeException(e);
