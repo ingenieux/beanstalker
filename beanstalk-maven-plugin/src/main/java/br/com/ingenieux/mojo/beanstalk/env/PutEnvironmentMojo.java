@@ -34,7 +34,7 @@ public class PutEnvironmentMojo extends CreateEnvironmentMojo {
     protected void configure() {
         try {
             super.projectTags();
-            curEnv = super.lookupEnvironment(applicationName, environmentRef);
+            curEnv = super.lookupEnvironment(applicationName, new CNamePrefixEnvironmentReference(environmentRef));
         } catch (Exception exc) {
             // Previous Environment Does Not Exists. So its fine to just create the new environment.
         }
@@ -52,8 +52,7 @@ public class PutEnvironmentMojo extends CreateEnvironmentMojo {
                     .withVersionLabel(versionLabel)//
                     .build();
 
-            UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(
-                    this);
+            UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(this);
 
             return command.execute(context);
         }

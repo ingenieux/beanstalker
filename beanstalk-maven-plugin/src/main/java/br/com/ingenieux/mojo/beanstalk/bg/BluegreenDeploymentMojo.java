@@ -14,6 +14,8 @@ package br.com.ingenieux.mojo.beanstalk.bg;
  * limitations under the License.
  */
 
+import br.com.ingenieux.mojo.beanstalk.env.AWSIdEnvironmentReference;
+import br.com.ingenieux.mojo.beanstalk.env.NameEnvironmentReference;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 
@@ -64,7 +66,7 @@ public class BluegreenDeploymentMojo extends AbstractNeedsEnvironmentMojo {
         envs =
         new WaitForEnvironmentCommand(this).lookupInternal(
             new WaitForEnvironmentContextBuilder().withApplicationName(applicationName)
-                .withEnvironmentRef(environmentNamePrefix + "*").build());
+                .withEnvironmentRef(new NameEnvironmentReference(environmentNamePrefix + "*")).build());
 
     if (envs.size() > 2) {
       final Collection<String>
@@ -99,7 +101,7 @@ public class BluegreenDeploymentMojo extends AbstractNeedsEnvironmentMojo {
 
     new WaitForEnvironmentCommand(this).execute(
         new WaitForEnvironmentContextBuilder().withStatusToWaitFor("Ready")
-            .withApplicationName(applicationName).withEnvironmentRef(curEnv.getEnvironmentId())
+            .withApplicationName(applicationName).withEnvironmentRef(new AWSIdEnvironmentReference(curEnv.getEnvironmentId()))
             .build());
 
     getLog().info(format(
@@ -108,7 +110,7 @@ public class BluegreenDeploymentMojo extends AbstractNeedsEnvironmentMojo {
 
     new WaitForEnvironmentCommand(this).execute(
         new WaitForEnvironmentContextBuilder().withStatusToWaitFor("Ready")
-            .withApplicationName(applicationName).withEnvironmentRef(otherEnvId).build());
+            .withApplicationName(applicationName).withEnvironmentRef(new AWSIdEnvironmentReference(otherEnvId)).build());
 
     getLog().info(format("(Blue) Updating environmentId to version %s", versionLabel));
 
@@ -122,7 +124,7 @@ public class BluegreenDeploymentMojo extends AbstractNeedsEnvironmentMojo {
 
     new WaitForEnvironmentCommand(this).execute(
         new WaitForEnvironmentContextBuilder().withStatusToWaitFor("Ready")
-            .withApplicationName(applicationName).withHealth("Green").withEnvironmentRef(otherEnvId)
+            .withApplicationName(applicationName).withHealth("Green").withEnvironmentRef(new AWSIdEnvironmentReference(otherEnvId))
             .build());
 
     getLog().info(format("Ok. Switching"));

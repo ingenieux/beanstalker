@@ -32,6 +32,8 @@ import java.util.regex.Pattern;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
+import static java.lang.String.format;
+
 /**
  * Deletes application versions, either by count and/or by date old
  *

@@ -394,7 +394,7 @@ public class CreateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 
         if (waitForReady) {
             WaitForEnvironmentContext ctx = new WaitForEnvironmentContextBuilder()//
-                    .withEnvironmentRef(result.getEnvironmentId())//
+                    .withEnvironmentRef(new AWSIdEnvironmentReference(result.getEnvironmentId()))//
                     .withApplicationName(result.getApplicationName())//
                     .withHealth(mustBeHealthy ? "Green" : null)//
                     .withStatusToWaitFor("Ready")//
