@@ -15,6 +15,9 @@ package br.com.ingenieux.mojo.beanstalk.env;
  */
 
 
+import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentCommand;
+import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext;
+import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
 import br.com.ingenieux.mojo.beanstalk.util.EnvironmentHostnameUtil;
 import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
 
@@ -28,7 +31,12 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesContextBuilder;
 
+import java.util.Collection;
+
+import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 /**
  * Lists the available solution stacks
@@ -50,39 +58,95 @@ public class SwapEnvironmentCnamesMojo extends AbstractBeanstalkMojo {
   String applicationName;
 
   /**
+   * EnvironmentRef of target environment
+   */
+  @Parameter(property = "beanstalk.sourceEnvironmentRef")
+  String sourceEnvironmentRef;
+
+  /**
+   * EnvironmentRef of source environment
+   */
+  @Parameter(property = "beanstalk.targetEnvironmentRef")
+  String targetEnvironmentRef;
+
+  /**
    * cname of source environment
    */
-  @Parameter(property = "beanstalk.sourceEnvironmentCNamePrefix", required = true)
+  @Parameter(property = "beanstalk.sourceEnvironmentCNamePrefix")
   String sourceEnvironmentCNamePrefix;
 
   /**
    * cname of target environment
    */
-  @Parameter(property = "beanstalk.targetEnvironmentCNamePrefix", required = true)
+  @Parameter(property = "beanstalk.targetEnvironmentCNamePrefix")
   String targetEnvironmentCNamePrefix;
+
+    boolean nonBlank(String... args) {
+        for (String a : args)
+          if (isBlank(a))
+            return false;
+
+        return true;
+    }
 
   @Override
   protected Object executeInternal() throws AbstractMojoExecutionException {
-      sourceEnvironmentCNamePrefix = defaultString(sourceEnvironmentCNamePrefix, "<blank>");
-      targetEnvironmentCNamePrefix = defaultString(targetEnvironmentCNamePrefix, "<blank>");
+      SwapCNamesContext context;
 
-      Validate.isTrue(sourceEnvironmentCNamePrefix.matches("[\\p{Alnum}\\-]{4,63}"), "Invalid Source Environment CName Prefix: " + sourceEnvironmentCNamePrefix);
-      Validate.isTrue(targetEnvironmentCNamePrefix.matches("[\\p{Alnum}\\-]{4,63}"), "Invalid Target Environment CName Prefix: " + targetEnvironmentCNamePrefix);
+      if (nonBlank(sourceEnvironmentRef, targetEnvironmentRef)) {
+          EnvironmentDescription e0 = findOnly(new WaitForEnvironmentCommand(this).
+                  lookupInternal(
+                          new WaitForEnvironmentContextBuilder().
+                                  withApplicationName(applicationName).
+                                  withEnvironmentRef(sourceEnvironmentRef).
+                                  build()));
 
-    EnvironmentDescription sourceEnvironment = lookupEnvironment(applicationName, EnvironmentHostnameUtil.ensureSuffix(sourceEnvironmentCNamePrefix, getRegion()));
-    EnvironmentDescription targetEnvironment = lookupEnvironment(applicationName, EnvironmentHostnameUtil.ensureSuffix(targetEnvironmentCNamePrefix, getRegion()));
+          EnvironmentDescription e1 = findOnly(new WaitForEnvironmentCommand(this).
+                  lookupInternal(
+                          new WaitForEnvironmentContextBuilder().
+                                  withApplicationName(applicationName).
+                                  withEnvironmentRef(targetEnvironmentRef).
+                                  build()));
 
-      // TODO: Why 'destination' instead of 'target'? Make it consistent
-    SwapCNamesContext context = SwapCNamesContextBuilder
-        .swapCNamesContext()//
-        .withSourceEnvironmentId(sourceEnvironment.getEnvironmentId())//
-        .withDestinationEnvironmentId(
-            targetEnvironment.getEnvironmentId())//
-        .build();
+          Validate.isTrue(isNotBlank(e0.getCNAME()), format("Environment '%s' must be non-worker (thus having a cname)", e1.getEnvironmentId()));
+          Validate.isTrue(isNotBlank(e1.getCNAME()), format("Environment '%s' must be non-worker (thus having a cname)", e1.getEnvironmentId()));
 
-    SwapCNamesCommand command = new SwapCNamesCommand(this);
+          context = SwapCNamesContextBuilder
+                  .swapCNamesContext()//
+                  .withSourceEnvironmentId(e0.getEnvironmentId())//
+                  .withDestinationEnvironmentId(
+                          e1.getEnvironmentId())//
+                  .build();
+      } else if (nonBlank(sourceEnvironmentCNamePrefix, targetEnvironmentCNamePrefix)){
+          sourceEnvironmentCNamePrefix = defaultString(sourceEnvironmentCNamePrefix);
+          targetEnvironmentCNamePrefix = defaultString(targetEnvironmentCNamePrefix);
+
+          Validate.isTrue(sourceEnvironmentCNamePrefix.matches("[\\p{Alnum}\\-]{4,63}"), "Invalid Source Environment CName Prefix: " + sourceEnvironmentCNamePrefix);
+          Validate.isTrue(targetEnvironmentCNamePrefix.matches("[\\p{Alnum}\\-]{4,63}"), "Invalid Target Environment CName Prefix: " + targetEnvironmentCNamePrefix);
+
+          EnvironmentDescription sourceEnvironment = lookupEnvironment(applicationName, EnvironmentHostnameUtil.ensureSuffix(sourceEnvironmentCNamePrefix, getRegion()));
+          EnvironmentDescription targetEnvironment = lookupEnvironment(applicationName, EnvironmentHostnameUtil.ensureSuffix(targetEnvironmentCNamePrefix, getRegion()));
+
+          // TODO: Why 'destination' instead of 'target'? Make it consistent
+          context = SwapCNamesContextBuilder
+                  .swapCNamesContext()//
+                  .withSourceEnvironmentId(sourceEnvironment.getEnvironmentId())//
+                  .withDestinationEnvironmentId(
+                          targetEnvironment.getEnvironmentId())//
+                  .build();
+      } else {
+          throw new IllegalArgumentException("You must supply either {source,target}EnvironmentCNamePrefix or {source,target}EnvironmentRef");
+      }
+
+      SwapCNamesCommand command = new SwapCNamesCommand(this);
 
     return command.execute(context);
 
   }
+
+    private EnvironmentDescription findOnly(Collection<EnvironmentDescription> environmentDescriptions) {
+        Validate.isTrue(1 == environmentDescriptions.size(), "More than one environment matches spec");
+
+        return environmentDescriptions.iterator().next();
+    }
 }
