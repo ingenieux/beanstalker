@@ -15,8 +15,10 @@ package br.com.ingenieux.mojo.beanstalk.env;
  */
 
 
+import br.com.ingenieux.mojo.beanstalk.util.EnvironmentHostnameUtil;
 import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
 
+import org.apache.commons.lang.Validate;
 import org.apache.maven.plugin.AbstractMojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -25,6 +27,8 @@ import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesContextBuilder;
+
+import static org.apache.commons.lang.StringUtils.defaultString;
 
 /**
  * Lists the available solution stacks
@@ -48,33 +52,32 @@ public class SwapEnvironmentCnamesMojo extends AbstractBeanstalkMojo {
   /**
    * cname of source environment
    */
-  @Parameter(property = "beanstalk.sourceEnvironmentCNamePrefix")
+  @Parameter(property = "beanstalk.sourceEnvironmentCNamePrefix", required = true)
   String sourceEnvironmentCNamePrefix;
 
   /**
    * cname of target environment
    */
-  @Parameter(property = "beanstalk.targetEnvironmentCNamePrefix")
+  @Parameter(property = "beanstalk.targetEnvironmentCNamePrefix", required = true)
   String targetEnvironmentCNamePrefix;
 
   @Override
   protected Object executeInternal() throws AbstractMojoExecutionException {
-    EnvironmentDescription sourceEnvironment = lookupEnvironment(applicationName,
-                                                                 ensureSuffix(
-                                                                     sourceEnvironmentCNamePrefix));
-    EnvironmentDescription targetEnvironment = lookupEnvironment(applicationName,
-                                                                 ensureSuffix(
-                                                                     targetEnvironmentCNamePrefix));
+      sourceEnvironmentCNamePrefix = defaultString(sourceEnvironmentCNamePrefix, "<blank>");
+      targetEnvironmentCNamePrefix = defaultString(targetEnvironmentCNamePrefix, "<blank>");
 
+      Validate.isTrue(sourceEnvironmentCNamePrefix.matches("[\\p{Alnum}\\-]{4,63}"), "Invalid Source Environment CName Prefix: " + sourceEnvironmentCNamePrefix);
+      Validate.isTrue(targetEnvironmentCNamePrefix.matches("[\\p{Alnum}\\-]{4,63}"), "Invalid Target Environment CName Prefix: " + targetEnvironmentCNamePrefix);
+
+    EnvironmentDescription sourceEnvironment = lookupEnvironment(applicationName, EnvironmentHostnameUtil.ensureSuffix(sourceEnvironmentCNamePrefix, getRegion()));
+    EnvironmentDescription targetEnvironment = lookupEnvironment(applicationName, EnvironmentHostnameUtil.ensureSuffix(targetEnvironmentCNamePrefix, getRegion()));
+
+      // TODO: Why 'destination' instead of 'target'? Make it consistent
     SwapCNamesContext context = SwapCNamesContextBuilder
         .swapCNamesContext()//
         .withSourceEnvironmentId(sourceEnvironment.getEnvironmentId())//
-        .withSourceEnvironmentName(
-            sourceEnvironment.getEnvironmentName())//
         .withDestinationEnvironmentId(
             targetEnvironment.getEnvironmentId())//
-        .withDestinationEnvironmentName(
-            targetEnvironment.getEnvironmentName())//
         .build();
 
     SwapCNamesCommand command = new SwapCNamesCommand(this);
