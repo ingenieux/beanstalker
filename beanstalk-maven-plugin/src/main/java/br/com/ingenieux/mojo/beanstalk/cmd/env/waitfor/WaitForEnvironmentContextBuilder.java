@@ -34,6 +34,8 @@
 
 package br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor;
 
+import br.com.ingenieux.mojo.beanstalk.env.EnvironmentReference;
+
 public class WaitForEnvironmentContextBuilder extends
                                               WaitForEnvironmentContextBuilderBase<WaitForEnvironmentContextBuilder> {
 
@@ -92,7 +94,7 @@ class WaitForEnvironmentContextBuilderBase<GeneratorT extends WaitForEnvironment
   }
 
   @SuppressWarnings("unchecked")
-  public GeneratorT withEnvironmentRef(String aValue) {
+  public GeneratorT withEnvironmentRef(EnvironmentReference aValue) {
     instance.setEnvironmentRef(aValue);
 
     return (GeneratorT) this;

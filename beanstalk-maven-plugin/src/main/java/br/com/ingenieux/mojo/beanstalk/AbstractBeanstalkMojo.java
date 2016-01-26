@@ -19,6 +19,7 @@ import br.com.ingenieux.mojo.aws.util.GlobUtil;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
+import br.com.ingenieux.mojo.beanstalk.env.EnvironmentReference;
 import br.com.ingenieux.mojo.beanstalk.util.ConfigUtil;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2Client;
@@ -69,7 +70,7 @@ public abstract class AbstractBeanstalkMojo extends
     return Arrays.asList(arrOptionSettings);
   }
 
-  protected EnvironmentDescription lookupEnvironment(String applicationName, String environmentRef)
+    protected EnvironmentDescription lookupEnvironment(String applicationName, EnvironmentReference environmentRef)
       throws MojoExecutionException {
     final WaitForEnvironmentContext
         ctx =

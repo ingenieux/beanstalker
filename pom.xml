@@ -71,7 +71,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <slf4j.version>1.6.4</slf4j.version>
         <preparationGoals>clean install verify</preparationGoals>
-        <aws.sdk.version>1.10.20</aws.sdk.version>
+        <aws.sdk.version>1.10.49</aws.sdk.version>
     </properties>
 
     <scm>

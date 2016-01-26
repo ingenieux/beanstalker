@@ -28,8 +28,13 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentCommand
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
 import br.com.ingenieux.mojo.beanstalk.util.EnvironmentHostnameUtil;
-import com.amazonaws.services.elasticbeanstalk.model.*;
 import com.google.common.base.Predicate;
+import com.amazonaws.services.elasticbeanstalk.model.CheckDNSAvailabilityRequest;
+import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
+import com.amazonaws.services.elasticbeanstalk.model.CreateEnvironmentResult;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettingsRequest;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettingsResult;
+import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.AbstractMojoExecutionException;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -37,7 +42,11 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -170,7 +179,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
         /* TODO: Revise Suffix Dynamics */
         if (getLog().isInfoEnabled()) {
             getLog().info(
-                    "Creating a new environment on " + cnamePrefixToCreate + ".elasticbeanstalk.com");
+                    "Creating a new environment on " + cnamePrefixToCreate + "." + getRegion().getName() + ".elasticbeanstalk.com");
         }
 
         if (copyOptionSettings) {
@@ -448,7 +457,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
             WaitForEnvironmentContext context = new WaitForEnvironmentContextBuilder()
                     .withApplicationName(applicationName)//
                     .withStatusToWaitFor("Ready")//
-                    .withEnvironmentRef(newEnvironmentId)//
+                    .withEnvironmentRef(new AWSIdEnvironmentReference(newEnvironmentId))//
                     .withTimeoutMins(timeoutMins)//
                     .build();
 
@@ -515,7 +524,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 
         WaitForEnvironmentContext context = new WaitForEnvironmentContextBuilder()//
                 .withApplicationName(applicationName)//
-                .withStatusToWaitFor("Ready").withEnvironmentRef(environmentId)//
+                .withStatusToWaitFor("Ready").withEnvironmentRef(new AWSIdEnvironmentReference(environmentId))//
                 .withHealth((mustBeHealthy ? "Green" : null))//
                 .withTimeoutMins(timeoutMins).build();
 
@@ -541,7 +550,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 
         WaitForEnvironmentContext context = new WaitForEnvironmentContextBuilder()
                 .withApplicationName(applicationName)
-                .withStatusToWaitFor("Ready").withEnvironmentRef(environmentId)
+                .withStatusToWaitFor("Ready").withEnvironmentRef(new AWSIdEnvironmentReference(environmentId))
                 .withHealth("Green")
                 .withTimeoutMins(timeoutMins).build();
 

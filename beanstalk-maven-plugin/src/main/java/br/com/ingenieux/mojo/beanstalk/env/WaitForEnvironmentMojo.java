@@ -58,8 +58,7 @@ public class WaitForEnvironmentMojo extends AbstractBeanstalkMojo {
   /**
    * Environment Ref
    */
-  @Parameter(property = "beanstalk.environmentRef",
-             defaultValue = "${project.artifactId}.elasticbeanstalk.com")
+  @Parameter(property = "beanstalk.environmentRef", defaultValue = "${project.artifactId}")
   String environmentRef;
 
   @Override
@@ -69,7 +68,7 @@ public class WaitForEnvironmentMojo extends AbstractBeanstalkMojo {
         .withStatusToWaitFor(statusToWaitFor)//
         .withTimeoutMins(timeoutMins)//
         .withHealth(healthToWaitFor)//
-        .withEnvironmentRef(environmentRef)//
+        .withEnvironmentRef(new CNamePrefixEnvironmentReference(environmentRef))//
         .build();
 
     WaitForEnvironmentCommand command = new WaitForEnvironmentCommand(this);

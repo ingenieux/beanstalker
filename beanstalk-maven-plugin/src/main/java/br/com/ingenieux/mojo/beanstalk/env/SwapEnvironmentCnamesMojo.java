@@ -26,6 +26,8 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.swap.SwapCNamesContextBuilder;
 
+import static java.lang.String.format;
+
 /**
  * Lists the available solution stacks
  *
@@ -59,27 +61,20 @@ public class SwapEnvironmentCnamesMojo extends AbstractBeanstalkMojo {
 
   @Override
   protected Object executeInternal() throws AbstractMojoExecutionException {
-    EnvironmentDescription sourceEnvironment = lookupEnvironment(applicationName,
-                                                                 ensureSuffix(
-                                                                     sourceEnvironmentCNamePrefix));
-    EnvironmentDescription targetEnvironment = lookupEnvironment(applicationName,
-                                                                 ensureSuffix(
-                                                                     targetEnvironmentCNamePrefix));
+    EnvironmentDescription sourceEnvironment = lookupEnvironment(applicationName, new CNamePrefixEnvironmentReference(sourceEnvironmentCNamePrefix));
+
+    EnvironmentDescription targetEnvironment = lookupEnvironment(applicationName, new CNamePrefixEnvironmentReference(targetEnvironmentCNamePrefix));
 
     SwapCNamesContext context = SwapCNamesContextBuilder
         .swapCNamesContext()//
         .withSourceEnvironmentId(sourceEnvironment.getEnvironmentId())//
-        .withSourceEnvironmentName(
-            sourceEnvironment.getEnvironmentName())//
-        .withDestinationEnvironmentId(
-            targetEnvironment.getEnvironmentId())//
-        .withDestinationEnvironmentName(
-            targetEnvironment.getEnvironmentName())//
+        .withSourceEnvironmentName(sourceEnvironment.getEnvironmentName())//
+        .withDestinationEnvironmentId(targetEnvironment.getEnvironmentId())//
+        .withDestinationEnvironmentName(targetEnvironment.getEnvironmentName())//
         .build();
 
     SwapCNamesCommand command = new SwapCNamesCommand(this);
 
     return command.execute(context);
 
-  }
-}
+  }}

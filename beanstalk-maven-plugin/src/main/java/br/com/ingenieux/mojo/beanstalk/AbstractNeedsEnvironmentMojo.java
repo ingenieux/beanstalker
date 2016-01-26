@@ -3,6 +3,7 @@ package br.com.ingenieux.mojo.beanstalk;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
+import br.com.ingenieux.mojo.beanstalk.env.CNamePrefixEnvironmentReference;
 import com.amazonaws.services.elasticbeanstalk.model.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
@@ -359,8 +360,7 @@ public abstract class AbstractNeedsEnvironmentMojo extends
     /**
      * Environment Ref
      */
-    @Parameter(property = "beanstalk.environmentRef",
-            defaultValue = "${project.artifactId}.elasticbeanstalk.com")
+    @Parameter(property = "beanstalk.environmentRef", defaultValue = "${project.artifactId}")
     protected String environmentRef;
 
     /**
@@ -373,7 +373,7 @@ public abstract class AbstractNeedsEnvironmentMojo extends
         try {
             // TODO Add Convenient Warning Later
 
-            curEnv = super.lookupEnvironment(applicationName, environmentRef);
+            curEnv = super.lookupEnvironment(applicationName, new CNamePrefixEnvironmentReference(environmentRef));
         } catch (MojoExecutionException e) {
             throw new RuntimeException(e);
         }
@@ -486,7 +486,7 @@ public abstract class AbstractNeedsEnvironmentMojo extends
                 .withApplicationName(applicationName)//
                 .withStatusToWaitFor("!Updating")//
                 .withTimeoutMins(2)//
-                .withEnvironmentRef(environmentRef)//
+                .withEnvironmentRef(new CNamePrefixEnvironmentReference(environmentRef))//
                 .build();
 
         WaitForEnvironmentCommand command = new WaitForEnvironmentCommand(this);

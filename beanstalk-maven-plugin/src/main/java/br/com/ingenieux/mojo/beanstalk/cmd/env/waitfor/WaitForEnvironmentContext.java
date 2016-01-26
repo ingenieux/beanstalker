@@ -1,5 +1,7 @@
 package br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor;
 
+import br.com.ingenieux.mojo.beanstalk.env.EnvironmentReference;
+
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +20,7 @@ public class WaitForEnvironmentContext {
   String applicationName;
   Integer timeoutMins = 20;
   String statusToWaitFor;
-  String environmentRef;
+  EnvironmentReference environmentRef;
   String health;
 
   public String getApplicationName() {
@@ -48,14 +50,14 @@ public class WaitForEnvironmentContext {
   /**
    * @return the environmentRef
    */
-  public String getEnvironmentRef() {
+  public EnvironmentReference getEnvironmentRef() {
     return environmentRef;
   }
 
   /**
    * @param environmentRef the environmentRef to set
    */
-  public void setEnvironmentRef(String environmentRef) {
+  public void setEnvironmentRef(EnvironmentReference environmentRef) {
     this.environmentRef = environmentRef;
   }
 
