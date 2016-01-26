@@ -58,13 +58,13 @@ public class SwapEnvironmentCnamesMojo extends AbstractBeanstalkMojo {
   String applicationName;
 
   /**
-   * EnvironmentRef of target environment
+   * EnvironmentRef of source environment
    */
   @Parameter(property = "beanstalk.sourceEnvironmentRef")
   String sourceEnvironmentRef;
 
   /**
-   * EnvironmentRef of source environment
+   * EnvironmentRef of target environment
    */
   @Parameter(property = "beanstalk.targetEnvironmentRef")
   String targetEnvironmentRef;
