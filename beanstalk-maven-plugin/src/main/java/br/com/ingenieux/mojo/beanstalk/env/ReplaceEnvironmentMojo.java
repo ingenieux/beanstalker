@@ -27,7 +27,9 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.terminate.TerminateEnvironmentCon
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
+import br.com.ingenieux.mojo.beanstalk.util.EnvironmentHostnameUtil;
 import com.amazonaws.services.elasticbeanstalk.model.*;
+import com.google.common.base.Predicate;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.AbstractMojoExecutionException;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -165,6 +167,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 		 */
         String cnamePrefixToCreate = getCNamePrefixToCreate();
 
+        /* TODO: Revise Suffix Dynamics */
         if (getLog().isInfoEnabled()) {
             getLog().info(
                     "Creating a new environment on " + cnamePrefixToCreate + ".elasticbeanstalk.com");
@@ -558,6 +561,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
 
         while (hasEnvironmentFor(applicationName, cnamePrefixToReturn) || isNamedEnvironmentUnavailable(
                 cnamePrefixToReturn)) {
+            // TODO: Environment Length Restrictions
             cnamePrefixToReturn = String.format("%s-%d", cnamePrefix, i++);
         }
 
@@ -586,14 +590,13 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
     protected EnvironmentDescription getEnvironmentFor(String applicationName,
                                                        String cnamePrefix) {
         Collection<EnvironmentDescription> environments = getEnvironmentsFor(applicationName);
-        String cnameToMatch = String.format("%s.elasticbeanstalk.com",
-                cnamePrefix);
+        Predicate<EnvironmentDescription> pred = EnvironmentHostnameUtil.getHostnamePredicate(getRegion(), cnamePrefix);
 
 		/*
 		 * Finds a matching environment
 		 */
         for (EnvironmentDescription envDesc : environments) {
-            if (cnameToMatch.equals(envDesc.getCNAME())) {
+            if (pred.apply(envDesc)) {
                 return envDesc;
             }
         }

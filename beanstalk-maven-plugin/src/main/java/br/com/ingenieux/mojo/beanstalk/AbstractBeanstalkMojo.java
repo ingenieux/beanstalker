@@ -20,6 +20,7 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentCommand
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
 import br.com.ingenieux.mojo.beanstalk.util.ConfigUtil;
+import br.com.ingenieux.mojo.beanstalk.util.EnvironmentHostnameUtil;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
@@ -225,17 +226,9 @@ public abstract class AbstractBeanstalkMojo extends
     return configurationTemplates;
   }
 
-  public String ensureSuffix(String cname) {
-    cname = defaultString(cname);
-    if (!cname.endsWith(".elasticbeanstalk.com")) {
-      cname += ".elasticbeanstalk.com";
-    }
-
-    return cname;
-  }
-
+    /* TODO: Revise Suffix Dynamics */
   public String ensureSuffixStripped(String cnamePrefix) {
-    return defaultString(cnamePrefix).replaceAll("\\Q.elasticbeanstalk.com\\E$", "");
+    return EnvironmentHostnameUtil.ensureSuffixStripped(cnamePrefix);
   }
 
 

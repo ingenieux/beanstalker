@@ -39,7 +39,7 @@ public class CreateEnvironmentContext {
   String templateName;
   String environmentTierName = "WebServer";
   String environmentTierType = "Standard";
-  String environmentTierVersion = "1.0";
+  String environmentTierVersion = " ";
   List<Tag> tags;
 
   /**
