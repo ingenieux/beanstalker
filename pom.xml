@@ -90,6 +90,7 @@
         <module>elasticbeanstalk-docker-dropwizard-webapp-archetype</module>
         <module>elasticbeanstalk-service-webapp-archetype</module>
         <module>elasticbeanstalk-wrapper-webapp-archetype</module>
+        <module>elasticbeanstalk-javase-archetype</module>
         <module>beanstalk-maven-plugin-it</module>
     </modules>
 
