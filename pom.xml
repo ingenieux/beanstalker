@@ -86,6 +86,7 @@
         <module>beanstalk-maven-plugin</module>
         <module>lambda-maven-plugin</module>
         <module>elasticbeanstalk-docker-dropwizard-webapp-archetype</module>
+        <module>elasticbeanstalk-javase-archetype</module>
         <module>beanstalk-maven-plugin-it</module>
     </modules>
 
