@@ -20,11 +20,6 @@
         </plugins>
     </build>
 
-    <scm>
-        <connection>scm:hg:http://bitbucket.org/aldrinleal/beanstalker</connection>
-        <developerConnection>scm:hg:https://bitbucket.org/aldrinleal/beanstalker</developerConnection>
-    </scm>
-
     <dependencies>
         <dependency>
             <groupId>br.com.ingenieux</groupId>

@@ -12,11 +12,6 @@
   <artifactId>elasticbeanstalk-docker-dropwizard-webapp-archetype</artifactId>
   <packaging>maven-archetype</packaging>
 
-  <scm>
-    <connection>scm:hg:http://bitbucket.org/aldrinleal/beanstalker</connection>
-    <developerConnection>scm:hg:https://bitbucket.org/aldrinleal/beanstalker</developerConnection>
-  </scm>
-
   <description>A Maven Archetype for Publishing Dropwizard-based Services on AWS' Elastic Beanstalk Service</description>
 
   <build>

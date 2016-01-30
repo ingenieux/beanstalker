@@ -75,21 +75,17 @@
     </properties>
 
     <scm>
-        <connection>scm:hg:http://bitbucket.org/aldrinleal/beanstalker</connection>
-        <developerConnection>scm:hg:ssh://hg@bitbucket.org/aldrinleal/beanstalker
+        <connection>scm:git:git@github.com:ingenieux/beanstalker.git</connection>
+        <developerConnection>scm:git:git@github.com:ingenieux/beanstalker.git
         </developerConnection>
-        <url>http://bitbucket.org/aldrinleal/beanstalker</url>
+        <url>scm:git:git@github.com:ingenieux/beanstalker.git</url>
     </scm>
 
     <modules>
         <module>beanstalker-common</module>
         <module>beanstalk-maven-plugin</module>
-        <module>cloudfront-maven-plugin</module>
-        <module>simpledb-maven-plugin</module>
         <module>lambda-maven-plugin</module>
         <module>elasticbeanstalk-docker-dropwizard-webapp-archetype</module>
-        <module>elasticbeanstalk-service-webapp-archetype</module>
-        <module>elasticbeanstalk-wrapper-webapp-archetype</module>
         <module>beanstalk-maven-plugin-it</module>
     </modules>
 
