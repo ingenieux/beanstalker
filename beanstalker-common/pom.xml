@@ -27,12 +27,6 @@
     </parent>
     <artifactId>beanstalker-common</artifactId>
 
-    <scm>
-        <connection>scm:hg:http://bitbucket.org/aldrinleal/beanstalker</connection>
-        <developerConnection>scm:hg:https://bitbucket.org/aldrinleal/beanstalker
-        </developerConnection>
-    </scm>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.maven</groupId>
