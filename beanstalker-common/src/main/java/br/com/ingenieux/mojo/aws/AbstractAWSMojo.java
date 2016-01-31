@@ -58,21 +58,6 @@ import br.com.ingenieux.mojo.aws.util.AWSClientFactory;
 import br.com.ingenieux.mojo.aws.util.TypeUtil;
 
 import static java.lang.String.format;
-
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /**
  * Represents a Mojo which keeps AWS passwords <p/> TODO: Refactor into tiny, delegated classes.
  * Currently its a huge bloat, but it works, right? <p/> <p> <b>NOTE:</b> Settings in this class use
@@ -119,13 +104,14 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
      */
     @Parameter(property = "beanstalker.ignoreExceptions", defaultValue = "false")
     protected boolean ignoreExceptions;
+
     protected String version = "?";
+
     protected Context context;
     /**
-     * <p> Service region e.g. &quot;us-east-1&quot; </p> <p/> <p> <b>Note: Does not apply to all
-     * services.</b> </p> <p/> <p> <i>&quot;-Cloudfront, I'm talking to you! Look at me when I do
-     * that!&quot;</i> </p> <p/> <p> See <a href="http://docs.amazonwebservices.com/general/latest/gr/rande.html"
-     * >this list</a> for reference. </p> <p/> <p>TODO Rationalize this</p>
+     * <p> Service region e.g. &quot;us-east-1&quot; </p>
+     * <p> See <a href="http://docs.amazonwebservices.com/general/latest/gr/rande.html"
+     * >this list</a> for reference. </p>
      */
     @Parameter(property = "beanstalker.region")
     protected String regionName = "us-east-1";
