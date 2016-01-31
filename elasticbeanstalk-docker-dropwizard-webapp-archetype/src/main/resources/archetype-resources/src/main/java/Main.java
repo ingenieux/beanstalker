@@ -1,13 +1,13 @@
 #set($symbol_pound='#')
-        #set($symbol_dollar='$')
-        #set($symbol_escape='\' )
-        package ${package};
+#set($symbol_dollar='$')
+#set($symbol_escape='\' )
+package ${package};
 
-        import ${package}.resources.HealthCheckResource;
+import ${package}.resources.HealthCheckResource;
 
-        import io.dropwizard.Application;
-        import io.dropwizard.setup.Bootstrap;
-        import io.dropwizard.setup.Environment;
+import io.dropwizard.Application;
+import io.dropwizard.setup.Bootstrap;
+import io.dropwizard.setup.Environment;
 
 public class Main extends Application<ServiceConfiguration> {
 

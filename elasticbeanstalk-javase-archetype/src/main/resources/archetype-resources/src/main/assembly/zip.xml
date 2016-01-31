@@ -1,6 +1,6 @@
 #set( $symbol_pound = '#' )
-        #set( $symbol_dollar = '$' )
-        #set( $symbol_escape = '\' )
+#set( $symbol_dollar = '$' )
+#set( $symbol_escape = '\' )
 <assembly
         xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.${version}"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"

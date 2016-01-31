@@ -1,10 +1,10 @@
 #set($symbol_pound='#')
-        #set($symbol_dollar='$')
-        #set($symbol_escape='\' )
-        package ${package}.resources;
+#set($symbol_dollar='$')
+#set($symbol_escape='\' )
+package ${package}.resources;
 
-        import org.slf4j.Logger;
-        import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BaseResource {
 

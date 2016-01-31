@@ -1,24 +1,24 @@
 #set($symbol_pound='#')
-        #set($symbol_dollar='$')
-        #set($symbol_escape='\' )
-        package ${package};
+#set($symbol_dollar='$')
+#set($symbol_escape='\' )
+package ${package};
 
-        import javax.servlet.http.HttpServletRequest;
-        import javax.servlet.http.HttpServletResponse;
-        import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.ServletException;
 
-        import java.io.IOException;
-        import java.io.PrintWriter;
-        import java.io.StringWriter;
-        import java.io.BufferedReader;
-        import java.io.InputStreamReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
-        import java.nio.file.Files;
-        import java.nio.file.Paths;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
-        import org.eclipse.jetty.server.Server;
-        import org.eclipse.jetty.server.Request;
-        import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.handler.AbstractHandler;
 
 public class Application extends AbstractHandler {
     private static final int DEFAULT_PORT = 5000;
