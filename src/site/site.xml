@@ -31,9 +31,6 @@
     <menu name="Plugins">
       <item name="beanstalk-maven-plugin" href="beanstalk-maven-plugin" /> 
       <item name="lambda-maven-plugin" href="lambda-maven-plugin" />
-      <item name="cloudfront-maven-plugin" href="cloudfront-maven-plugin" />
-      <item name="mapreduce-maven-plugin" href="mapreduce-maven-plugin" />
-      <item name="simpledb-maven-plugin" href="simpledb-maven-plugin" /> 
     </menu>
   </body>
 </project>

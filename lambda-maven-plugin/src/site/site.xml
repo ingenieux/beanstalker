@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="cloudfront Maven Plugin">
     <bannerRight>
-        <name>cloudfront Maven Plugin</name>
+        <name>Lambda Maven Plugin</name>
         <href>index.html</href>
     </bannerRight>
     <poweredBy>
