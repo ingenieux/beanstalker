@@ -15,19 +15,42 @@
         <!-- You can use a later version if you are are using Java 8 -->
         <jettyVersion>9.2.0.RC0</jettyVersion>
         <mainApplication>\${package}.Application</mainApplication>
+
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
+
+        <beanstalker.region>us-east-1</beanstalker.region>
+
+        <environmentName>\${project.artifactId}-prod</environmentName>
+
+        <beanstalk.applicationName>\${project.artifactId}</beanstalk.applicationName>
+
+        <beanstalk.environmentName>\${environmentName}</beanstalk.environmentName>
+        <beanstalk.cnamePrefix>\${environmentName}</beanstalk.cnamePrefix>
+        <beanstalk.environmentRef>\${environmentName}.elasticbeanstalk.com</beanstalk.environmentRef>
+
         <beanstalk.versionLabel>v1</beanstalk.versionLabel>
+
         <beanstalk.mainJar>\${project.build.finalName}.jar</beanstalk.mainJar>
         <beanstalk.sourceBundle>\${project.build.finalName}.zip</beanstalk.sourceBundle>
         <beanstalk.artifactFile>\${project.build.directory}/\${beanstalk.sourceBundle}</beanstalk.artifactFile>
-        <!-- The default bucket name is \${project.groupId} which is highly possible not available for use in S3. Make sure you
-             change to an available bucket name. -->
+        <!-- If you want to use a non-default bucket, override this variable -->
+        <!--
         <beanstalk.s3Bucket>\${project.groupId}</beanstalk.s3Bucket>
-        <beanstalk.s3Key>\${project.artifactId}-\${project.version}-\${beanstalk.versionLabel}.zip</beanstalk.s3Key>
-        <beanstalk.solutionStack>64bit Amazon Linux 2015.09 v2.0.4 running Java 7</beanstalk.solutionStack>
-        <beanstalk.environmentName>\${project.artifactId}</beanstalk.environmentName>
-        <beanstalk.cnamePrefix>\${project.artifactId}</beanstalk.cnamePrefix>
+        -->
+        <beanstalk.s3Key>\${project.artifactId}/\${project.artifactId}-\${project.version}-\${beanstalk.versionLabel}.zip</beanstalk.s3Key>
+        <beanstalk.solutionStack>64bit Amazon Linux * running Java 7</beanstalk.solutionStack>
+
+        <beanstalk.environmentType>SingleInstance</beanstalk.environmentType>
+
+        <beanstalk.instanceType>m1.small</beanstalk.instanceType>
+
+        <!--
+        <beanstalk.keyName>your-ec2-key</beanstalk.keyName>
+        <beanstalk.iamInstanceProfile>aws-elasticbeanstalk-ec2-role</beanstalk.iamInstanceProfile>
+        <beanstalk.availabilityZones>us-east-1d</beanstalk.availabilityZones>
+        <beanstalk.blockDeviceMappings>/dev/sdb=ephemeral0</beanstalk.blockDeviceMappings>
+        -->
     </properties>
 
     <dependencies>
@@ -78,11 +101,12 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>br.com.ingenieux</groupId>
                 <artifactId>beanstalk-maven-plugin</artifactId>
-                <version>1.4.2</version>
             </plugin>
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
@@ -100,66 +124,27 @@
                 <version>\${jettyVersion}</version>
             </plugin>
         </plugins>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>br.com.ingenieux</groupId>
+                    <artifactId>beanstalk-maven-plugin</artifactId>
+                    <inherited>true</inherited>
+                    <version>${project.version}</version>
+                    <configuration>
+                        <tags>
+                            <Uses>ingenieux Beanstalker at http://beanstalker.ingenieux.com.br/</Uses>
+                        </tags>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
+
     <profiles>
         <profile>
-            <id>deploy</id>
-            <properties>
-                <maven.test.skip>true</maven.test.skip>
-                <maven.install.skip>true</maven.install.skip>
-                <maven.deploy.skip>true</maven.deploy.skip>
-            </properties>
-            <build>
-                <defaultGoal>deploy</defaultGoal>
-                <plugins>
-                    <plugin>
-                        <groupId>br.com.ingenieux</groupId>
-                        <artifactId>beanstalk-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>deploy</id>
-                                <phase>deploy</phase>
-                                <goals>
-                                    <goal>fast-deploy</goal>
-                                    <goal>replace-environment</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <skipEnvironmentUpdate>true</skipEnvironmentUpdate>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>fast-deploy</id>
-            <properties>
-                <maven.test.skip>true</maven.test.skip>
-                <maven.install.skip>true</maven.install.skip>
-                <maven.deploy.skip>true</maven.deploy.skip>
-            </properties>
-            <build>
-                <defaultGoal>deploy</defaultGoal>
-                <plugins>
-                    <plugin>
-                        <groupId>br.com.ingenieux</groupId>
-                        <artifactId>beanstalk-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>deploy</id>
-                                <phase>deploy</phase>
-                                <goals>
-                                    <goal>fast-deploy</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>s3-deploy</id>
+            <id>awseb</id>
             <properties>
                 <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
                 <beanstalk.versionLabel>${maven.build.timestamp}</beanstalk.versionLabel>

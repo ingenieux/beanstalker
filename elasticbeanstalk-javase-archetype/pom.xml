@@ -13,11 +13,6 @@
   <artifactId>elasticbeanstalk-javase-archetype</artifactId>
   <packaging>maven-archetype</packaging>
 
-  <scm>
-    <connection>scm:hg:http://bitbucket.org/aldrinleal/beanstalker</connection>
-    <developerConnection>scm:hg:https://bitbucket.org/aldrinleal/beanstalker</developerConnection>
-  </scm>
-
   <description>A Maven Archetype Encompassing Jetty for Publishing Java SE Services on AWS' Elastic Beanstalk Service</description>
 
   <build>
