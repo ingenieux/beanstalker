@@ -17,7 +17,7 @@ public class EnvironmentHostnameUtil {
     public static final Pattern PATTERN_HOSTNAME = Pattern.compile("(?<cnamePrefix>[\\p{Alnum}\\-]{4,63})(?<regionName>.\\p{Alpha}{2}\\-\\p{Alpha}{4,9}\\-\\p{Digit})?\\Q.elasticbeanstalk.com\\E$");
 
     public static Predicate<EnvironmentDescription> getHostnamePredicate(Region region, String cnamePrefix) {
-        final Set<String> hostnamesToMatch = new TreeSet<String>();
+        final Set<String> hostnamesToMatch = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 
         hostnamesToMatch.add(format("%s.elasticbeanstalk.com", cnamePrefix).toLowerCase());
         hostnamesToMatch.add(format("%s.%s.elasticbeanstalk.com", cnamePrefix, region.getName()).toLowerCase());
