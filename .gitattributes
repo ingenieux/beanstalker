@@ -1,17 +1,19 @@
 * text=auto
 
+.gitignore text
+.hgignore text
+Dockerfile text
+Procfile text
+
 *.md text
 *.txt text
 *.xml text
 *.apt text
 *.html text
-Dockerfile text
 *.java text
 *.yml text
 *.json text
 *.conf text
 *.properties text
-
-Procfile text
 
 *.war binary
