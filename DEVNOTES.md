@@ -30,6 +30,10 @@ Personal notes since I often switch machines, configurations and lose my mind
 $ git config --global core.autocrlf input
 ```
 
+## Code Style
+
+Google. Please set up your IDE accordingly prior to submitting pull requests.
+
 ## Release Process
 
 The classical:
