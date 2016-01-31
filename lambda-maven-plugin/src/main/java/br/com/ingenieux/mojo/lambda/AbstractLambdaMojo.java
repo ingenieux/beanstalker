@@ -16,8 +16,9 @@
 
 package br.com.ingenieux.mojo.lambda;
 
-import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
 import com.amazonaws.services.lambda.AWSLambdaClient;
+
+import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
 
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");

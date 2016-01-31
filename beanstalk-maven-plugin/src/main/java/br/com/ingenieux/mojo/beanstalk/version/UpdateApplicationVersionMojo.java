@@ -50,32 +50,32 @@ import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 @Mojo(name = "update-application-version")
 public class UpdateApplicationVersionMojo extends AbstractBeanstalkMojo {
 
-  /**
-   * Beanstalk Application Name
-   */
-  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
-             required = true)
-  String applicationName;
+    /**
+     * Beanstalk Application Name
+     */
+    @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
+            required = true)
+    String applicationName;
 
-  /**
-   * Application Description
-   */
-  @Parameter(property = "beanstalk.applicationDescription", defaultValue = "${project.name}")
-  String applicationDescription;
+    /**
+     * Application Description
+     */
+    @Parameter(property = "beanstalk.applicationDescription", defaultValue = "${project.name}")
+    String applicationDescription;
 
-  @Parameter(property = "beanstalk.versionLabel", defaultValue = "${project.version}")
-  String versionLabel;
+    @Parameter(property = "beanstalk.versionLabel", defaultValue = "${project.version}")
+    String versionLabel;
 
-  protected Object executeInternal() throws MojoExecutionException {
-    UpdateApplicationVersionRequest request = new UpdateApplicationVersionRequest();
+    protected Object executeInternal() throws MojoExecutionException {
+        UpdateApplicationVersionRequest request = new UpdateApplicationVersionRequest();
 
-    request.setApplicationName(applicationName);
-    request.setDescription(applicationDescription);
-    request.setVersionLabel(versionLabel);
+        request.setApplicationName(applicationName);
+        request.setDescription(applicationDescription);
+        request.setVersionLabel(versionLabel);
 
-    UpdateApplicationVersionResult result = getService()
-        .updateApplicationVersion(request);
+        UpdateApplicationVersionResult result = getService()
+                .updateApplicationVersion(request);
 
-    return result.getApplicationVersion();
-  }
+        return result.getApplicationVersion();
+    }
 }

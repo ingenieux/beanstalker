@@ -16,17 +16,19 @@
 
 package br.com.ingenieux.mojo.beanstalk.cmd.env.create;
 
-import br.com.ingenieux.mojo.aws.util.CredentialsUtil;
-import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
-import br.com.ingenieux.mojo.beanstalk.cmd.BaseCommand;
 import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
 import com.amazonaws.services.elasticbeanstalk.model.CreateEnvironmentRequest;
 import com.amazonaws.services.elasticbeanstalk.model.CreateEnvironmentResult;
 import com.amazonaws.services.elasticbeanstalk.model.EnvironmentTier;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.AbstractMojoExecutionException;
 
 import java.util.Arrays;
+
+import br.com.ingenieux.mojo.aws.util.CredentialsUtil;
+import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
+import br.com.ingenieux.mojo.beanstalk.cmd.BaseCommand;
 
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -42,76 +44,76 @@ import java.util.Arrays;
  * limitations under the License.
  */
 public class CreateEnvironmentCommand extends
-                                      BaseCommand<CreateEnvironmentContext, CreateEnvironmentResult> {
+        BaseCommand<CreateEnvironmentContext, CreateEnvironmentResult> {
 
-  /**
-   * Constructor
-   *
-   * @param parentMojo parent mojo
-   */
-  public CreateEnvironmentCommand(AbstractBeanstalkMojo parentMojo)
-      throws AbstractMojoExecutionException {
-    super(parentMojo);
-  }
-
-  @Override
-  protected CreateEnvironmentResult executeInternal(
-      CreateEnvironmentContext context) throws Exception {
-    CreateEnvironmentRequest request = new CreateEnvironmentRequest();
-
-    request.setApplicationName(context.getApplicationName());
-    request.setCNAMEPrefix(parentMojo.ensureSuffixStripped(context.getCnamePrefix()));
-    request.setDescription(context.getApplicationDescription());
-    request.setEnvironmentName(context.getEnvironmentName());
-    request.setTags(context.getTags());
-
-    request.setOptionSettings(Arrays.asList(context.getOptionSettings()));
-    request.setOptionsToRemove(Arrays.asList(context.getOptionsToRemove()));
-
-    if ("Worker".equals(context.getEnvironmentTierName())) {
-      if (contextDoesNotContainsEC2Role(context)) {
-        parentMojo.getLog().warn(
-            "It is meaningless to launch a worker without an IAM Role. If you set in templateName, thats fine, but here's a warning for you");
-      }
-      ;
-      context.setEnvironmentTierType(StringUtils.defaultString(context.getEnvironmentTierType(), "SQS/HTTP"));
-      request.setCNAMEPrefix(null);
-      request.setTier(new EnvironmentTier().withName(context.getEnvironmentTierName())
-                          .withType(context.getEnvironmentTierType())
-                          .withVersion(context.getEnvironmentTierVersion()));
+    /**
+     * Constructor
+     *
+     * @param parentMojo parent mojo
+     */
+    public CreateEnvironmentCommand(AbstractBeanstalkMojo parentMojo)
+            throws AbstractMojoExecutionException {
+        super(parentMojo);
     }
 
-    if (StringUtils.isNotBlank(context.getTemplateName())) {
-      request.setTemplateName(parentMojo.lookupTemplateName(
-          context.getApplicationName(), context.getTemplateName()));
-    } else if (StringUtils.isNotBlank(context.getSolutionStack())) {
-      request.setSolutionStackName(context.getSolutionStack());
+    @Override
+    protected CreateEnvironmentResult executeInternal(
+            CreateEnvironmentContext context) throws Exception {
+        CreateEnvironmentRequest request = new CreateEnvironmentRequest();
+
+        request.setApplicationName(context.getApplicationName());
+        request.setCNAMEPrefix(parentMojo.ensureSuffixStripped(context.getCnamePrefix()));
+        request.setDescription(context.getApplicationDescription());
+        request.setEnvironmentName(context.getEnvironmentName());
+        request.setTags(context.getTags());
+
+        request.setOptionSettings(Arrays.asList(context.getOptionSettings()));
+        request.setOptionsToRemove(Arrays.asList(context.getOptionsToRemove()));
+
+        if ("Worker".equals(context.getEnvironmentTierName())) {
+            if (contextDoesNotContainsEC2Role(context)) {
+                parentMojo.getLog().warn(
+                        "It is meaningless to launch a worker without an IAM Role. If you set in templateName, thats fine, but here's a warning for you");
+            }
+            ;
+            context.setEnvironmentTierType(StringUtils.defaultString(context.getEnvironmentTierType(), "SQS/HTTP"));
+            request.setCNAMEPrefix(null);
+            request.setTier(new EnvironmentTier().withName(context.getEnvironmentTierName())
+                    .withType(context.getEnvironmentTierType())
+                    .withVersion(context.getEnvironmentTierVersion()));
+        }
+
+        if (StringUtils.isNotBlank(context.getTemplateName())) {
+            request.setTemplateName(parentMojo.lookupTemplateName(
+                    context.getApplicationName(), context.getTemplateName()));
+        } else if (StringUtils.isNotBlank(context.getSolutionStack())) {
+            request.setSolutionStackName(context.getSolutionStack());
+        }
+
+        request.setVersionLabel(context.getVersionLabel());
+
+        if (parentMojo.isVerbose()) {
+            parentMojo.getLog().info(
+                    "Requesting createEnvironment w/ request: "
+                            + CredentialsUtil.redact("" + request));
+        }
+
+        return service.createEnvironment(request);
     }
 
-    request.setVersionLabel(context.getVersionLabel());
+    protected boolean contextDoesNotContainsEC2Role(CreateEnvironmentContext context) {
+        boolean found = false;
 
-    if (parentMojo.isVerbose()) {
-      parentMojo.getLog().info(
-          "Requesting createEnvironment w/ request: "
-          + CredentialsUtil.redact("" + request));
+        for (ConfigurationOptionSetting opt : context.getOptionSettings()) {
+            found =
+                    opt.getOptionName().equals("IamInstanceProfile") && opt.getNamespace()
+                            .equals("aws:autoscaling:launchconfiguration");
+
+            if (found) {
+                break;
+            }
+        }
+
+        return !found;
     }
-
-    return service.createEnvironment(request);
-  }
-
-  protected boolean contextDoesNotContainsEC2Role(CreateEnvironmentContext context) {
-    boolean found = false;
-
-    for (ConfigurationOptionSetting opt : context.getOptionSettings()) {
-      found =
-          opt.getOptionName().equals("IamInstanceProfile") && opt.getNamespace()
-              .equals("aws:autoscaling:launchconfiguration");
-
-      if (found) {
-        break;
-      }
-    }
-
-    return !found;
-  }
 }

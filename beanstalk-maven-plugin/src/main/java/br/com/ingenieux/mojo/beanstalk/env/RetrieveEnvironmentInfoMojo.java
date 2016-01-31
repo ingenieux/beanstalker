@@ -52,23 +52,23 @@ import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 @Mojo(name = "retrieve-environment-info", requiresDirectInvocation = true)
 public class RetrieveEnvironmentInfoMojo extends AbstractNeedsEnvironmentMojo {
 
-  /**
-   * Type of information ro retrieve. Accepted: <code>tail</code>
-   */
-  @Parameter(property = "beanstalk.infoType", defaultValue = "tail", required = true)
-  private String infoType;
+    /**
+     * Type of information ro retrieve. Accepted: <code>tail</code>
+     */
+    @Parameter(property = "beanstalk.infoType", defaultValue = "tail", required = true)
+    private String infoType;
 
-  @Override
-  protected Object executeInternal() throws MojoExecutionException,
-                                            MojoFailureException {
-    RetrieveEnvironmentInfoRequest request = new RetrieveEnvironmentInfoRequest()
-        .withEnvironmentId(curEnv.getEnvironmentId())
-        .withEnvironmentName(curEnv.getEnvironmentName())
-        .withInfoType(infoType);
+    @Override
+    protected Object executeInternal() throws MojoExecutionException,
+            MojoFailureException {
+        RetrieveEnvironmentInfoRequest request = new RetrieveEnvironmentInfoRequest()
+                .withEnvironmentId(curEnv.getEnvironmentId())
+                .withEnvironmentName(curEnv.getEnvironmentName())
+                .withInfoType(infoType);
 
-    RetrieveEnvironmentInfoResult result = getService()
-        .retrieveEnvironmentInfo(request);
+        RetrieveEnvironmentInfoResult result = getService()
+                .retrieveEnvironmentInfo(request);
 
-    return result;
-  }
+        return result;
+    }
 }

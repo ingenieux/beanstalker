@@ -32,68 +32,68 @@ import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
 public class ProjectCleaner {
 
-  @Inject
-  AWSElasticBeanstalk service;
-  AbstractBeanstalkMojo nullMojo = new AbstractBeanstalkMojo() {
-    @Override
-    public AWSElasticBeanstalkClient getService() {
-      return (AWSElasticBeanstalkClient) ProjectCleaner.getInstance().service;
-    }
-
-    @Override
-    protected Object executeInternal() throws Exception {
-      return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-  };
-  private Predicate<? super EnvironmentDescription>
-      activeEnvironmentPredicate =
-      new Predicate<EnvironmentDescription>() {
+    @Inject
+    AWSElasticBeanstalk service;
+    AbstractBeanstalkMojo nullMojo = new AbstractBeanstalkMojo() {
         @Override
-        public boolean apply(EnvironmentDescription t) {
-          return !t.getStatus().equals("Terminated");
+        public AWSElasticBeanstalkClient getService() {
+            return (AWSElasticBeanstalkClient) ProjectCleaner.getInstance().service;
         }
-      };
 
-  private ProjectCleaner() {
-    Guice.createInjector(new CoreModule()).injectMembers(this);
-  }
+        @Override
+        protected Object executeInternal() throws Exception {
+            return null;  //To change body of implemented methods use File | Settings | File Templates.
+        }
+    };
+    private Predicate<? super EnvironmentDescription>
+            activeEnvironmentPredicate =
+            new Predicate<EnvironmentDescription>() {
+                @Override
+                public boolean apply(EnvironmentDescription t) {
+                    return !t.getStatus().equals("Terminated");
+                }
+            };
 
-  public static ProjectCleaner getInstance() {
-    return SingletonHolder.INSTANCE;
-  }
-
-  public static void main(String[] args) throws Exception {
-    try {
-      getInstance().execute();
-    } catch (Exception exc) {
-      // meh
+    private ProjectCleaner() {
+        Guice.createInjector(new CoreModule()).injectMembers(this);
     }
-  }
 
-  public void info(String mask, Object... args) {
-    System.err.println(String.format(mask, args));
-  }
-
-  public void execute() throws Exception {
-    for (ApplicationDescription appDesc : service.describeApplications().getApplications()) {
-      if (!appDesc.getApplicationName().startsWith("mbit-")) {
-        info("Ignoring application name %s", appDesc.getApplicationName());
-
-        continue;
-      } else {
-        info("Browsing environments for app name %s", appDesc.getApplicationName());
-      }
-
-      info("Deleting application");
-
-      service.deleteApplication(
-          new DeleteApplicationRequest().withApplicationName(appDesc.getApplicationName())
-              .withTerminateEnvByForce(true));
+    public static ProjectCleaner getInstance() {
+        return SingletonHolder.INSTANCE;
     }
-  }
 
-  public static class SingletonHolder {
+    public static void main(String[] args) throws Exception {
+        try {
+            getInstance().execute();
+        } catch (Exception exc) {
+            // meh
+        }
+    }
 
-    public static final ProjectCleaner INSTANCE = new ProjectCleaner();
-  }
+    public void info(String mask, Object... args) {
+        System.err.println(String.format(mask, args));
+    }
+
+    public void execute() throws Exception {
+        for (ApplicationDescription appDesc : service.describeApplications().getApplications()) {
+            if (!appDesc.getApplicationName().startsWith("mbit-")) {
+                info("Ignoring application name %s", appDesc.getApplicationName());
+
+                continue;
+            } else {
+                info("Browsing environments for app name %s", appDesc.getApplicationName());
+            }
+
+            info("Deleting application");
+
+            service.deleteApplication(
+                    new DeleteApplicationRequest().withApplicationName(appDesc.getApplicationName())
+                            .withTerminateEnvByForce(true));
+        }
+    }
+
+    public static class SingletonHolder {
+
+        public static final ProjectCleaner INSTANCE = new ProjectCleaner();
+    }
 }

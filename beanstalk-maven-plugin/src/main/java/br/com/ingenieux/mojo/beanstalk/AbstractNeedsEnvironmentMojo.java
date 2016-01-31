@@ -16,10 +16,13 @@
 
 package br.com.ingenieux.mojo.beanstalk;
 
-import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentCommand;
-import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext;
-import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
-import com.amazonaws.services.elasticbeanstalk.model.*;
+import com.amazonaws.services.elasticbeanstalk.model.ApplicationVersionDescription;
+import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationVersionsRequest;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationVersionsResult;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsRequest;
+import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -30,7 +33,22 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
+import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentCommand;
+import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext;
+import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
@@ -92,9 +110,8 @@ public abstract class AbstractNeedsEnvironmentMojo extends
     }
 
     /***
-     * <p>Allows you to declare your own properties inside the plugin configuration, as long as it starts with "beanstalk.x."
-     * <p/>
-     * <p/>
+     * <p>Allows you to declare your own properties inside the plugin configuration, as long as it
+     * starts with "beanstalk.x." <p/> <p/>
      * <code><pre>
      * &lt;pluginManagement&gt;
      *   &lt;plugins&gt;
@@ -121,8 +138,8 @@ public abstract class AbstractNeedsEnvironmentMojo extends
      * </pre>
      * </code>
      *
-     * <p>This basically exposes the <code>beanstalkx.serviceRole</code> property as the mentioned Configuration Option Setting</p>
-     *
+     * <p>This basically exposes the <code>beanstalkx.serviceRole</code> property as the mentioned
+     * Configuration Option Setting</p>
      */
     @Parameter
     List<ConfigurableOptionSetting> configurableOptionSettings = new ArrayList<ConfigurableOptionSetting>();

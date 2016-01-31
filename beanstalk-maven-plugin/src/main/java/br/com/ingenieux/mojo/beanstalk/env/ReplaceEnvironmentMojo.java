@@ -30,6 +30,30 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
+import com.google.common.base.Predicate;
+
+import com.amazonaws.services.elasticbeanstalk.model.CheckDNSAvailabilityRequest;
+import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
+import com.amazonaws.services.elasticbeanstalk.model.CreateEnvironmentResult;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettingsRequest;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettingsResult;
+import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.maven.plugin.AbstractMojoExecutionException;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import br.com.ingenieux.mojo.aws.util.CredentialsUtil;
 import br.com.ingenieux.mojo.beanstalk.cmd.dns.BindDomainsCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.dns.BindDomainsContext;
@@ -44,18 +68,6 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentCommand
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
 import br.com.ingenieux.mojo.beanstalk.util.EnvironmentHostnameUtil;
-import com.amazonaws.services.elasticbeanstalk.model.*;
-import com.google.common.base.Predicate;
-import org.apache.commons.lang.StringUtils;
-import org.apache.maven.plugin.AbstractMojoExecutionException;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
@@ -119,10 +131,9 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
     int attemptRetryInterval = 60;
 
     /**
-     * <p>List of R53 Domains</p>
-     * <p/>
-     * <p>Could be set as either:</p> <ul> <li>fqdn:hostedZoneId (e.g. "services.modafocas.org:Z3DJ4DL0DIEEJA")</li>
-     * <li>hosted zone name - will be set to root. (e.g., "modafocas.org")</li> </ul>
+     * <p>List of R53 Domains</p> <p/> <p>Could be set as either:</p> <ul> <li>fqdn:hostedZoneId
+     * (e.g. "services.modafocas.org:Z3DJ4DL0DIEEJA")</li> <li>hosted zone name - will be set to
+     * root. (e.g., "modafocas.org")</li> </ul>
      */
     @Parameter(property = "beanstalk.domains")
     String[] domains;
@@ -134,7 +145,8 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
     boolean copyOptionSettings = true;
 
     /**
-     * Whether or not to keep the Elastic Beanstalk platform (aka solutionStack) from the old environment when replacing
+     * Whether or not to keep the Elastic Beanstalk platform (aka solutionStack) from the old
+     * environment when replacing
      */
     @Parameter(property = "beanstalk.copySolutionStack", defaultValue = "true")
     boolean copySolutionStack = true;
@@ -412,7 +424,6 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
      *
      * @param newEnvironmentId environment id
      * @param curEnvironmentId environment id
-     * @param newEnv
      */
     protected void swapEnvironmentCNames(String newEnvironmentId,
                                          String curEnvironmentId, String cnamePrefix,
@@ -517,8 +528,8 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
     }
 
     /**
-     * Waits for an environment to get ready. Throws an exception either if this environment couldn't
-     * get into Ready state or there was a timeout
+     * Waits for an environment to get ready. Throws an exception either if this environment
+     * couldn't get into Ready state or there was a timeout
      *
      * @param environmentId environmentId to wait for
      * @return EnvironmentDescription in Ready state
@@ -543,8 +554,8 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
     /**
      * TODO: What is Coffee anyway?
      *
-     * Waits for an environment to become green. Throws an exception either if this environment couldn't
-     * get into a green state, or there was a timeout.
+     * Waits for an environment to become green. Throws an exception either if this environment
+     * couldn't get into a green state, or there was a timeout.
      *
      * @param environmentId environmentId to wait for
      * @return EnvironmentDescription in Ready state
@@ -609,7 +620,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
         Predicate<EnvironmentDescription> pred = EnvironmentHostnameUtil.getHostnamePredicate(getRegion(), cnamePrefix);
 
 		/*
-		 * Finds a matching environment
+         * Finds a matching environment
 		 */
         for (EnvironmentDescription envDesc : environments) {
             if (pred.apply(envDesc)) {

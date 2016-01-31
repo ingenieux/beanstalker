@@ -16,11 +16,12 @@
 
 package br.com.ingenieux.mojo.beanstalk.util;
 
+import com.google.common.base.Predicate;
+
 import com.amazonaws.regions.Region;
 import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
-import com.google.common.base.Predicate;
+
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.Validate;
 
 import java.util.Set;
 import java.util.TreeSet;

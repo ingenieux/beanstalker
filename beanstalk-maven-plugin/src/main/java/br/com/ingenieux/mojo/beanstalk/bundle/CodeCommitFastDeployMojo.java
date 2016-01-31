@@ -22,6 +22,7 @@ import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.amazonaws.services.lambda.model.InvokeResult;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -134,7 +135,8 @@ public class CodeCommitFastDeployMojo extends FastDeployMojo {
 
             throw new RuntimeException(errorMessage);
         } else {
-            List<String> messages = objectMapper.readValue(resultAsString, new TypeReference<List<String>>(){});
+            List<String> messages = objectMapper.readValue(resultAsString, new TypeReference<List<String>>() {
+            });
 
             for (String m : messages) {
                 getLog().info(m);

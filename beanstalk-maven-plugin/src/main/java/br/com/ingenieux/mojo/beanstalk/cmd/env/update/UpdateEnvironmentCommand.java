@@ -16,7 +16,6 @@
 
 package br.com.ingenieux.mojo.beanstalk.cmd.env.update;
 
-import com.amazonaws.services.elasticbeanstalk.model.EnvironmentTier;
 import com.amazonaws.services.elasticbeanstalk.model.UpdateEnvironmentRequest;
 import com.amazonaws.services.elasticbeanstalk.model.UpdateEnvironmentResult;
 
@@ -43,50 +42,50 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
  * limitations under the License.
  */
 public class UpdateEnvironmentCommand extends
-                                      BaseCommand<UpdateEnvironmentContext, UpdateEnvironmentResult> {
+        BaseCommand<UpdateEnvironmentContext, UpdateEnvironmentResult> {
 
-  /**
-   * Constructor
-   *
-   * @param parentMojo parent mojo
-   */
-  public UpdateEnvironmentCommand(AbstractBeanstalkMojo parentMojo)
-      throws AbstractMojoExecutionException {
-    super(parentMojo);
-  }
-
-  @Override
-  protected UpdateEnvironmentResult executeInternal(
-      UpdateEnvironmentContext context) throws Exception {
-    UpdateEnvironmentRequest req = new UpdateEnvironmentRequest();
-
-    if (null != context.environmentDescription) {
-      req.setDescription(context.environmentDescription);
+    /**
+     * Constructor
+     *
+     * @param parentMojo parent mojo
+     */
+    public UpdateEnvironmentCommand(AbstractBeanstalkMojo parentMojo)
+            throws AbstractMojoExecutionException {
+        super(parentMojo);
     }
 
-    if (null != context.environmentName) {
-      req.setEnvironmentName(context.environmentName);
-    } else if (null != context.environmentId) {
-      req.setEnvironmentId(context.environmentId);
+    @Override
+    protected UpdateEnvironmentResult executeInternal(
+            UpdateEnvironmentContext context) throws Exception {
+        UpdateEnvironmentRequest req = new UpdateEnvironmentRequest();
+
+        if (null != context.environmentDescription) {
+            req.setDescription(context.environmentDescription);
+        }
+
+        if (null != context.environmentName) {
+            req.setEnvironmentName(context.environmentName);
+        } else if (null != context.environmentId) {
+            req.setEnvironmentId(context.environmentId);
+        }
+
+        if (null != context.optionSettings && 0 != context.optionSettings.length) {
+            req.setOptionSettings(Arrays.asList(context.optionSettings));
+        }
+        if (null != context.optionsToRemove && 0 != context.optionsToRemove.length) {
+            req.setOptionsToRemove(Arrays.asList(context.optionsToRemove));
+        }
+
+        if (isNotBlank(context.versionLabel)) {
+            info("Calling update-environment, and using versionLabel: " + context.versionLabel);
+
+            req.setVersionLabel(context.versionLabel);
+        } else if (isNotBlank(context.templateName)) {
+            info("Calling update-environment, and using templateName: " + context.templateName);
+
+            req.setTemplateName(context.templateName);
+        }
+
+        return service.updateEnvironment(req);
     }
-
-    if (null != context.optionSettings && 0 != context.optionSettings.length) {
-      req.setOptionSettings(Arrays.asList(context.optionSettings));
-    }
-    if (null != context.optionsToRemove && 0 != context.optionsToRemove.length) {
-      req.setOptionsToRemove(Arrays.asList(context.optionsToRemove));
-    }
-
-    if (isNotBlank(context.versionLabel)) {
-      info("Calling update-environment, and using versionLabel: " + context.versionLabel);
-
-      req.setVersionLabel(context.versionLabel);
-    } else if (isNotBlank(context.templateName)) {
-      info("Calling update-environment, and using templateName: " + context.templateName);
-
-      req.setTemplateName(context.templateName);
-    }
-
-    return service.updateEnvironment(req);
-  }
 }

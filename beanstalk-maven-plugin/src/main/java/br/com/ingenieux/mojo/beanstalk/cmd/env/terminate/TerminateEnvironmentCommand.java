@@ -38,26 +38,26 @@ import br.com.ingenieux.mojo.beanstalk.cmd.BaseCommand;
  * limitations under the License.
  */
 public class TerminateEnvironmentCommand extends
-                                         BaseCommand<TerminateEnvironmentContext, TerminateEnvironmentResult> {
+        BaseCommand<TerminateEnvironmentContext, TerminateEnvironmentResult> {
 
-  /**
-   * Constructor
-   *
-   * @param parentMojo parent mojo
-   */
-  public TerminateEnvironmentCommand(AbstractBeanstalkMojo parentMojo)
-      throws AbstractMojoExecutionException {
-    super(parentMojo);
-  }
+    /**
+     * Constructor
+     *
+     * @param parentMojo parent mojo
+     */
+    public TerminateEnvironmentCommand(AbstractBeanstalkMojo parentMojo)
+            throws AbstractMojoExecutionException {
+        super(parentMojo);
+    }
 
-  @Override
-  protected TerminateEnvironmentResult executeInternal(
-      TerminateEnvironmentContext context) throws Exception {
-    TerminateEnvironmentRequest req = new TerminateEnvironmentRequest()
-        .withEnvironmentId(context.environmentId)
-        .withEnvironmentName(context.environmentName)
-        .withTerminateResources(context.terminateResources);
+    @Override
+    protected TerminateEnvironmentResult executeInternal(
+            TerminateEnvironmentContext context) throws Exception {
+        TerminateEnvironmentRequest req = new TerminateEnvironmentRequest()
+                .withEnvironmentId(context.environmentId)
+                .withEnvironmentName(context.environmentName)
+                .withTerminateResources(context.terminateResources);
 
-    return service.terminateEnvironment(req);
-  }
+        return service.terminateEnvironment(req);
+    }
 }

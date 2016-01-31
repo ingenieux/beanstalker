@@ -55,72 +55,72 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 @Mojo(name = "create-configuration-templates")
 public class CreateConfigurationTemplateMojo extends AbstractBeanstalkMojo {
 
-  /**
-   * Beanstalk Application Name
-   */
-  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
-             required = true)
-  String applicationName;
+    /**
+     * Beanstalk Application Name
+     */
+    @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
+            required = true)
+    String applicationName;
 
-  /**
-   * Configuration Template Name (Optional)
-   */
-  @Parameter(property = "beanstalk.configurationTemplate")
-  String configurationTemplate;
+    /**
+     * Configuration Template Name (Optional)
+     */
+    @Parameter(property = "beanstalk.configurationTemplate")
+    String configurationTemplate;
 
-  /**
-   * Configuration Templates
-   */
-  @Parameter
-  ConfigurationTemplate[] configurationTemplates;
+    /**
+     * Configuration Templates
+     */
+    @Parameter
+    ConfigurationTemplate[] configurationTemplates;
 
-  @Override
-  protected Object executeInternal() throws MojoExecutionException,
-                                            MojoFailureException {
-    boolean bConfigurationTemplateDefined = StringUtils
-        .isNotBlank(configurationTemplate);
+    @Override
+    protected Object executeInternal() throws MojoExecutionException,
+            MojoFailureException {
+        boolean bConfigurationTemplateDefined = StringUtils
+                .isNotBlank(configurationTemplate);
 
-    if (bConfigurationTemplateDefined) {
-      return createConfiguration(configurationTemplate);
-    } else {
-      for (ConfigurationTemplate template : configurationTemplates) {
-        createConfiguration(template.getId());
-      }
+        if (bConfigurationTemplateDefined) {
+            return createConfiguration(configurationTemplate);
+        } else {
+            for (ConfigurationTemplate template : configurationTemplates) {
+                createConfiguration(template.getId());
+            }
+        }
+
+        return null;
     }
 
-    return null;
-  }
+    CreateConfigurationTemplateResult createConfiguration(String templateName)
+            throws MojoFailureException {
+        ConfigurationTemplate template = getConfigurationTemplate(templateName);
 
-  CreateConfigurationTemplateResult createConfiguration(String templateName)
-      throws MojoFailureException {
-    ConfigurationTemplate template = getConfigurationTemplate(templateName);
+        if (null == template) {
+            throw new MojoFailureException(String.format("templateName ('%s') not found", templateName));
+        }
 
-    if (null == template) {
-      throw new MojoFailureException(String.format("templateName ('%s') not found", templateName));
+        if (isBlank(template.getSolutionStack())) {
+            throw new MojoFailureException(
+                    String.format("Please define solutionStack/ in template %s", templateName));
+        }
+
+        CreateConfigurationTemplateRequest
+                req =
+                new CreateConfigurationTemplateRequest(applicationName, templateName);
+
+        req.setSolutionStackName(template.getSolutionStack());
+        req.setOptionSettings(Arrays.asList(template.getOptionSettings()));
+
+        return getService().createConfigurationTemplate(req);
     }
 
-    if (isBlank(template.getSolutionStack())) {
-      throw new MojoFailureException(
-          String.format("Please define solutionStack/ in template %s", templateName));
+    private ConfigurationTemplate getConfigurationTemplate(String id) {
+        for (ConfigurationTemplate template : configurationTemplates) {
+            if (id.equals(template.getId())) {
+                return template;
+            }
+        }
+
+        return null;
     }
-
-    CreateConfigurationTemplateRequest
-        req =
-        new CreateConfigurationTemplateRequest(applicationName, templateName);
-
-    req.setSolutionStackName(template.getSolutionStack());
-    req.setOptionSettings(Arrays.asList(template.getOptionSettings()));
-
-    return getService().createConfigurationTemplate(req);
-  }
-
-  private ConfigurationTemplate getConfigurationTemplate(String id) {
-    for (ConfigurationTemplate template : configurationTemplates) {
-      if (id.equals(template.getId())) {
-        return template;
-      }
-    }
-
-    return null;
-  }
 }

@@ -35,7 +35,8 @@
             <id>default</id>
             <properties>
                 <beanstalk.keyName>${env.EC2_KEY_NAME}</beanstalk.keyName>
-                <beanstalk.iamInstanceProfile>aws-elasticbeanstalk-ec2-role</beanstalk.iamInstanceProfile>
+                <beanstalk.iamInstanceProfile>aws-elasticbeanstalk-ec2-role
+                </beanstalk.iamInstanceProfile>
                 <beanstalk.instanceType>m3.large</beanstalk.instanceType>
                 <beanstalk.s3Bucket>${env.AWSEB_S3_BUCKET}</beanstalk.s3Bucket>
                 <beanstalk.silentUpload>true</beanstalk.silentUpload>
@@ -51,7 +52,7 @@
                 <sonar.jdbc.username>sonar</sonar.jdbc.username>
                 <sonar.jdbc.password>${env.SONAR_JDBC_PASSWORD}</sonar.jdbc.password>
                 <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-               	<sonar.language>java</sonar.language>
+                <sonar.language>java</sonar.language>
             </properties>
         </profile>
     </profiles>

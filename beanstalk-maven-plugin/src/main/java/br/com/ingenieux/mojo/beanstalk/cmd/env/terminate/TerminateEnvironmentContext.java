@@ -32,51 +32,51 @@ package br.com.ingenieux.mojo.beanstalk.cmd.env.terminate;
  */
 public class TerminateEnvironmentContext {
 
-  String environmentId;
+    String environmentId;
 
-  String environmentName;
+    String environmentName;
 
-  boolean terminateResources;
+    boolean terminateResources;
 
-  /**
-   * @return the environmentId
-   */
-  public String getEnvironmentId() {
-    return environmentId;
-  }
+    /**
+     * @return the environmentId
+     */
+    public String getEnvironmentId() {
+        return environmentId;
+    }
 
-  /**
-   * @param environmentId the environmentId to set
-   */
-  public void setEnvironmentId(String environmentId) {
-    this.environmentId = environmentId;
-  }
+    /**
+     * @param environmentId the environmentId to set
+     */
+    public void setEnvironmentId(String environmentId) {
+        this.environmentId = environmentId;
+    }
 
-  /**
-   * @return the environmentName
-   */
-  public String getEnvironmentName() {
-    return environmentName;
-  }
+    /**
+     * @return the environmentName
+     */
+    public String getEnvironmentName() {
+        return environmentName;
+    }
 
-  /**
-   * @param environmentName the environmentName to set
-   */
-  public void setEnvironmentName(String environmentName) {
-    this.environmentName = environmentName;
-  }
+    /**
+     * @param environmentName the environmentName to set
+     */
+    public void setEnvironmentName(String environmentName) {
+        this.environmentName = environmentName;
+    }
 
-  /**
-   * @return the terminateResources
-   */
-  public boolean isTerminateResources() {
-    return terminateResources;
-  }
+    /**
+     * @return the terminateResources
+     */
+    public boolean isTerminateResources() {
+        return terminateResources;
+    }
 
-  /**
-   * @param terminateResources the terminateResources to set
-   */
-  public void setTerminateResources(boolean terminateResources) {
-    this.terminateResources = terminateResources;
-  }
+    /**
+     * @param terminateResources the terminateResources to set
+     */
+    public void setTerminateResources(boolean terminateResources) {
+        this.terminateResources = terminateResources;
+    }
 }

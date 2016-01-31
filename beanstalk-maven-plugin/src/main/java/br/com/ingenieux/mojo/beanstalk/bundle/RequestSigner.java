@@ -17,11 +17,11 @@
 package br.com.ingenieux.mojo.beanstalk.bundle;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
+
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.util.Date;
-import java.util.SimpleTimeZone;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 

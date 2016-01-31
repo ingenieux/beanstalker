@@ -1,8 +1,10 @@
 #set( $symbol_pound = '#' )
-#set( $symbol_dollar = '%' )
-#set( $symbol_escape = '\' )
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+        #set( $symbol_dollar = '%' )
+        #set( $symbol_escape = '\' )
+        <?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>\${groupId}</groupId>
@@ -27,18 +29,22 @@
 
         <beanstalk.environmentName>\${environmentName}</beanstalk.environmentName>
         <beanstalk.cnamePrefix>\${environmentName}</beanstalk.cnamePrefix>
-        <beanstalk.environmentRef>\${environmentName}.elasticbeanstalk.com</beanstalk.environmentRef>
+        <beanstalk.environmentRef>\${environmentName}.elasticbeanstalk.com
+        </beanstalk.environmentRef>
 
         <beanstalk.versionLabel>v1</beanstalk.versionLabel>
 
         <beanstalk.mainJar>\${project.build.finalName}.jar</beanstalk.mainJar>
         <beanstalk.sourceBundle>\${project.build.finalName}.zip</beanstalk.sourceBundle>
-        <beanstalk.artifactFile>\${project.build.directory}/\${beanstalk.sourceBundle}</beanstalk.artifactFile>
+        <beanstalk.artifactFile>\${project.build.directory}/\${beanstalk.sourceBundle}
+        </beanstalk.artifactFile>
         <!-- If you want to use a non-default bucket, override this variable -->
         <!--
         <beanstalk.s3Bucket>\${project.groupId}</beanstalk.s3Bucket>
         -->
-        <beanstalk.s3Key>\${project.artifactId}/\${project.artifactId}-\${project.version}-\${beanstalk.versionLabel}.zip</beanstalk.s3Key>
+        <beanstalk.s3Key>
+            \${project.artifactId}/\${project.artifactId}-\${project.version}-\${beanstalk.versionLabel}.zip
+        </beanstalk.s3Key>
         <beanstalk.solutionStack>64bit Amazon Linux * running Java 7</beanstalk.solutionStack>
 
         <beanstalk.environmentType>SingleInstance</beanstalk.environmentType>
@@ -112,7 +118,11 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.1</version>
                 <executions>
-                    <execution><goals><goal>java</goal></goals></execution>
+                    <execution>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                    </execution>
                 </executions>
                 <configuration>
                     <mainClass>\${mainApplication}</mainClass>
@@ -134,7 +144,8 @@
                     <version>${project.version}</version>
                     <configuration>
                         <tags>
-                            <Uses>ingenieux Beanstalker at http://beanstalker.ingenieux.com.br/</Uses>
+                            <Uses>ingenieux Beanstalker at http://beanstalker.ingenieux.com.br/
+                            </Uses>
                         </tags>
                     </configuration>
                 </plugin>

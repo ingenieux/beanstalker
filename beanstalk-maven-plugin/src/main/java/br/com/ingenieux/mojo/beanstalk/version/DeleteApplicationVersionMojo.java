@@ -51,34 +51,34 @@ import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 @Mojo(name = "delete-application-version")
 public class DeleteApplicationVersionMojo extends AbstractBeanstalkMojo {
 
-  /**
-   * Beanstalk Application Name
-   */
-  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
-             required = true)
-  protected String applicationName;
+    /**
+     * Beanstalk Application Name
+     */
+    @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
+            required = true)
+    protected String applicationName;
 
-  @Parameter(property = "beanstalk.versionLabel", defaultValue = "${project.version}")
-  String versionLabel;
+    @Parameter(property = "beanstalk.versionLabel", defaultValue = "${project.version}")
+    String versionLabel;
 
-  /**
-   * Delete the source bundle?
-   */
-  @Parameter(property = "beanstalk.deleteSourceBundle", defaultValue = "false")
-  private boolean deleteSourceBundle;
+    /**
+     * Delete the source bundle?
+     */
+    @Parameter(property = "beanstalk.deleteSourceBundle", defaultValue = "false")
+    private boolean deleteSourceBundle;
 
-  @Override
-  protected Object executeInternal() throws MojoExecutionException,
-                                            MojoFailureException {
-    DeleteApplicationVersionRequest req = new DeleteApplicationVersionRequest();
+    @Override
+    protected Object executeInternal() throws MojoExecutionException,
+            MojoFailureException {
+        DeleteApplicationVersionRequest req = new DeleteApplicationVersionRequest();
 
-    req.setApplicationName(applicationName);
-    req.setDeleteSourceBundle(deleteSourceBundle);
-    req.setVersionLabel(versionLabel);
+        req.setApplicationName(applicationName);
+        req.setDeleteSourceBundle(deleteSourceBundle);
+        req.setVersionLabel(versionLabel);
 
-    getService().deleteApplicationVersion(req);
+        getService().deleteApplicationVersion(req);
 
-    return null;
-  }
+        return null;
+    }
 
 }

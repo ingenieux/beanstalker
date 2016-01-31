@@ -32,76 +32,76 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @Ignore
 public class CreateAndDeployIT extends BaseBeanstalkIntegrationTest {
 
-  @Test
-  public void testAppCreation() throws Exception {
-    InvocationResult result = null;
+    @Test
+    public void testAppCreation() throws Exception {
+        InvocationResult result = null;
 
-    removeFileOrDirectory("src/main/webapp/index.txt");
+        removeFileOrDirectory("src/main/webapp/index.txt");
 
-    result = invoke("clean package");
+        result = invoke("clean package");
 
-    assertThat("We wanted the archetype to compile cleanly", result.getExitCode(), is(equalTo(0)));
+        assertThat("We wanted the archetype to compile cleanly", result.getExitCode(), is(equalTo(0)));
 
-    result = invoke("package deploy -Ps3-deploy");
+        result = invoke("package deploy -Ps3-deploy");
 
-    assertThat("The deployment shouldn't be a problem, you know.", result.getExitCode(),
-               is(equalTo(0)));
+        assertThat("The deployment shouldn't be a problem, you know.", result.getExitCode(),
+                is(equalTo(0)));
 
-    DescribeEnvironmentsResult envs = getEnvironments();
+        DescribeEnvironmentsResult envs = getEnvironments();
 
-    assertThat("Well, we wanted one environment", envs.getEnvironments().size(), is(equalTo(1)));
+        assertThat("Well, we wanted one environment", envs.getEnvironments().size(), is(equalTo(1)));
 
-    EnvironmentDescription envDesc = envs.getEnvironments().get(0);
+        EnvironmentDescription envDesc = envs.getEnvironments().get(0);
 
-    assertThat("This environment name wasn't expected. Really", envDesc.getEnvironmentName(),
-               startsWith(r("${beanstalk.project.name}-env")));
+        assertThat("This environment name wasn't expected. Really", envDesc.getEnvironmentName(),
+                startsWith(r("${beanstalk.project.name}-env")));
 
-    writeIntoFile("src/main/webapp/index.txt", "Hello, World %08X!",
-                  System.currentTimeMillis() / 1000);
+        writeIntoFile("src/main/webapp/index.txt", "Hello, World %08X!",
+                System.currentTimeMillis() / 1000);
 
-    result =
-        invoke(
-            "package beanstalk:upload-source-bundle beanstalk:create-application-version beanstalk:replace-environment -Dbeanstalk.mockTerminateEnvironment=true -Ps3-deploy");
-
-    sleep(15);
-
-    envs = getEnvironments();
-
-    assertThat("Well, we wanted two environments", envs.getEnvironments().size(), is(equalTo(2)));
-
-    writeIntoFile("src/main/webapp/index.txt", "Hello, World %08X!",
-                  System.currentTimeMillis() / 1000);
-
-    result = invoke("package deploy -Pbluegreen-s3-deploy", envDesc.getCNAME());
-
-    envs = getEnvironments();
-
-    assertThat("Environment Ids must be different",
-               envs.getEnvironments().get(0).getEnvironmentId(),
-               is(not(equalTo(envDesc.getEnvironmentId()))));
-
-    writeIntoFile("src/main/webapp/index.txt", "Hello, World %08X!",
-                  System.currentTimeMillis() / 1000);
-
-    result = invoke("package deploy -Pdeploy", envDesc.getCNAME());
-
-    assertThat("Previous deployment should have worked.", result.getExitCode(), is(equalTo(0)));
-  }
-
-  @Test
-  public void testWorkerLifecycle() throws Exception {
-    InvocationResult
         result =
-        invoke("clean deploy beanstalk:put-environment -Pfast-deploy,worker -DskipTests");
+                invoke(
+                        "package beanstalk:upload-source-bundle beanstalk:create-application-version beanstalk:replace-environment -Dbeanstalk.mockTerminateEnvironment=true -Ps3-deploy");
 
-    assertThat(result.getExitCode(), is(equalTo(0)));
+        sleep(15);
 
-    DescribeEnvironmentsResult envs = getEnvironments();
+        envs = getEnvironments();
 
-    assertThat(envs.getEnvironments().size(), is(equalTo(1)));
+        assertThat("Well, we wanted two environments", envs.getEnvironments().size(), is(equalTo(2)));
 
-    EnvironmentDescription envDesc = envs.getEnvironments().get(0);
+        writeIntoFile("src/main/webapp/index.txt", "Hello, World %08X!",
+                System.currentTimeMillis() / 1000);
 
-    assertThat(envDesc.getEnvironmentName(), is(equalTo(r("${beanstalk.project.name}-worker"))));
-  }
+        result = invoke("package deploy -Pbluegreen-s3-deploy", envDesc.getCNAME());
+
+        envs = getEnvironments();
+
+        assertThat("Environment Ids must be different",
+                envs.getEnvironments().get(0).getEnvironmentId(),
+                is(not(equalTo(envDesc.getEnvironmentId()))));
+
+        writeIntoFile("src/main/webapp/index.txt", "Hello, World %08X!",
+                System.currentTimeMillis() / 1000);
+
+        result = invoke("package deploy -Pdeploy", envDesc.getCNAME());
+
+        assertThat("Previous deployment should have worked.", result.getExitCode(), is(equalTo(0)));
+    }
+
+    @Test
+    public void testWorkerLifecycle() throws Exception {
+        InvocationResult
+                result =
+                invoke("clean deploy beanstalk:put-environment -Pfast-deploy,worker -DskipTests");
+
+        assertThat(result.getExitCode(), is(equalTo(0)));
+
+        DescribeEnvironmentsResult envs = getEnvironments();
+
+        assertThat(envs.getEnvironments().size(), is(equalTo(1)));
+
+        EnvironmentDescription envDesc = envs.getEnvironments().get(0);
+
+        assertThat(envDesc.getEnvironmentName(), is(equalTo(r("${beanstalk.project.name}-worker"))));
+    }
 }

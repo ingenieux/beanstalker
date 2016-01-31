@@ -16,11 +16,15 @@
 
 package br.com.ingenieux.mojo.aws;
 
-import br.com.ingenieux.mojo.aws.util.AWSClientFactory;
-import br.com.ingenieux.mojo.aws.util.TypeUtil;
 import com.amazonaws.AmazonWebServiceClient;
 import com.amazonaws.ClientConfiguration;
-import com.amazonaws.auth.*;
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.AWSCredentialsProviderChain;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.EnvironmentVariableCredentialsProvider;
+import com.amazonaws.auth.InstanceProfileCredentialsProvider;
+import com.amazonaws.auth.SystemPropertiesCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.internal.StaticCredentialsProvider;
 import com.amazonaws.regions.Region;
@@ -28,6 +32,7 @@ import com.amazonaws.regions.RegionUtils;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.maven.plugin.AbstractMojo;
@@ -49,6 +54,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+import br.com.ingenieux.mojo.aws.util.AWSClientFactory;
+import br.com.ingenieux.mojo.aws.util.TypeUtil;
+
 import static java.lang.String.format;
 
 /*
@@ -66,15 +74,11 @@ import static java.lang.String.format;
  */
 
 /**
- * Represents a Mojo which keeps AWS passwords
- * <p/>
- * TODO: Refactor into tiny, delegated classes. Currently its a huge bloat, but it works, right?
- * <p/>
- * <p> <b>NOTE:</b> Settings in this class use properties based in "beanstalker", which is the
- * project. The beanstalk module, though, prefixes then as "beanstalk" instead </p>
- * <p/>
- * Parts of this class come from <a href="http://code.google.com/p/maven-gae-plugin">maven-gae-plugin</a>'s
- * source code.
+ * Represents a Mojo which keeps AWS passwords <p/> TODO: Refactor into tiny, delegated classes.
+ * Currently its a huge bloat, but it works, right? <p/> <p> <b>NOTE:</b> Settings in this class use
+ * properties based in "beanstalker", which is the project. The beanstalk module, though, prefixes
+ * then as "beanstalk" instead </p> <p/> Parts of this class come from <a
+ * href="http://code.google.com/p/maven-gae-plugin">maven-gae-plugin</a>'s source code.
  */
 public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
         AbstractMojo
@@ -118,16 +122,10 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
     protected String version = "?";
     protected Context context;
     /**
-     * <p> Service region e.g. &quot;us-east-1&quot; </p>
-     * <p/>
-     * <p> <b>Note: Does not apply to all services.</b> </p>
-     * <p/>
-     * <p> <i>&quot;-Cloudfront, I'm talking to you! Look at me when I do that!&quot;</i> </p>
-     * <p/>
-     * <p> See <a href="http://docs.amazonwebservices.com/general/latest/gr/rande.html" >this list</a>
-     * for reference. </p>
-     * <p/>
-     * <p>TODO Rationalize this</p>
+     * <p> Service region e.g. &quot;us-east-1&quot; </p> <p/> <p> <b>Note: Does not apply to all
+     * services.</b> </p> <p/> <p> <i>&quot;-Cloudfront, I'm talking to you! Look at me when I do
+     * that!&quot;</i> </p> <p/> <p> See <a href="http://docs.amazonwebservices.com/general/latest/gr/rande.html"
+     * >this list</a> for reference. </p> <p/> <p>TODO Rationalize this</p>
      */
     @Parameter(property = "beanstalker.region")
     protected String regionName = "us-east-1";
@@ -150,9 +148,8 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
 
     protected AWSClientFactory clientFactory;
     /**
-     * Plexus container, needed to manually lookup components.
-     * <p/>
-     * To be able to use Password Encryption http://maven.apache.org/guides/mini/guide-encryption.html
+     * Plexus container, needed to manually lookup components. <p/> To be able to use Password
+     * Encryption http://maven.apache.org/guides/mini/guide-encryption.html
      */
     private PlexusContainer container;
     private S service;
@@ -206,7 +203,6 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
     }
 
 
-
     public AWSCredentialsProvider getAWSCredentials() throws MojoFailureException {
         if (null != this.awsCredentialsProvider) {
             return this.awsCredentialsProvider;
@@ -256,7 +252,7 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
                     "You should encrypt your passwords. See http://beanstalker.ingenieux.com.br/security.html for more information");
         } else {
             /*
-			 * ... but we do have a valid key. Lets decrypt and return it.
+             * ... but we do have a valid key. Lets decrypt and return it.
 			 */
             return decryptPassword(awsSecretKey);
         }

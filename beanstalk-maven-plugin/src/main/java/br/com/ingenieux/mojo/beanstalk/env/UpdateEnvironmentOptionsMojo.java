@@ -52,67 +52,66 @@ import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 @Mojo(name = "update-environment-options", requiresDirectInvocation = true)
 public class UpdateEnvironmentOptionsMojo extends AbstractNeedsEnvironmentMojo {
 
-  /**
-   * Configuration Option Settings
-   */
-  @Parameter
-  ConfigurationOptionSetting[] optionSettings;
+    /**
+     * Configuration Option Settings
+     */
+    @Parameter
+    ConfigurationOptionSetting[] optionSettings;
 
-  /**
-   * Configuration Options To Remove
-   */
-  @Parameter
-  OptionSpecification[] optionsToRemove;
+    /**
+     * Configuration Options To Remove
+     */
+    @Parameter
+    OptionSpecification[] optionsToRemove;
 
-  /**
-   * Environment Name
-   */
-  @Parameter(property = "beanstalk.environmentDescription", defaultValue = "default")
-  String environmentDescription;
-  /**
-   * Version Label to use.
-   */
-  @Parameter(property = "beanstalk.versionLabel")
-  String versionLabel;
-  /**
-   * <p>Template Name.</p>
-   *
-   * <p>Could be either literal or a glob, like, <pre>ingenieux-services-prod-*</pre>. If a glob,
-   * there will
-   * be a lookup involved, and the first one in reverse ASCIIbetical order will be picked upon.
-   * </p>
-   */
-  @Parameter(property = "beanstalk.templateName")
-  String templateName;
-  /**
-   * What to set?
-   */
-  @Parameter(property = "beanstalk.whatToSet", defaultValue = "versionLabel", required = true)
-  WhatToSet whatToSet;
+    /**
+     * Environment Name
+     */
+    @Parameter(property = "beanstalk.environmentDescription", defaultValue = "default")
+    String environmentDescription;
+    /**
+     * Version Label to use.
+     */
+    @Parameter(property = "beanstalk.versionLabel")
+    String versionLabel;
+    /**
+     * <p>Template Name.</p>
+     *
+     * <p>Could be either literal or a glob, like, <pre>ingenieux-services-prod-*</pre>. If a glob,
+     * there will be a lookup involved, and the first one in reverse ASCIIbetical order will be
+     * picked upon. </p>
+     */
+    @Parameter(property = "beanstalk.templateName")
+    String templateName;
+    /**
+     * What to set?
+     */
+    @Parameter(property = "beanstalk.whatToSet", defaultValue = "versionLabel", required = true)
+    WhatToSet whatToSet;
 
-  protected Object executeInternal() throws MojoExecutionException,
-                                            MojoFailureException {
-    UpdateEnvironmentRequest req = new UpdateEnvironmentRequest();
+    protected Object executeInternal() throws MojoExecutionException,
+            MojoFailureException {
+        UpdateEnvironmentRequest req = new UpdateEnvironmentRequest();
 
-    req.setEnvironmentId(curEnv.getEnvironmentId());
-    req.setEnvironmentName(curEnv.getEnvironmentName());
+        req.setEnvironmentId(curEnv.getEnvironmentId());
+        req.setEnvironmentName(curEnv.getEnvironmentName());
 
-    if (WhatToSet.versionLabel.equals(whatToSet)) {
-      req.setVersionLabel(versionLabel);
-    } else if (WhatToSet.description.equals(whatToSet)) {
-      req.setDescription(environmentDescription);
-    } else if (WhatToSet.optionSettings.equals(whatToSet)) {
-      req.setOptionSettings(getOptionSettings(optionSettings));
-    } else if (WhatToSet.templateName.equals(whatToSet)) {
-      req.setTemplateName(lookupTemplateName(applicationName, templateName));
-    } else if (WhatToSet.optionsToRemove.equals(whatToSet)) {
-       req.setOptionsToRemove(getOptionsToRemove(optionsToRemove));
+        if (WhatToSet.versionLabel.equals(whatToSet)) {
+            req.setVersionLabel(versionLabel);
+        } else if (WhatToSet.description.equals(whatToSet)) {
+            req.setDescription(environmentDescription);
+        } else if (WhatToSet.optionSettings.equals(whatToSet)) {
+            req.setOptionSettings(getOptionSettings(optionSettings));
+        } else if (WhatToSet.templateName.equals(whatToSet)) {
+            req.setTemplateName(lookupTemplateName(applicationName, templateName));
+        } else if (WhatToSet.optionsToRemove.equals(whatToSet)) {
+            req.setOptionsToRemove(getOptionsToRemove(optionsToRemove));
+        }
+
+        return getService().updateEnvironment(req);
     }
 
-    return getService().updateEnvironment(req);
-  }
-
-  public enum WhatToSet {
-    description, optionSettings, templateName, versionLabel, optionsToRemove
-  }
+    public enum WhatToSet {
+        description, optionSettings, templateName, versionLabel, optionsToRemove
+    }
 }

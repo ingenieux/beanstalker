@@ -50,50 +50,50 @@ import br.com.ingenieux.mojo.beanstalk.ConfigurationTemplate;
 @Mojo(name = "delete-configuration-template")
 public class DeleteConfigurationTemplateMojo extends AbstractBeanstalkMojo {
 
-  /**
-   * Beanstalk Application Name
-   */
-  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
-             required = true)
-  String applicationName;
+    /**
+     * Beanstalk Application Name
+     */
+    @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
+            required = true)
+    String applicationName;
 
-  /**
-   * Configuration Template Name (Optional)
-   */
-  @Parameter(property = "beanstalk.configurationTemplate")
-  String configurationTemplate;
+    /**
+     * Configuration Template Name (Optional)
+     */
+    @Parameter(property = "beanstalk.configurationTemplate")
+    String configurationTemplate;
 
-  /**
-   * Configuration Templates
-   */
-  @Parameter
-  ConfigurationTemplate[] configurationTemplates;
+    /**
+     * Configuration Templates
+     */
+    @Parameter
+    ConfigurationTemplate[] configurationTemplates;
 
-  @Override
-  protected Object executeInternal() throws MojoExecutionException,
-                                            MojoFailureException {
+    @Override
+    protected Object executeInternal() throws MojoExecutionException,
+            MojoFailureException {
 
-    boolean bConfigurationTemplateDefined = StringUtils
-        .isNotBlank(configurationTemplate);
+        boolean bConfigurationTemplateDefined = StringUtils
+                .isNotBlank(configurationTemplate);
 
-    if (bConfigurationTemplateDefined) {
-      deleteConfiguration(configurationTemplate);
-    } else {
-      for (ConfigurationTemplate template : configurationTemplates) {
-        deleteConfiguration(template.getId());
-      }
+        if (bConfigurationTemplateDefined) {
+            deleteConfiguration(configurationTemplate);
+        } else {
+            for (ConfigurationTemplate template : configurationTemplates) {
+                deleteConfiguration(template.getId());
+            }
+        }
+
+        return null;
     }
 
-    return null;
-  }
+    void deleteConfiguration(String templateName) {
 
-  void deleteConfiguration(String templateName) {
+        DeleteConfigurationTemplateRequest
+                req =
+                new DeleteConfigurationTemplateRequest(applicationName, templateName);
 
-    DeleteConfigurationTemplateRequest
-        req =
-        new DeleteConfigurationTemplateRequest(applicationName, templateName);
-
-    getService().deleteConfigurationTemplate(req);
-  }
+        getService().deleteConfigurationTemplate(req);
+    }
 
 }

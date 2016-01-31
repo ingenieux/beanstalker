@@ -37,45 +37,45 @@ import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
 import java.util.Collection;
 
 public class BindDomainsContextBuilder extends
-                                       BindDomainsContextBuilderBase<BindDomainsContextBuilder> {
+        BindDomainsContextBuilderBase<BindDomainsContextBuilder> {
 
-  public BindDomainsContextBuilder() {
-    super(new BindDomainsContext());
-  }
+    public BindDomainsContextBuilder() {
+        super(new BindDomainsContext());
+    }
 
-  public static BindDomainsContextBuilder createBindDomainsContext() {
-    return new BindDomainsContextBuilder();
-  }
+    public static BindDomainsContextBuilder createBindDomainsContext() {
+        return new BindDomainsContextBuilder();
+    }
 
-  public BindDomainsContext build() {
-    return getInstance();
-  }
+    public BindDomainsContext build() {
+        return getInstance();
+    }
 }
 
 class BindDomainsContextBuilderBase<GeneratorT extends BindDomainsContextBuilderBase<GeneratorT>> {
 
-  private BindDomainsContext instance;
+    private BindDomainsContext instance;
 
-  protected BindDomainsContextBuilderBase(
-      BindDomainsContext aInstance) {
-    instance = aInstance;
-  }
+    protected BindDomainsContextBuilderBase(
+            BindDomainsContext aInstance) {
+        instance = aInstance;
+    }
 
-  protected BindDomainsContext getInstance() {
-    return instance;
-  }
+    protected BindDomainsContext getInstance() {
+        return instance;
+    }
 
-  @SuppressWarnings("unchecked")
-  public GeneratorT withCurEnv(EnvironmentDescription env) {
-    instance.curEnv = env;
+    @SuppressWarnings("unchecked")
+    public GeneratorT withCurEnv(EnvironmentDescription env) {
+        instance.curEnv = env;
 
-    return (GeneratorT) this;
-  }
+        return (GeneratorT) this;
+    }
 
-  @SuppressWarnings("unchecked")
-  public GeneratorT withDomains(Collection<String> domains) {
-    instance.domains = domains;
+    @SuppressWarnings("unchecked")
+    public GeneratorT withDomains(Collection<String> domains) {
+        instance.domains = domains;
 
-    return (GeneratorT) this;
-  }
+        return (GeneratorT) this;
+    }
 }

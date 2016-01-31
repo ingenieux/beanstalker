@@ -1,7 +1,7 @@
 #set( $symbol_pound = '#' )
-#set( $symbol_dollar = '%' )
-#set( $symbol_escape = '\' )
-<?xml version="1.0" encoding="UTF-8"?>
+        #set( $symbol_dollar = '%' )
+        #set( $symbol_escape = '\' )
+        <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -29,7 +29,8 @@
         </beanstalk.environmentRef>
 
         <beanstalk.useStagingDirectory>true</beanstalk.useStagingDirectory>
-        <beanstalk.solutionStack>64bit Amazon Linux 201* v* running Docker *</beanstalk.solutionStack>
+        <beanstalk.solutionStack>64bit Amazon Linux 201* v* running Docker *
+        </beanstalk.solutionStack>
         <beanstalk.applicationHealthCheckURL>/health/check</beanstalk.applicationHealthCheckURL>
         <beanstalk.environmentType>SingleInstance</beanstalk.environmentType>
 
@@ -86,9 +87,10 @@
                     <inherited>true</inherited>
                     <version>${project.version}</version>
                     <configuration>
-                    	<tags>
-                    		<Uses>ingenieux Beanstalker at http://beanstalker.ingenieux.com.br/</Uses>
-                    	</tags>
+                        <tags>
+                            <Uses>ingenieux Beanstalker at http://beanstalker.ingenieux.com.br/
+                            </Uses>
+                        </tags>
                     </configuration>
                 </plugin>
             </plugins>
@@ -104,8 +106,12 @@
                 <maven.deploy.skip>true</maven.deploy.skip>
                 <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
                 <beanstalk.versionLabel>\${maven.build.timestamp}</beanstalk.versionLabel>
-                <beanstalk.s3Key>apps/\${project.artifactId}/\${project.build.finalName}-\${beanstalk.versionLabel}.zip</beanstalk.s3Key>
-                <beanstalk.artifactFile>\${project.build.directory}/\${project.build.finalName}-bin.zip</beanstalk.artifactFile>
+                <beanstalk.s3Key>
+                    apps/\${project.artifactId}/\${project.build.finalName}-\${beanstalk.versionLabel}.zip
+                </beanstalk.s3Key>
+                <beanstalk.artifactFile>
+                    \${project.build.directory}/\${project.build.finalName}-bin.zip
+                </beanstalk.artifactFile>
                 <beanstalk.tag.DeployedInto>Production</beanstalk.tag.DeployedInto>
             </properties>
             <build>

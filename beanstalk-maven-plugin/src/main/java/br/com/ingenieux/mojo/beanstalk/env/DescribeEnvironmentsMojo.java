@@ -56,53 +56,53 @@ import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 @Mojo(name = "describe-environments", requiresDirectInvocation = true)
 public class DescribeEnvironmentsMojo extends AbstractBeanstalkMojo {
 
-  /**
-   * Beanstalk Application Name
-   */
-  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
-             required = true)
-  protected String applicationName;
+    /**
+     * Beanstalk Application Name
+     */
+    @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
+            required = true)
+    protected String applicationName;
 
-  /**
-   * Include Deleted?
-   */
-  @Parameter(property = "beanstalk.includeDeleted")
-  boolean includeDeleted;
+    /**
+     * Include Deleted?
+     */
+    @Parameter(property = "beanstalk.includeDeleted")
+    boolean includeDeleted;
 
-  /**
-   * Output file (Optional)
-   */
-  @Parameter(property = "beanstalk.outputFile")
-  File outputFile;
+    /**
+     * Output file (Optional)
+     */
+    @Parameter(property = "beanstalk.outputFile")
+    File outputFile;
 
-  @Override
-  protected Object executeInternal() throws MojoExecutionException,
-                                            MojoFailureException {
-    DescribeEnvironmentsRequest req = new DescribeEnvironmentsRequest();
+    @Override
+    protected Object executeInternal() throws MojoExecutionException,
+            MojoFailureException {
+        DescribeEnvironmentsRequest req = new DescribeEnvironmentsRequest();
 
-    req.setApplicationName(applicationName);
-    req.setIncludeDeleted(includeDeleted);
+        req.setApplicationName(applicationName);
+        req.setIncludeDeleted(includeDeleted);
 
-    // TODO add environmentNames / environmentIds / includeDeletedBackTo
+        // TODO add environmentNames / environmentIds / includeDeletedBackTo
 
-    DescribeEnvironmentsResult result = getService().describeEnvironments(req);
+        DescribeEnvironmentsResult result = getService().describeEnvironments(req);
 
-    if (null != outputFile) {
-      getLog().info("Writing results into " + outputFile.getName());
+        if (null != outputFile) {
+            getLog().info("Writing results into " + outputFile.getName());
 
-      try {
-        ObjectMapper objectMapper = new ObjectMapper();
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
 
-        ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
+                ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
 
-        writer.writeValue(outputFile, result.getEnvironments());
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
+                writer.writeValue(outputFile, result.getEnvironments());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
 
-      return null;
+            return null;
+        }
+
+        return result;
     }
-
-    return result;
-  }
 }

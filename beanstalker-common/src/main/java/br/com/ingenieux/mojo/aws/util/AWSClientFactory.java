@@ -31,49 +31,49 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 public class AWSClientFactory {
 
-  private AWSCredentialsProvider creds;
+    private AWSCredentialsProvider creds;
 
-  private ClientConfiguration clientConfiguration;
+    private ClientConfiguration clientConfiguration;
 
-  private String region;
+    private String region;
 
-  public AWSClientFactory(AWSCredentialsProvider creds, ClientConfiguration clientConfiguration,
-                          String region) {
-    this.creds = creds;
-    this.clientConfiguration = clientConfiguration;
-    this.region = region;
-  }
-
-  @SuppressWarnings("unchecked")
-  public <T> T getService(Class<T> serviceClazz)
-      throws NoSuchMethodException, IllegalAccessException, InvocationTargetException,
-             InstantiationException {
-    T
-        resultObj =
-        (T) ConstructorUtils
-            .invokeConstructor(serviceClazz, new Object[]{creds, clientConfiguration},
-                               new Class<?>[]{AWSCredentialsProvider.class,
-                                              ClientConfiguration.class});
-
-    if (isNotBlank(region)) {
-      for (ServiceEndpointFormatter formatter : ServiceEndpointFormatter.values()) {
-        if (formatter.matches(resultObj)) {
-          ((AmazonWebServiceClient) resultObj).setEndpoint(getEndpointFor(formatter));
-          break;
-        }
-
-        // extra fix for eu-central-1
-        if (resultObj instanceof AmazonS3Client) {
-          ((AmazonS3Client) resultObj).setRegion(RegionUtils.getRegion(region));
-        }
-      }
+    public AWSClientFactory(AWSCredentialsProvider creds, ClientConfiguration clientConfiguration,
+                            String region) {
+        this.creds = creds;
+        this.clientConfiguration = clientConfiguration;
+        this.region = region;
     }
 
-    return resultObj;
-  }
+    @SuppressWarnings("unchecked")
+    public <T> T getService(Class<T> serviceClazz)
+            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException,
+            InstantiationException {
+        T
+                resultObj =
+                (T) ConstructorUtils
+                        .invokeConstructor(serviceClazz, new Object[]{creds, clientConfiguration},
+                                new Class<?>[]{AWSCredentialsProvider.class,
+                                        ClientConfiguration.class});
 
-  protected String getEndpointFor(ServiceEndpointFormatter formatter) {
-    return format(formatter.serviceMask, region);
-  }
+        if (isNotBlank(region)) {
+            for (ServiceEndpointFormatter formatter : ServiceEndpointFormatter.values()) {
+                if (formatter.matches(resultObj)) {
+                    ((AmazonWebServiceClient) resultObj).setEndpoint(getEndpointFor(formatter));
+                    break;
+                }
+
+                // extra fix for eu-central-1
+                if (resultObj instanceof AmazonS3Client) {
+                    ((AmazonS3Client) resultObj).setRegion(RegionUtils.getRegion(region));
+                }
+            }
+        }
+
+        return resultObj;
+    }
+
+    protected String getEndpointFor(ServiceEndpointFormatter formatter) {
+        return format(formatter.serviceMask, region);
+    }
 
 }

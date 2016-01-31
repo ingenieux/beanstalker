@@ -17,23 +17,25 @@
 package br.com.ingenieux.mojo.beanstalk.bundle;
 
 import com.amazonaws.auth.AWSCredentials;
+
 import org.apache.commons.codec.binary.Hex;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.SimpleTimeZone;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * Created by aldrin on 04/01/16.
  */
 public class RequestSignerBase {
     public static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat(
-        "yyyyMMdd'T'HHmmss");
+            "yyyyMMdd'T'HHmmss");
 
     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(
-        "yyyyMMdd");
+            "yyyyMMdd");
 
     protected static final String AWS_ALGORITHM = "HMAC-SHA256";
 
@@ -70,30 +72,30 @@ public class RequestSignerBase {
     }
 
     protected byte[] deriveKey() {
-      String secret = RequestSigner.SCHEME.concat(awsCredentials.getAWSSecretKey());
-      byte[] kSecret = secret.getBytes();
-      byte[] kDate = hash(kSecret, strDate);
-      byte[] kRegion = hash(kDate, region);
-      byte[] kService = hash(kRegion, service);
-      byte[] key = hash(kService, RequestSigner.TERMINATOR);
-      return key;
+        String secret = RequestSigner.SCHEME.concat(awsCredentials.getAWSSecretKey());
+        byte[] kSecret = secret.getBytes();
+        byte[] kDate = hash(kSecret, strDate);
+        byte[] kRegion = hash(kDate, region);
+        byte[] kService = hash(kRegion, service);
+        byte[] key = hash(kService, RequestSigner.TERMINATOR);
+        return key;
     }
 
     protected byte[] hash(byte[] kSecret, String obj) {
-      try {
-        SecretKeySpec keySpec = new SecretKeySpec(kSecret, "HmacSHA256");
+        try {
+            SecretKeySpec keySpec = new SecretKeySpec(kSecret, "HmacSHA256");
 
-        Mac mac = Mac.getInstance("HmacSHA256");
+            Mac mac = Mac.getInstance("HmacSHA256");
 
-        mac.init(keySpec);
+            mac.init(keySpec);
 
-        return mac.doFinal(obj.getBytes("UTF-8"));
-      } catch (Exception exc) {
-        throw new RuntimeException(exc);
-      }
+            return mac.doFinal(obj.getBytes("UTF-8"));
+        } catch (Exception exc) {
+            throw new RuntimeException(exc);
+        }
     }
 
     protected String hexEncode(String obj) {
-      return Hex.encodeHexString(obj.getBytes());
+        return Hex.encodeHexString(obj.getBytes());
     }
 }

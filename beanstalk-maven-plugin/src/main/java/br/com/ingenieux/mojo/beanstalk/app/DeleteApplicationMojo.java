@@ -51,22 +51,22 @@ import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 @Mojo(name = "delete-application")
 public class DeleteApplicationMojo extends AbstractBeanstalkMojo {
 
-  /**
-   * Beanstalk Application Name
-   */
-  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
-             required = true)
-  String applicationName;
+    /**
+     * Beanstalk Application Name
+     */
+    @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
+            required = true)
+    String applicationName;
 
-  @Override
-  protected Object executeInternal() throws MojoExecutionException,
-                                            MojoFailureException {
-    DeleteApplicationRequest req = new DeleteApplicationRequest();
+    @Override
+    protected Object executeInternal() throws MojoExecutionException,
+            MojoFailureException {
+        DeleteApplicationRequest req = new DeleteApplicationRequest();
 
-    req.setApplicationName(applicationName);
+        req.setApplicationName(applicationName);
 
-    getService().deleteApplication(req);
+        getService().deleteApplication(req);
 
-    return null;
-  }
+        return null;
+    }
 }

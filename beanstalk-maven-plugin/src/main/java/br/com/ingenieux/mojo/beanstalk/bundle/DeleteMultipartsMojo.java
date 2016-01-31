@@ -52,33 +52,33 @@ import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 @Mojo(name = "delete-multiparts")
 public class DeleteMultipartsMojo extends AbstractBeanstalkMojo {
 
-  /**
-   * S3 Bucket
-   */
-  @Parameter(property = "beanstalk.s3Bucket", defaultValue = "${project.artifactId}",
-             required = true)
-  String s3Bucket;
+    /**
+     * S3 Bucket
+     */
+    @Parameter(property = "beanstalk.s3Bucket", defaultValue = "${project.artifactId}",
+            required = true)
+    String s3Bucket;
 
-  /**
-   * How many delete to delete? Defaults to 365 days
-   */
-  @Parameter(property = "beanstalk.daysToDelete", defaultValue = "365")
-  Integer daysToDelete;
+    /**
+     * How many delete to delete? Defaults to 365 days
+     */
+    @Parameter(property = "beanstalk.daysToDelete", defaultValue = "365")
+    Integer daysToDelete;
 
-  protected Object executeInternal() throws MojoExecutionException,
-                                            MojoFailureException, AmazonServiceException,
-                                            AmazonClientException, InterruptedException {
-    BeanstalkerS3Client client = new BeanstalkerS3Client(getAWSCredentials(),
-                                                         getClientConfiguration(), getRegion());
+    protected Object executeInternal() throws MojoExecutionException,
+            MojoFailureException, AmazonServiceException,
+            AmazonClientException, InterruptedException {
+        BeanstalkerS3Client client = new BeanstalkerS3Client(getAWSCredentials(),
+                getClientConfiguration(), getRegion());
 
-    Calendar c = Calendar.getInstance();
+        Calendar c = Calendar.getInstance();
 
-    c.add(Calendar.DAY_OF_YEAR, -daysToDelete);
+        c.add(Calendar.DAY_OF_YEAR, -daysToDelete);
 
-    Date since = c.getTime();
+        Date since = c.getTime();
 
-    client.deleteMultiparts(s3Bucket, since);
+        client.deleteMultiparts(s3Bucket, since);
 
-    return null;
-  }
+        return null;
+    }
 }

@@ -30,15 +30,15 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
+import org.apache.maven.plugins.annotations.Mojo;
+
 import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentCommand;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentContextBuilder;
-import org.apache.maven.plugins.annotations.Mojo;
 
 /**
- * Creates (if needed) or Updates an Elastic Beanstalk Environment
- * <p/>
- * See the docs for the <a href= "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_CreateEnvironment.html"
+ * Creates (if needed) or Updates an Elastic Beanstalk Environment <p/> See the docs for the <a
+ * href= "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_CreateEnvironment.html"
  * >CreateEnvironment API</a> call.
  *
  * @since 0.2.8

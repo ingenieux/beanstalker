@@ -49,9 +49,9 @@ import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
 @Mojo(name = "show-security-credentials")
 public class ShowSecurityCredentialsMojo extends AbstractAWSMojo<AmazonIdentityManagementClient> {
 
-  protected Object executeInternal() throws MojoExecutionException,
-                                            MojoFailureException {
-    return getService().getUser();
-  }
+    protected Object executeInternal() throws MojoExecutionException,
+            MojoFailureException {
+        return getService().getUser();
+    }
 
 }

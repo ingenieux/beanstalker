@@ -51,20 +51,20 @@ import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 @Mojo(name = "check-availability", requiresDirectInvocation = true)
 public class CheckAvailabilityMojo extends AbstractBeanstalkMojo {
 
-  /**
-   * DNS CName Prefix
-   */
-  @Parameter(property = "beanstalk.cnamePrefix", required = true)
-  String cnamePrefix;
+    /**
+     * DNS CName Prefix
+     */
+    @Parameter(property = "beanstalk.cnamePrefix", required = true)
+    String cnamePrefix;
 
-  protected Object executeInternal() throws MojoExecutionException,
-                                            MojoFailureException {
-    CheckDNSAvailabilityRequest checkDNSAvailabilityRequest = new CheckDNSAvailabilityRequest(
-        cnamePrefix);
+    protected Object executeInternal() throws MojoExecutionException,
+            MojoFailureException {
+        CheckDNSAvailabilityRequest checkDNSAvailabilityRequest = new CheckDNSAvailabilityRequest(
+                cnamePrefix);
 
-    CheckDNSAvailabilityResult result = getService()
-        .checkDNSAvailability(checkDNSAvailabilityRequest);
+        CheckDNSAvailabilityResult result = getService()
+                .checkDNSAvailability(checkDNSAvailabilityRequest);
 
-    return result;
-  }
+        return result;
+    }
 }

@@ -30,12 +30,13 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
-import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 import com.amazonaws.services.elasticbeanstalk.model.AbortEnvironmentUpdateRequest;
-import com.amazonaws.services.elasticbeanstalk.model.RestartAppServerRequest;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
+
+import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 
 /**
  * Aborts Environment Update
@@ -49,16 +50,16 @@ import org.apache.maven.plugins.annotations.Mojo;
 @Mojo(name = "abort-environment-update")
 public class AbortEnvironmentUpdateMojo extends AbstractNeedsEnvironmentMojo {
 
-  @Override
-  protected Object executeInternal() throws MojoExecutionException,
-                                            MojoFailureException {
-    AbortEnvironmentUpdateRequest req = new AbortEnvironmentUpdateRequest();
+    @Override
+    protected Object executeInternal() throws MojoExecutionException,
+            MojoFailureException {
+        AbortEnvironmentUpdateRequest req = new AbortEnvironmentUpdateRequest();
 
-    req.setEnvironmentId(curEnv.getEnvironmentId());
-    req.setEnvironmentName(curEnv.getEnvironmentName());
+        req.setEnvironmentId(curEnv.getEnvironmentId());
+        req.setEnvironmentName(curEnv.getEnvironmentName());
 
-    super.configure();
+        super.configure();
 
-    return curEnv;
-  }
+        return curEnv;
+    }
 }

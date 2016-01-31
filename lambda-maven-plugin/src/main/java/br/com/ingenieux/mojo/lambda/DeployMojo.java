@@ -16,19 +16,25 @@
 
 package br.com.ingenieux.mojo.lambda;
 
-import br.com.ingenieux.mojo.aws.util.GlobUtil;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
 import com.amazonaws.services.identitymanagement.model.ListRolesRequest;
 import com.amazonaws.services.identitymanagement.model.ListRolesResult;
 import com.amazonaws.services.identitymanagement.model.Role;
 import com.amazonaws.services.lambda.AWSLambdaClient;
-import com.amazonaws.services.lambda.model.*;
+import com.amazonaws.services.lambda.model.CreateFunctionRequest;
+import com.amazonaws.services.lambda.model.CreateFunctionResult;
+import com.amazonaws.services.lambda.model.FunctionCode;
+import com.amazonaws.services.lambda.model.ResourceNotFoundException;
 import com.amazonaws.services.lambda.model.Runtime;
+import com.amazonaws.services.lambda.model.UpdateFunctionCodeRequest;
+import com.amazonaws.services.lambda.model.UpdateFunctionCodeResult;
+import com.amazonaws.services.lambda.model.UpdateFunctionConfigurationRequest;
+import com.amazonaws.services.lambda.model.UpdateFunctionConfigurationResult;
 import com.amazonaws.services.s3.AmazonS3URI;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.text.StrSubstitutor;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -37,21 +43,23 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
+
+import br.com.ingenieux.mojo.aws.util.GlobUtil;
 
 import static java.lang.String.format;
 import static org.codehaus.plexus.util.StringUtils.isBlank;
 
 /**
- * <p>Represents the AWS Lambda Deployment Process, which means:</p>
- * <p/>
- * <ul>
- * <li>Parsing the function-definition file</li>
- * <li>For each declared function, tries to update the function</li>
- * <li>if the function is missing, create it</li>
- * <li>Otherwise, compare the function definition with the expected parameters, and changes the function configuration if needed</li>
- * </ul>
+ * <p>Represents the AWS Lambda Deployment Process, which means:</p> <p/> <ul> <li>Parsing the
+ * function-definition file</li> <li>For each declared function, tries to update the function</li>
+ * <li>if the function is missing, create it</li> <li>Otherwise, compare the function definition
+ * with the expected parameters, and changes the function configuration if needed</li> </ul>
  */
 @Mojo(name = "deploy-functions")
 public class DeployMojo extends AbstractLambdaMojo {
@@ -84,10 +92,7 @@ public class DeployMojo extends AbstractLambdaMojo {
     String defaultRole;
 
     /**
-     * <p>Definition File</p>
-     * <p/>
-     * <p>Consists of a JSON file array as such:</p>
-     * <p/>
+     * <p>Definition File</p> <p/> <p>Consists of a JSON file array as such:</p> <p/>
      * <pre>[ {
      *   "name": "AWS Function Name",
      *   "handler": "AWS Function Handler ref",
@@ -96,18 +101,10 @@ public class DeployMojo extends AbstractLambdaMojo {
      *   "role": "aws role"
      * }
      * ]</pre>
-     * <p/>
-     * <p>Where:</p>
-     * <p/>
-     * <ul>
-     * <li>Name is the AWS Lambda Function Name</li>
-     * <li>Handler is the Handler Ref (for Java, it is <code>classname::functionName</code>)</li>
-     * <li>Timeout is the timeout</li>
-     * <li>memorySize is the memory </li>
-     * <li>Role is the AWS Service Role</li>
-     * </ul>
-     * <p/>
-     * <p>Of those, only <code>name</code> and <code>handler</code> are obligatory.</p>
+     * <p/> <p>Where:</p> <p/> <ul> <li>Name is the AWS Lambda Function Name</li> <li>Handler is the
+     * Handler Ref (for Java, it is <code>classname::functionName</code>)</li> <li>Timeout is the
+     * timeout</li> <li>memorySize is the memory </li> <li>Role is the AWS Service Role</li> </ul>
+     * <p/> <p>Of those, only <code>name</code> and <code>handler</code> are obligatory.</p>
      */
     @Parameter(required = true, property = "lambda.definition.file", defaultValue = "${project.build.outputDirectory}/META-INF/lambda-definitions.json")
     File definitionFile;
@@ -252,7 +249,8 @@ public class DeployMojo extends AbstractLambdaMojo {
 
         getLog().info(format("Loaded and replaced definitions from file '%s'", definitionFile.getPath()));
 
-        List<LambdaFunctionDefinition> definitionList = OBJECT_MAPPER.readValue(source, new TypeReference<List<LambdaFunctionDefinition>>() {});
+        List<LambdaFunctionDefinition> definitionList = OBJECT_MAPPER.readValue(source, new TypeReference<List<LambdaFunctionDefinition>>() {
+        });
 
         getLog().info(format("Found %d definitions: ", definitionList.size()));
 

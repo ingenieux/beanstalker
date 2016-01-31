@@ -74,277 +74,277 @@ import static org.apache.commons.lang.StringUtils.strip;
  * limitations under the License.
  */
 public class BindDomainsCommand extends
-                                BaseCommand<BindDomainsContext, Void> {
+        BaseCommand<BindDomainsContext, Void> {
 
-  private final AmazonRoute53 r53;
-  private final AmazonEC2 ec2;
-  private final AmazonElasticLoadBalancing elb;
-
-  /**
-   * Constructor
-   *
-   * @param parentMojo parent mojo
-   */
-  public BindDomainsCommand(AbstractNeedsEnvironmentMojo parentMojo)
-      throws AbstractMojoExecutionException {
-    super(parentMojo);
-
-    try {
-      this.r53 = parentMojo.getClientFactory().getService(AmazonRoute53Client.class);
-      this.ec2 = parentMojo.getClientFactory().getService(AmazonEC2Client.class);
-      this.elb = parentMojo.getClientFactory().getService(AmazonElasticLoadBalancingClient.class);
-
-    } catch (Exception exc) {
-      throw new MojoExecutionException("Failure", exc);
-    }
-  }
-
-  protected boolean isSingleInstance(EnvironmentDescription env) {
-    Validate.isTrue("WebServer".equals(env.getTier().getName()), "Not a Web Server environment!");
-
-    final DescribeConfigurationSettingsResult
-        describeConfigurationSettingsResult =
-        parentMojo.getService().describeConfigurationSettings(
-            new DescribeConfigurationSettingsRequest()
-                .withApplicationName(env.getApplicationName())
-                .withEnvironmentName(env.getEnvironmentName()));
-
-    Validate.isTrue(1 == describeConfigurationSettingsResult.getConfigurationSettings().size(),
-                    "There should be one environment");
-
-    final List<ConfigurationOptionSetting>
-        optionSettings =
-        describeConfigurationSettingsResult.getConfigurationSettings().get(0).getOptionSettings();
-
-    for (ConfigurationOptionSetting optionSetting : optionSettings) {
-      if (ConfigUtil.optionSettingMatchesP(optionSetting, "aws:elasticbeanstalk:environment",
-                                           "EnvironmentType")) {
-        return "SingleInstance".equals(optionSetting.getValue());
-      }
-    }
-
-    throw new IllegalStateException("Unreachable code!");
-  }
-
-  @Override
-  protected Void executeInternal(BindDomainsContext ctx) throws Exception {
-    Map<String, String> recordsToAssign = new LinkedHashMap<String, String>();
-
-    ctx.singleInstance = isSingleInstance(ctx.getCurEnv());
+    private final AmazonRoute53 r53;
+    private final AmazonEC2 ec2;
+    private final AmazonElasticLoadBalancing elb;
 
     /**
-     * Step #2: Validate Parameters
+     * Constructor
+     *
+     * @param parentMojo parent mojo
      */
-    {
-      for (String domain : ctx.getDomains()) {
-        String key = formatDomain(domain);
-        String value = null;
+    public BindDomainsCommand(AbstractNeedsEnvironmentMojo parentMojo)
+            throws AbstractMojoExecutionException {
+        super(parentMojo);
+
+        try {
+            this.r53 = parentMojo.getClientFactory().getService(AmazonRoute53Client.class);
+            this.ec2 = parentMojo.getClientFactory().getService(AmazonEC2Client.class);
+            this.elb = parentMojo.getClientFactory().getService(AmazonElasticLoadBalancingClient.class);
+
+        } catch (Exception exc) {
+            throw new MojoExecutionException("Failure", exc);
+        }
+    }
+
+    protected boolean isSingleInstance(EnvironmentDescription env) {
+        Validate.isTrue("WebServer".equals(env.getTier().getName()), "Not a Web Server environment!");
+
+        final DescribeConfigurationSettingsResult
+                describeConfigurationSettingsResult =
+                parentMojo.getService().describeConfigurationSettings(
+                        new DescribeConfigurationSettingsRequest()
+                                .withApplicationName(env.getApplicationName())
+                                .withEnvironmentName(env.getEnvironmentName()));
+
+        Validate.isTrue(1 == describeConfigurationSettingsResult.getConfigurationSettings().size(),
+                "There should be one environment");
+
+        final List<ConfigurationOptionSetting>
+                optionSettings =
+                describeConfigurationSettingsResult.getConfigurationSettings().get(0).getOptionSettings();
+
+        for (ConfigurationOptionSetting optionSetting : optionSettings) {
+            if (ConfigUtil.optionSettingMatchesP(optionSetting, "aws:elasticbeanstalk:environment",
+                    "EnvironmentType")) {
+                return "SingleInstance".equals(optionSetting.getValue());
+            }
+        }
+
+        throw new IllegalStateException("Unreachable code!");
+    }
+
+    @Override
+    protected Void executeInternal(BindDomainsContext ctx) throws Exception {
+        Map<String, String> recordsToAssign = new LinkedHashMap<String, String>();
+
+        ctx.singleInstance = isSingleInstance(ctx.getCurEnv());
+
+        /**
+         * Step #2: Validate Parameters
+         */
+        {
+            for (String domain : ctx.getDomains()) {
+                String key = formatDomain(domain);
+                String value = null;
 
 				/*
                                  * Handle Entries in the form <record>:<zoneid>
 				 */
-        if (-1 != key.indexOf(':')) {
-          String[] pair = key.split(":", 2);
+                if (-1 != key.indexOf(':')) {
+                    String[] pair = key.split(":", 2);
 
-          key = formatDomain(pair[0]);
-          value = strip(pair[1], ".");
+                    key = formatDomain(pair[0]);
+                    value = strip(pair[1], ".");
+                }
+
+                recordsToAssign.put(key, value);
+            }
+
+            Validate.isTrue(recordsToAssign.size() > 0, "No Domains Supplied!");
+
+            if (isInfoEnabled()) {
+                info("Domains to Map to Environment (cnamePrefix='%s')", ctx.getCurEnv().getCNAME());
+
+                for (Map.Entry<String, String> entry : recordsToAssign.entrySet()) {
+                    String key = entry.getKey();
+                    String zoneId = entry.getValue();
+
+                    String message = format(" * Domain: %s", key);
+
+                    if (null != zoneId) {
+                        message += " (and using zoneId " + zoneId + ")";
+                    }
+
+                    info(message);
+                }
+            }
         }
 
-        recordsToAssign.put(key, value);
-      }
+        /**
+         * Step #3: Lookup Domains on Route53
+         */
+        Map<String, HostedZone> hostedZoneMapping = new LinkedHashMap<String, HostedZone>();
 
-      Validate.isTrue(recordsToAssign.size() > 0, "No Domains Supplied!");
+        {
+            Set<String> unresolvedDomains = new LinkedHashSet<String>();
 
-      if (isInfoEnabled()) {
-        info("Domains to Map to Environment (cnamePrefix='%s')", ctx.getCurEnv().getCNAME());
+            for (Map.Entry<String, String> entry : recordsToAssign.entrySet()) {
+                if (null != entry.getValue()) {
+                    continue;
+                }
 
-        for (Map.Entry<String, String> entry : recordsToAssign.entrySet()) {
-          String key = entry.getKey();
-          String zoneId = entry.getValue();
+                unresolvedDomains.add(entry.getKey());
+            }
 
-          String message = format(" * Domain: %s", key);
+            for (HostedZone hostedZone : r53.listHostedZones().getHostedZones()) {
+                String id = hostedZone.getId();
+                String name = hostedZone.getName();
 
-          if (null != zoneId) {
-            message += " (and using zoneId " + zoneId + ")";
-          }
+                hostedZoneMapping.put(id, hostedZone);
 
-          info(message);
+                if (unresolvedDomains.contains(name)) {
+                    if (isInfoEnabled()) {
+                        info("Mapping Domain %s to R53 Zone Id %s", name, id);
+                    }
+
+                    recordsToAssign.put(name, id);
+
+                    unresolvedDomains.remove(name);
+                }
+            }
+
+            Validate.isTrue(unresolvedDomains.isEmpty(),
+                    "Domains not resolved: " + join(unresolvedDomains, "; "));
         }
-      }
-    }
 
-    /**
-     * Step #3: Lookup Domains on Route53
-     */
-    Map<String, HostedZone> hostedZoneMapping = new LinkedHashMap<String, HostedZone>();
+        /**
+         * Step #4: Domain Validation
+         */
+        {
+            for (Map.Entry<String, String> entry : recordsToAssign.entrySet()) {
+                String record = entry.getKey();
+                String zoneId = entry.getValue();
+                HostedZone hostedZone = hostedZoneMapping.get(zoneId);
 
-    {
-      Set<String> unresolvedDomains = new LinkedHashSet<String>();
-
-      for (Map.Entry<String, String> entry : recordsToAssign.entrySet()) {
-        if (null != entry.getValue()) {
-          continue;
-        }
-
-        unresolvedDomains.add(entry.getKey());
-      }
-
-      for (HostedZone hostedZone : r53.listHostedZones().getHostedZones()) {
-        String id = hostedZone.getId();
-        String name = hostedZone.getName();
-
-        hostedZoneMapping.put(id, hostedZone);
-
-        if (unresolvedDomains.contains(name)) {
-          if (isInfoEnabled()) {
-            info("Mapping Domain %s to R53 Zone Id %s", name, id);
-          }
-
-          recordsToAssign.put(name, id);
-
-          unresolvedDomains.remove(name);
-        }
-      }
-
-      Validate.isTrue(unresolvedDomains.isEmpty(),
-                      "Domains not resolved: " + join(unresolvedDomains, "; "));
-    }
-
-    /**
-     * Step #4: Domain Validation
-     */
-    {
-      for (Map.Entry<String, String> entry : recordsToAssign.entrySet()) {
-        String record = entry.getKey();
-        String zoneId = entry.getValue();
-        HostedZone hostedZone = hostedZoneMapping.get(zoneId);
-
-        Validate.notNull(hostedZone,
-                         format("Unknown Hosted Zone Id: %s for Record: %s", zoneId, record));
-        Validate.isTrue(record.endsWith(hostedZone.getName()),
+                Validate.notNull(hostedZone,
+                        format("Unknown Hosted Zone Id: %s for Record: %s", zoneId, record));
+                Validate.isTrue(record.endsWith(hostedZone.getName()),
                         format("Record %s does not map to zoneId %s (domain: %s)", record, zoneId,
-                               hostedZone.getName()));
-      }
-    }
-
-    /**
-     * Step #5: Get ELB Hosted Zone Id - if appliable
-     */
-    if (!ctx.singleInstance) {
-      String
-          loadBalancerName =
-          parentMojo.getService().describeEnvironmentResources(
-              new DescribeEnvironmentResourcesRequest()
-                  .withEnvironmentId(ctx.getCurEnv().getEnvironmentId())).getEnvironmentResources()
-              .getLoadBalancers().get(0).getName();
-
-      DescribeLoadBalancersRequest req = new DescribeLoadBalancersRequest(
-          asList(loadBalancerName));
-
-      List<LoadBalancerDescription> loadBalancers = elb.describeLoadBalancers(req)
-          .getLoadBalancerDescriptions();
-
-      Validate.isTrue(1 == loadBalancers.size(), "Unexpected number of Load Balancers returned");
-
-      ctx.elbHostedZoneId = loadBalancers.get(0).getCanonicalHostedZoneNameID();
-
-      if (isInfoEnabled()) {
-        info(format("Using ELB Canonical Hosted Zone Name Id %s", ctx.elbHostedZoneId));
-      }
-    }
-
-    /**
-     * Step #6: Apply Change Batch on Each Domain
-     */
-    for (Map.Entry<String, String> recordEntry : recordsToAssign.entrySet()) {
-      assignDomain(ctx, recordEntry.getKey(), recordEntry.getValue());
-    }
-
-    return null;
-  }
-
-  protected void assignDomain(BindDomainsContext ctx, String record, String zoneId) {
-    ChangeBatch changeBatch = new ChangeBatch();
-
-    changeBatch.setComment(format("Updated for env %s", ctx.getCurEnv().getCNAME()));
-
-    /**
-     * Look for Existing Resource Record Sets
-     */
-    {
-      ResourceRecordSet resourceRecordSet = null;
-
-      ListResourceRecordSetsResult listResourceRecordSets = r53
-          .listResourceRecordSets(new ListResourceRecordSetsRequest(
-              zoneId));
-
-      for (ResourceRecordSet rrs : listResourceRecordSets
-          .getResourceRecordSets()) {
-        if (!rrs.getName().equals(record)) {
-          continue;
+                                hostedZone.getName()));
+            }
         }
 
-        boolean matchesTypes = "A".equals(rrs.getType()) || "CNAME".equals(rrs.getType());
+        /**
+         * Step #5: Get ELB Hosted Zone Id - if appliable
+         */
+        if (!ctx.singleInstance) {
+            String
+                    loadBalancerName =
+                    parentMojo.getService().describeEnvironmentResources(
+                            new DescribeEnvironmentResourcesRequest()
+                                    .withEnvironmentId(ctx.getCurEnv().getEnvironmentId())).getEnvironmentResources()
+                            .getLoadBalancers().get(0).getName();
 
-        if (!matchesTypes) {
-          continue;
+            DescribeLoadBalancersRequest req = new DescribeLoadBalancersRequest(
+                    asList(loadBalancerName));
+
+            List<LoadBalancerDescription> loadBalancers = elb.describeLoadBalancers(req)
+                    .getLoadBalancerDescriptions();
+
+            Validate.isTrue(1 == loadBalancers.size(), "Unexpected number of Load Balancers returned");
+
+            ctx.elbHostedZoneId = loadBalancers.get(0).getCanonicalHostedZoneNameID();
+
+            if (isInfoEnabled()) {
+                info(format("Using ELB Canonical Hosted Zone Name Id %s", ctx.elbHostedZoneId));
+            }
         }
+
+        /**
+         * Step #6: Apply Change Batch on Each Domain
+         */
+        for (Map.Entry<String, String> recordEntry : recordsToAssign.entrySet()) {
+            assignDomain(ctx, recordEntry.getKey(), recordEntry.getValue());
+        }
+
+        return null;
+    }
+
+    protected void assignDomain(BindDomainsContext ctx, String record, String zoneId) {
+        ChangeBatch changeBatch = new ChangeBatch();
+
+        changeBatch.setComment(format("Updated for env %s", ctx.getCurEnv().getCNAME()));
+
+        /**
+         * Look for Existing Resource Record Sets
+         */
+        {
+            ResourceRecordSet resourceRecordSet = null;
+
+            ListResourceRecordSetsResult listResourceRecordSets = r53
+                    .listResourceRecordSets(new ListResourceRecordSetsRequest(
+                            zoneId));
+
+            for (ResourceRecordSet rrs : listResourceRecordSets
+                    .getResourceRecordSets()) {
+                if (!rrs.getName().equals(record)) {
+                    continue;
+                }
+
+                boolean matchesTypes = "A".equals(rrs.getType()) || "CNAME".equals(rrs.getType());
+
+                if (!matchesTypes) {
+                    continue;
+                }
+
+                if (isInfoEnabled()) {
+                    info("Excluding resourceRecordSet %s for domain %s", rrs, record);
+                }
+
+                changeBatch.getChanges().add(new Change(ChangeAction.DELETE,
+                        rrs));
+            }
+        }
+
+        /**
+         * Then Add Ours
+         */
+        ResourceRecordSet resourceRecordSet = new ResourceRecordSet();
+
+        resourceRecordSet.setName(record);
+        resourceRecordSet.setType(RRType.A);
+
+        if (ctx.singleInstance) {
+            final String address = ctx.getCurEnv().getEndpointURL();
+            ResourceRecord resourceRecord = new ResourceRecord(address);
+
+            resourceRecordSet.setTTL(60L);
+            resourceRecordSet.setResourceRecords(asList(resourceRecord));
+
+            if (isInfoEnabled()) {
+                info("Adding resourceRecordSet %s for domain %s mapped to %s", resourceRecordSet, record,
+                        address);
+            }
+        } else {
+            AliasTarget aliasTarget = new AliasTarget();
+
+            aliasTarget.setHostedZoneId(ctx.getElbHostedZoneId());
+            aliasTarget.setDNSName(ctx.getCurEnv().getEndpointURL());
+
+            resourceRecordSet.setAliasTarget(aliasTarget);
+
+            if (isInfoEnabled()) {
+                info("Adding resourceRecordSet %s for domain %s mapped to %s", resourceRecordSet, record,
+                        aliasTarget.getDNSName());
+            }
+        }
+
+        changeBatch.getChanges().add(new Change(ChangeAction.CREATE, resourceRecordSet));
 
         if (isInfoEnabled()) {
-          info("Excluding resourceRecordSet %s for domain %s", rrs, record);
+            info("Changes to be sent: %s", changeBatch.getChanges());
         }
 
-        changeBatch.getChanges().add(new Change(ChangeAction.DELETE,
-                                                rrs));
-      }
+        ChangeResourceRecordSetsRequest req = new ChangeResourceRecordSetsRequest(
+                zoneId, changeBatch);
+
+        r53.changeResourceRecordSets(req);
     }
 
-    /**
-     * Then Add Ours
-     */
-    ResourceRecordSet resourceRecordSet = new ResourceRecordSet();
-
-    resourceRecordSet.setName(record);
-    resourceRecordSet.setType(RRType.A);
-
-    if (ctx.singleInstance) {
-      final String address = ctx.getCurEnv().getEndpointURL();
-      ResourceRecord resourceRecord = new ResourceRecord(address);
-
-      resourceRecordSet.setTTL(60L);
-      resourceRecordSet.setResourceRecords(asList(resourceRecord));
-
-      if (isInfoEnabled()) {
-        info("Adding resourceRecordSet %s for domain %s mapped to %s", resourceRecordSet, record,
-             address);
-      }
-    } else {
-      AliasTarget aliasTarget = new AliasTarget();
-
-      aliasTarget.setHostedZoneId(ctx.getElbHostedZoneId());
-      aliasTarget.setDNSName(ctx.getCurEnv().getEndpointURL());
-
-      resourceRecordSet.setAliasTarget(aliasTarget);
-
-      if (isInfoEnabled()) {
-        info("Adding resourceRecordSet %s for domain %s mapped to %s", resourceRecordSet, record,
-             aliasTarget.getDNSName());
-      }
+    String formatDomain(String d) {
+        return strip(d, ".").concat(".");
     }
-
-    changeBatch.getChanges().add(new Change(ChangeAction.CREATE, resourceRecordSet));
-
-    if (isInfoEnabled()) {
-      info("Changes to be sent: %s", changeBatch.getChanges());
-    }
-
-    ChangeResourceRecordSetsRequest req = new ChangeResourceRecordSetsRequest(
-        zoneId, changeBatch);
-
-    r53.changeResourceRecordSets(req);
-  }
-
-  String formatDomain(String d) {
-    return strip(d, ".").concat(".");
-  }
 }

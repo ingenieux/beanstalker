@@ -34,43 +34,43 @@ import javax.inject.Singleton;
 
 public class CoreModule extends AbstractModule {
 
-  @Override
-  protected void configure() {
-    try {
-      configureInternal();
-    } catch (Exception exc) {
-      throw new RuntimeException(exc);
-    }
-  }
-
-  private void configureInternal() throws Exception {
-    Properties properties = new Properties();
-
-    properties.load(getClass().getResourceAsStream("/test.properties"));
-
-    for (Object o : System.getProperties().keySet()) {
-      properties.put("" + o, System.getProperty("" + o));
+    @Override
+    protected void configure() {
+        try {
+            configureInternal();
+        } catch (Exception exc) {
+            throw new RuntimeException(exc);
+        }
     }
 
-    bind(Properties.class).toInstance(properties);
+    private void configureInternal() throws Exception {
+        Properties properties = new Properties();
 
-    StrSubstitutor sub = new StrSubstitutor(StrLookup.mapLookup(properties));
+        properties.load(getClass().getResourceAsStream("/test.properties"));
 
-    bind(StrSubstitutor.class).toInstance(sub);
-  }
+        for (Object o : System.getProperties().keySet()) {
+            properties.put("" + o, System.getProperty("" + o));
+        }
 
-  @Provides
-  @Singleton
-  @Inject
-  public AWSCredentials getAWSCredentials(Properties properties) {
-    return new BasicAWSCredentials(properties.getProperty("aws.accessKey"),
-                                   properties.getProperty("aws.secretKey"));
-  }
+        bind(Properties.class).toInstance(properties);
 
-  @Provides
-  @Singleton
-  @Inject
-  public AWSElasticBeanstalk getAWSElasticBeanstalk(AWSCredentials creds) {
-    return new AWSElasticBeanstalkClient(creds);
-  }
+        StrSubstitutor sub = new StrSubstitutor(StrLookup.mapLookup(properties));
+
+        bind(StrSubstitutor.class).toInstance(sub);
+    }
+
+    @Provides
+    @Singleton
+    @Inject
+    public AWSCredentials getAWSCredentials(Properties properties) {
+        return new BasicAWSCredentials(properties.getProperty("aws.accessKey"),
+                properties.getProperty("aws.secretKey"));
+    }
+
+    @Provides
+    @Singleton
+    @Inject
+    public AWSElasticBeanstalk getAWSElasticBeanstalk(AWSCredentials creds) {
+        return new AWSElasticBeanstalkClient(creds);
+    }
 }

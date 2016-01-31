@@ -54,105 +54,105 @@ import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 @Mojo(name = "create-application-version")
 public class CreateApplicationVersionMojo extends AbstractBeanstalkMojo {
 
-  /**
-   * Beanstalk Application Name
-   */
-  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
-             required = true)
-  String applicationName;
+    /**
+     * Beanstalk Application Name
+     */
+    @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
+            required = true)
+    String applicationName;
 
-  /**
-   * Version Description
-   *
-   * Unfortunately, this is incorrectly named. Anyway...
-   */
-  @Parameter(property = "beanstalk.versionDescription",
-             defaultValue = "Update from beanstalk-maven-plugin")
-  String versionDescription;
+    /**
+     * Version Description
+     *
+     * Unfortunately, this is incorrectly named. Anyway...
+     */
+    @Parameter(property = "beanstalk.versionDescription",
+            defaultValue = "Update from beanstalk-maven-plugin")
+    String versionDescription;
 
-  /**
-   * Auto-Create Application? Defaults to true
-   */
-  @Parameter(property = "beanstalk.autoCreateApplication", defaultValue = "true")
-  boolean autoCreateApplication;
+    /**
+     * Auto-Create Application? Defaults to true
+     */
+    @Parameter(property = "beanstalk.autoCreateApplication", defaultValue = "true")
+    boolean autoCreateApplication;
 
-  /**
-   * S3 Bucket
-   */
-  @Parameter(property = "beanstalk.s3Bucket", defaultValue = "${project.artifactId}",
-             required = true)
-  String s3Bucket;
+    /**
+     * S3 Bucket
+     */
+    @Parameter(property = "beanstalk.s3Bucket", defaultValue = "${project.artifactId}",
+            required = true)
+    String s3Bucket;
 
-  /**
-   * S3 Key
-   */
-  @Parameter(property = "beanstalk.s3Key",
-             defaultValue = "${project.artifactId}/${project.build.finalName}-${beanstalk.versionLabel}.${project.packaging}",
-             required = true)
-  String s3Key;
+    /**
+     * S3 Key
+     */
+    @Parameter(property = "beanstalk.s3Key",
+            defaultValue = "${project.artifactId}/${project.build.finalName}-${beanstalk.versionLabel}.${project.packaging}",
+            required = true)
+    String s3Key;
 
-  /**
-   * Version Label to use. Defaults to Project Version
-   */
-  @Parameter(property = "beanstalk.versionLabel", defaultValue = "${project.version}",
-             required = true)
-  String versionLabel;
+    /**
+     * Version Label to use. Defaults to Project Version
+     */
+    @Parameter(property = "beanstalk.versionLabel", defaultValue = "${project.version}",
+            required = true)
+    String versionLabel;
 
-  /**
-   * Skip when this versionLabel already exists?
-   */
-  @Parameter(property = "beanstalk.skipExisting", defaultValue = "true")
-  boolean skipExisting;
+    /**
+     * Skip when this versionLabel already exists?
+     */
+    @Parameter(property = "beanstalk.skipExisting", defaultValue = "true")
+    boolean skipExisting;
 
-  protected Object executeInternal() throws MojoExecutionException {
-    if (skipExisting) {
-      if (versionLabelExists()) {
-        getLog().info(
-            "VersionLabel "
-            + versionLabel
-            + " already exists. Skipping creation of new application-version");
+    protected Object executeInternal() throws MojoExecutionException {
+        if (skipExisting) {
+            if (versionLabelExists()) {
+                getLog().info(
+                        "VersionLabel "
+                                + versionLabel
+                                + " already exists. Skipping creation of new application-version");
 
-        return null;
-      }
+                return null;
+            }
+        }
+
+        CreateApplicationVersionRequest request = new CreateApplicationVersionRequest();
+
+        request.setApplicationName(applicationName);
+        request.setDescription(versionDescription);
+        request.setAutoCreateApplication(autoCreateApplication);
+
+        if (StringUtils.isNotBlank(s3Bucket) && StringUtils.isNotBlank(s3Key)) {
+            request.setSourceBundle(new S3Location(s3Bucket, s3Key));
+        }
+
+        request.setDescription(versionDescription);
+
+        request.setVersionLabel(versionLabel);
+
+        CreateApplicationVersionResult result = getService()
+                .createApplicationVersion(request);
+
+        return result.getApplicationVersion();
     }
 
-    CreateApplicationVersionRequest request = new CreateApplicationVersionRequest();
-
-    request.setApplicationName(applicationName);
-    request.setDescription(versionDescription);
-    request.setAutoCreateApplication(autoCreateApplication);
-
-    if (StringUtils.isNotBlank(s3Bucket) && StringUtils.isNotBlank(s3Key)) {
-      request.setSourceBundle(new S3Location(s3Bucket, s3Key));
-    }
-
-    request.setDescription(versionDescription);
-
-    request.setVersionLabel(versionLabel);
-
-    CreateApplicationVersionResult result = getService()
-        .createApplicationVersion(request);
-
-    return result.getApplicationVersion();
-  }
-
-  private boolean versionLabelExists() {
+    private boolean versionLabelExists() {
                 /*
-		 * Builds a request for this very specific version label
+         * Builds a request for this very specific version label
 		 */
-    DescribeApplicationVersionsRequest davRequest = new DescribeApplicationVersionsRequest()
-        .withApplicationName(applicationName).withVersionLabels(
-            versionLabel);
+        DescribeApplicationVersionsRequest davRequest = new DescribeApplicationVersionsRequest()
+                .withApplicationName(applicationName).withVersionLabels(
+                        versionLabel);
 
 		/*
 		 * Sends the request
 		 */
-    DescribeApplicationVersionsResult result = getService()
-        .describeApplicationVersions(davRequest);
+        DescribeApplicationVersionsResult result = getService()
+                .describeApplicationVersions(davRequest);
 
 		/*
 		 * Non-empty means the application version label *DOES* exist.
 		 */
-    return !result.getApplicationVersions().isEmpty();
-  }
+        return !result.getApplicationVersions().isEmpty();
+    }
 }

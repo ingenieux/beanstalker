@@ -62,63 +62,63 @@ import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 @Mojo(name = "dump-instances", requiresDirectInvocation = true)
 public class DumpInstancesMojo extends AbstractNeedsEnvironmentMojo {
 
-  /**
-   * (Optional) output file to output to
-   */
-  @Parameter(property = "beanstalk.outputFile")
-  private File outputFile;
+    /**
+     * (Optional) output file to output to
+     */
+    @Parameter(property = "beanstalk.outputFile")
+    private File outputFile;
 
-  /**
-   * Dump private addresses? defaults to false
-   */
-  @Parameter(property = "beanstalk.dumpPrivateAddresses", defaultValue = "false")
-  private boolean dumpPrivateAddresses;
+    /**
+     * Dump private addresses? defaults to false
+     */
+    @Parameter(property = "beanstalk.dumpPrivateAddresses", defaultValue = "false")
+    private boolean dumpPrivateAddresses;
 
-  @Override
-  protected Object executeInternal() throws Exception {
-    AmazonEC2 ec2 = clientFactory.getService(AmazonEC2Client.class);
+    @Override
+    protected Object executeInternal() throws Exception {
+        AmazonEC2 ec2 = clientFactory.getService(AmazonEC2Client.class);
 
-    DescribeEnvironmentResourcesResult envResources = getService()
-        .describeEnvironmentResources(
-            new DescribeEnvironmentResourcesRequest()
-                .withEnvironmentId(curEnv.getEnvironmentId())
-                .withEnvironmentName(
-                    curEnv.getEnvironmentName()));
-    List<String> instanceIds = new ArrayList<String>();
+        DescribeEnvironmentResourcesResult envResources = getService()
+                .describeEnvironmentResources(
+                        new DescribeEnvironmentResourcesRequest()
+                                .withEnvironmentId(curEnv.getEnvironmentId())
+                                .withEnvironmentName(
+                                        curEnv.getEnvironmentName()));
+        List<String> instanceIds = new ArrayList<String>();
 
-    for (Instance i : envResources.getEnvironmentResources().getInstances()) {
-      instanceIds.add(i.getId());
-    }
+        for (Instance i : envResources.getEnvironmentResources().getInstances()) {
+            instanceIds.add(i.getId());
+        }
 
-    DescribeInstancesResult ec2Instances = ec2
-        .describeInstances(new DescribeInstancesRequest()
-                               .withInstanceIds(instanceIds));
+        DescribeInstancesResult ec2Instances = ec2
+                .describeInstances(new DescribeInstancesRequest()
+                        .withInstanceIds(instanceIds));
 
-    PrintStream printStream = null;
+        PrintStream printStream = null;
 
-    if (null != outputFile) {
-      printStream = new PrintStream(outputFile);
-    }
+        if (null != outputFile) {
+            printStream = new PrintStream(outputFile);
+        }
 
-    for (Reservation r : ec2Instances.getReservations()) {
-      for (com.amazonaws.services.ec2.model.Instance i : r.getInstances()) {
-        String ipAddress = dumpPrivateAddresses ? i
-            .getPrivateIpAddress() : StringUtils.defaultString(
-            i.getPublicIpAddress(), i.getPrivateDnsName());
-        String instanceId = i.getInstanceId();
+        for (Reservation r : ec2Instances.getReservations()) {
+            for (com.amazonaws.services.ec2.model.Instance i : r.getInstances()) {
+                String ipAddress = dumpPrivateAddresses ? i
+                        .getPrivateIpAddress() : StringUtils.defaultString(
+                        i.getPublicIpAddress(), i.getPrivateDnsName());
+                String instanceId = i.getInstanceId();
+
+                if (null != printStream) {
+                    printStream.println(ipAddress + " # " + instanceId);
+                } else {
+                    getLog().info(" * " + instanceId + ": " + ipAddress);
+                }
+            }
+        }
 
         if (null != printStream) {
-          printStream.println(ipAddress + " # " + instanceId);
-        } else {
-          getLog().info(" * " + instanceId + ": " + ipAddress);
+            printStream.close();
         }
-      }
-    }
 
-    if (null != printStream) {
-      printStream.close();
+        return null;
     }
-
-    return null;
-  }
 }

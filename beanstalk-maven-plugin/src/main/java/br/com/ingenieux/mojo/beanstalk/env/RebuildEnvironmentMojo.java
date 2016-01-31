@@ -49,16 +49,16 @@ import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 @Mojo(name = "rebuild-environment")
 public class RebuildEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 
-  @Override
-  protected Object executeInternal() throws AbstractMojoExecutionException {
-    RebuildEnvironmentRequest req = new RebuildEnvironmentRequest();
+    @Override
+    protected Object executeInternal() throws AbstractMojoExecutionException {
+        RebuildEnvironmentRequest req = new RebuildEnvironmentRequest();
 
-    req.setEnvironmentId(curEnv.getEnvironmentId());
-    req.setEnvironmentName(curEnv.getEnvironmentName());
+        req.setEnvironmentId(curEnv.getEnvironmentId());
+        req.setEnvironmentName(curEnv.getEnvironmentName());
 
-    getService().rebuildEnvironment(req);
+        getService().rebuildEnvironment(req);
 
-    return null;
-  }
+        return null;
+    }
 
 }

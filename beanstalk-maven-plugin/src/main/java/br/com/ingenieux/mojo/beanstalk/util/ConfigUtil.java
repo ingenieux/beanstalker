@@ -23,9 +23,9 @@ import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
  */
 public class ConfigUtil {
 
-  public static boolean optionSettingMatchesP(ConfigurationOptionSetting optionSetting, String namespace,
-                                        String option) {
-    return namespace.equals(optionSetting.getNamespace()) && option
-        .equals(optionSetting.getOptionName());
-  }
+    public static boolean optionSettingMatchesP(ConfigurationOptionSetting optionSetting, String namespace,
+                                                String option) {
+        return namespace.equals(optionSetting.getNamespace()) && option
+                .equals(optionSetting.getOptionName());
+    }
 }

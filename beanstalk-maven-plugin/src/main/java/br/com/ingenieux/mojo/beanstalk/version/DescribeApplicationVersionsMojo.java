@@ -49,21 +49,21 @@ import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 @Mojo(name = "describe-application-versions")
 public class DescribeApplicationVersionsMojo extends AbstractBeanstalkMojo {
 
-  /**
-   * Beanstalk Application Name
-   */
-  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
-             required = true)
-  protected String applicationName;
+    /**
+     * Beanstalk Application Name
+     */
+    @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
+            required = true)
+    protected String applicationName;
 
-  protected Object executeInternal() throws MojoExecutionException {
-    DescribeApplicationVersionsRequest
-        describeApplicationVersionsRequest =
-        new DescribeApplicationVersionsRequest();
+    protected Object executeInternal() throws MojoExecutionException {
+        DescribeApplicationVersionsRequest
+                describeApplicationVersionsRequest =
+                new DescribeApplicationVersionsRequest();
 
-    describeApplicationVersionsRequest.setApplicationName(applicationName);
+        describeApplicationVersionsRequest.setApplicationName(applicationName);
 
-    return getService()
-        .describeApplicationVersions(describeApplicationVersionsRequest);
-  }
+        return getService()
+                .describeApplicationVersions(describeApplicationVersionsRequest);
+    }
 }
