@@ -33,6 +33,7 @@ import com.amazonaws.services.lambda.model.UpdateFunctionCodeRequest;
 import com.amazonaws.services.lambda.model.UpdateFunctionCodeResult;
 import com.amazonaws.services.lambda.model.UpdateFunctionConfigurationRequest;
 import com.amazonaws.services.lambda.model.UpdateFunctionConfigurationResult;
+import com.amazonaws.services.lambda.model.VpcConfig;
 import com.amazonaws.services.s3.AmazonS3URI;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -46,6 +47,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -125,6 +127,18 @@ public class DeployMojo extends AbstractLambdaMojo {
    */
   @Parameter(required = true, property = "lambda.definition.file", defaultValue = "${project.build.outputDirectory}/META-INF/lambda-definitions.json")
   File definitionFile;
+
+  /**
+   * Security Group Ids
+   */
+  @Parameter(property="lambda.deploy.securityGroupIds", defaultValue="")
+  List<String> securityGroupIds;
+
+  /**
+   * Subnet Ids
+   */
+  @Parameter(property="lambda.deploy.subnetIds", defaultValue="")
+  List<String> subnetIds;
 
   private AWSLambdaClient lambdaClient;
 
@@ -261,6 +275,7 @@ public class DeployMojo extends AbstractLambdaMojo {
         withRole(d.getRole()).
         withRuntime(Runtime.Java8).
         withPublish(this.deployPublish).
+        withVpcConfig(new VpcConfig().withSecurityGroupIds(securityGroupIds).withSubnetIds(subnetIds)).
         withTimeout(d.getTimeout());
 
     final CreateFunctionResult createFunctionResult = lambdaClient.createFunction(req);
@@ -270,12 +285,25 @@ public class DeployMojo extends AbstractLambdaMojo {
 
   private UpdateFunctionConfigurationResult updateIfNeeded(LambdaFunctionDefinition d,
                                                            UpdateFunctionCodeResult curFc) {
+    List<String> returnedSecurityGroupIdsToMatch = Collections.emptyList();
+
+    if (null != curFc.getVpcConfig() && ! curFc.getVpcConfig().getSecurityGroupIds().isEmpty())
+        returnedSecurityGroupIdsToMatch = curFc.getVpcConfig().getSecurityGroupIds();
+
+    List<String> returnedSubnetIdsToMatch = Collections.emptyList();
+
+    if (null != curFc.getVpcConfig() && ! curFc.getVpcConfig().getSubnetIds().isEmpty())
+        returnedSubnetIdsToMatch = curFc.getVpcConfig().getSubnetIds();
+
     boolean bEquals = new EqualsBuilder().
         append(d.getDescription(), curFc.getDescription()).
         append(d.getHandler(), curFc.getHandler()).
         append(d.getMemorySize(), curFc.getMemorySize().intValue()).
         append(d.getRole(), curFc.getRole()).
-        append(d.getTimeout(), curFc.getTimeout().intValue()).isEquals();
+        append(d.getTimeout(), curFc.getTimeout().intValue()).
+        append(this.securityGroupIds, returnedSecurityGroupIdsToMatch).
+        append(this.subnetIds, returnedSubnetIdsToMatch).
+        isEquals();
 
     if (!bEquals) {
       final UpdateFunctionConfigurationRequest
@@ -288,6 +316,12 @@ public class DeployMojo extends AbstractLambdaMojo {
       updRequest.setMemorySize(d.getMemorySize());
       updRequest.setRole(d.getRole());
       updRequest.setTimeout(d.getTimeout());
+
+      VpcConfig vpcConfig = new VpcConfig().
+          withSecurityGroupIds(this.securityGroupIds).
+          withSubnetIds(this.subnetIds);
+
+      updRequest.setVpcConfig(vpcConfig);
 
       getLog().info(
           format("Function Configuration doesn't match expected defaults. Updating it to %s.",
