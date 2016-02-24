@@ -21,11 +21,14 @@ import com.amazonaws.services.identitymanagement.model.ListRolesRequest;
 import com.amazonaws.services.identitymanagement.model.ListRolesResult;
 import com.amazonaws.services.identitymanagement.model.Role;
 import com.amazonaws.services.lambda.AWSLambdaClient;
+import com.amazonaws.services.lambda.model.CreateAliasRequest;
 import com.amazonaws.services.lambda.model.CreateFunctionRequest;
 import com.amazonaws.services.lambda.model.CreateFunctionResult;
 import com.amazonaws.services.lambda.model.FunctionCode;
+import com.amazonaws.services.lambda.model.ResourceConflictException;
 import com.amazonaws.services.lambda.model.ResourceNotFoundException;
 import com.amazonaws.services.lambda.model.Runtime;
+import com.amazonaws.services.lambda.model.UpdateAliasRequest;
 import com.amazonaws.services.lambda.model.UpdateFunctionCodeRequest;
 import com.amazonaws.services.lambda.model.UpdateFunctionCodeResult;
 import com.amazonaws.services.lambda.model.UpdateFunctionConfigurationRequest;
@@ -53,6 +56,7 @@ import java.util.regex.Pattern;
 import br.com.ingenieux.mojo.aws.util.GlobUtil;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.codehaus.plexus.util.StringUtils.isBlank;
 
 /**
@@ -63,59 +67,72 @@ import static org.codehaus.plexus.util.StringUtils.isBlank;
  */
 @Mojo(name = "deploy-functions")
 public class DeployMojo extends AbstractLambdaMojo {
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    /**
-     * Lambda Function URL on S3, e.g. <code>s3://somebucket/object/key/path.zip</code>
-     */
-    @Parameter(required = true, property = "lambda.s3url")
-    String s3Url;
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    /**
-     * AWS Lambda Default Timeout, in seconds (used when missing in function definition)
-     */
-    @Parameter(required = true, property = "lambda.default.timeout", defaultValue = "5")
-    Integer defaultTimeout;
+  /**
+   * Lambda Function URL on S3, e.g. <code>s3://somebucket/object/key/path.zip</code>
+   */
+  @Parameter(required = true, property = "lambda.s3url")
+  String s3Url;
 
-    /**
-     * AWS Lambda Default Memory Size, in MB (used when missing in function definition)
-     */
-    @Parameter(required = true, property = "lambda.default.memorySize", defaultValue = "128")
-    Integer defaultMemorySize;
+  /**
+   * AWS Lambda Default Timeout, in seconds (used when missing in function definition)
+   */
+  @Parameter(required = true, property = "lambda.default.timeout", defaultValue = "5")
+  Integer defaultTimeout;
 
-    /**
-     * <p>AWS Lambda Default IAM Role (used when missing in function definition)</p>
-     *
-     * <p>Allows wildcards like '*' and '?' - will be looked up upon when deploying</p>
-     */
-    @Parameter(required = true, property = "lambda.default.role", defaultValue = "arn:aws:iam::*:role/lambda_basic_execution")
-    String defaultRole;
+  /**
+   * AWS Lambda Default Memory Size, in MB (used when missing in function definition)
+   */
+  @Parameter(required = true, property = "lambda.default.memorySize", defaultValue = "128")
+  Integer defaultMemorySize;
 
-    /**
-     * <p>Definition File</p> <p/> <p>Consists of a JSON file array as such:</p> <p/>
-     * <pre>[ {
-     *   "name": "AWS Function Name",
-     *   "handler": "AWS Function Handler ref",
-     *   "timeout": 5,
-     *   "memorySize": 128,
-     *   "role": "aws role"
-     * }
-     * ]</pre>
-     * <p/> <p>Where:</p> <p/> <ul> <li>Name is the AWS Lambda Function Name</li> <li>Handler is the
-     * Handler Ref (for Java, it is <code>classname::functionName</code>)</li> <li>Timeout is the
-     * timeout</li> <li>memorySize is the memory </li> <li>Role is the AWS Service Role</li> </ul>
-     * <p/> <p>Of those, only <code>name</code> and <code>handler</code> are obligatory.</p>
-     */
-    @Parameter(required = true, property = "lambda.definition.file", defaultValue = "${project.build.outputDirectory}/META-INF/lambda-definitions.json")
-    File definitionFile;
+  /**
+   * <p>AWS Lambda Default IAM Role (used when missing in function definition)</p>
+   *
+   * <p>Allows wildcards like '*' and '?' - will be looked up upon when deploying</p>
+   */
+  @Parameter(required = true, property = "lambda.default.role", defaultValue = "arn:aws:iam::*:role/lambda_basic_execution")
+  String defaultRole;
 
-    private AWSLambdaClient lambdaClient;
+  /**
+   * Deployment alias to use (if specified)
+   */
+  @Parameter(property = "lambda.deploy.alias")
+  String deployAlias;
 
-    private AmazonIdentityManagementClient iamClient;
+  /**
+   * Publish a new function version?
+   */
+  @Parameter(property = "lambda.deploy.publish", defaultValue = "false")
+  Boolean deployPublish;
 
-    private Set<String> roles;
+  /**
+   * <p>Definition File</p> <p/> <p>Consists of a JSON file array as such:</p> <p/>
+   * <pre>[ {
+   *   "name": "AWS Function Name",
+   *   "handler": "AWS Function Handler ref",
+   *   "timeout": 5,
+   *   "memorySize": 128,
+   *   "role": "aws role"
+   * }
+   * ]</pre>
+   * <p/> <p>Where:</p> <p/> <ul> <li>Name is the AWS Lambda Function Name</li> <li>Handler is the
+   * Handler Ref (for Java, it is <code>classname::functionName</code>)</li> <li>Timeout is the
+   * timeout</li> <li>memorySize is the memory </li> <li>Role is the AWS Service Role</li> </ul>
+   * <p/> <p>Of those, only <code>name</code> and <code>handler</code> are obligatory.</p>
+   */
+  @Parameter(required = true, property = "lambda.definition.file", defaultValue = "${project.build.outputDirectory}/META-INF/lambda-definitions.json")
+  File definitionFile;
 
-    private AmazonS3URI s3Uri;
+  private AWSLambdaClient lambdaClient;
+
+  private AmazonIdentityManagementClient iamClient;
+
+  private Set<String> roles;
+
+  private AmazonS3URI s3Uri;
 
 //    /**
 //     * Glob of Functions to Include (default: all)
@@ -129,175 +146,222 @@ public class DeployMojo extends AbstractLambdaMojo {
 //    @Parameter(property="lambda.function.excludes")
 //    List<String> excludes = Collections.emptyList();
 
-    @Override
-    protected void configure() {
-        super.configure();
+  @Override
+  protected void configure() {
+    super.configure();
 
-        try {
-            configureInternal();
-        } catch (Exception exc) {
-            throw new RuntimeException(exc);
-        }
+    try {
+      configureInternal();
+    } catch (Exception exc) {
+      throw new RuntimeException(exc);
     }
+  }
 
-    private void configureInternal() throws MojoExecutionException {
-        lambdaClient = this.getService();
-        iamClient = createServiceFor(AmazonIdentityManagementClient.class);
-        s3Uri = new AmazonS3URI(s3Url);
+  private void configureInternal() throws MojoExecutionException {
+    lambdaClient = this.getService();
+    iamClient = createServiceFor(AmazonIdentityManagementClient.class);
+    s3Uri = new AmazonS3URI(s3Url);
 
-        roles = loadRoles();
+    roles = loadRoles();
 
-        defaultRole = lookupRoleGlob(defaultRole);
-    }
+    defaultRole = lookupRoleGlob(defaultRole);
+  }
 
-    private Set<String> loadRoles() {
-        Set<String> result = new TreeSet<String>();
+  private Set<String> loadRoles() {
+    Set<String> result = new TreeSet<String>();
 
-        boolean done = false;
-        String marker = null;
-        do {
-            final ListRolesRequest listRolesRequest = new ListRolesRequest();
+    boolean done = false;
+    String marker = null;
+    do {
+      final ListRolesRequest listRolesRequest = new ListRolesRequest();
 
-            listRolesRequest.setMarker(marker);
+      listRolesRequest.setMarker(marker);
 
-            final ListRolesResult listRolesResult = iamClient.listRoles(listRolesRequest);
+      final ListRolesResult listRolesResult = iamClient.listRoles(listRolesRequest);
 
-            for (Role r : listRolesResult.getRoles()) {
-                result.add(r.getArn());
-            }
+      for (Role r : listRolesResult.getRoles()) {
+        result.add(r.getArn());
+      }
 
-            done = (!listRolesResult.isTruncated());
+      done = (!listRolesResult.isTruncated());
 
-            marker = listRolesResult.getMarker();
-        } while (!done);
+      marker = listRolesResult.getMarker();
+    } while (!done);
 
-        return result;
-    }
+    return result;
+  }
 
-    @Override
-    protected Object executeInternal() throws Exception {
-        Map<String, LambdaFunctionDefinition> functionDefinitions = parseFunctionDefinions();
+  @Override
+  protected Object executeInternal() throws Exception {
+    Map<String, LambdaFunctionDefinition> functionDefinitions = parseFunctionDefinions();
 
-        String s3Bucket = s3Uri.getBucket();
-        String s3Key = s3Uri.getKey();
+    String s3Bucket = s3Uri.getBucket();
+    String s3Key = s3Uri.getKey();
 
-        for (LambdaFunctionDefinition d : functionDefinitions.values()) {
-            getLog().info(format("Deploying Function: %s (handler: %s)", d.getName(), d.getHandler()));
+    for (LambdaFunctionDefinition d : functionDefinitions.values()) {
+      getLog().info(format("Deploying Function: %s (handler: %s)", d.getName(), d.getHandler()));
 
-            try {
-                final UpdateFunctionCodeResult updateFunctionCodeResult = lambdaClient.updateFunctionCode(new UpdateFunctionCodeRequest().withFunctionName(d.getName()).withS3Bucket(s3Bucket).withS3Key(s3Key));
+      String version = null;
 
-                updateIfNeeded(d, updateFunctionCodeResult);
-            } catch (ResourceNotFoundException exc) {
-                getLog().info("Function does not exist. Creating it instead.");
-
-                createFunction(d);
-            }
-        }
-
-        return functionDefinitions;
-    }
-
-    private CreateFunctionResult createFunction(LambdaFunctionDefinition d) {
-        CreateFunctionRequest req = new CreateFunctionRequest().
-                withCode(new FunctionCode().withS3Bucket(s3Uri.getBucket()).withS3Key(s3Uri.getKey())).
-                withDescription(d.getDescription()).
+      try {
+        final UpdateFunctionCodeRequest
+            updateFunctionCodeRequest =
+            new UpdateFunctionCodeRequest().
                 withFunctionName(d.getName()).
-                withHandler(d.getHandler()).
-                withMemorySize(d.getMemorySize()).
-                withRole(d.getRole()).
-                withRuntime(Runtime.Java8).
-                withTimeout(d.getTimeout());
+                withS3Bucket(s3Bucket).
+                withPublish(this.deployPublish).
+                withS3Key(s3Key);
+        final UpdateFunctionCodeResult updateFunctionCodeResult = lambdaClient.updateFunctionCode(
+            updateFunctionCodeRequest);
 
-        final CreateFunctionResult createFunctionResult = lambdaClient.createFunction(req);
+        version = updateFunctionCodeResult.getVersion();
 
-        return createFunctionResult;
+        updateIfNeeded(d, updateFunctionCodeResult);
+      } catch (ResourceNotFoundException exc) {
+        getLog().info("Function does not exist. Creating it instead.");
+
+        final CreateFunctionResult function = createFunction(d);
+
+        version = function.getVersion();
+      }
+
+      if (isNotBlank(deployAlias)) {
+        setFunctionVersion(d.getName(), version, deployAlias);
+      }
     }
 
-    private UpdateFunctionConfigurationResult updateIfNeeded(LambdaFunctionDefinition d, UpdateFunctionCodeResult curFc) {
-        boolean bEquals = new EqualsBuilder().
-                append(d.getDescription(), curFc.getDescription()).
-                append(d.getHandler(), curFc.getHandler()).
-                append(d.getMemorySize(), curFc.getMemorySize().intValue()).
-                append(d.getRole(), curFc.getRole()).
-                append(d.getTimeout(), curFc.getTimeout().intValue()).isEquals();
+    return functionDefinitions;
+  }
 
-        if (!bEquals) {
-            final UpdateFunctionConfigurationRequest updRequest = new UpdateFunctionConfigurationRequest();
+  protected Object setFunctionVersion(String functionName, String version, String alias) {
+    try {
+      CreateAliasRequest req = new CreateAliasRequest().
+          withFunctionName(functionName).
+          withFunctionVersion(version).
+          withName(alias);
 
-            updRequest.setFunctionName(d.getName());
-            updRequest.setDescription(d.getDescription());
-            updRequest.setHandler(d.getHandler());
-            updRequest.setMemorySize(d.getMemorySize());
-            updRequest.setRole(d.getRole());
-            updRequest.setTimeout(d.getTimeout());
+      return lambdaClient.createAlias(req);
+    } catch (ResourceConflictException exc) {
+      UpdateAliasRequest req = new UpdateAliasRequest().
+          withFunctionName(functionName).
+          withFunctionVersion(version).
+          withName(alias);
 
-            getLog().info(format("Function Configuration doesn't match expected defaults. Updating it to %s.", updRequest));
+      return lambdaClient.updateAlias(req);
+    }
+  }
 
-            final UpdateFunctionConfigurationResult result = lambdaClient.updateFunctionConfiguration(updRequest);
+  private CreateFunctionResult createFunction(LambdaFunctionDefinition d) {
+    CreateFunctionRequest req = new CreateFunctionRequest().
+        withCode(new FunctionCode().withS3Bucket(s3Uri.getBucket()).withS3Key(s3Uri.getKey())).
+        withDescription(d.getDescription()).
+        withFunctionName(d.getName()).
+        withHandler(d.getHandler()).
+        withMemorySize(d.getMemorySize()).
+        withRole(d.getRole()).
+        withRuntime(Runtime.Java8).
+        withPublish(this.deployPublish).
+        withTimeout(d.getTimeout());
 
-            return result;
-        }
+    final CreateFunctionResult createFunctionResult = lambdaClient.createFunction(req);
 
-        return null;
+    return createFunctionResult;
+  }
+
+  private UpdateFunctionConfigurationResult updateIfNeeded(LambdaFunctionDefinition d,
+                                                           UpdateFunctionCodeResult curFc) {
+    boolean bEquals = new EqualsBuilder().
+        append(d.getDescription(), curFc.getDescription()).
+        append(d.getHandler(), curFc.getHandler()).
+        append(d.getMemorySize(), curFc.getMemorySize().intValue()).
+        append(d.getRole(), curFc.getRole()).
+        append(d.getTimeout(), curFc.getTimeout().intValue()).isEquals();
+
+    if (!bEquals) {
+      final UpdateFunctionConfigurationRequest
+          updRequest =
+          new UpdateFunctionConfigurationRequest();
+
+      updRequest.setFunctionName(d.getName());
+      updRequest.setDescription(d.getDescription());
+      updRequest.setHandler(d.getHandler());
+      updRequest.setMemorySize(d.getMemorySize());
+      updRequest.setRole(d.getRole());
+      updRequest.setTimeout(d.getTimeout());
+
+      getLog().info(
+          format("Function Configuration doesn't match expected defaults. Updating it to %s.",
+                 updRequest));
+
+      final UpdateFunctionConfigurationResult
+          result =
+          lambdaClient.updateFunctionConfiguration(updRequest);
+
+      return result;
     }
 
-    private Map<String, LambdaFunctionDefinition> parseFunctionDefinions() throws Exception {
-        String source = IOUtils.toString(new FileInputStream(definitionFile));
+    return null;
+  }
 
-        source = new StrSubstitutor(this.getPluginContext()).replace(source);
+  private Map<String, LambdaFunctionDefinition> parseFunctionDefinions() throws Exception {
+    String source = IOUtils.toString(new FileInputStream(definitionFile));
 
-        getLog().info(format("Loaded and replaced definitions from file '%s'", definitionFile.getPath()));
+    source = new StrSubstitutor(this.getPluginContext()).replace(source);
 
-        List<LambdaFunctionDefinition> definitionList = OBJECT_MAPPER.readValue(source, new TypeReference<List<LambdaFunctionDefinition>>() {
+    getLog()
+        .info(format("Loaded and replaced definitions from file '%s'", definitionFile.getPath()));
+
+    List<LambdaFunctionDefinition>
+        definitionList =
+        OBJECT_MAPPER.readValue(source, new TypeReference<List<LambdaFunctionDefinition>>() {
         });
 
-        getLog().info(format("Found %d definitions: ", definitionList.size()));
+    getLog().info(format("Found %d definitions: ", definitionList.size()));
 
-        Map<String, LambdaFunctionDefinition> result = new TreeMap<String, LambdaFunctionDefinition>();
+    Map<String, LambdaFunctionDefinition> result = new TreeMap<String, LambdaFunctionDefinition>();
 
-        for (LambdaFunctionDefinition d : definitionList) {
-            if (0 == d.getMemorySize()) {
-                d.setMemorySize(defaultMemorySize);
-            }
+    for (LambdaFunctionDefinition d : definitionList) {
+      if (0 == d.getMemorySize()) {
+        d.setMemorySize(defaultMemorySize);
+      }
 
-            if (isBlank(d.getRole())) {
-                d.setRole(defaultRole);
-            } else {
-                d.setRole(lookupRoleGlob(d.getRole()));
-            }
+      if (isBlank(d.getRole())) {
+        d.setRole(defaultRole);
+      } else {
+        d.setRole(lookupRoleGlob(d.getRole()));
+      }
 
-            if (0 == d.getTimeout()) {
-                d.setTimeout(defaultTimeout);
-            }
+      if (0 == d.getTimeout()) {
+        d.setTimeout(defaultTimeout);
+      }
 
-            result.put(d.getName(), d);
-        }
-
-        getLog().info(format("Merged into %d definitions: ", result.size()));
-
-        return result;
+      result.put(d.getName(), d);
     }
 
-    private String lookupRoleGlob(String role) {
-        if (GlobUtil.hasWildcards(role)) {
-            getLog().info(format("Looking up IAM Role '%s'", role));
+    getLog().info(format("Merged into %d definitions: ", result.size()));
 
-            Pattern p = GlobUtil.globify(role);
+    return result;
+  }
 
-            for (String s : roles) {
-                if (p.matcher(s).matches()) {
-                    getLog().info(format("Found Role: '%s'", s));
+  private String lookupRoleGlob(String role) {
+    if (GlobUtil.hasWildcards(role)) {
+      getLog().info(format("Looking up IAM Role '%s'", role));
 
-                    return s;
-                }
-            }
+      Pattern p = GlobUtil.globify(role);
 
-            throw new IllegalStateException("Unable to lookup role '" + role + "': Not found");
-        } else {
-            getLog().info(format("Using Role as is: '%s'", role));
+      for (String s : roles) {
+        if (p.matcher(s).matches()) {
+          getLog().info(format("Found Role: '%s'", s));
 
-            return role;
+          return s;
         }
+      }
+
+      throw new IllegalStateException("Unable to lookup role '" + role + "': Not found");
+    } else {
+      getLog().info(format("Using Role as is: '%s'", role));
+
+      return role;
     }
+  }
 }
