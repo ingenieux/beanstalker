@@ -18,11 +18,15 @@ package br.com.ingenieux.mojo.lambda;
 
 import com.amazonaws.services.lambda.AWSLambdaClient;
 
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
+
 import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
 
 /**
  * A Mojo for AWS Lambda Projects
  */
 public abstract class AbstractLambdaMojo extends AbstractAWSMojo<AWSLambdaClient> {
-
+    @Parameter(property="project", required=true)
+    protected MavenProject curProject;
 }

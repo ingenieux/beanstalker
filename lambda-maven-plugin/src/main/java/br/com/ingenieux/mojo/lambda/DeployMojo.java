@@ -340,7 +340,7 @@ public class DeployMojo extends AbstractLambdaMojo {
   private Map<String, LambdaFunctionDefinition> parseFunctionDefinions() throws Exception {
     String source = IOUtils.toString(new FileInputStream(definitionFile));
 
-    source = new StrSubstitutor(this.getPluginContext()).replace(source);
+    source = new StrSubstitutor(this.curProject.getProperties()).replace(source);
 
     getLog()
         .info(format("Loaded and replaced definitions from file '%s'", definitionFile.getPath()));
