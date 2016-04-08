@@ -56,6 +56,7 @@ import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import br.com.ingenieux.mojo.aws.util.GlobUtil;
+import br.com.ingenieux.mojo.aws.util.RoleResolver;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
@@ -142,11 +143,9 @@ public class DeployMojo extends AbstractLambdaMojo {
 
   private AWSLambdaClient lambdaClient;
 
-  private AmazonIdentityManagementClient iamClient;
-
-  private Set<String> roles;
-
   private AmazonS3URI s3Uri;
+
+  private RoleResolver roleResolver;
 
 //    /**
 //     * Glob of Functions to Include (default: all)
@@ -173,36 +172,12 @@ public class DeployMojo extends AbstractLambdaMojo {
 
   private void configureInternal() throws MojoExecutionException {
     lambdaClient = this.getService();
-    iamClient = createServiceFor(AmazonIdentityManagementClient.class);
+
+    roleResolver = new RoleResolver(createServiceFor(AmazonIdentityManagementClient.class));
+
     s3Uri = new AmazonS3URI(s3Url);
 
-    roles = loadRoles();
-
-    defaultRole = lookupRoleGlob(defaultRole);
-  }
-
-  private Set<String> loadRoles() {
-    Set<String> result = new TreeSet<String>();
-
-    boolean done = false;
-    String marker = null;
-    do {
-      final ListRolesRequest listRolesRequest = new ListRolesRequest();
-
-      listRolesRequest.setMarker(marker);
-
-      final ListRolesResult listRolesResult = iamClient.listRoles(listRolesRequest);
-
-      for (Role r : listRolesResult.getRoles()) {
-        result.add(r.getArn());
-      }
-
-      done = (!listRolesResult.isTruncated());
-
-      marker = listRolesResult.getMarker();
-    } while (!done);
-
-    return result;
+    defaultRole = roleResolver.lookupRoleGlob(defaultRole);
   }
 
   @Override
@@ -362,7 +337,7 @@ public class DeployMojo extends AbstractLambdaMojo {
       if (isBlank(d.getRole())) {
         d.setRole(defaultRole);
       } else {
-        d.setRole(lookupRoleGlob(d.getRole()));
+        d.setRole(roleResolver.lookupRoleGlob(d.getRole()));
       }
 
       if (0 == d.getTimeout()) {
@@ -377,25 +352,4 @@ public class DeployMojo extends AbstractLambdaMojo {
     return result;
   }
 
-  private String lookupRoleGlob(String role) {
-    if (GlobUtil.hasWildcards(role)) {
-      getLog().info(format("Looking up IAM Role '%s'", role));
-
-      Pattern p = GlobUtil.globify(role);
-
-      for (String s : roles) {
-        if (p.matcher(s).matches()) {
-          getLog().info(format("Found Role: '%s'", s));
-
-          return s;
-        }
-      }
-
-      throw new IllegalStateException("Unable to lookup role '" + role + "': Not found");
-    } else {
-      getLog().info(format("Using Role as is: '%s'", role));
-
-      return role;
-    }
-  }
 }

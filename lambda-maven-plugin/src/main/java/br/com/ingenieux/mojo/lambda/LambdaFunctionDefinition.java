@@ -16,6 +16,8 @@
 
 package br.com.ingenieux.mojo.lambda;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import org.apache.commons.lang.builder.CompareToBuilder;
 
 import java.io.Serializable;
@@ -90,5 +92,15 @@ public class LambdaFunctionDefinition implements Serializable, Comparable<Lambda
             return 0;
 
         return new CompareToBuilder().append(this.name, o.name).toComparison();
+    }
+
+    ObjectNode api;
+
+    public ObjectNode getApi() {
+        return api;
+    }
+
+    public void setApi(ObjectNode api) {
+        this.api = api;
     }
 }

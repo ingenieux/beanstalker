@@ -23,6 +23,8 @@ import com.amazonaws.services.apigateway.model.CreateRestApiResult;
 import com.amazonaws.services.apigateway.model.PutMode;
 import com.amazonaws.services.apigateway.model.PutRestApiRequest;
 import com.amazonaws.services.apigateway.model.PutRestApiResult;
+import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
+import com.amazonaws.services.identitymanagement.model.Role;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.apache.commons.io.IOUtils;
@@ -36,7 +38,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import br.com.ingenieux.mojo.aws.util.RoleResolver;
 
 import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.apache.commons.lang.StringUtils.isBlank;
@@ -113,8 +118,12 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
      */
     protected String body;
 
+    private RoleResolver roleResolver;
+
     @Override
     protected Object executeInternal() throws Exception {
+        this.roleResolver = new RoleResolver(createServiceFor(AmazonIdentityManagementClient.class));
+
         initProperties();
 
         createOrUpdateRestApi();
@@ -227,15 +236,20 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
     }
 
     private void loadAndInterpolateSwaggerFile() throws Exception {
+        String accountId = roleResolver.getAccountId();
         String deploymentFileContents = IOUtils.toString(new FileInputStream(deploymentFile));
 
         getLog().info("Loaded deploymentFile contents from " + deploymentFile.getPath());
 
+        deploymentFileContents = deploymentFileContents.replaceAll("\\Qarn:aws:iam:::role/\\E",
+                "arn:aws:iam::" + accountId + ":role/");
+
+        deploymentFileContents = deploymentFileContents.replaceAll("\\Qarn:aws:lambda:\\E[\\w\\-]*:\\d*:",
+                "arn:aws:lambda:" + regionName + ":" + accountId + ":");
+
         getLog().debug("Contents: " + deploymentFileContents);
 
         ObjectNode objectNode = ObjectNode.class.cast(this.objectMapper.readTree(deploymentFileContents));
-
-        // TODO: Interpolation
 
         this.body = objectMapper.writeValueAsString(objectNode);
 
