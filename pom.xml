@@ -89,7 +89,8 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <slf4j.version>1.6.4</slf4j.version>
         <preparationGoals>clean install verify</preparationGoals>
-        <aws.sdk.version>1.10.55</aws.sdk.version>
+        <aws.sdk.version>1.10.68</aws.sdk.version>
+        <jackson.version>2.7.2</jackson.version>
     </properties>
 
     <scm>
@@ -103,6 +104,7 @@
         <module>beanstalker-common</module>
         <module>beanstalk-maven-plugin</module>
         <module>lambda-maven-plugin</module>
+        <module>apigateway-maven-plugin</module>
         <module>elasticbeanstalk-docker-dropwizard-webapp-archetype</module>
         <module>elasticbeanstalk-javase-archetype</module>
         <module>beanstalk-maven-plugin-it</module>
@@ -163,14 +165,14 @@
                 <version>3.0.4</version>
             </dependency>
             <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-core-asl</artifactId>
-                <version>1.9.10</version>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-mapper-asl</artifactId>
-                <version>1.9.10</version>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>br.com.ingenieux</groupId>
@@ -227,6 +229,11 @@
                 <groupId>org.codehaus.plexus</groupId>
                 <artifactId>plexus-utils</artifactId>
                 <version>3.0.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.amazonaws</groupId>
+                <artifactId>aws-hal-client-java</artifactId>
+                <version>1.3.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

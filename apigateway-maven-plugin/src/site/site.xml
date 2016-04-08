@@ -15,9 +15,9 @@
   ~ limitations under the License.
   -->
 
-<project name="Lambda Maven Plugin">
+<project name="API Gateway Maven Plugin">
     <bannerRight>
-        <name>Lambda Maven Plugin</name>
+        <name>API Gateway Maven Plugin</name>
         <href>index.html</href>
     </bannerRight>
     <poweredBy>

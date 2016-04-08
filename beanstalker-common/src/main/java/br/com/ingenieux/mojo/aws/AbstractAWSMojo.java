@@ -16,6 +16,8 @@
 
 package br.com.ingenieux.mojo.aws;
 
+import com.google.common.base.Charsets;
+
 import com.amazonaws.AmazonWebServiceClient;
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
@@ -50,6 +52,7 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Contextualizable;
 
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -68,6 +71,7 @@ import static java.lang.String.format;
 public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
         AbstractMojo
         implements Contextualizable {
+    protected final Charset DEFAULT_CHARSET = Charsets.UTF_8;
 
     private static final String
             SECURITY_DISPATCHER_CLASS_NAME =
