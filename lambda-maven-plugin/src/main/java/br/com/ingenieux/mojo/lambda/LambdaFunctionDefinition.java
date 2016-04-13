@@ -33,6 +33,16 @@ public class LambdaFunctionDefinition implements Serializable, Comparable<Lambda
         this.name = name;
     }
 
+    String alias = "";
+
+    public String getAlias() {
+        return alias;
+    }
+
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
+
     String description = "";
 
     public String getDescription() {

@@ -17,9 +17,6 @@
 package br.com.ingenieux.mojo.lambda;
 
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
-import com.amazonaws.services.identitymanagement.model.ListRolesRequest;
-import com.amazonaws.services.identitymanagement.model.ListRolesResult;
-import com.amazonaws.services.identitymanagement.model.Role;
 import com.amazonaws.services.lambda.AWSLambdaClient;
 import com.amazonaws.services.lambda.model.CreateAliasRequest;
 import com.amazonaws.services.lambda.model.CreateFunctionRequest;
@@ -37,6 +34,7 @@ import com.amazonaws.services.lambda.model.VpcConfig;
 import com.amazonaws.services.s3.AmazonS3URI;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -47,15 +45,12 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.regex.Pattern;
 
-import br.com.ingenieux.mojo.aws.util.GlobUtil;
 import br.com.ingenieux.mojo.aws.util.RoleResolver;
 
 import static java.lang.String.format;
@@ -71,12 +66,12 @@ import static org.codehaus.plexus.util.StringUtils.isBlank;
 @Mojo(name = "deploy-functions")
 public class DeployMojo extends AbstractLambdaMojo {
 
-  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
 
   /**
    * Lambda Function URL on S3, e.g. <code>s3://somebucket/object/key/path.zip</code>
    */
-  @Parameter(required = true, property = "lambda.s3url")
+  @Parameter(required = true, property = "lambda.s3url", defaultValue="${beanstalk.lastUploadedS3Object}")
   String s3Url;
 
   /**
@@ -100,16 +95,16 @@ public class DeployMojo extends AbstractLambdaMojo {
   String defaultRole;
 
   /**
-   * Deployment alias to use (if specified)
-   */
-  @Parameter(property = "lambda.deploy.alias")
-  String deployAlias;
-
-  /**
    * Publish a new function version?
    */
   @Parameter(property = "lambda.deploy.publish", defaultValue = "false")
   Boolean deployPublish;
+
+  /**
+   * Publish a new function version?
+   */
+  @Parameter(property = "lambda.deploy.aliases", defaultValue = "false")
+  Boolean deployAliases;
 
   /**
    * <p>Definition File</p> <p/> <p>Consists of a JSON file array as such:</p> <p/>
@@ -214,15 +209,15 @@ public class DeployMojo extends AbstractLambdaMojo {
         version = function.getVersion();
       }
 
-      if (isNotBlank(deployAlias)) {
-        setFunctionVersion(d.getName(), version, deployAlias);
+      if (isNotBlank(d.getAlias()) && (deployAliases)) {
+        updateAlias(d.getName(), version, d.getAlias());
       }
     }
 
     return functionDefinitions;
   }
 
-  protected Object setFunctionVersion(String functionName, String version, String alias) {
+  protected Object updateAlias(String functionName, String version, String alias) {
     try {
       CreateAliasRequest req = new CreateAliasRequest().
           withFunctionName(functionName).
@@ -315,7 +310,8 @@ public class DeployMojo extends AbstractLambdaMojo {
   private Map<String, LambdaFunctionDefinition> parseFunctionDefinions() throws Exception {
     String source = IOUtils.toString(new FileInputStream(definitionFile));
 
-    source = new StrSubstitutor(this.curProject.getProperties()).replace(source);
+    // TODO: Consider PluginParameterExpressionEvaluator
+    source = new StrSubstitutor(session.getSystemProperties()).replace(source);
 
     getLog()
         .info(format("Loaded and replaced definitions from file '%s'", definitionFile.getPath()));
@@ -345,6 +341,15 @@ public class DeployMojo extends AbstractLambdaMojo {
       }
 
       result.put(d.getName(), d);
+    }
+
+    {
+      source = OBJECT_MAPPER.writeValueAsString(definitionList);
+
+      getLog()
+          .debug(format("Parsed function definitions: %s", source));
+
+      IOUtils.write(source, new FileOutputStream(definitionFile));
     }
 
     getLog().info(format("Merged into %d definitions: ", result.size()));

@@ -30,6 +30,8 @@ import java.io.File;
 import br.com.ingenieux.mojo.aws.util.BeanstalkerS3Client;
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
+import static java.lang.String.format;
+
 /**
  * Uploads a packed war file to Amazon S3 for further Deployment.
  *
@@ -119,6 +121,8 @@ public class UploadSourceBundleMojo extends AbstractBeanstalkMojo {
         getLog().info("Artifact Uploaded");
 
         project.getProperties().put("beanstalk.s3Key", s3Key);
+
+        project.getProperties().put("beanstalk.lastUploadedS3Object", format("s3://%s/%s", s3Bucket, s3Key));
 
         return result;
     }

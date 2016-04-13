@@ -24,10 +24,10 @@ import com.amazonaws.services.apigateway.model.PutMode;
 import com.amazonaws.services.apigateway.model.PutRestApiRequest;
 import com.amazonaws.services.apigateway.model.PutRestApiResult;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
-import com.amazonaws.services.identitymanagement.model.Role;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.text.StrSubstitutor;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
@@ -38,7 +38,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import br.com.ingenieux.mojo.aws.util.RoleResolver;
@@ -241,11 +240,21 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
 
         getLog().info("Loaded deploymentFile contents from " + deploymentFile.getPath());
 
-        deploymentFileContents = deploymentFileContents.replaceAll("\\Qarn:aws:iam:::role/\\E",
-                "arn:aws:iam::" + accountId + ":role/");
+        // TODO: Consider PluginParameterExpressionEvaluator
+        deploymentFileContents = new StrSubstitutor(session.getSystemProperties()).replace(deploymentFileContents);
 
-        deploymentFileContents = deploymentFileContents.replaceAll("\\Qarn:aws:lambda:\\E[\\w\\-]*:\\d*:",
-                "arn:aws:lambda:" + regionName + ":" + accountId + ":");
+        // IMPROVE THIS
+        {
+
+            deploymentFileContents = deploymentFileContents.replaceAll("\\Qarn:aws:iam:::role/\\E",
+                                                                       "arn:aws:iam::" + accountId
+                                                                       + ":role/");
+
+            deploymentFileContents =
+                deploymentFileContents.replaceAll("\\Qarn:aws:lambda:\\E[\\w\\-]*:\\d*:",
+                                                  "arn:aws:lambda:" + regionName + ":" + accountId
+                                                  + ":");
+        }
 
         getLog().debug("Contents: " + deploymentFileContents);
 

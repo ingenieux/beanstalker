@@ -37,6 +37,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -72,6 +73,9 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
         AbstractMojo
         implements Contextualizable {
     protected final Charset DEFAULT_CHARSET = Charsets.UTF_8;
+
+    @Parameter(defaultValue="${session}", required = true)
+    protected MavenSession session;
 
     private static final String
             SECURITY_DISPATCHER_CLASS_NAME =
