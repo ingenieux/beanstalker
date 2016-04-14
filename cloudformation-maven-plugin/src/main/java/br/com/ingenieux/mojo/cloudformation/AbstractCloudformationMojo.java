@@ -1,0 +1,122 @@
+package br.com.ingenieux.mojo.cloudformation;
+
+/*
+ * Copyright (c) 2016 ingenieux Labs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import com.amazonaws.services.cloudformation.AmazonCloudFormationClient;
+import com.amazonaws.services.cloudformation.model.ListStacksRequest;
+import com.amazonaws.services.cloudformation.model.ListStacksResult;
+import com.amazonaws.services.cloudformation.model.StackStatus;
+import com.amazonaws.services.cloudformation.model.StackSummary;
+
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
+
+import java.util.Optional;
+import java.util.regex.Pattern;
+
+import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
+import br.com.ingenieux.mojo.aws.util.GlobUtil;
+
+import static org.apache.commons.lang.StringUtils.isNotEmpty;
+
+/**
+ * CloudFormation Mojo Parent
+ */
+public abstract class AbstractCloudformationMojo extends AbstractAWSMojo<AmazonCloudFormationClient> {
+    @Parameter(property = "project", required = true)
+    protected MavenProject curProject;
+
+    @Parameter(property = "cloudformation.stackId")
+    String stackId;
+
+    @Parameter(property = "cloudformation.stackName", defaultValue = "${project.artifactId}-stack")
+    String stackName;
+
+    /**
+     * Matched Stack Summary (when found)
+     */
+    StackSummary stackSummary;
+
+    /**
+     * Looks up a stack, throwing an exception if not found and failIfMissing set to true
+     *
+     * @param failIfMissing whether or not to throw an exception
+     * @return true if execution must abort. False otherwise.
+     */
+    protected boolean shouldFailIfMissingStack(boolean failIfMissing) {
+        try {
+            ensureStackLookup();
+
+            return true;
+        } catch (IllegalStateException e) {
+            if (failIfMissing) {
+                throw e;
+            } else {
+                getLog().warn("Stack not found, but failIfMissing set to false (its default). Skipping.");
+
+                return false;
+            }
+        }
+    }
+
+    /**
+     * Lookups a Stack
+     */
+    protected void ensureStackLookup() {
+        if (isNotEmpty(stackId))
+            return;
+
+        getLog().info("Looking up stackId (stack name: " + stackName + ")");
+
+        final Pattern namePattern;
+
+        if (GlobUtil.hasWildcards(stackName)) {
+            namePattern = GlobUtil.globify(stackName);
+        } else {
+            namePattern = Pattern.compile(Pattern.quote(stackName));
+        }
+
+        String nextToken = null;
+        final ListStacksRequest req = new ListStacksRequest()
+                .withStackStatusFilters(StackStatus.CREATE_COMPLETE);
+
+        do {
+            req.setNextToken(nextToken);
+
+            final ListStacksResult result = getService().listStacks(req);
+
+            final Optional<StackSummary> matchedStackSummary = result
+                    .getStackSummaries()
+                    .stream()
+                    .filter(x -> namePattern.matcher(x.getStackName()).matches())
+                    .findFirst();
+
+            if (matchedStackSummary.isPresent()) {
+                getLog().info("Found stack (stackSummary: " + matchedStackSummary.get());
+
+                this.stackId = matchedStackSummary.get().getStackId();
+                this.stackSummary = matchedStackSummary.get();
+
+                return;
+            }
+
+            nextToken = result.getNextToken();
+        } while (null != nextToken);
+
+        throw new IllegalStateException("Stack '" + stackName + "' not found!");
+    }
+}
