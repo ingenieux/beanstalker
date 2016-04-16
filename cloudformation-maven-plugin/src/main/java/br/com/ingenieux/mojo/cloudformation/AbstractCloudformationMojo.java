@@ -25,25 +25,27 @@ import com.amazonaws.services.cloudformation.model.StackSummary;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
 import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
 import br.com.ingenieux.mojo.aws.util.GlobUtil;
+import br.com.ingenieux.mojo.cloudformation.cmd.StatusNotifier;
 
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
 /**
  * CloudFormation Mojo Parent
  */
-public abstract class AbstractCloudformationMojo extends AbstractAWSMojo<AmazonCloudFormationClient> {
+public abstract class AbstractCloudformationMojo extends AbstractAWSMojo<AmazonCloudFormationClient> implements StatusNotifier {
     @Parameter(property = "project", required = true)
     protected MavenProject curProject;
 
     @Parameter(property = "cloudformation.stackId")
     String stackId;
 
-    @Parameter(property = "cloudformation.stackName", defaultValue = "${project.artifactId}-stack")
+    @Parameter(property = "cloudformation.stackName", defaultValue = "${project.artifactId}")
     String stackName;
 
     /**
@@ -61,7 +63,7 @@ public abstract class AbstractCloudformationMojo extends AbstractAWSMojo<AmazonC
         try {
             ensureStackLookup();
 
-            return true;
+            return false;
         } catch (IllegalStateException e) {
             if (failIfMissing) {
                 throw e;
@@ -118,5 +120,70 @@ public abstract class AbstractCloudformationMojo extends AbstractAWSMojo<AmazonC
         } while (null != nextToken);
 
         throw new IllegalStateException("Stack '" + stackName + "' not found!");
+    }
+
+    protected Map.Entry<String, String> extractNVPair(String nvPair) {
+        MapEntry<String, String> result = new MapEntry<>();
+
+        int n = nvPair.indexOf('=');
+
+        if (-1 == n) {
+            result.setKey(nvPair);
+        } else {
+            String k = nvPair.substring(0, n);
+            String v = nvPair.substring(1 + n);
+
+            result.setKey(k);
+            result.setValue(v);
+        }
+
+        getLog().info("Adding/Overwriting Parameter: " + result);
+
+        return result;
+    }
+
+    public void info(CharSequence msg) {
+        getLog().info(msg);
+    }
+
+    public static class MapEntry<K, V> implements Map.Entry<K, V> {
+        K key;
+
+        V value;
+
+        @Override
+        public K getKey() {
+            return key;
+        }
+
+        public void setKey(K key) {
+            this.key = key;
+        }
+
+        @Override
+        public V getValue() {
+            return value;
+        }
+
+        @Override
+        public V setValue(V value) {
+            this.value = value;
+
+            return value;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder result = new StringBuilder();
+
+            result.append("" + key);
+
+            if (null != value) {
+                result.append("=");
+                result.append("" + value);
+            }
+
+            return result.toString();
+        }
     }
 }

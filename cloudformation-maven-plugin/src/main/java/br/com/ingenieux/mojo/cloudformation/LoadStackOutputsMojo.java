@@ -8,12 +8,18 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.stream.Collectors;
+
+import static org.apache.commons.lang.StringUtils.isEmpty;
 
 /**
  * Load CloudFormation Stack Output Variables into the Maven Build
@@ -31,6 +37,26 @@ public class LoadStackOutputsMojo extends AbstractCloudformationMojo {
      */
     @Parameter(property="cloudformation.outputMapping")
     Map<String, String> outputMapping = new LinkedHashMap<>();
+
+    public void setOutputMapping(String outputMapping) {
+        List<String> nvPairs = Arrays.asList(outputMapping.split(","));
+
+        nvPairs.stream()
+                .map(this::extractNVPair)
+                .forEach(e -> {
+                    if (isEmpty(e.getValue())) {
+                        this.outputMapping.remove(e.getKey());
+                    } else {
+                        this.outputMapping.put(e.getKey(), e.getValue());
+                    }
+                });
+    }
+
+    /**
+     * Optional: If Defined, will redirect writing to this file as well.
+     */
+    @Parameter(property="cloudformation.outputFile")
+    File outputFile;
 
     @Override
     protected Object executeInternal() throws Exception {
@@ -51,8 +77,21 @@ public class LoadStackOutputsMojo extends AbstractCloudformationMojo {
             result.put(propertyName, o.getOutputValue());
         }
 
+        Properties p = null;
+
+        if (null != outputFile) {
+            p = new Properties();
+        }
+
         for (Map.Entry<String, String> e : result.entrySet()) {
             session.getSystemProperties().setProperty(e.getKey(), e.getValue());
+
+            if (null != p)
+                p.setProperty(e.getKey(), e.getValue());
+        }
+
+        if (null != p) {
+            p.store(new FileOutputStream(outputFile), "Output from cloudformation-maven-plugin for stackId " + this.stackSummary.getStackId());
         }
 
         return result;
