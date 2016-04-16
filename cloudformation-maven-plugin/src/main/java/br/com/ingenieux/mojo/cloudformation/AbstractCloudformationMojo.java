@@ -94,7 +94,7 @@ public abstract class AbstractCloudformationMojo extends AbstractAWSMojo<AmazonC
 
         String nextToken = null;
         final ListStacksRequest req = new ListStacksRequest()
-                .withStackStatusFilters(StackStatus.CREATE_COMPLETE);
+                .withStackStatusFilters(StackStatus.CREATE_COMPLETE, StackStatus.CREATE_FAILED, StackStatus.UPDATE_COMPLETE);
 
         do {
             req.setNextToken(nextToken);

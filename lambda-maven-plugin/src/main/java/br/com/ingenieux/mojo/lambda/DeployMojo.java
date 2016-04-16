@@ -46,6 +46,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +55,7 @@ import java.util.TreeMap;
 import br.com.ingenieux.mojo.aws.util.RoleResolver;
 
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.codehaus.plexus.util.StringUtils.isBlank;
 
@@ -128,13 +130,25 @@ public class DeployMojo extends AbstractLambdaMojo {
    * Security Group Ids
    */
   @Parameter(property="lambda.deploy.securityGroupIds", defaultValue="")
-  List<String> securityGroupIds;
+  List<String> securityGroupIds = new ArrayList<>();
+
+  public void setSecurityGroupIds(String securityGroupIds) {
+    List<String> securityGroupIdsAsList = asList(securityGroupIds.split(","));
+
+    this.securityGroupIds.addAll(securityGroupIdsAsList);
+  }
 
   /**
    * Subnet Ids
    */
   @Parameter(property="lambda.deploy.subnetIds", defaultValue="")
   List<String> subnetIds;
+
+  public void setSubnetIds(String subnetIds) {
+    List<String> subnetIdsAsList = asList(subnetIds.split(","));
+
+    this.subnetIds.addAll(subnetIdsAsList);
+  }
 
   private AWSLambdaClient lambdaClient;
 
