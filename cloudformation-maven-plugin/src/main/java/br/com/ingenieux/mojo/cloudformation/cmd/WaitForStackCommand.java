@@ -1,5 +1,6 @@
 package br.com.ingenieux.mojo.cloudformation.cmd;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.cloudformation.AmazonCloudFormationClient;
 import com.amazonaws.services.cloudformation.model.DescribeStackEventsRequest;
 import com.amazonaws.services.cloudformation.model.DescribeStackEventsResult;
@@ -9,7 +10,6 @@ import com.amazonaws.services.cloudformation.model.Stack;
 import com.amazonaws.services.cloudformation.model.StackEvent;
 import com.amazonaws.services.cloudformation.model.StackStatus;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -89,15 +89,20 @@ public class WaitForStackCommand {
                 do {
                     req.withNextToken(nextToken);
 
-                    DescribeStackEventsResult stackEvents = ctx.getClient().describeStackEvents(req);
+                    Optional<DescribeStackEventsResult> stackEvents = getDescribeStackEventsResult(req);
 
-                    for (StackEvent e : stackEvents.getStackEvents()) {
-                        if (!events.contains(e)) {
-                            ctx.getNotifier().info("" + e);
+                    if (!stackEvents.isPresent()) {
+                        return;
+                    } else {
+                        for (StackEvent e : stackEvents.get().getStackEvents()) {
+                            if (!events.contains(e)) {
+                                ctx.getNotifier().info("" + e);
 
-                            events.add(e);
+                                events.add(e);
+                            }
                         }
                     }
+
 
                 } while (null != nextToken);
             }
@@ -112,10 +117,22 @@ public class WaitForStackCommand {
                 done = foundStack.isPresent();
             }
 
-            if (! done) {
+            if (!done) {
                 Thread.sleep(15000);
             }
 
         } while (!done);
+    }
+
+    private Optional<DescribeStackEventsResult> getDescribeStackEventsResult(DescribeStackEventsRequest req) {
+        try {
+            return Optional.of(ctx.getClient().describeStackEvents(req));
+        } catch (AmazonServiceException e) {
+            if (e.getErrorMessage().contains("does not exist")) {
+                return Optional.empty();
+            } else {
+                throw e;
+            }
+        }
     }
 }
