@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2016 ingenieux Labs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package br.com.ingenieux.mojo.cloudformation;
 
 import com.amazonaws.AmazonServiceException;
@@ -12,7 +29,6 @@ import com.amazonaws.services.cloudformation.model.UpdateStackResult;
 import com.amazonaws.services.cloudformation.model.ValidateTemplateRequest;
 import com.amazonaws.services.cloudformation.model.ValidateTemplateResult;
 import com.amazonaws.services.s3.AmazonS3URI;
-import com.amazonaws.transform.MapEntry;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -21,10 +37,9 @@ import org.apache.maven.plugins.annotations.Parameter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import br.com.ingenieux.mojo.aws.util.BeanstalkerS3Client;
@@ -164,7 +179,36 @@ public class PushStackMojo extends AbstractCloudformationMojo {
             templateBody = IOUtils.toString(new FileInputStream(this.templateLocation));
         }
 
-        validateTemplate();
+        {
+            ValidateTemplateResult validateTemplateResult = validateTemplate();
+
+            if (!validateTemplateResult.getParameters().isEmpty()) {
+                Set<String> existingParameterNames = this.parameters
+                        .stream()
+                        .map(x -> x.getParameterKey())
+                        .collect(Collectors.toSet());
+
+                Set<String> requiredParameterNames =
+                        validateTemplateResult.getParameters()
+                                .stream()
+                                .map(x -> x.getParameterKey())
+                                .collect(Collectors.toSet());
+
+                for (String requiredParameter : requiredParameterNames) {
+                    if (!existingParameterNames.contains(requiredParameter)) {
+                        getLog().warn("Missing required parameter name: " + requiredParameter);
+                        getLog().warn("If its an update, will reuse previous value");
+                    }
+
+                    this.parameters.add(
+                            new com.amazonaws.services.cloudformation.model.Parameter()
+                                    .withParameterKey(requiredParameter)
+                                    .withUsePreviousValue(true)
+
+                    );
+                }
+            }
+        }
 
         WaitForStackCommand.WaitForStackContext ctx = null;
 
@@ -205,7 +249,7 @@ public class PushStackMojo extends AbstractCloudformationMojo {
         return result;
     }
 
-    private void validateTemplate() throws Exception {
+    private ValidateTemplateResult validateTemplate() throws Exception {
         final ValidateTemplateRequest req = new ValidateTemplateRequest();
 
         if (null != destinationS3Uri) {
@@ -217,6 +261,8 @@ public class PushStackMojo extends AbstractCloudformationMojo {
         final ValidateTemplateResult result = getService().validateTemplate(req);
 
         getLog().info("Validation Result: " + result);
+
+        return result;
     }
 
     private CreateStackResult createStack() throws Exception {

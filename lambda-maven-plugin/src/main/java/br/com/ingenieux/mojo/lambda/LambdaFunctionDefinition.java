@@ -21,6 +21,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.lang.builder.CompareToBuilder;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LambdaFunctionDefinition implements Serializable, Comparable<LambdaFunctionDefinition> {
     String name;
@@ -112,5 +114,35 @@ public class LambdaFunctionDefinition implements Serializable, Comparable<Lambda
 
     public void setApi(ObjectNode api) {
         this.api = api;
+    }
+
+    List<String> bindings = new ArrayList<>();
+
+    public List<String> getBindings() {
+        return bindings;
+    }
+
+    public void setBindings(List<String> bindings) {
+        this.bindings = bindings;
+    }
+
+    String arn;
+
+    public String getArn() {
+        return arn;
+    }
+
+    public void setArn(String arn) {
+        this.arn = arn;
+    }
+
+    String version;
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
 }
