@@ -17,12 +17,8 @@
 package br.com.ingenieux.mojo.apigateway;
 
 import com.amazonaws.services.apigateway.AmazonApiGatewayClient;
-import com.amazonaws.services.apigateway.model.GetDeploymentsRequest;
-import com.amazonaws.services.apigateway.model.GetDeploymentsResult;
 import com.amazonaws.services.apigateway.model.GetRestApisRequest;
 import com.amazonaws.services.apigateway.model.GetRestApisResult;
-import com.amazonaws.services.apigateway.model.GetStagesRequest;
-import com.amazonaws.services.apigateway.model.GetStagesResult;
 import com.amazonaws.services.apigateway.model.RestApi;
 
 import org.apache.maven.plugins.annotations.Parameter;

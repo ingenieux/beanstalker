@@ -247,6 +247,12 @@ public class DeployMojo extends AbstractLambdaMojo {
             }
         }
 
+        {
+            getLog().info("Writing back definitions into file " + this.definitionFile.getPath());
+
+            OBJECT_MAPPER.writeValue(this.definitionFile, functionDefinitions);
+        }
+
         return functionDefinitions;
     }
 
