@@ -323,7 +323,9 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
 
         swaggerDefinition
                 .with("info")
-                .put("title", restApiName);
+                .put("title", restApiName)
+                .put("description", restApiDescription)
+        ;
 
         mergeLambdas(swaggerDefinition);
 
