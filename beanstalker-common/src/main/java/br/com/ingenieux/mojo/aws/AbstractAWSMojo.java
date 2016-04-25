@@ -32,6 +32,7 @@ import com.amazonaws.internal.StaticCredentialsProvider;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.RegionUtils;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
@@ -141,11 +142,13 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
     }
 
     protected AWSClientFactory clientFactory;
+
     /**
      * Plexus container, needed to manually lookup components. <p/> To be able to use Password
      * Encryption http://maven.apache.org/guides/mini/guide-encryption.html
      */
     private PlexusContainer container;
+
     private S service;
 
     protected AbstractAWSMojo() {
@@ -155,6 +158,9 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         //https://github.com/ingenieux/beanstalker/issues/87 - Decouple the serialization of AWS responses to avoid warning mgs
         objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        objectMapper.enable(JsonParser.Feature.ALLOW_COMMENTS);
+        objectMapper.enable(JsonParser.Feature.ALLOW_YAML_COMMENTS);
+        objectMapper.enable(JsonParser.Feature.STRICT_DUPLICATE_DETECTION);
     }
 
     class BeanstalkerAWSCredentialsProviderChain extends AWSCredentialsProviderChain {
