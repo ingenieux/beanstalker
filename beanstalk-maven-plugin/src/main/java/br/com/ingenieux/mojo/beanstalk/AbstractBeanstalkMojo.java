@@ -19,7 +19,6 @@ package br.com.ingenieux.mojo.beanstalk;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
-
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
@@ -54,7 +53,6 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
 import br.com.ingenieux.mojo.beanstalk.util.ConfigUtil;
 import br.com.ingenieux.mojo.beanstalk.util.EnvironmentHostnameUtil;
-
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.apache.commons.lang.StringUtils.isBlank;
@@ -248,7 +246,8 @@ public abstract class AbstractBeanstalkMojo extends
 
 
     // TODO: Refactor w/ version lookup
-    protected String lookupSolutionStack(final String solutionStack) {
+    @SuppressWarnings("unchecked")
+	protected String lookupSolutionStack(final String solutionStack) {
         if (!GlobUtil.hasWildcards(solutionStack)) {
             return solutionStack;
         }

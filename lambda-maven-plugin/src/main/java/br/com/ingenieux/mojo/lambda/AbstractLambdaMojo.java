@@ -16,13 +16,9 @@
 
 package br.com.ingenieux.mojo.lambda;
 
-import com.amazonaws.services.lambda.AWSLambdaClient;
-
-import org.apache.maven.plugins.annotations.Parameter;
-
-import java.util.Properties;
-
 import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
+
+import com.amazonaws.services.lambda.AWSLambdaClient;
 
 /**
  * A Mojo for AWS Lambda Projects

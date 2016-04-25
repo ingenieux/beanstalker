@@ -16,6 +16,30 @@
 
 package br.com.ingenieux.mojo.lambda;
 
+import static java.lang.String.format;
+import static java.util.Arrays.asList;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.codehaus.plexus.util.StringUtils.isBlank;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.text.StrSubstitutor;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+
+import br.com.ingenieux.mojo.aws.util.RoleResolver;
+
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
@@ -35,36 +59,11 @@ import com.amazonaws.services.lambda.model.UpdateFunctionConfigurationResult;
 import com.amazonaws.services.lambda.model.VpcConfig;
 import com.amazonaws.services.s3.AmazonS3URI;
 import com.amazonaws.services.sns.AmazonSNSClient;
-import com.amazonaws.services.sns.model.ListSubscriptionsRequest;
 import com.amazonaws.services.sns.model.SubscribeRequest;
 import com.amazonaws.services.sns.model.SubscribeResult;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.text.StrSubstitutor;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
-import br.com.ingenieux.mojo.aws.util.RoleResolver;
-
-import static java.lang.String.format;
-import static java.util.Arrays.asList;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.codehaus.plexus.util.StringUtils.isBlank;
 
 /**
  * <p>Represents the AWS Lambda Deployment Process, which means:</p> <p/> <ul> <li>Parsing the
@@ -322,7 +321,7 @@ public class DeployMojo extends AbstractLambdaMojo {
 
         final SubscribeResult subscribe = client.subscribe(req);
 
-        getLog().info("Subscribed topic arn " + bindingArn.getSourceArn() + " to function " + d.getArn());
+        getLog().info("Subscribed topic arn " + bindingArn.getSourceArn() + " to function " + d.getArn() + ": " + subscribe);
 
         // TODO: Unsubscribe older versions
 

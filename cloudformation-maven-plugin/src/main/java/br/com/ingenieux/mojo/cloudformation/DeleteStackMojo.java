@@ -17,22 +17,18 @@
 
 package br.com.ingenieux.mojo.cloudformation;
 
-import com.amazonaws.services.cloudformation.model.DeleteStackRequest;
-import com.amazonaws.services.cloudformation.model.StackStatus;
+import static java.util.Arrays.asList;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import br.com.ingenieux.mojo.cloudformation.cmd.WaitForStackCommand;
 
-import static java.util.Arrays.asList;
+import com.amazonaws.services.cloudformation.model.DeleteStackRequest;
+import com.amazonaws.services.cloudformation.model.StackStatus;
 
 /**
  * Waits until timeout and/or stack status, printing messages along the way

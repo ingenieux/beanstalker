@@ -16,28 +16,13 @@
 
 package br.com.ingenieux.mojo.apigateway;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
-import com.amazonaws.services.apigateway.model.CreateDeploymentRequest;
-import com.amazonaws.services.apigateway.model.CreateDeploymentResult;
-import com.amazonaws.services.apigateway.model.CreateRestApiRequest;
-import com.amazonaws.services.apigateway.model.CreateRestApiResult;
-import com.amazonaws.services.apigateway.model.PutMode;
-import com.amazonaws.services.apigateway.model.PutRestApiRequest;
-import com.amazonaws.services.apigateway.model.PutRestApiResult;
-import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.text.StrSubstitutor;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
+import static java.lang.String.format;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toSet;
+import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang.StringUtils.isEmpty;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -54,15 +39,26 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.text.StrSubstitutor;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+
 import br.com.ingenieux.mojo.aws.util.RoleResolver;
 
-import static java.lang.String.format;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.mapping;
-import static java.util.stream.Collectors.toSet;
-import static org.apache.commons.lang.StringUtils.defaultString;
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.apache.commons.lang.StringUtils.isEmpty;
+import com.amazonaws.services.apigateway.model.CreateDeploymentRequest;
+import com.amazonaws.services.apigateway.model.CreateDeploymentResult;
+import com.amazonaws.services.apigateway.model.CreateRestApiRequest;
+import com.amazonaws.services.apigateway.model.CreateRestApiResult;
+import com.amazonaws.services.apigateway.model.PutMode;
+import com.amazonaws.services.apigateway.model.PutRestApiRequest;
+import com.amazonaws.services.apigateway.model.PutRestApiResult;
+import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.Lists;
 
 @Mojo(name = "create-or-update", requiresProject = true)
 public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
