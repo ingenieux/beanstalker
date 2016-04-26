@@ -151,6 +151,8 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
 
     private ObjectNode templateOptionsNode;
 
+    private ObjectNode swaggerDefinition;
+
     @Override
     protected Object executeInternal() throws Exception {
         this.roleResolver = new RoleResolver(createServiceFor(AmazonIdentityManagementClient.class));
@@ -176,6 +178,11 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
 
     private void initConstants() throws Exception {
         this.templateChildNode = (ObjectNode) objectMapper.readTree(STR_TEMPLATE_LAMBDA_METHOD);
+
+        this.templateChildNode
+                .with("x-amazon-apigateway-integration")
+                .put("credentials", roleResolver.lookupRoleGlob("*/apigateway-lambda-invoker"));
+
         this.templateOptionsNode = (ObjectNode) objectMapper.readTree(STR_TEMPLATE_CORS_METHOD);
     }
 
@@ -211,7 +218,6 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
     }
 
     private void cleanupPermissions() {
-
     }
 
     private void initProperties() {
@@ -315,7 +321,7 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
 
         getLog().debug("Contents: " + deploymentFileContents);
 
-        final ObjectNode swaggerDefinition = (ObjectNode) this.objectMapper.readTree(deploymentFileContents);
+        swaggerDefinition = (ObjectNode) this.objectMapper.readTree(deploymentFileContents);
 
         swaggerDefinition
                 .with("info")
