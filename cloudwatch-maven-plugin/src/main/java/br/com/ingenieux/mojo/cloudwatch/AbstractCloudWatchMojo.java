@@ -12,27 +12,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package br.com.ingenieux.mojo.aws.util;
+package br.com.ingenieux.mojo.cloudwatch;
 
-import java.util.regex.Pattern;
+import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
+import com.amazonaws.services.logs.AWSLogsAsyncClient;
 
-public class GlobUtil {
-    public static Pattern asPattern(String x) {
-        if (hasWildcards(x))
-            return globify(x);
+import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
 
-        return Pattern.compile(Pattern.quote(x));
-    }
-
-    public static Pattern globify(String templateName) {
-        return Pattern.compile(templateName.replaceAll("\\.", "\\\\.").replaceAll("\\Q*\\E", ".*")
-                .replaceAll("\\Q?\\E", "."));
-    }
-
-    public static boolean hasWildcards(String input) {
-        return (input.indexOf('*') != -1 || input.indexOf('?') != -1);
-    }
-
+public abstract class AbstractCloudWatchMojo extends AbstractAWSMojo<AWSLogsAsyncClient> {
 }

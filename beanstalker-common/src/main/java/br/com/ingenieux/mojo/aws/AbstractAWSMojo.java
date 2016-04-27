@@ -274,7 +274,7 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends
         }
     }
 
-    private String decryptPassword(final String password) {
+    private synchronized String decryptPassword(final String password) {
         if (password != null) {
             try {
                 final Class<?> securityDispatcherClass = container.getClass()

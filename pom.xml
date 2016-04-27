@@ -104,6 +104,7 @@
         <module>lambda-maven-plugin</module>
         <module>apigateway-maven-plugin</module>
         <module>cloudformation-maven-plugin</module>
+        <module>cloudwatch-maven-plugin</module>
         <module>elasticbeanstalk-docker-dropwizard-webapp-archetype</module>
         <module>elasticbeanstalk-javase-archetype</module>
         <module>beanstalk-maven-plugin-it</module>
@@ -325,6 +326,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
                 <version>2.8.1</version>
+                <configuration>
+                    <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
