@@ -19,6 +19,7 @@ package br.com.ingenieux.mojo.apigateway;
 import com.amazonaws.services.apigateway.AmazonApiGatewayClient;
 import com.amazonaws.services.apigateway.model.GetRestApisRequest;
 import com.amazonaws.services.apigateway.model.GetRestApisResult;
+import com.amazonaws.services.apigateway.model.GetSdkRequest;
 import com.amazonaws.services.apigateway.model.RestApi;
 
 import org.apache.maven.plugins.annotations.Parameter;
@@ -28,6 +29,7 @@ import java.util.Optional;
 
 import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
 
+import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
@@ -46,10 +48,14 @@ public abstract class AbstractAPIGatewayMojo extends AbstractAWSMojo<AmazonApiGa
     @Parameter(property = "apigateway.stageName", required = true, defaultValue = "dev")
     protected String stageName;
 
+    /**
+     * Endpoint URL - Internal Usage.
+     */
+    protected String endpointUrl;
+
     protected void lookupIds() throws Exception {
         GetRestApisRequest req = new GetRestApisRequest();
         String position = "";
-
 
         do {
             final GetRestApisResult apiList = getService().getRestApis(req);
@@ -72,5 +78,22 @@ public abstract class AbstractAPIGatewayMojo extends AbstractAWSMojo<AmazonApiGa
 
         if (isBlank(restApiId))
             return;
+
+        updateEndpoint();
+
+    }
+
+    protected void updateEndpoint() {
+        String propertyName = "apigateway.endpoint.url";
+        String propertyValue = format("https://%s.execute-api.%s.amazonaws.com/%s",
+                restApiId,
+                regionName,
+                stageName);
+
+        getLog().info("Setting property: " + propertyName + "=" + propertyValue);
+
+        session.getSystemProperties().put(propertyName, propertyValue);
+
+        this.endpointUrl = propertyValue;
     }
 }
