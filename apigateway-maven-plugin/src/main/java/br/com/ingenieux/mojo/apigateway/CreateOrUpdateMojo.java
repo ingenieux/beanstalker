@@ -139,6 +139,13 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
     protected Map<String, String> parameters = new HashMap<>();
 
     /**
+     * Remove Conflicting Declarations? Disable for advanced usage
+     */
+    @Parameter(property = "apigateway.removeConflicting", required=true, defaultValue="true")
+    protected boolean removeConflicting;
+
+
+    /**
      * Resulting Body to use
      */
     protected String body;
@@ -408,6 +415,8 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
     }
 
     private void removeConflictingDeclarations(LambdaDefinition d, ObjectNode pathNode) {
+        if (!removeConflicting)
+            return;
         String normalizedPath = normalizePath(d.getApi().getPath());
 
         outer:
