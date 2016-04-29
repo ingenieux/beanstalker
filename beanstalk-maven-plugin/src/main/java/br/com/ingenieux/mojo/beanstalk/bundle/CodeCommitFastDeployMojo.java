@@ -47,7 +47,7 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
  */
 @Mojo(name = "codecommit-fast-deploy")
 public class CodeCommitFastDeployMojo extends FastDeployMojo {
-    @Parameter(property = "beanstalk.codeCommitRepoName")
+    @Parameter(property = "beanstalk.codeCommitRepoName", defaultValue="${project.artifactId}-blobs")
     String repoName;
 
     @Override
@@ -124,7 +124,7 @@ public class CodeCommitFastDeployMojo extends FastDeployMojo {
 
         getLog().info("Calling beanstalk-codecommit-deployer with arguments set to: " + redact(payloadAsString));
 
-        final InvokeResult invoke = lambda.invoke(new InvokeRequest().withFunctionName("beanstalk-codecommit-deployer").withPayload(payloadAsString));
+        final InvokeResult invoke = lambda.invoke(new InvokeRequest().withFunctionName("beanstalker-codecommit-deployer").withPayload(payloadAsString));
 
         String resultAsString = new String(invoke.getPayload().array(), "utf-8");
 

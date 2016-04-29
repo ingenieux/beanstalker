@@ -437,7 +437,7 @@ public abstract class AbstractNeedsEnvironmentMojo extends
         if (null != project) {
             for (Map.Entry<Object, Object> entry : project.getProperties()
                     .entrySet()) {
-                if (("" + entry.getKey()).startsWith("beanstalk")) {
+                if (("" + entry.getKey()).startsWith("beanstalk.")) {
                     properties.put(entry.getKey(), entry.getValue());
                 }
             }
@@ -445,7 +445,13 @@ public abstract class AbstractNeedsEnvironmentMojo extends
 
         for (Map.Entry<Object, Object> entry : System.getProperties()
                 .entrySet()) {
-            if (("" + entry.getKey()).startsWith("beanstalk")) {
+            if (("" + entry.getKey()).startsWith("beanstalk.")) {
+                properties.put(entry.getKey(), entry.getValue());
+            }
+        }
+
+        for (Map.Entry<Object, Object> entry : session.getSystemProperties().entrySet()) {
+            if (("" + entry.getKey()).startsWith("beanstalk.")) {
                 properties.put(entry.getKey(), entry.getValue());
             }
         }
