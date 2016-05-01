@@ -16,13 +16,28 @@
 
 package br.com.ingenieux.mojo.apigateway;
 
-import static java.lang.String.format;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.mapping;
-import static java.util.stream.Collectors.toSet;
-import static org.apache.commons.lang.StringUtils.defaultString;
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.apache.commons.lang.StringUtils.isEmpty;
+import com.google.common.collect.Lists;
+
+import com.amazonaws.services.apigateway.model.CreateDeploymentRequest;
+import com.amazonaws.services.apigateway.model.CreateDeploymentResult;
+import com.amazonaws.services.apigateway.model.CreateRestApiRequest;
+import com.amazonaws.services.apigateway.model.CreateRestApiResult;
+import com.amazonaws.services.apigateway.model.PatchOperation;
+import com.amazonaws.services.apigateway.model.PutMode;
+import com.amazonaws.services.apigateway.model.PutRestApiRequest;
+import com.amazonaws.services.apigateway.model.PutRestApiResult;
+import com.amazonaws.services.apigateway.model.UpdateDeploymentRequest;
+import com.amazonaws.services.apigateway.model.UpdateStageRequest;
+import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.text.StrSubstitutor;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,26 +54,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.text.StrSubstitutor;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-
 import br.com.ingenieux.mojo.aws.util.RoleResolver;
 
-import com.amazonaws.services.apigateway.model.CreateDeploymentRequest;
-import com.amazonaws.services.apigateway.model.CreateDeploymentResult;
-import com.amazonaws.services.apigateway.model.CreateRestApiRequest;
-import com.amazonaws.services.apigateway.model.CreateRestApiResult;
-import com.amazonaws.services.apigateway.model.PutMode;
-import com.amazonaws.services.apigateway.model.PutRestApiRequest;
-import com.amazonaws.services.apigateway.model.PutRestApiResult;
-import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.Lists;
+import static java.lang.String.format;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toSet;
+import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang.StringUtils.isEmpty;
 
 @Mojo(name = "create-or-update", requiresProject = true)
 public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
@@ -141,7 +145,7 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
     /**
      * Remove Conflicting Declarations? Disable for advanced usage
      */
-    @Parameter(property = "apigateway.removeConflicting", required=true, defaultValue="true")
+    @Parameter(property = "apigateway.removeConflicting", required = true, defaultValue = "true")
     protected boolean removeConflicting;
 
 
@@ -282,7 +286,7 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
 
             this.lambdaDefinitions = defs.values()
                     .stream()
-                    .filter(x -> null != x.getApi() && "post".equalsIgnoreCase(x.getApi().getMethodType()))
+                    .filter(x -> null != x.getApi())
                     .collect(Collectors.toList());
 
             this.lambdaDefinitions.forEach(x -> x.getApi().methodType = x.getApi().methodType.toLowerCase());
@@ -365,7 +369,7 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
 
             parentNode
                     .with("x-amazon-apigateway-integration")
-                    .put("httpMethod", d.getApi().getMethodType())
+                    .put("httpMethod", "POST")
                     .put("uri", getUriFor(d));
 
             final ArrayNode parametersNode = parentNode.putArray("parameters");
