@@ -48,8 +48,7 @@ public class DownloadApiDefinitionMojo extends AbstractAPIGatewayMojo {
 
         Map<String, String> parameters = new LinkedHashMap<>();
 
-        parameters.put("integrations", "true");
-        parameters.put("authorizers", "true");
+        parameters.put("extensions", "integrations,authorizers,postman");
 
         final GetExportResult swaggerApi = getService().getExport(
                 new GetExportRequest()

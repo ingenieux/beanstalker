@@ -286,7 +286,7 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
 
             this.lambdaDefinitions = defs.values()
                     .stream()
-                    .filter(x -> null != x.getApi())
+                    .filter(x -> null != x.getApi() && "post".equalsIgnoreCase(x.getApi().getMethodType()))
                     .collect(Collectors.toList());
 
             this.lambdaDefinitions.forEach(x -> x.getApi().methodType = x.getApi().methodType.toLowerCase());
@@ -365,7 +365,7 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
                     .with(d.getApi().getPath())
                     .with(d.getApi().getMethodType());
 
-            parentNode.setAll(templateChildNode);
+            parentNode.setAll(templateChildNode.deepCopy());
 
             parentNode
                     .with("x-amazon-apigateway-integration")
