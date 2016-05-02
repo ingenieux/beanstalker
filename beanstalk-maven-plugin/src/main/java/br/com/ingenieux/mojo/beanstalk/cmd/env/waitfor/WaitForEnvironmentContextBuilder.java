@@ -20,67 +20,65 @@
  */
 package br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor;
 
-public class WaitForEnvironmentContextBuilder extends
-        WaitForEnvironmentContextBuilderBase<WaitForEnvironmentContextBuilder> {
+public class WaitForEnvironmentContextBuilder extends WaitForEnvironmentContextBuilderBase<WaitForEnvironmentContextBuilder> {
 
-    public WaitForEnvironmentContextBuilder() {
-        super(new WaitForEnvironmentContext());
-    }
+  public WaitForEnvironmentContextBuilder() {
+    super(new WaitForEnvironmentContext());
+  }
 
-    public static WaitForEnvironmentContextBuilder waitForEnvironmentContext() {
-        return new WaitForEnvironmentContextBuilder();
-    }
+  public static WaitForEnvironmentContextBuilder waitForEnvironmentContext() {
+    return new WaitForEnvironmentContextBuilder();
+  }
 
-    public WaitForEnvironmentContext build() {
-        return getInstance();
-    }
+  public WaitForEnvironmentContext build() {
+    return getInstance();
+  }
 }
 
 class WaitForEnvironmentContextBuilderBase<GeneratorT extends WaitForEnvironmentContextBuilderBase<GeneratorT>> {
 
-    private WaitForEnvironmentContext instance;
+  private WaitForEnvironmentContext instance;
 
-    protected WaitForEnvironmentContextBuilderBase(
-            WaitForEnvironmentContext aInstance) {
-        instance = aInstance;
-    }
+  protected WaitForEnvironmentContextBuilderBase(WaitForEnvironmentContext aInstance) {
+    instance = aInstance;
+  }
 
-    protected WaitForEnvironmentContext getInstance() {
-        return instance;
-    }
+  protected WaitForEnvironmentContext getInstance() {
+    return instance;
+  }
 
-    @SuppressWarnings("unchecked")
-    public GeneratorT withApplicationName(String aValue) {
-        instance.setApplicationName(aValue);
+  @SuppressWarnings("unchecked")
+  public GeneratorT withApplicationName(String aValue) {
+    instance.setApplicationName(aValue);
 
-        return (GeneratorT) this;
-    }
+    return (GeneratorT) this;
+  }
 
-    @SuppressWarnings("unchecked")
-    public GeneratorT withTimeoutMins(Integer aValue) {
-        instance.setTimeoutMins(aValue);
+  @SuppressWarnings("unchecked")
+  public GeneratorT withTimeoutMins(Integer aValue) {
+    instance.setTimeoutMins(aValue);
 
-        return (GeneratorT) this;
-    }
+    return (GeneratorT) this;
+  }
 
-    @SuppressWarnings("unchecked")
-    public GeneratorT withHealth(String health) {
-        instance.setHealth(health);
+  @SuppressWarnings("unchecked")
+  public GeneratorT withHealth(String health) {
+    instance.setHealth(health);
 
-        return (GeneratorT) this;
-    }
+    return (GeneratorT) this;
+  }
 
-    @SuppressWarnings("unchecked")
-    public GeneratorT withStatusToWaitFor(String aValue) {
-        instance.setStatusToWaitFor(aValue);
+  @SuppressWarnings("unchecked")
+  public GeneratorT withStatusToWaitFor(String aValue) {
+    instance.setStatusToWaitFor(aValue);
 
-        return (GeneratorT) this;
-    }
+    return (GeneratorT) this;
+  }
 
-    @SuppressWarnings("unchecked")
-    public GeneratorT withEnvironmentRef(String aValue) {
-        instance.setEnvironmentRef(aValue);
+  @SuppressWarnings("unchecked")
+  public GeneratorT withEnvironmentRef(String aValue) {
+    instance.setEnvironmentRef(aValue);
 
-        return (GeneratorT) this;
-    }
+    return (GeneratorT) this;
+  }
 }

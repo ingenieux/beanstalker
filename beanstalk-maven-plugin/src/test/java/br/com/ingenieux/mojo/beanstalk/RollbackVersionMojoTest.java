@@ -26,35 +26,33 @@ import br.com.ingenieux.mojo.beanstalk.version.RollbackVersionMojo;
 @Ignore
 public class RollbackVersionMojoTest extends BeanstalkTestBase {
 
-    private RollbackVersionMojo mojo;
+  private RollbackVersionMojo mojo;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+  @Override
+  protected void setUp() throws Exception {
+    super.setUp();
 
-        File testPom = super.getBasePom("pom.xml");
+    File testPom = super.getBasePom("pom.xml");
 
-        PlexusConfiguration pluginConfiguration = extractPluginConfiguration(
-                "beanstalk-maven-plugin", testPom);
+    PlexusConfiguration pluginConfiguration = extractPluginConfiguration("beanstalk-maven-plugin", testPom);
 
-        RollbackVersionMojo mojo = (RollbackVersionMojo) configureMojo(
-                new RollbackVersionMojo(), pluginConfiguration);
+    RollbackVersionMojo mojo = (RollbackVersionMojo) configureMojo(new RollbackVersionMojo(), pluginConfiguration);
 
-        this.mojo = mojo;
-    }
+    this.mojo = mojo;
+  }
 
-    public void ignoretestPreviousVersion() throws Exception {
-        setVariableValueToObject(mojo, "applicationName", "belemtransito");
-        setVariableValueToObject(mojo, "environmentName", "production");
+  public void ignoretestPreviousVersion() throws Exception {
+    setVariableValueToObject(mojo, "applicationName", "belemtransito");
+    setVariableValueToObject(mojo, "environmentName", "production");
 
-        mojo.execute();
-    }
+    mojo.execute();
+  }
 
-    public void ignoretestLatestInstead() throws Exception {
-        setVariableValueToObject(mojo, "applicationName", "belemtransito");
-        setVariableValueToObject(mojo, "environmentName", "production");
-        setVariableValueToObject(mojo, "latestVersionInstead", true);
+  public void ignoretestLatestInstead() throws Exception {
+    setVariableValueToObject(mojo, "applicationName", "belemtransito");
+    setVariableValueToObject(mojo, "environmentName", "production");
+    setVariableValueToObject(mojo, "latestVersionInstead", true);
 
-        mojo.execute();
-    }
+    mojo.execute();
+  }
 }

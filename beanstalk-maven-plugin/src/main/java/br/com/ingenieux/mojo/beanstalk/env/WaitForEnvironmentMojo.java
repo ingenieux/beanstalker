@@ -32,50 +32,49 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext
 @Mojo(name = "wait-for-environment")
 public class WaitForEnvironmentMojo extends AbstractBeanstalkMojo {
 
-    /**
-     * Beanstalk Application Name
-     */
-    @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
-            required = true)
-    String applicationName;
+  /**
+   * Beanstalk Application Name
+   */
+  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}", required = true)
+  String applicationName;
 
-    /**
-     * Minutes until timeout
-     */
-    @Parameter(property = "beanstalk.timeoutMins", defaultValue = "20")
-    Integer timeoutMins;
+  /**
+   * Minutes until timeout
+   */
+  @Parameter(property = "beanstalk.timeoutMins", defaultValue = "20")
+  Integer timeoutMins;
 
-    /**
-     * Status to Wait For
-     */
-    @Parameter(property = "beanstalk.statusToWaitFor", defaultValue = "Ready")
-    String statusToWaitFor;
+  /**
+   * Status to Wait For
+   */
+  @Parameter(property = "beanstalk.statusToWaitFor", defaultValue = "Ready")
+  String statusToWaitFor;
 
-    /**
-     * Health to Wait For
-     */
-    @Parameter(property = "beanstalk.healthToWaitFor", defaultValue = "Green")
-    String healthToWaitFor;
+  /**
+   * Health to Wait For
+   */
+  @Parameter(property = "beanstalk.healthToWaitFor", defaultValue = "Green")
+  String healthToWaitFor;
 
-    /**
-     * Environment Ref
-     */
-    @Parameter(property = "beanstalk.environmentRef",
-            defaultValue = "${project.artifactId}.elasticbeanstalk.com")
-    String environmentRef;
+  /**
+   * Environment Ref
+   */
+  @Parameter(property = "beanstalk.environmentRef", defaultValue = "${project.artifactId}.elasticbeanstalk.com")
+  String environmentRef;
 
-    @Override
-    protected Object executeInternal() throws Exception {
-        WaitForEnvironmentContext context = new WaitForEnvironmentContextBuilder()
-                .withApplicationName(applicationName)//
-                .withStatusToWaitFor(statusToWaitFor)//
-                .withTimeoutMins(timeoutMins)//
-                .withHealth(healthToWaitFor)//
-                .withEnvironmentRef(environmentRef)//
-                .build();
+  @Override
+  protected Object executeInternal() throws Exception {
+    WaitForEnvironmentContext context =
+        new WaitForEnvironmentContextBuilder()
+            .withApplicationName(applicationName) //
+            .withStatusToWaitFor(statusToWaitFor) //
+            .withTimeoutMins(timeoutMins) //
+            .withHealth(healthToWaitFor) //
+            .withEnvironmentRef(environmentRef) //
+            .build();
 
-        WaitForEnvironmentCommand command = new WaitForEnvironmentCommand(this);
+    WaitForEnvironmentCommand command = new WaitForEnvironmentCommand(this);
 
-        return command.execute(context);
-    }
+    return command.execute(context);
+  }
 }

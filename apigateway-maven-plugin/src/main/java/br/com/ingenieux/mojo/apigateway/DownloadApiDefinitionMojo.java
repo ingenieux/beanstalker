@@ -33,46 +33,47 @@ import java.util.Map;
 
 @Mojo(name = "download-api-definition", requiresProject = true)
 public class DownloadApiDefinitionMojo extends AbstractAPIGatewayMojo {
-    /**
-     * Output File
-     */
-    @Parameter(property = "apigateway.outputFile", defaultValue = "${project.build.outputDirectory}/apigateway-swagger.json")
-    File outputFile;
+  /**
+   * Output File
+   */
+  @Parameter(property = "apigateway.outputFile", defaultValue = "${project.build.outputDirectory}/apigateway-swagger.json")
+  File outputFile;
 
-    @Override
-    protected Object executeInternal() throws Exception {
-        this.lookupIds();
+  @Override
+  protected Object executeInternal() throws Exception {
+    this.lookupIds();
 
-        Validate.notNull(restApiId);
-        Validate.notNull(stageName);
+    Validate.notNull(restApiId);
+    Validate.notNull(stageName);
 
-        Map<String, String> parameters = new LinkedHashMap<>();
+    Map<String, String> parameters = new LinkedHashMap<>();
 
-        parameters.put("extensions", "integrations,authorizers,postman");
+    parameters.put("extensions", "integrations,authorizers,postman");
 
-        final GetExportResult swaggerApi = getService().getExport(
+    final GetExportResult swaggerApi =
+        getService()
+            .getExport(
                 new GetExportRequest()
-                        .withExportType("swagger")
-                        .withAccepts("application/json")
-                        .withRestApiId(restApiId)
-                        .withStageName(stageName)
-                        .withParameters(parameters)
-        );
+                    .withExportType("swagger")
+                    .withAccepts("application/json")
+                    .withRestApiId(restApiId)
+                    .withStageName(stageName)
+                    .withParameters(parameters));
 
-        String content = new String(swaggerApi.getBody().array(), Charset.defaultCharset());
+    String content = new String(swaggerApi.getBody().array(), Charset.defaultCharset());
 
-        getLog().info("Content: " + content);
+    getLog().info("Content: " + content);
 
-        if (null != outputFile) {
-            if (!outputFile.exists()) {
-                outputFile.getParentFile().mkdirs();
+    if (null != outputFile) {
+      if (!outputFile.exists()) {
+        outputFile.getParentFile().mkdirs();
 
-                getLog().info("Writing into file " + outputFile.getPath());
+        getLog().info("Writing into file " + outputFile.getPath());
 
-                IOUtils.write(content, new FileOutputStream(outputFile));
-            }
-        }
-
-        return null;
+        IOUtils.write(content, new FileOutputStream(outputFile));
+      }
     }
+
+    return null;
+  }
 }

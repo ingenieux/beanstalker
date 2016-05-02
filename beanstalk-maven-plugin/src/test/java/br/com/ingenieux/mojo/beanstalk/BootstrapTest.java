@@ -29,47 +29,43 @@ import java.io.File;
 @RunWith(JUnit38ClassRunner.class)
 public class BootstrapTest extends BeanstalkTestBase {
 
-    private String s3Key;
-    private String s3Bucket;
-    private File artifactFile;
+  private String s3Key;
+  private String s3Bucket;
+  private File artifactFile;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+  @Override
+  protected void setUp() throws Exception {
+    super.setUp();
 
-        artifactFile = getWarFile();
-        s3Bucket = getS3Bucket();
-        s3Key = getS3Path();
+    artifactFile = getWarFile();
+    s3Bucket = getS3Bucket();
+    s3Key = getS3Path();
 
-        setVariableValueToObject(uploadSourceBundleMojo, "artifactFile",
-                artifactFile);
-        setVariableValueToObject(uploadSourceBundleMojo, "s3Bucket", s3Bucket);
-        setVariableValueToObject(uploadSourceBundleMojo, "s3Key", s3Key);
+    setVariableValueToObject(uploadSourceBundleMojo, "artifactFile", artifactFile);
+    setVariableValueToObject(uploadSourceBundleMojo, "s3Bucket", s3Bucket);
+    setVariableValueToObject(uploadSourceBundleMojo, "s3Key", s3Key);
 
-        setVariableValueToObject(createAppVersionMojo, "versionLabel",
-                this.versionLabel);
-    }
+    setVariableValueToObject(createAppVersionMojo, "versionLabel", this.versionLabel);
+  }
 
-    public void testUploadSourceBundle() throws Exception {
-        uploadSourceBundleMojo.execute();
+  public void testUploadSourceBundle() throws Exception {
+    uploadSourceBundleMojo.execute();
 
-        AmazonS3Client s3Client = new AmazonS3Client(this.credentials);
+    AmazonS3Client s3Client = new AmazonS3Client(this.credentials);
 
-        S3Object object = s3Client.getObject(s3Bucket, s3Key);
+    S3Object object = s3Client.getObject(s3Bucket, s3Key);
 
-        assertNotNull(object);
-        assertEquals(object.getObjectMetadata().getContentLength(),
-                artifactFile.length());
-    }
+    assertNotNull(object);
+    assertEquals(object.getObjectMetadata().getContentLength(), artifactFile.length());
+  }
 
-    public void testCreateApplicationVersion() throws Exception {
-        createAppVersionMojo.execute();
-    }
+  public void testCreateApplicationVersion() throws Exception {
+    createAppVersionMojo.execute();
+  }
 
-    public void testCreateConfigurationTemplate() throws Exception {
-        createConfigurationTemplateMojo.execute();
-    }
+  public void testCreateConfigurationTemplate() throws Exception {
+    createConfigurationTemplateMojo.execute();
+  }
 
-    public void testDeployment() throws Exception {
-    }
+  public void testDeployment() throws Exception {}
 }

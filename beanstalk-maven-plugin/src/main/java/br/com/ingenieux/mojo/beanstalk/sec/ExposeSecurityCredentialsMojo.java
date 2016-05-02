@@ -54,85 +54,80 @@ import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 @Mojo(name = "expose-security-credentials", requiresProject = true)
 public class ExposeSecurityCredentialsMojo extends AbstractBeanstalkMojo {
 
+  /**
+   * Which Server Settings to Expose?
+   */
+  @Parameter Expose[] exposes = new Expose[0];
+
+  @Parameter(defaultValue = "${project}")
+  MavenProject project;
+  /**
+   * @component
+   */
+  BuildContext buildContext;
+
+  protected Object executeInternal() throws MojoExecutionException, MojoFailureException {
     /**
-     * Which Server Settings to Expose?
+     * Fill in defaults if needed
      */
-    @Parameter
-    Expose[] exposes = new Expose[0];
-
-    @Parameter(defaultValue = "${project}")
-    MavenProject project;
-    /**
-     * @component
-     */
-    BuildContext buildContext;
-
-    protected Object executeInternal() throws MojoExecutionException,
-            MojoFailureException {
-        /**
-         * Fill in defaults if needed
-         */
-        if (0 == exposes.length) {
-            exposes = new Expose[1];
-            exposes[0] = new Expose();
-            exposes[0].setServerId(this.serverId);
-            exposes[0].setAccessKey("aws.accessKey");
-            exposes[0].setSharedKey("aws.secretKey");
-        } else {
-            /**
-             * Validate parameters, for gods sake
-             */
-            try {
-                for (Expose e : exposes) {
-                    assertOrWarn(StringUtils.isNotBlank(e.getServerId()),
-                            "serverId must be supplied");
-                    assertOrWarn(StringUtils.isNotBlank(e.getAccessKey()),
-                            "accessKey must be supplied");
-                    assertOrWarn(StringUtils.isNotBlank(e.getSharedKey()),
-                            "sharedKey must be supplied");
-                }
-            } catch (IllegalStateException e) {
-                return null;
-            }
-        }
-
+    if (0 == exposes.length) {
+      exposes = new Expose[1];
+      exposes[0] = new Expose();
+      exposes[0].setServerId(this.serverId);
+      exposes[0].setAccessKey("aws.accessKey");
+      exposes[0].setSharedKey("aws.secretKey");
+    } else {
+      /**
+       * Validate parameters, for gods sake
+       */
+      try {
         for (Expose e : exposes) {
-            Expose realExpose = null;
-
-            try {
-                realExpose = super.exposeSettings(e.getServerId());
-            } catch (Exception exc) {
-                getLog().warn("Failed to Expose Settings from serverId ('" + e.getServerId() + "')");
-                continue;
-            }
-
-            getLog().info(
-                    String.format(
-                            "Writing Security Settings from serverId ('%s') into properties '%s' (accessKey) and '%s' (secretKey)",
-                            e.getServerId(), e.getAccessKey(), e.getSharedKey()));
-
-            project.getProperties().put(e.getAccessKey(),
-                    realExpose.getAccessKey());
-
-            project.getProperties().put(e.getSharedKey(),
-                    realExpose.getSharedKey());
+          assertOrWarn(StringUtils.isNotBlank(e.getServerId()), "serverId must be supplied");
+          assertOrWarn(StringUtils.isNotBlank(e.getAccessKey()), "accessKey must be supplied");
+          assertOrWarn(StringUtils.isNotBlank(e.getSharedKey()), "sharedKey must be supplied");
         }
-
+      } catch (IllegalStateException e) {
         return null;
+      }
     }
 
-    private void assertOrWarn(boolean condition, String message) {
-        if (condition) {
-            return;
-        }
+    for (Expose e : exposes) {
+      Expose realExpose = null;
 
-        if (null != buildContext) {
-            buildContext.addMessage(project.getFile(), 1, 1, message,
-                    BuildContext.SEVERITY_WARNING, null);
-        } else {
-            getLog().warn(message);
-        }
+      try {
+        realExpose = super.exposeSettings(e.getServerId());
+      } catch (Exception exc) {
+        getLog().warn("Failed to Expose Settings from serverId ('" + e.getServerId() + "')");
+        continue;
+      }
 
-        throw new IllegalStateException(message);
+      getLog()
+          .info(
+              String.format(
+                  "Writing Security Settings from serverId ('%s') into properties '%s' (accessKey) and '%s' (secretKey)",
+                  e.getServerId(),
+                  e.getAccessKey(),
+                  e.getSharedKey()));
+
+      project.getProperties().put(e.getAccessKey(), realExpose.getAccessKey());
+
+      project.getProperties().put(e.getSharedKey(), realExpose.getSharedKey());
     }
+
+    return null;
+  }
+
+  private void assertOrWarn(boolean condition, String message) {
+    if (condition) {
+      return;
+    }
+
+    if (null != buildContext) {
+      buildContext.addMessage(project.getFile(), 1, 1, message, BuildContext.SEVERITY_WARNING, null);
+    } else {
+      getLog().warn(message);
+    }
+
+    throw new IllegalStateException(message);
+  }
 }

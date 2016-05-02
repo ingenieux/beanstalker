@@ -37,35 +37,33 @@ import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 @Mojo(name = "describe-configuration-options")
 public class DescribeConfigurationOptionsMojo extends AbstractNeedsEnvironmentMojo {
 
-    /**
-     * Template Name
-     */
-    @Parameter(property = "beanstalk.templateName")
-    String templateName;
+  /**
+   * Template Name
+   */
+  @Parameter(property = "beanstalk.templateName")
+  String templateName;
 
-    /**
-     * Solution Stack Name
-     */
-    @Parameter(property = "beanstalk.solutionStack",
-            defaultValue = "32bit Amazon Linux running Tomcat 7")
-    String solutionStack;
+  /**
+   * Solution Stack Name
+   */
+  @Parameter(property = "beanstalk.solutionStack", defaultValue = "32bit Amazon Linux running Tomcat 7")
+  String solutionStack;
 
-    /**
-     * Option Specifications
-     */
-    @Parameter
-    OptionSpecification[] optionSpecifications = new OptionSpecification[0];
+  /**
+   * Option Specifications
+   */
+  @Parameter OptionSpecification[] optionSpecifications = new OptionSpecification[0];
 
-    protected Object executeInternal() throws MojoExecutionException,
-            MojoFailureException {
-        DescribeConfigurationOptionsRequest req = new DescribeConfigurationOptionsRequest()//
-                .withApplicationName(this.applicationName)//
-                .withEnvironmentName(curEnv.getEnvironmentName())//
-                .withOptions(optionSpecifications)//
-                .withSolutionStackName(solutionStack)//
-                .withTemplateName(templateName)//
-                ;
+  protected Object executeInternal() throws MojoExecutionException, MojoFailureException {
+    DescribeConfigurationOptionsRequest req =
+        new DescribeConfigurationOptionsRequest() //
+            .withApplicationName(this.applicationName) //
+            .withEnvironmentName(curEnv.getEnvironmentName()) //
+            .withOptions(optionSpecifications) //
+            .withSolutionStackName(solutionStack) //
+            .withTemplateName(templateName) //
+    ;
 
-        return getService().describeConfigurationOptions(req);
-    }
+    return getService().describeConfigurationOptions(req);
+  }
 }

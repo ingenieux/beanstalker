@@ -63,123 +63,110 @@ import static java.util.Arrays.asList;
  */
 @Mojo(name = "tail")
 public class TailMojo extends AbstractCloudWatchMojo {
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = ISODateTimeFormat.basicDateTime();
+  private static final DateTimeFormatter DATE_TIME_FORMATTER = ISODateTimeFormat.basicDateTime();
 
-    /**
-     * Set of Log Groups to Use
-     */
-    @Parameter(property = "cloudwatch.logGroups", defaultValue = "*")
-    Set<String> logGroups = new LinkedHashSet<>(Collections.singletonList("*"));
+  /**
+   * Set of Log Groups to Use
+   */
+  @Parameter(property = "cloudwatch.logGroups", defaultValue = "*")
+  Set<String> logGroups = new LinkedHashSet<>(Collections.singletonList("*"));
 
-    protected Set<Pattern> logGroupPatterns;
+  protected Set<Pattern> logGroupPatterns;
 
-    public void setLogGroups(String logGroups) {
-        this.logGroups = new LinkedHashSet<>(asList(logGroups.split(",")));
+  public void setLogGroups(String logGroups) {
+    this.logGroups = new LinkedHashSet<>(asList(logGroups.split(",")));
+  }
+
+  @Override
+  protected Object executeInternal() throws Exception {
+    this.logGroupPatterns = createLogGroupPatterns();
+
+    AtomicLong baseOffset = new AtomicLong(System.currentTimeMillis() - 60 * 1000);
+
+    Set<String> foundLogGroups = findLogGroups();
+
+    getLog().info("Log Groups Found:");
+
+    foundLogGroups.forEach(logGroupName -> getLog().info(" * " + logGroupName));
+
+    while (true) {
+      OptionalLong nextMessageOffset = foundLogGroups.parallelStream().mapToLong(logGroup -> doLogMessages(logGroup, baseOffset.get())).max();
+
+      if (nextMessageOffset.isPresent()) {
+        baseOffset.set(Math.max(baseOffset.get(), nextMessageOffset.getAsLong()));
+      }
+
+      Thread.sleep(5000L);
     }
 
-    @Override
-    protected Object executeInternal() throws Exception {
-        this.logGroupPatterns = createLogGroupPatterns();
+    //return null;
+  }
 
-        AtomicLong baseOffset = new AtomicLong(System.currentTimeMillis() - 60 * 1000);
+  private Long doLogMessages(String logGroup, Long baseOffset) {
+    String nextToken = null;
 
-        Set<String> foundLogGroups = findLogGroups();
+    FilterLogEventsRequest req = new FilterLogEventsRequest().withStartTime(baseOffset).withLogGroupName(logGroup);
 
-        getLog().info("Log Groups Found:");
+    AtomicLong result = new AtomicLong(-1L);
 
-        foundLogGroups.forEach(logGroupName -> getLog().info(" * " + logGroupName));
+    do {
+      final FilterLogEventsResult response = getService().filterLogEvents(req.withNextToken(nextToken));
 
-        while (true) {
-            OptionalLong nextMessageOffset = foundLogGroups
-                    .parallelStream()
-                    .mapToLong(logGroup -> doLogMessages(logGroup, baseOffset.get()))
-                    .max();
-
-            if (nextMessageOffset.isPresent()) {
-                baseOffset.set(Math.max(baseOffset.get(), nextMessageOffset.getAsLong()));
-            }
-
-            Thread.sleep(5000L);
-        }
-
-        //return null;
-    }
-
-    private Long doLogMessages(String logGroup, Long baseOffset) {
-        String nextToken = null;
-
-        FilterLogEventsRequest req = new FilterLogEventsRequest()
-                .withStartTime(baseOffset)
-                .withLogGroupName(logGroup)
-                ;
-
-        AtomicLong result = new AtomicLong(-1L);
-
-        do {
-            final FilterLogEventsResult response = getService()
-                    .filterLogEvents(
-                            req.withNextToken(nextToken)
-                    );
-
-            response.getEvents().forEach(logEvent -> {
+      response
+          .getEvents()
+          .forEach(
+              logEvent -> {
                 result.set(Math.max(logEvent.getTimestamp(), result.get()));
 
-                String message = String.format(
+                String message =
+                    String.format(
                         "%s %s %s %s\n%s",
                         DATE_TIME_FORMATTER.print(logEvent.getTimestamp()),
                         StringUtils.abbreviateMiddle(logGroup, "..", 40),
                         StringUtils.abbreviateMiddle(logEvent.getLogStreamName(), "..", 40),
                         StringUtils.abbreviateMiddle(logEvent.getEventId(), "..", 40),
-                        logEvent.getMessage().trim()
-                );
+                        logEvent.getMessage().trim());
 
                 getLog().info(message);
-            });
+              });
 
-            nextToken = response.getNextToken();
-        } while (null != nextToken);
+      nextToken = response.getNextToken();
+    } while (null != nextToken);
 
-        return result.get();
-    }
+    return result.get();
+  }
 
-    private Set<String> findLogGroups() {
-        LinkedHashSet<String> result = new LinkedHashSet<>();
-        String nextToken = null;
-        DescribeLogGroupsRequest req = new DescribeLogGroupsRequest();
+  private Set<String> findLogGroups() {
+    LinkedHashSet<String> result = new LinkedHashSet<>();
+    String nextToken = null;
+    DescribeLogGroupsRequest req = new DescribeLogGroupsRequest();
 
-        do {
-            req.setNextToken(nextToken);
+    do {
+      req.setNextToken(nextToken);
 
-            DescribeLogGroupsResult response = getService().describeLogGroups(req);
+      DescribeLogGroupsResult response = getService().describeLogGroups(req);
 
-            result.addAll(
-                    response
-                            .getLogGroups()
-                            .stream()
-                            .filter(
-                                    x -> hasMatchingName(x.getLogGroupName(), logGroupPatterns)
-                            )
-                            .map(x -> x.getLogGroupName())
-                            .collect(Collectors.toList())
-            );
+      result.addAll(
+          response
+              .getLogGroups()
+              .stream()
+              .filter(x -> hasMatchingName(x.getLogGroupName(), logGroupPatterns))
+              .map(x -> x.getLogGroupName())
+              .collect(Collectors.toList()));
 
-            nextToken = response.getNextToken();
-        } while (null != nextToken);
+      nextToken = response.getNextToken();
+    } while (null != nextToken);
 
-        return result;
-    }
+    return result;
+  }
 
-    protected boolean hasMatchingName(String logGroupName, Set<Pattern> logGroupPatterns) {
-        final Optional<Pattern> foundFirst = logGroupPatterns.stream()
-                .filter(x -> x.matcher(logGroupName).matches())
-                .findFirst();
+  protected boolean hasMatchingName(String logGroupName, Set<Pattern> logGroupPatterns) {
+    final Optional<Pattern> foundFirst = logGroupPatterns.stream().filter(x -> x.matcher(logGroupName).matches()).findFirst();
 
-        return foundFirst.isPresent();
-    }
+    return foundFirst.isPresent();
+  }
 
-    private Set<Pattern> createLogGroupPatterns() {
-        return logGroups.stream()
-                .map(x -> GlobUtil.asPattern(x))
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-    }
+  private Set<Pattern> createLogGroupPatterns() {
+    return logGroups.stream().map(x -> GlobUtil.asPattern(x)).collect(Collectors.toCollection(LinkedHashSet::new));
+  }
 }

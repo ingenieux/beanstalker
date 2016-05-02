@@ -56,151 +56,147 @@ import static org.apache.commons.lang.StringUtils.isNotEmpty;
  * CloudFormation Mojo Parent
  */
 public abstract class AbstractCloudformationMojo extends AbstractAWSMojo<AmazonCloudFormationClient> implements StatusNotifier {
-    @Parameter(property = "project", required = true)
-    protected MavenProject curProject;
+  @Parameter(property = "project", required = true)
+  protected MavenProject curProject;
 
-    @Parameter(property = "cloudformation.stackId")
-    String stackId;
+  @Parameter(property = "cloudformation.stackId")
+  String stackId;
 
-    @Parameter(property = "cloudformation.stackName", defaultValue = "${project.artifactId}")
-    String stackName;
+  @Parameter(property = "cloudformation.stackName", defaultValue = "${project.artifactId}")
+  String stackName;
 
-    /**
-     * Matched Stack Summary (when found)
-     */
-    StackSummary stackSummary;
+  /**
+   * Matched Stack Summary (when found)
+   */
+  StackSummary stackSummary;
 
-    /**
-     * Looks up a stack, throwing an exception if not found and failIfMissing set to true
-     *
-     * @param failIfMissing whether or not to throw an exception
-     * @return true if execution must abort. False otherwise.
-     */
-    protected boolean shouldFailIfMissingStack(boolean failIfMissing) {
-        try {
-            ensureStackLookup();
+  /**
+   * Looks up a stack, throwing an exception if not found and failIfMissing set to true
+   *
+   * @param failIfMissing whether or not to throw an exception
+   * @return true if execution must abort. False otherwise.
+   */
+  protected boolean shouldFailIfMissingStack(boolean failIfMissing) {
+    try {
+      ensureStackLookup();
 
-            return false;
-        } catch (IllegalStateException e) {
-            if (failIfMissing) {
-                throw e;
-            } else {
-                getLog().warn("Stack not found, but failIfMissing set to false (its default). Skipping.");
+      return false;
+    } catch (IllegalStateException e) {
+      if (failIfMissing) {
+        throw e;
+      } else {
+        getLog().warn("Stack not found, but failIfMissing set to false (its default). Skipping.");
 
-                return false;
-            }
-        }
+        return false;
+      }
+    }
+  }
+
+  /**
+   * Lookups a Stack
+   */
+  protected void ensureStackLookup() {
+    if (isNotEmpty(stackId)) return;
+
+    getLog().info("Looking up stackId (stack name: " + stackName + ")");
+
+    final Pattern namePattern;
+
+    if (GlobUtil.hasWildcards(stackName)) {
+      namePattern = GlobUtil.globify(stackName);
+    } else {
+      namePattern = Pattern.compile(Pattern.quote(stackName));
     }
 
-    /**
-     * Lookups a Stack
-     */
-    protected void ensureStackLookup() {
-        if (isNotEmpty(stackId))
-            return;
+    String nextToken = null;
+    final ListStacksRequest req =
+        new ListStacksRequest().withStackStatusFilters(StackStatus.CREATE_COMPLETE, StackStatus.CREATE_FAILED, StackStatus.UPDATE_COMPLETE);
 
-        getLog().info("Looking up stackId (stack name: " + stackName + ")");
+    do {
+      req.setNextToken(nextToken);
 
-        final Pattern namePattern;
+      final ListStacksResult result = getService().listStacks(req);
 
-        if (GlobUtil.hasWildcards(stackName)) {
-            namePattern = GlobUtil.globify(stackName);
-        } else {
-            namePattern = Pattern.compile(Pattern.quote(stackName));
-        }
+      final Optional<StackSummary> matchedStackSummary =
+          result.getStackSummaries().stream().filter(x -> namePattern.matcher(x.getStackName()).matches()).findFirst();
 
-        String nextToken = null;
-        final ListStacksRequest req = new ListStacksRequest()
-                .withStackStatusFilters(StackStatus.CREATE_COMPLETE, StackStatus.CREATE_FAILED, StackStatus.UPDATE_COMPLETE);
+      if (matchedStackSummary.isPresent()) {
+        getLog().info("Found stack (stackSummary: " + matchedStackSummary.get());
 
-        do {
-            req.setNextToken(nextToken);
+        this.stackId = matchedStackSummary.get().getStackId();
+        this.stackSummary = matchedStackSummary.get();
 
-            final ListStacksResult result = getService().listStacks(req);
+        return;
+      }
 
-            final Optional<StackSummary> matchedStackSummary = result
-                    .getStackSummaries()
-                    .stream()
-                    .filter(x -> namePattern.matcher(x.getStackName()).matches())
-                    .findFirst();
+      nextToken = result.getNextToken();
+    } while (null != nextToken);
 
-            if (matchedStackSummary.isPresent()) {
-                getLog().info("Found stack (stackSummary: " + matchedStackSummary.get());
+    throw new IllegalStateException("Stack '" + stackName + "' not found!");
+  }
 
-                this.stackId = matchedStackSummary.get().getStackId();
-                this.stackSummary = matchedStackSummary.get();
+  protected Map.Entry<String, String> extractNVPair(String nvPair) {
+    MapEntry<String, String> result = new MapEntry<>();
 
-                return;
-            }
+    int n = nvPair.indexOf('=');
 
-            nextToken = result.getNextToken();
-        } while (null != nextToken);
+    if (-1 == n) {
+      result.setKey(nvPair);
+    } else {
+      String k = nvPair.substring(0, n);
+      String v = nvPair.substring(1 + n);
 
-        throw new IllegalStateException("Stack '" + stackName + "' not found!");
+      result.setKey(k);
+      result.setValue(v);
     }
 
-    protected Map.Entry<String, String> extractNVPair(String nvPair) {
-        MapEntry<String, String> result = new MapEntry<>();
+    getLog().info("Adding/Overwriting Parameter: " + result);
 
-        int n = nvPair.indexOf('=');
+    return result;
+  }
 
-        if (-1 == n) {
-            result.setKey(nvPair);
-        } else {
-            String k = nvPair.substring(0, n);
-            String v = nvPair.substring(1 + n);
+  public void info(CharSequence msg) {
+    getLog().info(msg);
+  }
 
-            result.setKey(k);
-            result.setValue(v);
-        }
+  public static class MapEntry<K, V> implements Map.Entry<K, V> {
+    K key;
 
-        getLog().info("Adding/Overwriting Parameter: " + result);
+    V value;
 
-        return result;
+    @Override
+    public K getKey() {
+      return key;
     }
 
-    public void info(CharSequence msg) {
-        getLog().info(msg);
+    public void setKey(K key) {
+      this.key = key;
     }
 
-    public static class MapEntry<K, V> implements Map.Entry<K, V> {
-        K key;
-
-        V value;
-
-        @Override
-        public K getKey() {
-            return key;
-        }
-
-        public void setKey(K key) {
-            this.key = key;
-        }
-
-        @Override
-        public V getValue() {
-            return value;
-        }
-
-        @Override
-        public V setValue(V value) {
-            this.value = value;
-
-            return value;
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder result = new StringBuilder();
-
-            result.append("" + key);
-
-            if (null != value) {
-                result.append("=");
-                result.append("" + value);
-            }
-
-            return result.toString();
-        }
+    @Override
+    public V getValue() {
+      return value;
     }
+
+    @Override
+    public V setValue(V value) {
+      this.value = value;
+
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder result = new StringBuilder();
+
+      result.append("" + key);
+
+      if (null != value) {
+        result.append("=");
+        result.append("" + value);
+      }
+
+      return result.toString();
+    }
+  }
 }

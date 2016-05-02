@@ -21,23 +21,22 @@ import org.junit.Ignore;
 @Ignore
 public class CheckAvailabilityMojoTest extends BeanstalkTestBase {
 
-    public void testCheckAvailability() throws Exception {
-        setVariableValueToObject(checkAvailabilityMojo, "cnamePrefix",
-                "bmp-demo-" + System.currentTimeMillis());
+  public void testCheckAvailability() throws Exception {
+    setVariableValueToObject(checkAvailabilityMojo, "cnamePrefix", "bmp-demo-" + System.currentTimeMillis());
 
-        checkAvailabilityMojo.execute();
+    checkAvailabilityMojo.execute();
+  }
+
+  public void testFailWhenExists() throws Exception {
+    setVariableValueToObject(checkAvailabilityMojo, "failWhenExists", true);
+    setVariableValueToObject(checkAvailabilityMojo, "cnamePrefix", "amazon");
+
+    try {
+      checkAvailabilityMojo.execute();
+
+      fail("Didn't throw up exception");
+    } catch (Exception e) {
+
     }
-
-    public void testFailWhenExists() throws Exception {
-        setVariableValueToObject(checkAvailabilityMojo, "failWhenExists", true);
-        setVariableValueToObject(checkAvailabilityMojo, "cnamePrefix", "amazon");
-
-        try {
-            checkAvailabilityMojo.execute();
-
-            fail("Didn't throw up exception");
-        } catch (Exception e) {
-
-        }
-    }
+  }
 }

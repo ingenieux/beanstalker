@@ -21,6 +21,12 @@ import com.amazonaws.services.apigateway.model.GetRestApisRequest;
 import com.amazonaws.services.apigateway.model.GetRestApisResult;
 import com.amazonaws.services.apigateway.model.GetSdkRequest;
 import com.amazonaws.services.apigateway.model.RestApi;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLParser;
 
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
@@ -34,66 +40,70 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 public abstract class AbstractAPIGatewayMojo extends AbstractAWSMojo<AmazonApiGatewayClient> {
-    @Parameter(property = "project", required = true)
-    protected MavenProject curProject;
+  protected static final ObjectMapper YAML_OBJECT_MAPPER =
+      new ObjectMapper(new YAMLFactory())
+          .enable(SerializationFeature.INDENT_OUTPUT)
+          .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+          //https://github.com/ingenieux/beanstalker/issues/87 - Decouple the serialization of AWS responses to avoid warning mgs
+          .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+          .enable(JsonParser.Feature.ALLOW_COMMENTS)
+          .enable(JsonParser.Feature.ALLOW_YAML_COMMENTS)
+          .enable(JsonParser.Feature.STRICT_DUPLICATE_DETECTION);
 
-    @Parameter(property = "apigateway.restApiName", required = true, defaultValue = "${project.artifactId}")
-    protected String restApiName;
+  @Parameter(property = "project", required = true)
+  protected MavenProject curProject;
 
-    /**
-     * Derived from restApiName
-     */
-    protected String restApiId;
+  @Parameter(property = "apigateway.restApiName", required = true, defaultValue = "${project.artifactId}")
+  protected String restApiName;
 
-    @Parameter(property = "apigateway.stageName", required = true, defaultValue = "dev")
-    protected String stageName;
+  /**
+   * Derived from restApiName
+   */
+  protected String restApiId;
 
-    /**
-     * Endpoint URL - Internal Usage.
-     */
-    protected String endpointUrl;
+  @Parameter(property = "apigateway.stageName", required = true, defaultValue = "dev")
+  protected String stageName;
 
-    protected void lookupIds() throws Exception {
-        GetRestApisRequest req = new GetRestApisRequest();
-        String position = "";
+  /**
+   * Endpoint URL - Internal Usage.
+   */
+  protected String endpointUrl;
 
-        do {
-            final GetRestApisResult apiList = getService().getRestApis(req);
+  protected void lookupIds() throws Exception {
+    GetRestApisRequest req = new GetRestApisRequest();
+    String position = "";
 
-            final Optional<RestApi> api = apiList.getItems().stream().
-                    filter(restApi -> restApi.getName().equals(restApiName)).findFirst();
+    do {
+      final GetRestApisResult apiList = getService().getRestApis(req);
 
-            if (api.isPresent()) {
-                getLog().info("Using api: " + api.get());
+      final Optional<RestApi> api = apiList.getItems().stream().filter(restApi -> restApi.getName().equals(restApiName)).findFirst();
 
-                this.restApiId = api.get().getId();
+      if (api.isPresent()) {
+        getLog().info("Using api: " + api.get());
 
-                break;
-            }
+        this.restApiId = api.get().getId();
 
-            position = apiList.getPosition();
+        break;
+      }
 
-            req.setPosition(position);
-        } while (isNotBlank(position));
+      position = apiList.getPosition();
 
-        if (isBlank(restApiId))
-            return;
+      req.setPosition(position);
+    } while (isNotBlank(position));
 
-        updateEndpoint();
+    if (isBlank(restApiId)) return;
 
-    }
+    updateEndpoint();
+  }
 
-    protected void updateEndpoint() {
-        String propertyName = "apigateway.endpoint.url";
-        String propertyValue = format("https://%s.execute-api.%s.amazonaws.com/%s",
-                restApiId,
-                regionName,
-                stageName);
+  protected void updateEndpoint() {
+    String propertyName = "apigateway.endpoint.url";
+    String propertyValue = format("https://%s.execute-api.%s.amazonaws.com/%s", restApiId, regionName, stageName);
 
-        getLog().info("Setting property: " + propertyName + "=" + propertyValue);
+    getLog().info("Setting property: " + propertyName + "=" + propertyValue);
 
-        session.getSystemProperties().put(propertyName, propertyValue);
+    session.getSystemProperties().put(propertyName, propertyValue);
 
-        this.endpointUrl = propertyValue;
-    }
+    this.endpointUrl = propertyValue;
+  }
 }

@@ -47,102 +47,92 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
  */
 @Mojo(name = "codecommit-fast-deploy")
 public class CodeCommitFastDeployMojo extends FastDeployMojo {
-    @Parameter(property = "beanstalk.codeCommitRepoName", defaultValue="${project.artifactId}-blobs")
-    String repoName;
+  @Parameter(property = "beanstalk.codeCommitRepoName", defaultValue = "${project.artifactId}-blobs")
+  String repoName;
 
-    @Override
-    protected void configure() {
-        super.configure();
+  @Override
+  protected void configure() {
+    super.configure();
+  }
+
+  @Override
+  protected String getRemoteUrl(String commitId, String environmentName) throws MojoFailureException {
+    return new CodeCommitRequestSigner(getAWSCredentials(), repoName, new Date()).getPushUrl();
+  }
+
+  @Override
+  protected Git getGitRepo() throws Exception {
+    if (stagingDirectory.exists() && new File(stagingDirectory, "HEAD").exists()) {
+      Git git = Git.open(stagingDirectory);
+
+      git.fetch().setRemote(getRemoteUrl(null, null)).setProgressMonitor(new TextProgressMonitor()).setRefSpecs(new RefSpec("refs/heads/master")).call();
+    } else {
+      Git.cloneRepository()
+          .setURI(getRemoteUrl(null, null))
+          .setProgressMonitor(new TextProgressMonitor())
+          .setDirectory(stagingDirectory)
+          .setNoCheckout(true)
+          .setBare(true)
+          .call();
     }
 
-    @Override
-    protected String getRemoteUrl(String commitId, String environmentName) throws MojoFailureException {
-        return new CodeCommitRequestSigner(getAWSCredentials(), repoName, new Date())
-                .getPushUrl();
+    Repository r = null;
+
+    RepositoryBuilder b = new RepositoryBuilder().setGitDir(stagingDirectory).setWorkTree(sourceDirectory);
+
+    r = b.build();
+
+    final Git git = Git.wrap(r);
+
+    return git;
+  }
+
+  @Override
+  protected String lookupVersionLabelForCommitId(String commitId) throws Exception {
+    String s3Bucket = getService().createStorageLocation().getS3Bucket();
+
+    ObjectNode payload = objectMapper.createObjectNode();
+
+    payload.put("applicationName", applicationName);
+
+    payload.put("commitId", commitId);
+
+    payload.put("repoName", repoName);
+
+    payload.put("description", versionDescription);
+
+    payload.put("accessKey", getAWSCredentials().getCredentials().getAWSAccessKeyId());
+
+    payload.put("secretKey", getAWSCredentials().getCredentials().getAWSSecretKey());
+
+    payload.put("region", getRegion().getName());
+
+    payload.put("targetPath", format("s3://%s/apps/%s/versions/git-%s.zip", s3Bucket, applicationName, commitId));
+
+    AWSLambda lambda = getClientFactory().getService(AWSLambdaClient.class);
+
+    final String payloadAsString = objectMapper.writeValueAsString(payload);
+
+    getLog().info("Calling beanstalk-codecommit-deployer with arguments set to: " + redact(payloadAsString));
+
+    final InvokeResult invoke = lambda.invoke(new InvokeRequest().withFunctionName("beanstalker-codecommit-deployer").withPayload(payloadAsString));
+
+    String resultAsString = new String(invoke.getPayload().array(), "utf-8");
+
+    if (isNotBlank(invoke.getFunctionError())) {
+      final String errorMessage = "Unexpected: " + invoke.getFunctionError();
+
+      getLog().info(errorMessage);
+
+      throw new RuntimeException(errorMessage);
+    } else {
+      List<String> messages = objectMapper.readValue(resultAsString, new TypeReference<List<String>>() {});
+
+      for (String m : messages) {
+        getLog().info(m);
+      }
     }
 
-    @Override
-    protected Git getGitRepo() throws Exception {
-        if (stagingDirectory.exists() && new File(stagingDirectory, "HEAD").exists()) {
-            Git git = Git.open(stagingDirectory);
-
-            git.fetch().
-                    setRemote(getRemoteUrl(null, null)).
-                    setProgressMonitor(new TextProgressMonitor()).
-                    setRefSpecs(new RefSpec("refs/heads/master")).
-                    call();
-        } else {
-            Git.cloneRepository().
-                    setURI(getRemoteUrl(null, null)).
-                    setProgressMonitor(new TextProgressMonitor()).
-                    setDirectory(stagingDirectory).
-                    setNoCheckout(true).
-                    setBare(true).
-                    call();
-        }
-
-        Repository r = null;
-
-        RepositoryBuilder
-                b =
-                new RepositoryBuilder().
-                        setGitDir(stagingDirectory).
-                        setWorkTree(sourceDirectory);
-
-        r = b.build();
-
-        final Git git = Git.wrap(r);
-
-        return git;
-    }
-
-    @Override
-    protected String lookupVersionLabelForCommitId(String commitId) throws Exception {
-        String s3Bucket = getService().createStorageLocation().getS3Bucket();
-
-        ObjectNode payload = objectMapper.createObjectNode();
-
-        payload.put("applicationName", applicationName);
-
-        payload.put("commitId", commitId);
-
-        payload.put("repoName", repoName);
-
-        payload.put("description", versionDescription);
-
-        payload.put("accessKey", getAWSCredentials().getCredentials().getAWSAccessKeyId());
-
-        payload.put("secretKey", getAWSCredentials().getCredentials().getAWSSecretKey());
-
-        payload.put("region", getRegion().getName());
-
-        payload.put("targetPath", format("s3://%s/apps/%s/versions/git-%s.zip", s3Bucket, applicationName, commitId));
-
-        AWSLambda lambda = getClientFactory().getService(AWSLambdaClient.class);
-
-        final String payloadAsString = objectMapper.writeValueAsString(payload);
-
-        getLog().info("Calling beanstalk-codecommit-deployer with arguments set to: " + redact(payloadAsString));
-
-        final InvokeResult invoke = lambda.invoke(new InvokeRequest().withFunctionName("beanstalker-codecommit-deployer").withPayload(payloadAsString));
-
-        String resultAsString = new String(invoke.getPayload().array(), "utf-8");
-
-        if (isNotBlank(invoke.getFunctionError())) {
-            final String errorMessage = "Unexpected: " + invoke.getFunctionError();
-
-            getLog().info(errorMessage);
-
-            throw new RuntimeException(errorMessage);
-        } else {
-            List<String> messages = objectMapper.readValue(resultAsString, new TypeReference<List<String>>() {
-            });
-
-            for (String m : messages) {
-                getLog().info(m);
-            }
-        }
-
-        return super.lookupVersionLabelForCommitId(commitId);
-    }
+    return super.lookupVersionLabelForCommitId(commitId);
+  }
 }

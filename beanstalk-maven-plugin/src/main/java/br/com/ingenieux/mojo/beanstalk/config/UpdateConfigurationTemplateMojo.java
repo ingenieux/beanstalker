@@ -41,71 +41,63 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 @Mojo(name = "update-configuration-templates")
 public class UpdateConfigurationTemplateMojo extends AbstractBeanstalkMojo {
 
-    /**
-     * Beanstalk Application Name
-     */
-    @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
-            required = true)
-    String applicationName;
+  /**
+   * Beanstalk Application Name
+   */
+  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}", required = true)
+  String applicationName;
 
-    /**
-     * Configuration Template Name (Optional)
-     */
-    @Parameter(property = "beanstalk.configurationTemplate")
-    String configurationTemplate;
+  /**
+   * Configuration Template Name (Optional)
+   */
+  @Parameter(property = "beanstalk.configurationTemplate")
+  String configurationTemplate;
 
-    /**
-     * Configuration Templates
-     */
-    @Parameter
-    ConfigurationTemplate[] configurationTemplates;
+  /**
+   * Configuration Templates
+   */
+  @Parameter ConfigurationTemplate[] configurationTemplates;
 
-    @Override
-    protected Object executeInternal() throws MojoExecutionException,
-            MojoFailureException {
-        boolean bConfigurationTemplateDefined = StringUtils
-                .isNotBlank(configurationTemplate);
+  @Override
+  protected Object executeInternal() throws MojoExecutionException, MojoFailureException {
+    boolean bConfigurationTemplateDefined = StringUtils.isNotBlank(configurationTemplate);
 
-        if (bConfigurationTemplateDefined) {
-            return updateConfiguration(configurationTemplate);
-        } else {
-            for (ConfigurationTemplate template : configurationTemplates) {
-                updateConfiguration(template.getId());
-            }
-        }
-
-        return null;
+    if (bConfigurationTemplateDefined) {
+      return updateConfiguration(configurationTemplate);
+    } else {
+      for (ConfigurationTemplate template : configurationTemplates) {
+        updateConfiguration(template.getId());
+      }
     }
 
-    UpdateConfigurationTemplateResult updateConfiguration(String templateName)
-            throws MojoFailureException {
-        ConfigurationTemplate template = getConfigurationTemplate(templateName);
+    return null;
+  }
 
-        if (null == template) {
-            throw new MojoFailureException(String.format("templateName ('%s') not found", templateName));
-        }
+  UpdateConfigurationTemplateResult updateConfiguration(String templateName) throws MojoFailureException {
+    ConfigurationTemplate template = getConfigurationTemplate(templateName);
 
-        if (isBlank(template.getSolutionStack())) {
-            throw new MojoFailureException(
-                    String.format("Please define solutionStack/ in template %s", templateName));
-        }
-
-        UpdateConfigurationTemplateRequest
-                req =
-                new UpdateConfigurationTemplateRequest(applicationName, templateName);
-
-        req.setOptionSettings(Arrays.asList(template.getOptionSettings()));
-
-        return getService().updateConfigurationTemplate(req);
+    if (null == template) {
+      throw new MojoFailureException(String.format("templateName ('%s') not found", templateName));
     }
 
-    private ConfigurationTemplate getConfigurationTemplate(String id) {
-        for (ConfigurationTemplate template : configurationTemplates) {
-            if (id.equals(template.getId())) {
-                return template;
-            }
-        }
-
-        return null;
+    if (isBlank(template.getSolutionStack())) {
+      throw new MojoFailureException(String.format("Please define solutionStack/ in template %s", templateName));
     }
+
+    UpdateConfigurationTemplateRequest req = new UpdateConfigurationTemplateRequest(applicationName, templateName);
+
+    req.setOptionSettings(Arrays.asList(template.getOptionSettings()));
+
+    return getService().updateConfigurationTemplate(req);
+  }
+
+  private ConfigurationTemplate getConfigurationTemplate(String id) {
+    for (ConfigurationTemplate template : configurationTemplates) {
+      if (id.equals(template.getId())) {
+        return template;
+      }
+    }
+
+    return null;
+  }
 }

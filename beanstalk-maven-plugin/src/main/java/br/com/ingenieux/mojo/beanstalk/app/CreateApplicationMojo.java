@@ -36,27 +36,25 @@ import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 @Mojo(name = "create-application")
 public class CreateApplicationMojo extends AbstractBeanstalkMojo {
 
-    /**
-     * Beanstalk Application Name
-     */
-    @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
-            required = true)
-    String applicationName;
+  /**
+   * Beanstalk Application Name
+   */
+  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}", required = true)
+  String applicationName;
 
-    /**
-     * Application Description
-     */
-    @Parameter(property = "beanstalk.applicationDescription", defaultValue = "${project.name}")
-    String applicationDescription;
+  /**
+   * Application Description
+   */
+  @Parameter(property = "beanstalk.applicationDescription", defaultValue = "${project.name}")
+  String applicationDescription;
 
-    protected Object executeInternal() throws MojoExecutionException {
-        CreateApplicationRequest request = new CreateApplicationRequest(
-                this.applicationName);
+  protected Object executeInternal() throws MojoExecutionException {
+    CreateApplicationRequest request = new CreateApplicationRequest(this.applicationName);
 
-        request.setDescription(applicationDescription);
+    request.setDescription(applicationDescription);
 
-        CreateApplicationResult result = getService().createApplication(request);
+    CreateApplicationResult result = getService().createApplication(request);
 
-        return result;
-    }
+    return result;
+  }
 }

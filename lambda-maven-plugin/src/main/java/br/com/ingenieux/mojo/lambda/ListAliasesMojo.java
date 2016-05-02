@@ -46,16 +46,14 @@ import static org.apache.commons.lang.StringUtils.isNotEmpty;
 @Mojo(name = "list-aliases")
 public class ListAliasesMojo extends AbstractLambdaMojo {
   public static final Pattern PATTERN_ALIAS = Pattern.compile("(?!^[0-9]+$)([a-zA-Z0-9-_]+)");
-  public static final String
-      PATTERN_ALIAS_ARN =
-      "arn:aws:lambda:[a-z]{2}-[a-z]+-\\d{1}:\\d{12}:function:[a-zA-Z0-9-_]+:(\\$LATEST|[a-zA-Z0-9-_]+)";
+  public static final String PATTERN_ALIAS_ARN = "arn:aws:lambda:[a-z]{2}-[a-z]+-\\d{1}:\\d{12}:function:[a-zA-Z0-9-_]+:(\\$LATEST|[a-zA-Z0-9-_]+)";
 
   private AWSLambdaClient lambdaClient;
 
   /**
    * Glob of Functions to Include (default: all)
    */
-  @Parameter(property = "lambda.function.includes", defaultValue="*")
+  @Parameter(property = "lambda.function.includes", defaultValue = "*")
   List<String> includes;
 
   List<Pattern> globIncludes;
@@ -90,24 +88,25 @@ public class ListAliasesMojo extends AbstractLambdaMojo {
     String marker = null;
 
     do {
-      final ListFunctionsResult
-          listFunctionsResult =
-          lambdaClient.listFunctions(new ListFunctionsRequest().withMarker(marker));
+      final ListFunctionsResult listFunctionsResult = lambdaClient.listFunctions(new ListFunctionsRequest().withMarker(marker));
 
-      listFunctionsResult.
-          getFunctions().
-          stream().
-          map(FunctionConfiguration::getFunctionName).
-          filter(this::isItIncluded).
-          forEach(func -> {
-        Set<String> aliasesSet = lambdaClient.listAliases(new ListAliasesRequest().withFunctionName(func)).
-            getAliases().
-            stream().
-            map(x -> x.getAliasArn().replaceAll(PATTERN_ALIAS_ARN, "$1")).
-            collect(Collectors.toSet());
+      listFunctionsResult
+          .getFunctions()
+          .stream()
+          .map(FunctionConfiguration::getFunctionName)
+          .filter(this::isItIncluded)
+          .forEach(
+              func -> {
+                Set<String> aliasesSet =
+                    lambdaClient
+                        .listAliases(new ListAliasesRequest().withFunctionName(func))
+                        .getAliases()
+                        .stream()
+                        .map(x -> x.getAliasArn().replaceAll(PATTERN_ALIAS_ARN, "$1"))
+                        .collect(Collectors.toSet());
 
-        aliases.put(func, aliasesSet);
-      });
+                aliases.put(func, aliasesSet);
+              });
 
       marker = listFunctionsResult.getNextMarker();
 

@@ -40,47 +40,42 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
  * @since 0.2.0
  */
 @Mojo(name = "describe-configuration-settings")
-public class DescribeConfigurationSettingsMojo extends
-        AbstractNeedsEnvironmentMojo {
+public class DescribeConfigurationSettingsMojo extends AbstractNeedsEnvironmentMojo {
 
-    /**
-     * Template Name
-     */
-    @Parameter(property = "beanstalk.templateName")
-    String templateName;
+  /**
+   * Template Name
+   */
+  @Parameter(property = "beanstalk.templateName")
+  String templateName;
 
-    @Override
-    protected EnvironmentDescription handleResults(Collection<EnvironmentDescription> environments)
-            throws MojoExecutionException {
-        try {
-            return super.handleResults(environments);
-        } catch (Exception exc) {
-            // Don't care - We're an exception to the rule, you know.
+  @Override
+  protected EnvironmentDescription handleResults(Collection<EnvironmentDescription> environments) throws MojoExecutionException {
+    try {
+      return super.handleResults(environments);
+    } catch (Exception exc) {
+      // Don't care - We're an exception to the rule, you know.
 
-            return null;
-        }
+      return null;
+    }
+  }
+
+  protected Object executeInternal() throws MojoExecutionException, MojoFailureException {
+    boolean bTemplateNameDefined = isNotBlank(templateName) && !GlobUtil.hasWildcards(templateName);
+
+    DescribeConfigurationSettingsRequest req = new DescribeConfigurationSettingsRequest().withApplicationName(applicationName);
+
+    if (bTemplateNameDefined) {
+      req.withTemplateName(templateName);
+    } else if (null != curEnv) {
+      req.withEnvironmentName(curEnv.getEnvironmentName());
+    } else {
+      getLog().warn("You must supply a templateName or environmentName. Ignoring");
+
+      return null;
     }
 
-    protected Object executeInternal() throws MojoExecutionException,
-            MojoFailureException {
-        boolean bTemplateNameDefined = isNotBlank(templateName) && !GlobUtil.hasWildcards(templateName);
+    getLog().info("Request: " + req);
 
-        DescribeConfigurationSettingsRequest
-                req =
-                new DescribeConfigurationSettingsRequest().withApplicationName(applicationName);
-
-        if (bTemplateNameDefined) {
-            req.withTemplateName(templateName);
-        } else if (null != curEnv) {
-            req.withEnvironmentName(curEnv.getEnvironmentName());
-        } else {
-            getLog().warn("You must supply a templateName or environmentName. Ignoring");
-
-            return null;
-        }
-
-        getLog().info("Request: " + req);
-
-        return getService().describeConfigurationSettings(req);
-    }
+    return getService().describeConfigurationSettings(req);
+  }
 }

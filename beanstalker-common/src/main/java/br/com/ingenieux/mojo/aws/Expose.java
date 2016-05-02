@@ -23,33 +23,33 @@ package br.com.ingenieux.mojo.aws;
  */
 public class Expose {
 
-    String serverId;
+  String serverId;
 
-    String accessKey;
+  String accessKey;
 
-    String sharedKey;
+  String sharedKey;
 
-    public String getServerId() {
-        return serverId;
-    }
+  public String getServerId() {
+    return serverId;
+  }
 
-    public void setServerId(String serverId) {
-        this.serverId = serverId;
-    }
+  public void setServerId(String serverId) {
+    this.serverId = serverId;
+  }
 
-    public String getAccessKey() {
-        return accessKey;
-    }
+  public String getAccessKey() {
+    return accessKey;
+  }
 
-    public void setAccessKey(String accessKey) {
-        this.accessKey = accessKey;
-    }
+  public void setAccessKey(String accessKey) {
+    this.accessKey = accessKey;
+  }
 
-    public String getSharedKey() {
-        return sharedKey;
-    }
+  public String getSharedKey() {
+    return sharedKey;
+  }
 
-    public void setSharedKey(String sharedKey) {
-        this.sharedKey = sharedKey;
-    }
+  public void setSharedKey(String sharedKey) {
+    this.sharedKey = sharedKey;
+  }
 }

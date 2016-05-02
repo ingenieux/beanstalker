@@ -24,192 +24,192 @@ import java.util.List;
 
 public class CreateEnvironmentContext {
 
-    String applicationName;
+  String applicationName;
 
-    String cnamePrefix;
+  String cnamePrefix;
 
-    String applicationDescription;
+  String applicationDescription;
 
-    ConfigurationOptionSetting[] optionSettings = new ConfigurationOptionSetting[0];
-    OptionSpecification[] optionsToRemove = new OptionSpecification[0];
+  ConfigurationOptionSetting[] optionSettings = new ConfigurationOptionSetting[0];
+  OptionSpecification[] optionsToRemove = new OptionSpecification[0];
 
-    String environmentName;
+  String environmentName;
 
-    String versionLabel;
+  String versionLabel;
 
-    String solutionStack;
+  String solutionStack;
 
-    String templateName;
-    String environmentTierName = "WebServer";
-    String environmentTierType = "Standard";
-    String environmentTierVersion = " ";
-    List<Tag> tags;
+  String templateName;
+  String environmentTierName = "WebServer";
+  String environmentTierType = "Standard";
+  String environmentTierVersion = " ";
+  List<Tag> tags;
 
-    /**
-     * @return the applicationName
-     */
-    public String getApplicationName() {
-        return applicationName;
+  /**
+   * @return the applicationName
+   */
+  public String getApplicationName() {
+    return applicationName;
+  }
+
+  /**
+   * @param applicationName the applicationName to set
+   */
+  public void setApplicationName(String applicationName) {
+    this.applicationName = applicationName;
+  }
+
+  /**
+   * @return the cnamePrefix
+   */
+  public String getCnamePrefix() {
+    return cnamePrefix;
+  }
+
+  /**
+   * @param cnamePrefix the cnamePrefix to set
+   */
+  public void setCnamePrefix(String cnamePrefix) {
+    this.cnamePrefix = cnamePrefix;
+  }
+
+  /**
+   * @return the versionDescription
+   */
+  public String getApplicationDescription() {
+    return applicationDescription;
+  }
+
+  /**
+   * @param applicationDescription the applicationDescription to set
+   */
+  public void setApplicationDescription(String applicationDescription) {
+    this.applicationDescription = applicationDescription;
+  }
+
+  /**
+   * @return the optionSettings
+   */
+  public ConfigurationOptionSetting[] getOptionSettings() {
+    return optionSettings;
+  }
+
+  /**
+   * @return the optionsToRemove
+   */
+  public OptionSpecification[] getOptionsToRemove() {
+    return optionsToRemove;
+  }
+
+  /**
+   * @param optionSettings the optionSettings to set
+   */
+  public void setOptionSettings(ConfigurationOptionSetting[] optionSettings) {
+    if (null != optionSettings) {
+      this.optionSettings = optionSettings;
     }
+  }
 
-    /**
-     * @param applicationName the applicationName to set
-     */
-    public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
+  /**
+   * @param optionSettings the optionsToRemove to set
+   */
+  public void setOptionsToRemove(OptionSpecification[] optionSettings) {
+    if (null != optionSettings) {
+      this.optionsToRemove = optionSettings;
     }
+  }
 
-    /**
-     * @return the cnamePrefix
-     */
-    public String getCnamePrefix() {
-        return cnamePrefix;
-    }
+  /**
+   * @return the environmentName
+   */
+  public String getEnvironmentName() {
+    return environmentName;
+  }
 
-    /**
-     * @param cnamePrefix the cnamePrefix to set
-     */
-    public void setCnamePrefix(String cnamePrefix) {
-        this.cnamePrefix = cnamePrefix;
-    }
+  /**
+   * @param environmentName the environmentName to set
+   */
+  public void setEnvironmentName(String environmentName) {
+    this.environmentName = environmentName;
+  }
 
-    /**
-     * @return the versionDescription
-     */
-    public String getApplicationDescription() {
-        return applicationDescription;
-    }
+  /**
+   * @return the versionLabel
+   */
+  public String getVersionLabel() {
+    return versionLabel;
+  }
 
-    /**
-     * @param applicationDescription the applicationDescription to set
-     */
-    public void setApplicationDescription(String applicationDescription) {
-        this.applicationDescription = applicationDescription;
-    }
+  /**
+   * @param versionLabel the versionLabel to set
+   */
+  public void setVersionLabel(String versionLabel) {
+    this.versionLabel = versionLabel;
+  }
 
-    /**
-     * @return the optionSettings
-     */
-    public ConfigurationOptionSetting[] getOptionSettings() {
-        return optionSettings;
-    }
+  /**
+   * @return the solutionStack
+   */
+  public String getSolutionStack() {
+    return solutionStack;
+  }
 
-    /**
-     * @return the optionsToRemove
-     */
-    public OptionSpecification[] getOptionsToRemove() {
-        return optionsToRemove;
-    }
+  /**
+   * @param solutionStack the solutionStack to set
+   */
+  public void setSolutionStack(String solutionStack) {
+    this.solutionStack = solutionStack;
+  }
 
-    /**
-     * @param optionSettings the optionSettings to set
-     */
-    public void setOptionSettings(ConfigurationOptionSetting[] optionSettings) {
-        if (null != optionSettings) {
-            this.optionSettings = optionSettings;
-        }
-    }
+  /**
+   * @return the templateName
+   */
+  public String getTemplateName() {
+    return templateName;
+  }
 
-    /**
-     * @param optionSettings the optionsToRemove to set
-     */
-    public void setOptionsToRemove(OptionSpecification[] optionSettings) {
-        if (null != optionSettings) {
-            this.optionsToRemove = optionSettings;
-        }
-    }
+  /**
+   * @param templateName the templateName to set
+   */
+  public void setTemplateName(String templateName) {
+    this.templateName = templateName;
+  }
 
-    /**
-     * @return the environmentName
-     */
-    public String getEnvironmentName() {
-        return environmentName;
-    }
+  public String getEnvironmentTierName() {
+    return environmentTierName;
+  }
 
-    /**
-     * @param environmentName the environmentName to set
-     */
-    public void setEnvironmentName(String environmentName) {
-        this.environmentName = environmentName;
-    }
+  public void setEnvironmentTierName(String environmentTierName) {
+    this.environmentTierName = environmentTierName;
+  }
 
-    /**
-     * @return the versionLabel
-     */
-    public String getVersionLabel() {
-        return versionLabel;
-    }
+  public String getEnvironmentTierType() {
+    return environmentTierType;
+  }
 
-    /**
-     * @param versionLabel the versionLabel to set
-     */
-    public void setVersionLabel(String versionLabel) {
-        this.versionLabel = versionLabel;
-    }
+  public void setEnvironmentTierType(String environmentTierType) {
+    this.environmentTierType = environmentTierType;
+  }
 
-    /**
-     * @return the solutionStack
-     */
-    public String getSolutionStack() {
-        return solutionStack;
-    }
+  public String getEnvironmentTierVersion() {
+    return environmentTierVersion;
+  }
 
-    /**
-     * @param solutionStack the solutionStack to set
-     */
-    public void setSolutionStack(String solutionStack) {
-        this.solutionStack = solutionStack;
-    }
+  public void setEnvironmentTierVersion(String environmentTierVersion) {
+    this.environmentTierVersion = environmentTierVersion;
+  }
 
-    /**
-     * @return the templateName
-     */
-    public String getTemplateName() {
-        return templateName;
-    }
+  /**
+   * @return the environment tag list
+   */
+  public List<Tag> getTags() {
+    return tags;
+  }
 
-    /**
-     * @param templateName the templateName to set
-     */
-    public void setTemplateName(String templateName) {
-        this.templateName = templateName;
-    }
-
-    public String getEnvironmentTierName() {
-        return environmentTierName;
-    }
-
-    public void setEnvironmentTierName(String environmentTierName) {
-        this.environmentTierName = environmentTierName;
-    }
-
-    public String getEnvironmentTierType() {
-        return environmentTierType;
-    }
-
-    public void setEnvironmentTierType(String environmentTierType) {
-        this.environmentTierType = environmentTierType;
-    }
-
-    public String getEnvironmentTierVersion() {
-        return environmentTierVersion;
-    }
-
-    public void setEnvironmentTierVersion(String environmentTierVersion) {
-        this.environmentTierVersion = environmentTierVersion;
-    }
-
-    /**
-     * @return the environment tag list
-     */
-    public List<Tag> getTags() {
-        return tags;
-    }
-
-    /**
-     * @param tags list of environment tags
-     */
-    public void setTags(List<Tag> tags) {
-        this.tags = tags;
-    }
+  /**
+   * @param tags list of environment tags
+   */
+  public void setTags(List<Tag> tags) {
+    this.tags = tags;
+  }
 }

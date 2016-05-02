@@ -35,121 +35,121 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class WaitForStackCommand {
-    private final WaitForStackContext ctx;
+  private final WaitForStackContext ctx;
 
-    public static class WaitForStackContext {
-        String stackId;
+  public static class WaitForStackContext {
+    String stackId;
 
-        AmazonCloudFormationClient client;
+    AmazonCloudFormationClient client;
 
-        StatusNotifier notifier;
+    StatusNotifier notifier;
 
-        Integer timeoutMins;
+    Integer timeoutMins;
 
-        Set<StackStatus> statusesToMatch;
+    Set<StackStatus> statusesToMatch;
 
-        public WaitForStackContext(String stackId, AmazonCloudFormationClient client, StatusNotifier notifier, Integer timeoutMins, Collection<StackStatus> statusesToMatch) {
-            this.stackId = stackId;
-            this.client = client;
-            this.notifier = notifier;
-            this.timeoutMins = timeoutMins;
+    public WaitForStackContext(
+        String stackId, AmazonCloudFormationClient client, StatusNotifier notifier, Integer timeoutMins, Collection<StackStatus> statusesToMatch) {
+      this.stackId = stackId;
+      this.client = client;
+      this.notifier = notifier;
+      this.timeoutMins = timeoutMins;
 
-            this.statusesToMatch = new HashSet<>();
+      this.statusesToMatch = new HashSet<>();
 
-            this.statusesToMatch.addAll(statusesToMatch);
-        }
-
-        public String getStackId() {
-            return stackId;
-        }
-
-        public AmazonCloudFormationClient getClient() {
-            return client;
-        }
-
-        public StatusNotifier getNotifier() {
-            return notifier;
-        }
-
-        public Integer getTimeoutMins() {
-            return timeoutMins;
-        }
-
-        public Set<StackStatus> getStatusesToMatch() {
-            return statusesToMatch;
-        }
+      this.statusesToMatch.addAll(statusesToMatch);
     }
 
-    public WaitForStackCommand(WaitForStackContext ctx) {
-        this.ctx = ctx;
+    public String getStackId() {
+      return stackId;
     }
 
-    public void execute() throws Exception {
-        Set<StackEvent> events = new TreeSet<>((o1, o2) -> {
-            return o1.getEventId().compareTo(o2.getEventId());
-        });
+    public AmazonCloudFormationClient getClient() {
+      return client;
+    }
 
-        boolean done = false;
+    public StatusNotifier getNotifier() {
+      return notifier;
+    }
 
-        Date timeoutsAt = new Date(System.currentTimeMillis() + 60000L * ctx.getTimeoutMins());
+    public Integer getTimeoutMins() {
+      return timeoutMins;
+    }
+
+    public Set<StackStatus> getStatusesToMatch() {
+      return statusesToMatch;
+    }
+  }
+
+  public WaitForStackCommand(WaitForStackContext ctx) {
+    this.ctx = ctx;
+  }
+
+  public void execute() throws Exception {
+    Set<StackEvent> events =
+        new TreeSet<>(
+            (o1, o2) -> {
+              return o1.getEventId().compareTo(o2.getEventId());
+            });
+
+    boolean done = false;
+
+    Date timeoutsAt = new Date(System.currentTimeMillis() + 60000L * ctx.getTimeoutMins());
+
+    do {
+      boolean timedOut = !timeoutsAt.after(new Date(System.currentTimeMillis()));
+
+      if (timedOut) throw new IllegalStateException("Timed Out");
+
+      {
+        final DescribeStackEventsRequest req = new DescribeStackEventsRequest().withStackName(ctx.getStackId());
+        String nextToken = null;
 
         do {
-            boolean timedOut = !timeoutsAt.after(new Date(System.currentTimeMillis()));
+          req.withNextToken(nextToken);
 
-            if (timedOut)
-                throw new IllegalStateException("Timed Out");
+          Optional<DescribeStackEventsResult> stackEvents = getDescribeStackEventsResult(req);
 
-            {
-                final DescribeStackEventsRequest req = new DescribeStackEventsRequest().withStackName(ctx.getStackId());
-                String nextToken = null;
+          if (!stackEvents.isPresent()) {
+            return;
+          } else {
+            for (StackEvent e : stackEvents.get().getStackEvents()) {
+              if (!events.contains(e)) {
+                ctx.getNotifier().info("" + e);
 
-                do {
-                    req.withNextToken(nextToken);
-
-                    Optional<DescribeStackEventsResult> stackEvents = getDescribeStackEventsResult(req);
-
-                    if (!stackEvents.isPresent()) {
-                        return;
-                    } else {
-                        for (StackEvent e : stackEvents.get().getStackEvents()) {
-                            if (!events.contains(e)) {
-                                ctx.getNotifier().info("" + e);
-
-                                events.add(e);
-                            }
-                        }
-                    }
-
-
-                } while (null != nextToken);
+                events.add(e);
+              }
             }
+          }
 
-            {
-                final DescribeStacksResult stacks = ctx.getClient().describeStacks(new DescribeStacksRequest().withStackName(ctx.getStackId()));
+        } while (null != nextToken);
+      }
 
-                Optional<Stack> foundStack = stacks.getStacks()
-                        .stream().filter(stack -> ctx.getStatusesToMatch().contains(StackStatus.fromValue(stack.getStackStatus())))
-                        .findFirst();
+      {
+        final DescribeStacksResult stacks = ctx.getClient().describeStacks(new DescribeStacksRequest().withStackName(ctx.getStackId()));
 
-                done = foundStack.isPresent();
-            }
+        Optional<Stack> foundStack =
+            stacks.getStacks().stream().filter(stack -> ctx.getStatusesToMatch().contains(StackStatus.fromValue(stack.getStackStatus()))).findFirst();
 
-            if (!done) {
-                Thread.sleep(15000);
-            }
+        done = foundStack.isPresent();
+      }
 
-        } while (!done);
+      if (!done) {
+        Thread.sleep(15000);
+      }
+
+    } while (!done);
+  }
+
+  private Optional<DescribeStackEventsResult> getDescribeStackEventsResult(DescribeStackEventsRequest req) {
+    try {
+      return Optional.of(ctx.getClient().describeStackEvents(req));
+    } catch (AmazonServiceException e) {
+      if (e.getErrorMessage().contains("does not exist")) {
+        return Optional.empty();
+      } else {
+        throw e;
+      }
     }
-
-    private Optional<DescribeStackEventsResult> getDescribeStackEventsResult(DescribeStackEventsRequest req) {
-        try {
-            return Optional.of(ctx.getClient().describeStackEvents(req));
-        } catch (AmazonServiceException e) {
-            if (e.getErrorMessage().contains("does not exist")) {
-                return Optional.empty();
-            } else {
-                throw e;
-            }
-        }
-    }
+  }
 }

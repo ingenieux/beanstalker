@@ -36,16 +36,15 @@ import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 @Mojo(name = "abort-environment-update")
 public class AbortEnvironmentUpdateMojo extends AbstractNeedsEnvironmentMojo {
 
-    @Override
-    protected Object executeInternal() throws MojoExecutionException,
-            MojoFailureException {
-        AbortEnvironmentUpdateRequest req = new AbortEnvironmentUpdateRequest();
+  @Override
+  protected Object executeInternal() throws MojoExecutionException, MojoFailureException {
+    AbortEnvironmentUpdateRequest req = new AbortEnvironmentUpdateRequest();
 
-        req.setEnvironmentId(curEnv.getEnvironmentId());
-        req.setEnvironmentName(curEnv.getEnvironmentName());
+    req.setEnvironmentId(curEnv.getEnvironmentId());
+    req.setEnvironmentName(curEnv.getEnvironmentName());
 
-        super.configure();
+    super.configure();
 
-        return curEnv;
-    }
+    return curEnv;
+  }
 }

@@ -23,55 +23,50 @@ import org.apache.commons.lang.builder.CompareToBuilder;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LambdaDefinition {
-    String arn;
+  String arn;
 
-    Api api;
+  Api api;
 
-    public String getArn() {
-        return arn;
+  public String getArn() {
+    return arn;
+  }
+
+  public Api getApi() {
+    return api;
+  }
+
+  public static class Api implements Comparable<Api> {
+    String path;
+
+    String methodType;
+
+    String template;
+
+    boolean corsEnabled;
+
+    public String getPath() {
+      return path;
     }
 
-    public Api getApi() {
-        return api;
+    public String getMethodType() {
+      return methodType;
     }
 
-    public static class Api implements Comparable<Api> {
-        String path;
-
-        String methodType;
-
-        String template;
-
-        boolean corsEnabled;
-
-        public String getPath() {
-            return path;
-        }
-
-        public String getMethodType() {
-            return methodType;
-        }
-
-        public String getTemplate() {
-            return template;
-        }
-
-        public boolean isCorsEnabled() {
-            return corsEnabled;
-        }
-
-        @Override
-        public int compareTo(Api o) {
-            if (null == o)
-                return -1;
-
-            if (this == o)
-                return 0;
-
-            return new CompareToBuilder()
-                    .append(this.path, o.path)
-                    .append(this.methodType, o.methodType)
-                    .toComparison();
-        }
+    public String getTemplate() {
+      return template;
     }
+
+    public boolean isCorsEnabled() {
+      return corsEnabled;
+    }
+
+    @Override
+    public int compareTo(Api o) {
+      if (null == o) return -1;
+
+      if (this == o) return 0;
+
+      return new CompareToBuilder().append(this.path, o.path).append(this.methodType, o.methodType).toComparison();
+    }
+  }
 }

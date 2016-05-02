@@ -34,9 +34,8 @@ import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 @Mojo(name = "list-stacks", requiresDirectInvocation = true)
 public class ListStacksMojo extends AbstractBeanstalkMojo {
 
-    @Override
-    protected Object executeInternal() throws MojoExecutionException,
-            MojoFailureException {
-        return getService().listAvailableSolutionStacks();
-    }
+  @Override
+  protected Object executeInternal() throws MojoExecutionException, MojoFailureException {
+    return getService().listAvailableSolutionStacks();
+  }
 }

@@ -25,18 +25,18 @@ import org.junit.Ignore;
 @Ignore
 public class MinimalTestSuite {
 
-    public static Test suite() {
-        TestSuite suite = new TestSuite(MinimalTestSuite.class.getName());
+  public static Test suite() {
+    TestSuite suite = new TestSuite(MinimalTestSuite.class.getName());
 
-        // $JUnit-BEGIN$
-        suite.addTestSuite(CheckAvailabilityMojoTest.class);
-        suite.addTestSuite(BootstrapTest.class);
-        // $JUnit-END$
+    // $JUnit-BEGIN$
+    suite.addTestSuite(CheckAvailabilityMojoTest.class);
+    suite.addTestSuite(BootstrapTest.class);
+    // $JUnit-END$
 
-        return suite;
-    }
+    return suite;
+  }
 
-    public static void run(TestResult result) {
-        suite().run(result);
-    }
+  public static void run(TestResult result) {
+    suite().run(result);
+  }
 }

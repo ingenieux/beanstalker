@@ -33,37 +33,32 @@ import com.amazonaws.services.cloudformation.model.StackStatus;
 /**
  * Waits until timeout and/or stack status, printing messages along the way
  */
-@Mojo(name="delete-stack")
+@Mojo(name = "delete-stack")
 public class DeleteStackMojo extends AbstractCloudformationMojo {
-    /**
-     * If set to true, ignores/skips in case of a missing active stack found
-     */
-    @Parameter(property="cloudformation.failIfMissing", defaultValue = "false")
-    Boolean failIfMissing;
+  /**
+   * If set to true, ignores/skips in case of a missing active stack found
+   */
+  @Parameter(property = "cloudformation.failIfMissing", defaultValue = "false")
+  Boolean failIfMissing;
 
-    @Parameter(property="cloudformation.retainResources")
-    List<String> retainResources = new ArrayList<>();
+  @Parameter(property = "cloudformation.retainResources")
+  List<String> retainResources = new ArrayList<>();
 
-    public void setRetainResources(String resources) {
-        retainResources.addAll(asList(resources.split("\\,")));
-    }
+  public void setRetainResources(String resources) {
+    retainResources.addAll(asList(resources.split("\\,")));
+  }
 
-    @Override
-    protected Object executeInternal() throws Exception {
-        shouldFailIfMissingStack(failIfMissing);
+  @Override
+  protected Object executeInternal() throws Exception {
+    shouldFailIfMissingStack(failIfMissing);
 
-        getService().deleteStack(new DeleteStackRequest().withStackName(this.stackName).withRetainResources(retainResources));
+    getService().deleteStack(new DeleteStackRequest().withStackName(this.stackName).withRetainResources(retainResources));
 
-        WaitForStackCommand.WaitForStackContext ctx = new WaitForStackCommand.WaitForStackContext(
-                this.stackName,
-                getService(),
-                this,
-                30,
-                asList(StackStatus.DELETE_COMPLETE)
-        );
+    WaitForStackCommand.WaitForStackContext ctx =
+        new WaitForStackCommand.WaitForStackContext(this.stackName, getService(), this, 30, asList(StackStatus.DELETE_COMPLETE));
 
-        new WaitForStackCommand(ctx).execute();
+    new WaitForStackCommand(ctx).execute();
 
-        return null;
-    }
+    return null;
+  }
 }

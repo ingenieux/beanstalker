@@ -23,5 +23,4 @@ import com.amazonaws.services.lambda.AWSLambdaClient;
 /**
  * A Mojo for AWS Lambda Projects
  */
-public abstract class AbstractLambdaMojo extends AbstractAWSMojo<AWSLambdaClient> {
-}
+public abstract class AbstractLambdaMojo extends AbstractAWSMojo<AWSLambdaClient> {}

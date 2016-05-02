@@ -40,36 +40,31 @@ import static java.lang.String.format;
 @Mojo(name = "list-configuration-templates", requiresDirectInvocation = true)
 public class ListConfigurationTemplatesMojo extends AbstractBeanstalkMojo {
 
-    @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
-            required = true)
-    protected String applicationName;
+  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}", required = true)
+  protected String applicationName;
 
-    @Override
-    protected Object executeInternal() throws MojoExecutionException,
-            MojoFailureException {
-        DescribeApplicationsRequest req = new DescribeApplicationsRequest()
-                .withApplicationNames(applicationName);
+  @Override
+  protected Object executeInternal() throws MojoExecutionException, MojoFailureException {
+    DescribeApplicationsRequest req = new DescribeApplicationsRequest().withApplicationNames(applicationName);
 
-        DescribeApplicationsResult apps = getService()
-                .describeApplications(req);
+    DescribeApplicationsResult apps = getService().describeApplications(req);
 
-        List<ApplicationDescription> applications = apps.getApplications();
+    List<ApplicationDescription> applications = apps.getApplications();
 
-        if (applications.isEmpty()) {
-            String errorMessage = "Application ('" + applicationName
-                    + "') not found!";
+    if (applications.isEmpty()) {
+      String errorMessage = "Application ('" + applicationName + "') not found!";
 
-            getLog().warn(errorMessage);
+      getLog().warn(errorMessage);
 
-            throw new MojoFailureException(errorMessage);
-        }
-
-        ApplicationDescription desc = applications.get(0);
-
-        List<String> configTemplates = desc.getConfigurationTemplates();
-
-        getLog().info(format("There are %d config templates", configTemplates.size()));
-
-        return configTemplates;
+      throw new MojoFailureException(errorMessage);
     }
+
+    ApplicationDescription desc = applications.get(0);
+
+    List<String> configTemplates = desc.getConfigurationTemplates();
+
+    getLog().info(format("There are %d config templates", configTemplates.size()));
+
+    return configTemplates;
+  }
 }

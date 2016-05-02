@@ -32,34 +32,33 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentContextBu
 @Mojo(name = "put-environment")
 public class PutEnvironmentMojo extends CreateEnvironmentMojo {
 
-    @Override
-    protected void configure() {
-        try {
-            super.projectTags();
-            curEnv = super.lookupEnvironment(applicationName, environmentRef);
-        } catch (Exception exc) {
-            // Previous Environment Does Not Exists. So its fine to just create the new environment.
-        }
+  @Override
+  protected void configure() {
+    try {
+      super.projectTags();
+      curEnv = super.lookupEnvironment(applicationName, environmentRef);
+    } catch (Exception exc) {
+      // Previous Environment Does Not Exists. So its fine to just create the new environment.
+    }
+  }
+
+  @Override
+  protected Object executeInternal() throws Exception {
+    /*
+     * We *DO* have an existing environment. So we're just calling update-environment instead
+     */
+    if (null != curEnv) {
+      UpdateEnvironmentContext context =
+          UpdateEnvironmentContextBuilder.updateEnvironmentContext()
+              .withEnvironmentId(curEnv.getEnvironmentId()) //
+              .withVersionLabel(versionLabel) //
+              .build();
+
+      UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(this);
+
+      return command.execute(context);
     }
 
-    @Override
-    protected Object executeInternal() throws Exception {
-        /*
-         * We *DO* have an existing environment. So we're just calling update-environment instead
-		 */
-        if (null != curEnv) {
-            UpdateEnvironmentContext context = UpdateEnvironmentContextBuilder
-                    .updateEnvironmentContext()
-                    .withEnvironmentId(curEnv.getEnvironmentId())//
-                    .withVersionLabel(versionLabel)//
-                    .build();
-
-            UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(
-                    this);
-
-            return command.execute(context);
-        }
-
-        return super.executeInternal();
-    }
+    return super.executeInternal();
+  }
 }

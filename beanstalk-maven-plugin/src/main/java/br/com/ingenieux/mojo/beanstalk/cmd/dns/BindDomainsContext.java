@@ -22,21 +22,21 @@ import java.util.Collection;
 
 public class BindDomainsContext {
 
-    String elbHostedZoneId;
-    Collection<String> domains;
-    EnvironmentDescription curEnv;
+  String elbHostedZoneId;
+  Collection<String> domains;
+  EnvironmentDescription curEnv;
 
-    public boolean singleInstance;
+  public boolean singleInstance;
 
-    public String getElbHostedZoneId() {
-        return elbHostedZoneId;
-    }
+  public String getElbHostedZoneId() {
+    return elbHostedZoneId;
+  }
 
-    public Collection<String> getDomains() {
-        return domains;
-    }
+  public Collection<String> getDomains() {
+    return domains;
+  }
 
-    public EnvironmentDescription getCurEnv() {
-        return curEnv;
-    }
+  public EnvironmentDescription getCurEnv() {
+    return curEnv;
+  }
 }

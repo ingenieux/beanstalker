@@ -37,21 +37,22 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.terminate.TerminateEnvironmentCon
 @Mojo(name = "terminate-environment")
 public class TerminateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 
-    /**
-     * Terminate resources as well?
-     */
-    @Parameter(property = "beanstalk.terminateResources", defaultValue = "true")
-    boolean terminateResources;
+  /**
+   * Terminate resources as well?
+   */
+  @Parameter(property = "beanstalk.terminateResources", defaultValue = "true")
+  boolean terminateResources;
 
-    @Override
-    protected Object executeInternal() throws AbstractMojoExecutionException {
-        TerminateEnvironmentContext context = TerminateEnvironmentContextBuilder
-                .terminateEnvironmentContext().withEnvironmentId(curEnv.getEnvironmentId())
-                .withEnvironmentName(curEnv.getEnvironmentName())
-                .withTerminateResources(terminateResources).build();
-        TerminateEnvironmentCommand command = new TerminateEnvironmentCommand(this);
+  @Override
+  protected Object executeInternal() throws AbstractMojoExecutionException {
+    TerminateEnvironmentContext context =
+        TerminateEnvironmentContextBuilder.terminateEnvironmentContext()
+            .withEnvironmentId(curEnv.getEnvironmentId())
+            .withEnvironmentName(curEnv.getEnvironmentName())
+            .withTerminateResources(terminateResources)
+            .build();
+    TerminateEnvironmentCommand command = new TerminateEnvironmentCommand(this);
 
-        return command.execute(context);
-    }
-
+    return command.execute(context);
+  }
 }

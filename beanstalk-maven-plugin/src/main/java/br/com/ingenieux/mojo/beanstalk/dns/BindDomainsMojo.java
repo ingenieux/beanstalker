@@ -36,26 +36,22 @@ import static java.util.Arrays.asList;
 @Mojo(name = "bind-domains")
 public class BindDomainsMojo extends AbstractNeedsEnvironmentMojo {
 
-    /**
-     * <p>List of Domains</p>
-     *
-     * <p>Could be set as either:</p> <ul> <li>fqdn:hostedZoneId (e.g.
-     * "services.modafocas.org:Z3DJ4DL0DIEEJA")</li> <li>hosted zone name - will be set to root.
-     * (e.g., "modafocas.org")</li> </ul>
-     */
-    @Parameter(property = "beanstalk.domains")
-    String[] domains;
+  /**
+   * <p>List of Domains</p>
+   *
+   * <p>Could be set as either:</p> <ul> <li>fqdn:hostedZoneId (e.g.
+   * "services.modafocas.org:Z3DJ4DL0DIEEJA")</li> <li>hosted zone name - will be set to root.
+   * (e.g., "modafocas.org")</li> </ul>
+   */
+  @Parameter(property = "beanstalk.domains")
+  String[] domains;
 
-    @Override
-    protected Object executeInternal() throws Exception {
-        final BindDomainsContext
-                ctx =
-                new BindDomainsContextBuilder().withCurEnv(this.curEnv).withDomains(asList(domains))
-                        .build();
+  @Override
+  protected Object executeInternal() throws Exception {
+    final BindDomainsContext ctx = new BindDomainsContextBuilder().withCurEnv(this.curEnv).withDomains(asList(domains)).build();
 
-        new BindDomainsCommand(this).execute(
-                ctx);
+    new BindDomainsCommand(this).execute(ctx);
 
-        return null;
-    }
+    return null;
+  }
 }

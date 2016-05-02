@@ -53,273 +53,241 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
  */
 @Mojo(name = "push-stack")
 public class PushStackMojo extends AbstractCloudformationMojo {
-    @Parameter(property = "cloudformation.stackLocation",
-            required = true,
-            defaultValue = "${project.basedir}/src/main/cloudformation/${project.artifactId}.template.json")
-    File templateLocation;
+  @Parameter(
+    property = "cloudformation.stackLocation",
+    required = true,
+    defaultValue = "${project.basedir}/src/main/cloudformation/${project.artifactId}.template.json"
+  )
+  File templateLocation;
 
-    /**
-     * If set to true, ignores/skips in case of a missing active stack found
-     */
-    @Parameter(property = "cloudformation.failIfMissing", defaultValue = "false")
-    Boolean failIfMissing;
+  /**
+   * If set to true, ignores/skips in case of a missing active stack found
+   */
+  @Parameter(property = "cloudformation.failIfMissing", defaultValue = "false")
+  Boolean failIfMissing;
 
-    /**
-     * <p> S3 URL &quot;s3://&lt;bucketName&gt;/&lt;keyPath&gt;&quot; of the S3 Location </p>
-     *
-     * <p>If set, will upload the @{templateLocation} contents prior to issuing a stack
-     * create/update process</p>
-     */
-    @Parameter(property = "cloudformation.s3Url")
-    String s3Url;
+  /**
+   * <p> S3 URL &quot;s3://&lt;bucketName&gt;/&lt;keyPath&gt;&quot; of the S3 Location </p>
+   *
+   * <p>If set, will upload the @{templateLocation} contents prior to issuing a stack
+   * create/update process</p>
+   */
+  @Parameter(property = "cloudformation.s3Url")
+  String s3Url;
 
-    AmazonS3URI destinationS3Uri;
+  AmazonS3URI destinationS3Uri;
 
-    /**
-     * <p>Template Input Parameters</p>
-     *
-     * <p>On CLI usage, you can set <code>-Dcloudformation.paramters=ParamA=abc,ParamB=def</code></p>
-     */
-    @Parameter(property = "cloudformation.parameters")
-    List<com.amazonaws.services.cloudformation.model.Parameter> parameters = new ArrayList<>();
+  /**
+   * <p>Template Input Parameters</p>
+   *
+   * <p>On CLI usage, you can set <code>-Dcloudformation.paramters=ParamA=abc,ParamB=def</code></p>
+   */
+  @Parameter(property = "cloudformation.parameters")
+  List<com.amazonaws.services.cloudformation.model.Parameter> parameters = new ArrayList<>();
 
-    public void setParameters(String parameters) {
-        List<String> nvPairs = asList(parameters.split(","));
+  public void setParameters(String parameters) {
+    List<String> nvPairs = asList(parameters.split(","));
 
-        this.parameters =
-                nvPairs.stream()
-                        .map(this::extractNVPair)
-                        .map(mapEntry -> new com.amazonaws.services.cloudformation.model.Parameter()
-                                .withParameterKey(mapEntry.getKey())
-                                .withParameterValue(mapEntry.getValue())
-                        )
-                        .collect(Collectors.toList());
+    this.parameters =
+        nvPairs
+            .stream()
+            .map(this::extractNVPair)
+            .map(
+                mapEntry ->
+                    new com.amazonaws.services.cloudformation.model.Parameter().withParameterKey(mapEntry.getKey()).withParameterValue(mapEntry.getValue()))
+            .collect(Collectors.toList());
+  }
+
+  /**
+   * Notification ARNs
+   */
+  @Parameter List<String> notificationArns;
+
+  /**
+   * <p>On Failure</p>
+   *
+   * <p>Either &quot;DO_NOTHING&quot;, &quot;ROLLBACK&quot; or &quot;DELETE&quot;</p>
+   */
+  @Parameter(property = "cloudformation.onfailure", defaultValue = "DO_NOTHING")
+  OnFailure onFailure = OnFailure.DO_NOTHING;
+
+  /**
+   * Resource Types
+   */
+  @Parameter Collection<String> resourceTypes = new ArrayList<>();
+
+  /**
+   * Disable Rollback?
+   */
+  @Parameter(defaultValue = "true")
+  Boolean disableRollback = true;
+
+  /**
+   * Tags
+   */
+  @Parameter(property = "cloudformation.tags")
+  List<Tag> tags = new ArrayList<>();
+
+  public void setTags(String tags) {
+    List<String> nvPairs = asList(tags.split(","));
+
+    this.tags =
+        nvPairs
+            .stream()
+            .map(this::extractNVPair)
+            .map(mapEntry -> new Tag().withKey(mapEntry.getKey()).withValue(mapEntry.getValue()))
+            .collect(Collectors.toList());
+  }
+
+  /**
+   * Timeout in Minutes
+   */
+  @Parameter(property = "cloudformation.timeoutInMinutes")
+  Integer timeoutInMinutes;
+
+  BeanstalkerS3Client s3Client;
+  private String templateBody;
+
+  @Override
+  protected Object executeInternal() throws Exception {
+    shouldFailIfMissingStack(failIfMissing);
+
+    if (!templateLocation.exists() && !templateLocation.isFile()) {
+      getLog().warn("File not found (or not a file): " + templateLocation.getPath() + ". Skipping.");
+
+      return null;
     }
 
-    /**
-     * Notification ARNs
-     */
-    @Parameter
-    List<String> notificationArns;
+    if (isNotBlank(s3Url)) {
+      getLog().info("Uploading file " + this.templateLocation + " to location " + this.s3Url);
 
-    /**
-     * <p>On Failure</p>
-     *
-     * <p>Either &quot;DO_NOTHING&quot;, &quot;ROLLBACK&quot; or &quot;DELETE&quot;</p>
-     */
-    @Parameter(property = "cloudformation.onfailure", defaultValue = "DO_NOTHING")
-    OnFailure onFailure = OnFailure.DO_NOTHING;
+      s3Client = new BeanstalkerS3Client(getAWSCredentials(), getClientConfiguration(), getRegion());
 
-    /**
-     * Resource Types
-     */
-    @Parameter
-    Collection<String> resourceTypes = new ArrayList<>();
+      s3Client.setMultipartUpload(false);
 
-    /**
-     * Disable Rollback?
-     */
-    @Parameter(defaultValue = "true")
-    Boolean disableRollback = true;
+      this.destinationS3Uri = new AmazonS3URI(s3Url);
 
-    /**
-     * Tags
-     */
-    @Parameter(property = "cloudformation.tags")
-    List<Tag> tags = new ArrayList<>();
-
-    public void setTags(String tags) {
-        List<String> nvPairs = asList(tags.split(","));
-
-        this.tags =
-                nvPairs.stream()
-                        .map(this::extractNVPair)
-                        .map(mapEntry -> new Tag().withKey(mapEntry.getKey()).withValue(mapEntry.getValue())
-                        )
-                        .collect(Collectors.toList());
+      uploadContents(templateLocation, destinationS3Uri);
+    } else {
+      templateBody = IOUtils.toString(new FileInputStream(this.templateLocation));
     }
 
+    {
+      ValidateTemplateResult validateTemplateResult = validateTemplate();
 
-    /**
-     * Timeout in Minutes
-     */
-    @Parameter(property = "cloudformation.timeoutInMinutes")
-    Integer timeoutInMinutes;
+      if (!validateTemplateResult.getParameters().isEmpty()) {
+        Set<String> existingParameterNames = this.parameters.stream().map(x -> x.getParameterKey()).collect(Collectors.toSet());
 
-    BeanstalkerS3Client s3Client;
-    private String templateBody;
+        Set<String> requiredParameterNames = validateTemplateResult.getParameters().stream().map(x -> x.getParameterKey()).collect(Collectors.toSet());
 
-    @Override
-    protected Object executeInternal() throws Exception {
-        shouldFailIfMissingStack(failIfMissing);
+        for (String requiredParameter : requiredParameterNames) {
+          if (!existingParameterNames.contains(requiredParameter)) {
+            getLog().warn("Missing required parameter name: " + requiredParameter);
+            getLog().warn("If its an update, will reuse previous value");
+          }
 
-        if (!templateLocation.exists() && !templateLocation.isFile()) {
-            getLog().warn("File not found (or not a file): " + templateLocation.getPath() + ". Skipping.");
-
-            return null;
+          this.parameters.add(new com.amazonaws.services.cloudformation.model.Parameter().withParameterKey(requiredParameter).withUsePreviousValue(true));
         }
-
-        if (isNotBlank(s3Url)) {
-            getLog().info("Uploading file " +
-                    this.templateLocation +
-                    " to location " +
-                    this.s3Url);
-
-            s3Client = new BeanstalkerS3Client(
-                    getAWSCredentials(),
-                    getClientConfiguration(),
-                    getRegion());
-
-            s3Client.setMultipartUpload(false);
-
-            this.destinationS3Uri = new AmazonS3URI(s3Url);
-
-            uploadContents(templateLocation, destinationS3Uri);
-        } else {
-            templateBody = IOUtils.toString(new FileInputStream(this.templateLocation));
-        }
-
-        {
-            ValidateTemplateResult validateTemplateResult = validateTemplate();
-
-            if (!validateTemplateResult.getParameters().isEmpty()) {
-                Set<String> existingParameterNames = this.parameters
-                        .stream()
-                        .map(x -> x.getParameterKey())
-                        .collect(Collectors.toSet());
-
-                Set<String> requiredParameterNames =
-                        validateTemplateResult.getParameters()
-                                .stream()
-                                .map(x -> x.getParameterKey())
-                                .collect(Collectors.toSet());
-
-                for (String requiredParameter : requiredParameterNames) {
-                    if (!existingParameterNames.contains(requiredParameter)) {
-                        getLog().warn("Missing required parameter name: " + requiredParameter);
-                        getLog().warn("If its an update, will reuse previous value");
-                    }
-
-                    this.parameters.add(
-                            new com.amazonaws.services.cloudformation.model.Parameter()
-                                    .withParameterKey(requiredParameter)
-                                    .withUsePreviousValue(true)
-
-                    );
-                }
-            }
-        }
-
-        WaitForStackCommand.WaitForStackContext ctx = null;
-
-        Object result = null;
-
-        if (null == stackSummary) {
-            getLog().info("Must Create Stack");
-
-            CreateStackResult createStackResult;
-            result = createStackResult = createStack();
-
-            ctx = new WaitForStackCommand.WaitForStackContext(createStackResult.getStackId(),
-                    getService(),
-                    this::info,
-                    30,
-                    asList(StackStatus.CREATE_COMPLETE));
-
-        } else {
-            getLog().info("Must Update Stack");
-
-            UpdateStackResult updateStackResult;
-
-            result = updateStackResult = updateStack();
-
-            if (null != result) {
-
-                ctx = new WaitForStackCommand.WaitForStackContext(updateStackResult.getStackId(),
-                        getService(),
-                        this::info,
-                        30,
-                        asList(StackStatus.UPDATE_COMPLETE));
-            }
-        }
-
-        if (null != ctx)
-            new WaitForStackCommand(ctx).execute();
-
-        return result;
+      }
     }
 
-    private ValidateTemplateResult validateTemplate() throws Exception {
-        final ValidateTemplateRequest req = new ValidateTemplateRequest();
+    WaitForStackCommand.WaitForStackContext ctx = null;
 
-        if (null != destinationS3Uri) {
-            req.withTemplateURL(generateExternalUrl(this.destinationS3Uri));
-        } else {
-            req.withTemplateBody(templateBody);
-        }
+    Object result = null;
 
-        final ValidateTemplateResult result = getService().validateTemplate(req);
+    if (null == stackSummary) {
+      getLog().info("Must Create Stack");
 
-        getLog().info("Validation Result: " + result);
+      CreateStackResult createStackResult;
+      result = createStackResult = createStack();
 
-        return result;
+      ctx = new WaitForStackCommand.WaitForStackContext(createStackResult.getStackId(), getService(), this::info, 30, asList(StackStatus.CREATE_COMPLETE));
+
+    } else {
+      getLog().info("Must Update Stack");
+
+      UpdateStackResult updateStackResult;
+
+      result = updateStackResult = updateStack();
+
+      if (null != result) {
+
+        ctx = new WaitForStackCommand.WaitForStackContext(updateStackResult.getStackId(), getService(), this::info, 30, asList(StackStatus.UPDATE_COMPLETE));
+      }
     }
 
-    private CreateStackResult createStack() throws Exception {
-        CreateStackRequest req = new CreateStackRequest()
-                .withStackName(stackName)
-                .withCapabilities(Capability.CAPABILITY_IAM);
+    if (null != ctx) new WaitForStackCommand(ctx).execute();
 
-        if (null != this.destinationS3Uri) {
-            req.withTemplateURL(generateExternalUrl(this.destinationS3Uri));
-        } else {
-            req.withTemplateBody(templateBody);
-        }
+    return result;
+  }
 
-        req.withNotificationARNs(notificationArns);
+  private ValidateTemplateResult validateTemplate() throws Exception {
+    final ValidateTemplateRequest req = new ValidateTemplateRequest();
 
-        req.withParameters(parameters);
-        req.withResourceTypes(resourceTypes);
-        req.withDisableRollback(disableRollback);
-        req.withTags(tags);
-        req.withTimeoutInMinutes(timeoutInMinutes);
-
-        return getService().createStack(req);
+    if (null != destinationS3Uri) {
+      req.withTemplateURL(generateExternalUrl(this.destinationS3Uri));
+    } else {
+      req.withTemplateBody(templateBody);
     }
 
-    protected String generateExternalUrl(AmazonS3URI destinationS3Uri) throws Exception {
-        return s3Client.getResourceUrl(destinationS3Uri.getBucket(), destinationS3Uri.getKey());
+    final ValidateTemplateResult result = getService().validateTemplate(req);
+
+    getLog().info("Validation Result: " + result);
+
+    return result;
+  }
+
+  private CreateStackResult createStack() throws Exception {
+    CreateStackRequest req = new CreateStackRequest().withStackName(stackName).withCapabilities(Capability.CAPABILITY_IAM);
+
+    if (null != this.destinationS3Uri) {
+      req.withTemplateURL(generateExternalUrl(this.destinationS3Uri));
+    } else {
+      req.withTemplateBody(templateBody);
     }
 
-    private UpdateStackResult updateStack() throws Exception {
-        UpdateStackRequest req = new UpdateStackRequest()
-                .withStackName(stackName)
-                .withCapabilities(Capability.CAPABILITY_IAM);
+    req.withNotificationARNs(notificationArns);
 
-        if (null != this.destinationS3Uri) {
-            req.withTemplateURL(generateExternalUrl(this.destinationS3Uri));
-        } else {
-            req.withTemplateBody(templateBody);
-        }
+    req.withParameters(parameters);
+    req.withResourceTypes(resourceTypes);
+    req.withDisableRollback(disableRollback);
+    req.withTags(tags);
+    req.withTimeoutInMinutes(timeoutInMinutes);
 
-        req.withNotificationARNs(notificationArns);
+    return getService().createStack(req);
+  }
 
-        req.withParameters(parameters);
-        req.withResourceTypes(resourceTypes);
-        req.withTags(tags);
+  protected String generateExternalUrl(AmazonS3URI destinationS3Uri) throws Exception {
+    return s3Client.getResourceUrl(destinationS3Uri.getBucket(), destinationS3Uri.getKey());
+  }
 
-        try {
-            return getService().updateStack(req);
-        } catch (AmazonServiceException exc) {
-            if ("No updates are to be performed.".equals(exc.getErrorMessage())) {
-                return null;
-            }
+  private UpdateStackResult updateStack() throws Exception {
+    UpdateStackRequest req = new UpdateStackRequest().withStackName(stackName).withCapabilities(Capability.CAPABILITY_IAM);
 
-            throw exc;
-        }
+    if (null != this.destinationS3Uri) {
+      req.withTemplateURL(generateExternalUrl(this.destinationS3Uri));
+    } else {
+      req.withTemplateBody(templateBody);
     }
 
-    private void uploadContents(File templateLocation, AmazonS3URI destinationS3Uri) throws Exception {
-        s3Client.putObject(destinationS3Uri.getBucket(), destinationS3Uri.getKey(), new FileInputStream(this.templateLocation), null);
+    req.withNotificationARNs(notificationArns);
+
+    req.withParameters(parameters);
+    req.withResourceTypes(resourceTypes);
+    req.withTags(tags);
+
+    try {
+      return getService().updateStack(req);
+    } catch (AmazonServiceException exc) {
+      if ("No updates are to be performed.".equals(exc.getErrorMessage())) {
+        return null;
+      }
+
+      throw exc;
     }
+  }
+
+  private void uploadContents(File templateLocation, AmazonS3URI destinationS3Uri) throws Exception {
+    s3Client.putObject(destinationS3Uri.getBucket(), destinationS3Uri.getKey(), new FileInputStream(this.templateLocation), null);
+  }
 }

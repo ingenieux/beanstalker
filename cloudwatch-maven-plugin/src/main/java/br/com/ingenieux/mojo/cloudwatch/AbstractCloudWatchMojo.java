@@ -22,5 +22,4 @@ import com.amazonaws.services.logs.AWSLogsAsyncClient;
 
 import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
 
-public abstract class AbstractCloudWatchMojo extends AbstractAWSMojo<AWSLogsAsyncClient> {
-}
+public abstract class AbstractCloudWatchMojo extends AbstractAWSMojo<AWSLogsAsyncClient> {}

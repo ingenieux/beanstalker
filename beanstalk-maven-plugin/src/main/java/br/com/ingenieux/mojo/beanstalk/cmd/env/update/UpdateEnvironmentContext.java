@@ -21,152 +21,151 @@ import com.amazonaws.services.elasticbeanstalk.model.OptionSpecification;
 
 public class UpdateEnvironmentContext {
 
-    String environmentName;
+  String environmentName;
 
-    String environmentId;
+  String environmentId;
 
-    String versionLabel;
+  String versionLabel;
 
-    String environmentDescription;
+  String environmentDescription;
 
-    ConfigurationOptionSetting[] optionSettings = new ConfigurationOptionSetting[0];
-    OptionSpecification[] optionsToRemove = new OptionSpecification[0];
+  ConfigurationOptionSetting[] optionSettings = new ConfigurationOptionSetting[0];
+  OptionSpecification[] optionsToRemove = new OptionSpecification[0];
 
-    String templateName;
+  String templateName;
 
-    String latestVersionLabel;
+  String latestVersionLabel;
 
-    String environmentTierName;
+  String environmentTierName;
 
-    String environmentTierType;
+  String environmentTierType;
 
+  public String getEnvironmentTierType() {
+    return environmentTierType;
+  }
 
-    public String getEnvironmentTierType() {
-        return environmentTierType;
+  public void setEnvironmentTierType(String environmentTierType) {
+    this.environmentTierType = environmentTierType;
+  }
+
+  String environmentTierVersion;
+
+  public String getEnvironmentTierVersion() {
+    return environmentTierVersion;
+  }
+
+  public void setEnvironmentTierVersion(String environmentTierVersion) {
+    this.environmentTierVersion = environmentTierVersion;
+  }
+
+  public String getLatestVersionLabel() {
+    return latestVersionLabel;
+  }
+
+  public void setLatestVersionLabel(String latestVersionLabel) {
+    this.latestVersionLabel = latestVersionLabel;
+  }
+
+  /**
+   * @return the environmentName
+   */
+  public String getEnvironmentName() {
+    return environmentName;
+  }
+
+  /**
+   * @param environmentName the environmentName to set
+   */
+  public void setEnvironmentName(String environmentName) {
+    this.environmentName = environmentName;
+  }
+
+  /**
+   * @return the environmentId
+   */
+  public String getEnvironmentId() {
+    return environmentId;
+  }
+
+  /**
+   * @param environmentId the environmentId to set
+   */
+  public void setEnvironmentId(String environmentId) {
+    this.environmentId = environmentId;
+  }
+
+  /**
+   * @return the versionLabel
+   */
+  public String getVersionLabel() {
+    return versionLabel;
+  }
+
+  /**
+   * @param versionLabel the versionLabel to set
+   */
+  public void setVersionLabel(String versionLabel) {
+    this.versionLabel = versionLabel;
+  }
+
+  /**
+   * @return the environmentDescription
+   */
+  public String getEnvironmentDescription() {
+    return environmentDescription;
+  }
+
+  /**
+   * @param environmentDescription the environmentDescription to set
+   */
+  public void setEnvironmentDescription(String environmentDescription) {
+    this.environmentDescription = environmentDescription;
+  }
+
+  /**
+   * @return the optionSettings
+   */
+  public ConfigurationOptionSetting[] getOptionSettings() {
+    return optionSettings;
+  }
+
+  /**
+   * @param optionSettings the optionSettings to set
+   */
+  public void setOptionSettings(ConfigurationOptionSetting[] optionSettings) {
+    if (null != optionSettings) {
+      this.optionSettings = optionSettings;
     }
+  }
 
-    public void setEnvironmentTierType(String environmentTierType) {
-        this.environmentTierType = environmentTierType;
+  /**
+   * @param optionSettings the optionsToRemove to set
+   */
+  public void setOptionsToRemove(OptionSpecification[] optionSettings) {
+    if (null != optionsToRemove) {
+      this.optionsToRemove = optionSettings;
     }
+  }
 
-    String environmentTierVersion;
+  /**
+   * @return the templateName
+   */
+  public String getTemplateName() {
+    return templateName;
+  }
 
-    public String getEnvironmentTierVersion() {
-        return environmentTierVersion;
-    }
+  /**
+   * @param templateName the templateName to set
+   */
+  public void setTemplateName(String templateName) {
+    this.templateName = templateName;
+  }
 
-    public void setEnvironmentTierVersion(String environmentTierVersion) {
-        this.environmentTierVersion = environmentTierVersion;
-    }
+  public String getEnvironmentTierName() {
+    return environmentTierName;
+  }
 
-    public String getLatestVersionLabel() {
-        return latestVersionLabel;
-    }
-
-    public void setLatestVersionLabel(String latestVersionLabel) {
-        this.latestVersionLabel = latestVersionLabel;
-    }
-
-    /**
-     * @return the environmentName
-     */
-    public String getEnvironmentName() {
-        return environmentName;
-    }
-
-    /**
-     * @param environmentName the environmentName to set
-     */
-    public void setEnvironmentName(String environmentName) {
-        this.environmentName = environmentName;
-    }
-
-    /**
-     * @return the environmentId
-     */
-    public String getEnvironmentId() {
-        return environmentId;
-    }
-
-    /**
-     * @param environmentId the environmentId to set
-     */
-    public void setEnvironmentId(String environmentId) {
-        this.environmentId = environmentId;
-    }
-
-    /**
-     * @return the versionLabel
-     */
-    public String getVersionLabel() {
-        return versionLabel;
-    }
-
-    /**
-     * @param versionLabel the versionLabel to set
-     */
-    public void setVersionLabel(String versionLabel) {
-        this.versionLabel = versionLabel;
-    }
-
-    /**
-     * @return the environmentDescription
-     */
-    public String getEnvironmentDescription() {
-        return environmentDescription;
-    }
-
-    /**
-     * @param environmentDescription the environmentDescription to set
-     */
-    public void setEnvironmentDescription(String environmentDescription) {
-        this.environmentDescription = environmentDescription;
-    }
-
-    /**
-     * @return the optionSettings
-     */
-    public ConfigurationOptionSetting[] getOptionSettings() {
-        return optionSettings;
-    }
-
-    /**
-     * @param optionSettings the optionSettings to set
-     */
-    public void setOptionSettings(ConfigurationOptionSetting[] optionSettings) {
-        if (null != optionSettings) {
-            this.optionSettings = optionSettings;
-        }
-    }
-
-    /**
-     * @param optionSettings the optionsToRemove to set
-     */
-    public void setOptionsToRemove(OptionSpecification[] optionSettings) {
-        if (null != optionsToRemove) {
-            this.optionsToRemove = optionSettings;
-        }
-    }
-
-    /**
-     * @return the templateName
-     */
-    public String getTemplateName() {
-        return templateName;
-    }
-
-    /**
-     * @param templateName the templateName to set
-     */
-    public void setTemplateName(String templateName) {
-        this.templateName = templateName;
-    }
-
-    public String getEnvironmentTierName() {
-        return environmentTierName;
-    }
-
-    public void setEnvironmentTierName(String environmentTierName) {
-        this.environmentTierName = environmentTierName;
-    }
+  public void setEnvironmentTierName(String environmentTierName) {
+    this.environmentTierName = environmentTierName;
+  }
 }

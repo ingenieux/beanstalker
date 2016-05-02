@@ -26,65 +26,63 @@ import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
 public abstract class BaseCommand<I, O> implements Command<I, O> {
 
-    /**
-     * Logger
-     */
-    protected Log logger;
+  /**
+   * Logger
+   */
+  protected Log logger;
 
-    /**
-     * Service
-     */
-    protected AWSElasticBeanstalkClient service;
+  /**
+   * Service
+   */
+  protected AWSElasticBeanstalkClient service;
 
-    /**
-     * Parent Mojo
-     */
-    protected AbstractBeanstalkMojo parentMojo;
+  /**
+   * Parent Mojo
+   */
+  protected AbstractBeanstalkMojo parentMojo;
 
-    /**
-     * Constructor
-     *
-     * @param parentMojo parent mojo
-     */
-    protected BaseCommand(AbstractBeanstalkMojo parentMojo) throws MojoExecutionException {
-        this.parentMojo = parentMojo;
+  /**
+   * Constructor
+   *
+   * @param parentMojo parent mojo
+   */
+  protected BaseCommand(AbstractBeanstalkMojo parentMojo) throws MojoExecutionException {
+    this.parentMojo = parentMojo;
 
-        this.service = parentMojo.getService();
+    this.service = parentMojo.getService();
 
-        this.logger = parentMojo.getLog();
+    this.logger = parentMojo.getLog();
+  }
+
+  public boolean isDebugEnabled() {
+    return logger.isDebugEnabled();
+  }
+
+  public void debug(CharSequence message, Object... args) {
+    logger.debug(String.format("" + message, args));
+  }
+
+  public boolean isInfoEnabled() {
+    return logger.isInfoEnabled();
+  }
+
+  public void info(CharSequence message, Object... args) {
+    logger.info(String.format("" + message, args));
+  }
+
+  public final O execute(I context) throws MojoFailureException, MojoExecutionException {
+    try {
+      return executeInternal(context);
+    } catch (Exception exc) {
+      handleException(exc);
+
+      throw new RuntimeException("Unlikely");
     }
+  }
 
-    public boolean isDebugEnabled() {
-        return logger.isDebugEnabled();
-    }
+  private void handleException(Exception exc) throws MojoExecutionException, MojoFailureException {
+    parentMojo.handleException(exc);
+  }
 
-    public void debug(CharSequence message, Object... args) {
-        logger.debug(String.format("" + message, args));
-    }
-
-    public boolean isInfoEnabled() {
-        return logger.isInfoEnabled();
-    }
-
-    public void info(CharSequence message, Object... args) {
-        logger.info(String.format("" + message, args));
-    }
-
-    public final O execute(I context) throws MojoFailureException,
-            MojoExecutionException {
-        try {
-            return executeInternal(context);
-        } catch (Exception exc) {
-            handleException(exc);
-
-            throw new RuntimeException("Unlikely");
-        }
-    }
-
-    private void handleException(Exception exc) throws MojoExecutionException,
-            MojoFailureException {
-        parentMojo.handleException(exc);
-    }
-
-    protected abstract O executeInternal(I context) throws Exception;
+  protected abstract O executeInternal(I context) throws Exception;
 }

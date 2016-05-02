@@ -36,11 +36,10 @@ import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 @Mojo(name = "create-storage-location")
 public class CreateStorageLocationMojo extends AbstractBeanstalkMojo {
 
-    @Override
-    protected Object executeInternal() throws MojoExecutionException,
-            MojoFailureException {
-        CreateStorageLocationResult result = getService().createStorageLocation();
+  @Override
+  protected Object executeInternal() throws MojoExecutionException, MojoFailureException {
+    CreateStorageLocationResult result = getService().createStorageLocation();
 
-        return result;
-    }
+    return result;
+  }
 }

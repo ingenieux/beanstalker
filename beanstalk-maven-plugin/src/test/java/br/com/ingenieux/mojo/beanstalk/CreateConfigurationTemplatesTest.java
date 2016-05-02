@@ -23,28 +23,25 @@ import java.io.File;
 @Ignore
 public class CreateConfigurationTemplatesTest extends BeanstalkTestBase {
 
-    public void testDescribeConfigurationTemplates() throws Exception {
-        setVariableValueToObject(describeConfigTemplatesMojo, "applicationName",
-                "belemtransito");
+  public void testDescribeConfigurationTemplates() throws Exception {
+    setVariableValueToObject(describeConfigTemplatesMojo, "applicationName", "belemtransito");
 
-        describeConfigTemplatesMojo.execute();
-    }
+    describeConfigTemplatesMojo.execute();
+  }
 
-    public void testDescribeConfigurationTemplatesToFile() throws Exception {
-        File outputFile = new File("config-template.test");
+  public void testDescribeConfigurationTemplatesToFile() throws Exception {
+    File outputFile = new File("config-template.test");
 
-        outputFile.delete();
+    outputFile.delete();
 
-        assertFalse(outputFile.exists());
+    assertFalse(outputFile.exists());
 
-        setVariableValueToObject(describeConfigTemplatesMojo, "outputFile",
-                outputFile);
+    setVariableValueToObject(describeConfigTemplatesMojo, "outputFile", outputFile);
 
-        setVariableValueToObject(describeConfigTemplatesMojo, "applicationName",
-                "belemtransito");
+    setVariableValueToObject(describeConfigTemplatesMojo, "applicationName", "belemtransito");
 
-        describeConfigTemplatesMojo.execute();
+    describeConfigTemplatesMojo.execute();
 
-        assertTrue(outputFile.exists());
-    }
+    assertTrue(outputFile.exists());
+  }
 }

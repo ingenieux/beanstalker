@@ -34,16 +34,12 @@ import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
  * @since 0.2.6
  */
 @Mojo(name = "describe-environment-resources")
-public class DescribeEnvironmentResourcesMojo extends
-        AbstractNeedsEnvironmentMojo {
+public class DescribeEnvironmentResourcesMojo extends AbstractNeedsEnvironmentMojo {
 
-    @Override
-    protected Object executeInternal() throws MojoExecutionException,
-            MojoFailureException {
-        return getService()
-                .describeEnvironmentResources(new DescribeEnvironmentResourcesRequest()
-                        .withEnvironmentId(curEnv.getEnvironmentId())
-                        .withEnvironmentName(
-                                curEnv.getEnvironmentName()));
-    }
+  @Override
+  protected Object executeInternal() throws MojoExecutionException, MojoFailureException {
+    return getService()
+        .describeEnvironmentResources(
+            new DescribeEnvironmentResourcesRequest().withEnvironmentId(curEnv.getEnvironmentId()).withEnvironmentName(curEnv.getEnvironmentName()));
+  }
 }

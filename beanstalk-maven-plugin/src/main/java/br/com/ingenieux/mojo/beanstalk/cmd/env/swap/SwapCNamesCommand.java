@@ -25,30 +25,29 @@ import br.com.ingenieux.mojo.beanstalk.cmd.BaseCommand;
 
 public class SwapCNamesCommand extends BaseCommand<SwapCNamesContext, Object> {
 
-    /**
-     * Constructor
-     *
-     * @param parentMojo parent mojo
-     */
-    public SwapCNamesCommand(AbstractBeanstalkMojo parentMojo) throws AbstractMojoExecutionException {
-        super(parentMojo);
-    }
+  /**
+   * Constructor
+   *
+   * @param parentMojo parent mojo
+   */
+  public SwapCNamesCommand(AbstractBeanstalkMojo parentMojo) throws AbstractMojoExecutionException {
+    super(parentMojo);
+  }
 
-    @Override
-    protected Object executeInternal(SwapCNamesContext context) throws Exception {
-        SwapEnvironmentCNAMEsRequest request = new SwapEnvironmentCNAMEsRequest();
+  @Override
+  protected Object executeInternal(SwapCNamesContext context) throws Exception {
+    SwapEnvironmentCNAMEsRequest request = new SwapEnvironmentCNAMEsRequest();
 
-        request.setSourceEnvironmentName(context.getSourceEnvironmentName());
+    request.setSourceEnvironmentName(context.getSourceEnvironmentName());
 
-        request.setSourceEnvironmentId(context.getSourceEnvironmentId());
+    request.setSourceEnvironmentId(context.getSourceEnvironmentId());
 
-        request
-                .setDestinationEnvironmentName(context.getDestinationEnvironmentName());
+    request.setDestinationEnvironmentName(context.getDestinationEnvironmentName());
 
-        request.setDestinationEnvironmentId(context.getDestinationEnvironmentId());
+    request.setDestinationEnvironmentId(context.getDestinationEnvironmentId());
 
-        service.swapEnvironmentCNAMEs(request);
+    service.swapEnvironmentCNAMEs(request);
 
-        return request;
-    }
+    return request;
+  }
 }

@@ -36,16 +36,15 @@ import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 @Mojo(name = "restart-application-server")
 public class RestartAppServerMojo extends AbstractNeedsEnvironmentMojo {
 
-    @Override
-    protected Object executeInternal() throws MojoExecutionException,
-            MojoFailureException {
-        RestartAppServerRequest req = new RestartAppServerRequest();
+  @Override
+  protected Object executeInternal() throws MojoExecutionException, MojoFailureException {
+    RestartAppServerRequest req = new RestartAppServerRequest();
 
-        req.setEnvironmentId(curEnv.getEnvironmentId());
-        req.setEnvironmentName(curEnv.getEnvironmentName());
+    req.setEnvironmentId(curEnv.getEnvironmentId());
+    req.setEnvironmentName(curEnv.getEnvironmentName());
 
-        getService().restartAppServer(req);
+    getService().restartAppServer(req);
 
-        return null;
-    }
+    return null;
+  }
 }
