@@ -292,7 +292,7 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
       Map<String, LambdaDefinition> defs = objectMapper.readValue(lambdasFile, new TypeReference<Map<String, LambdaDefinition>>() {});
 
       this.lambdaDefinitions =
-          defs.values().stream().filter(x -> null != x.getApi() && "post".equalsIgnoreCase(x.getApi().getMethodType())).collect(Collectors.toList());
+          defs.values().stream().filter(x -> null != x.getApi()).collect(Collectors.toList());
 
       this.lambdaDefinitions.forEach(x -> x.getApi().methodType = x.getApi().methodType.toLowerCase());
     }
