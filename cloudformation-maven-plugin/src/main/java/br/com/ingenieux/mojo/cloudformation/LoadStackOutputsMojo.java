@@ -30,12 +30,14 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
 /**
@@ -131,6 +133,10 @@ public class LoadStackOutputsMojo extends AbstractCloudformationMojo {
   }
 
   private Collection<Output> listOutputs() {
+    if (isEmpty(stackId)) {
+      return Collections.emptyList();
+    }
+
     String nextToken = null;
     final DescribeStacksRequest request = new DescribeStacksRequest().withStackName(stackId);
     List<Output> result = new ArrayList<>();
@@ -140,7 +146,10 @@ public class LoadStackOutputsMojo extends AbstractCloudformationMojo {
 
       final DescribeStacksResult response = getService().describeStacks(request);
 
-      result.addAll(response.getStacks().stream().flatMap(stack -> stack.getOutputs().stream()).collect(Collectors.toList()));
+      result.addAll(response.getStacks()
+        .stream()
+        .flatMap(stack -> stack.getOutputs().stream())
+        .collect(Collectors.toList()));
 
       nextToken = response.getNextToken();
     } while (null != nextToken);
