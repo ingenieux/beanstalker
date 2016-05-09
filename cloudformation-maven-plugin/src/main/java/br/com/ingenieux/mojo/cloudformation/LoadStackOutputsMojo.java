@@ -146,10 +146,7 @@ public class LoadStackOutputsMojo extends AbstractCloudformationMojo {
 
       final DescribeStacksResult response = getService().describeStacks(request);
 
-      result.addAll(response.getStacks()
-        .stream()
-        .flatMap(stack -> stack.getOutputs().stream())
-        .collect(Collectors.toList()));
+      result.addAll(response.getStacks().stream().flatMap(stack -> stack.getOutputs().stream()).collect(Collectors.toList()));
 
       nextToken = response.getNextToken();
     } while (null != nextToken);

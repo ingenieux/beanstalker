@@ -19,14 +19,12 @@ package br.com.ingenieux.mojo.apigateway;
 import com.amazonaws.services.apigateway.AmazonApiGatewayClient;
 import com.amazonaws.services.apigateway.model.GetRestApisRequest;
 import com.amazonaws.services.apigateway.model.GetRestApisResult;
-import com.amazonaws.services.apigateway.model.GetSdkRequest;
 import com.amazonaws.services.apigateway.model.RestApi;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.fasterxml.jackson.dataformat.yaml.YAMLParser;
 
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
@@ -35,20 +33,19 @@ import java.util.Optional;
 
 import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
 
+import static com.fasterxml.jackson.core.JsonParser.Feature;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 public abstract class AbstractAPIGatewayMojo extends AbstractAWSMojo<AmazonApiGatewayClient> {
   protected static final ObjectMapper YAML_OBJECT_MAPPER =
-      new ObjectMapper(new YAMLFactory())
+      new ObjectMapper(
+              new YAMLFactory().enable(Feature.ALLOW_COMMENTS).enable(Feature.ALLOW_YAML_COMMENTS).enable(JsonGenerator.Feature.STRICT_DUPLICATE_DETECTION))
           .enable(SerializationFeature.INDENT_OUTPUT)
           .setSerializationInclusion(JsonInclude.Include.NON_NULL)
           //https://github.com/ingenieux/beanstalker/issues/87 - Decouple the serialization of AWS responses to avoid warning mgs
-          .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
-          .enable(JsonParser.Feature.ALLOW_COMMENTS)
-          .enable(JsonParser.Feature.ALLOW_YAML_COMMENTS)
-          .enable(JsonParser.Feature.STRICT_DUPLICATE_DETECTION);
+          .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
 
   @Parameter(property = "project", required = true)
   protected MavenProject curProject;

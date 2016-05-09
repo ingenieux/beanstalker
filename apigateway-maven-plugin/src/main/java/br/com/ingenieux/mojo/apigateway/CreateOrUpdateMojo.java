@@ -27,8 +27,10 @@ import com.amazonaws.services.apigateway.model.PutRestApiRequest;
 import com.amazonaws.services.apigateway.model.PutRestApiResult;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.flipkart.zjsonpatch.JsonPatch;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -39,6 +41,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -51,6 +54,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import br.com.ingenieux.mojo.apigateway.util.Unthrow;
 import br.com.ingenieux.mojo.aws.util.RoleResolver;
 
 import static java.lang.String.format;
@@ -60,6 +64,7 @@ import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Mojo(name = "create-or-update", requiresProject = true)
 public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
@@ -291,8 +296,7 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
 
       Map<String, LambdaDefinition> defs = objectMapper.readValue(lambdasFile, new TypeReference<Map<String, LambdaDefinition>>() {});
 
-      this.lambdaDefinitions =
-          defs.values().stream().filter(x -> null != x.getApi()).collect(Collectors.toList());
+      this.lambdaDefinitions = defs.values().stream().filter(x -> null != x.getApi()).collect(Collectors.toList());
 
       this.lambdaDefinitions.forEach(x -> x.getApi().methodType = x.getApi().methodType.toLowerCase());
     }
@@ -361,9 +365,7 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
     for (LambdaDefinition d : lambdaDefinitions) {
       removeConflictingDeclarations(d, pathNode);
 
-      ObjectNode parentNode = pathNode.with(d.getApi().getPath()).with(d.getApi().getMethodType());
-
-      parentNode.setAll(templateChildNode.deepCopy());
+      ObjectNode parentNode = templateChildNode.deepCopy();
 
       parentNode.with("x-amazon-apigateway-integration").put("httpMethod", "POST").put("uri", getUriFor(d));
 
@@ -379,6 +381,20 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
 
         parametersNode.add(parameterNode);
       }
+
+      ObjectNode result = parentNode;
+
+      {
+        ArrayNode patches = getPatches(d.getApi());
+
+        if (null != patches) {
+          result = (ObjectNode) JsonPatch.apply(patches, parentNode);
+        }
+      }
+
+      pathNode.with(d.getApi().getPath()).with(d.getApi().getMethodType()).removeAll();
+
+      pathNode.with(d.getApi().getPath()).with(d.getApi().getMethodType()).setAll(result);
     }
 
     Map<String, Set<String>> corsPaths =
@@ -402,6 +418,58 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
           .with("responseParameters")
           .put("method.response.header.Access-Control-Allow-Methods", supportedMethods);
     }
+  }
+
+  private ArrayNode getPatches(LambdaDefinition.Api api) {
+    if (null == api.getPatches() || 0 == api.getPatches().length) return null;
+
+    ArrayNode result = objectMapper.createArrayNode();
+
+    result.addAll(
+        Arrays.stream(api.getPatches())
+            .map(
+                p ->
+                    Unthrow.wrap(
+                        patch -> {
+                          ObjectNode resultNode = objectMapper.createObjectNode();
+
+                          resultNode.put("op", patch.getOp().toLowerCase());
+
+                          resultNode.put("path", patch.getPath());
+
+                          // TODO: Interpolate patch.value
+                          if (isNotBlank(patch.getValue())) {
+                            JsonNode value = null;
+
+                            String sourceValue = patch.getValue();
+
+                            if (-1 != "[{\"".indexOf(sourceValue.charAt(0))) {
+                              value = objectMapper.readTree(sourceValue);
+                            } else {
+                              value = resultNode.textNode(sourceValue);
+                            }
+
+                            resultNode.set("value", value);
+                          } else if (isNotBlank(patch.getFrom())) {
+                            JsonNode value = null;
+
+                            String sourceValue = patch.getFrom();
+
+                            if (-1 != "[{\"".indexOf(sourceValue.charAt(0))) {
+                              value = objectMapper.readTree(sourceValue);
+                            } else {
+                              value = resultNode.textNode(sourceValue);
+                            }
+
+                            resultNode.set("from", value);
+                          }
+
+                          return resultNode;
+                        },
+                        p))
+            .collect(Collectors.toList()));
+
+    return result;
   }
 
   private String getUriFor(LambdaDefinition d) {

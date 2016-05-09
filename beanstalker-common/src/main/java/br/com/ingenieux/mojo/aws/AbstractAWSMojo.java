@@ -42,6 +42,7 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.PluginParameterExpressionEvaluator;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.settings.Proxy;
 import org.apache.maven.settings.Server;
@@ -77,6 +78,7 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends 
   protected MavenSession session;
 
   private static final String SECURITY_DISPATCHER_CLASS_NAME = "org.sonatype.plexus.components.sec.dispatcher.SecDispatcher";
+
   /**
    * Maven Settings Reference
    */
@@ -329,7 +331,7 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends 
     this.service = createServiceFor(serviceClass);
   }
 
-  protected <T> T createServiceFor(Class<T> serviceClass) throws MojoExecutionException {
+  protected <T extends AmazonWebServiceClient> T createServiceFor(Class<T> serviceClass) throws MojoExecutionException {
     try {
       clientFactory = new AWSClientFactory(getAWSCredentials(), getClientConfiguration(), regionName);
 
