@@ -1,11 +1,11 @@
-package br.com.ingenieux.mojo.beanstalk.config;
-
 /*
+ * Copyright (c) 2016 ingenieux Labs
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,16 +14,20 @@ package br.com.ingenieux.mojo.beanstalk.config;
  * limitations under the License.
  */
 
-import br.com.ingenieux.mojo.aws.util.GlobUtil;
-import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
+package br.com.ingenieux.mojo.beanstalk.config;
+
 import com.amazonaws.services.elasticbeanstalk.model.DescribeConfigurationSettingsRequest;
 import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import java.util.Collection;
+
+import br.com.ingenieux.mojo.aws.util.GlobUtil;
+import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
@@ -36,8 +40,7 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
  * @since 0.2.0
  */
 @Mojo(name = "describe-configuration-settings")
-public class DescribeConfigurationSettingsMojo extends
-                                               AbstractNeedsEnvironmentMojo {
+public class DescribeConfigurationSettingsMojo extends AbstractNeedsEnvironmentMojo {
 
   /**
    * Template Name
@@ -46,8 +49,7 @@ public class DescribeConfigurationSettingsMojo extends
   String templateName;
 
   @Override
-  protected EnvironmentDescription handleResults(Collection<EnvironmentDescription> environments)
-      throws MojoExecutionException {
+  protected EnvironmentDescription handleResults(Collection<EnvironmentDescription> environments) throws MojoExecutionException {
     try {
       return super.handleResults(environments);
     } catch (Exception exc) {
@@ -57,13 +59,10 @@ public class DescribeConfigurationSettingsMojo extends
     }
   }
 
-  protected Object executeInternal() throws MojoExecutionException,
-                                            MojoFailureException {
+  protected Object executeInternal() throws MojoExecutionException, MojoFailureException {
     boolean bTemplateNameDefined = isNotBlank(templateName) && !GlobUtil.hasWildcards(templateName);
 
-    DescribeConfigurationSettingsRequest
-        req =
-        new DescribeConfigurationSettingsRequest().withApplicationName(applicationName);
+    DescribeConfigurationSettingsRequest req = new DescribeConfigurationSettingsRequest().withApplicationName(applicationName);
 
     if (bTemplateNameDefined) {
       req.withTemplateName(templateName);

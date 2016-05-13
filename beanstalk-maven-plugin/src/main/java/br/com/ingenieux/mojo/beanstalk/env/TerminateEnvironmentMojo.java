@@ -1,11 +1,11 @@
-package br.com.ingenieux.mojo.beanstalk.env;
-
 /*
+ * Copyright (c) 2016 ingenieux Labs
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,8 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package br.com.ingenieux.mojo.beanstalk.env;
 
 import org.apache.maven.plugin.AbstractMojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -43,13 +45,14 @@ public class TerminateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 
   @Override
   protected Object executeInternal() throws AbstractMojoExecutionException {
-    TerminateEnvironmentContext context = TerminateEnvironmentContextBuilder
-        .terminateEnvironmentContext().withEnvironmentId(curEnv.getEnvironmentId())
-        .withEnvironmentName(curEnv.getEnvironmentName())
-        .withTerminateResources(terminateResources).build();
+    TerminateEnvironmentContext context =
+        TerminateEnvironmentContextBuilder.terminateEnvironmentContext()
+            .withEnvironmentId(curEnv.getEnvironmentId())
+            .withEnvironmentName(curEnv.getEnvironmentName())
+            .withTerminateResources(terminateResources)
+            .build();
     TerminateEnvironmentCommand command = new TerminateEnvironmentCommand(this);
 
     return command.execute(context);
   }
-
 }

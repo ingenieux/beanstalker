@@ -1,11 +1,11 @@
-package br.com.ingenieux.mojo.beanstalk.version;
-
 /*
+ * Copyright (c) 2016 ingenieux Labs
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,8 @@ package br.com.ingenieux.mojo.beanstalk.version;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package br.com.ingenieux.mojo.beanstalk.version;
 
 import com.amazonaws.services.elasticbeanstalk.model.DeleteApplicationVersionRequest;
 
@@ -38,8 +40,7 @@ public class DeleteApplicationVersionMojo extends AbstractBeanstalkMojo {
   /**
    * Beanstalk Application Name
    */
-  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
-             required = true)
+  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}", required = true)
   protected String applicationName;
 
   @Parameter(property = "beanstalk.versionLabel", defaultValue = "${project.version}")
@@ -52,8 +53,7 @@ public class DeleteApplicationVersionMojo extends AbstractBeanstalkMojo {
   private boolean deleteSourceBundle;
 
   @Override
-  protected Object executeInternal() throws MojoExecutionException,
-                                            MojoFailureException {
+  protected Object executeInternal() throws MojoExecutionException, MojoFailureException {
     DeleteApplicationVersionRequest req = new DeleteApplicationVersionRequest();
 
     req.setApplicationName(applicationName);
@@ -64,5 +64,4 @@ public class DeleteApplicationVersionMojo extends AbstractBeanstalkMojo {
 
     return null;
   }
-
 }

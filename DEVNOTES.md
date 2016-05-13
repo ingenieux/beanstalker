@@ -24,35 +24,51 @@ Personal notes since I often switch machines, configurations and lose my mind
 
 **Please base it on mbit-whatever, as it is used as a hint by ProjectCleaner to figure out what to cleanup**
 
-## Git / HG
-
-We keep the git mirror mostly as a courtesy to our users. We base ours on hg instead.
-
-  * Installation needs .hgrc correctly ([hg-git](http://hg-git.github.io/) is needed).
-```
-[ui]
-username = John Doe <john@doe.org>
-
-[extensions]
-hgext.git =
-hgext.bookmarks =
-```
-  * On a fresh checkout, github alias must be set:
+## git
 
 ```
-$ cat .hg/hgrc
-[paths]
-default = ssh://hg@bitbucket.org/aldrinleal/beanstalker
-github = git+ssh://git@github.com/ingenieux/beanstalker.git
+$ git config --global core.autocrlf input
 ```
 
-  * ```hg pull -u && hg push github && mvn clean deploy -Prelease && mvn site site-deploy -Prelease```
+## Code Style
+
+Google. Please set up your IDE accordingly prior to submitting pull requests.
 
 ## Release Process
 
 The classical:
 
-```$ mvn release:prepare release:perform -DautoVersionSubmodules=true```
+```
+$ mvn release:prepare release:perform -DautoVersionSubmodules=true
+```
+
+When something fails:
+
+```
+$ mvn release:rollback # (or release:clean)
+$ git tag -d <tagname> && git push origin :refs/tags/<tagname>
+```
+## Idea Setup (copyright)
+
+  * Scope Exp: ```!file:target//*&&!file:src/main/resources/archetype-resources//```
+  * Keyword to detect copyright in comments: "Licensed"
+  * Copyright Text:
+
+```
+Copyright (c) $today.year ingenieux Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```
 
 ## Building on Windows?
 
@@ -78,3 +94,4 @@ The classical:
     https://github.com/aws/aws-toolkit-eclipse/blob/7641a135dbb0571e40aff32f81e11dbf34366431/com.amazonaws.eclipse.ec2/src/com/amazonaws/ec2/cluster/Cluster.java
   * Optimize the build - site/site-deploy seems too slow
   * Update docs site
+

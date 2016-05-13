@@ -1,11 +1,11 @@
-package br.com.ingenieux.mojo.beanstalk.env;
-
 /*
+ * Copyright (c) 2016 ingenieux Labs
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,8 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package br.com.ingenieux.mojo.beanstalk.env;
 
 import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsRequest;
 import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsResult;
@@ -43,8 +45,7 @@ public class DescribeEnvironmentsMojo extends AbstractBeanstalkMojo {
   /**
    * Beanstalk Application Name
    */
-  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
-             required = true)
+  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}", required = true)
   protected String applicationName;
 
   /**
@@ -60,8 +61,7 @@ public class DescribeEnvironmentsMojo extends AbstractBeanstalkMojo {
   File outputFile;
 
   @Override
-  protected Object executeInternal() throws MojoExecutionException,
-                                            MojoFailureException {
+  protected Object executeInternal() throws MojoExecutionException, MojoFailureException {
     DescribeEnvironmentsRequest req = new DescribeEnvironmentsRequest();
 
     req.setApplicationName(applicationName);

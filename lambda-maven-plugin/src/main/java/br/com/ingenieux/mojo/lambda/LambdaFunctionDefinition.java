@@ -1,78 +1,146 @@
+/*
+ * Copyright (c) 2016 ingenieux Labs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package br.com.ingenieux.mojo.lambda;
+
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.apache.commons.lang.builder.CompareToBuilder;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LambdaFunctionDefinition implements Serializable, Comparable<LambdaFunctionDefinition> {
-    String name;
+  String name;
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    String description = "";
+  String alias = "";
 
-    public String getDescription() {
-        return description;
-    }
+  public String getAlias() {
+    return alias;
+  }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  public void setAlias(String alias) {
+    this.alias = alias;
+  }
 
-    int memorySize;
+  String description = "";
 
-    public int getMemorySize() {
-        return memorySize;
-    }
+  public String getDescription() {
+    return description;
+  }
 
-    public void setMemorySize(int memorySize) {
-        this.memorySize = memorySize;
-    }
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    String role;
+  int memorySize;
 
-    public String getRole() {
-        return role;
-    }
+  public int getMemorySize() {
+    return memorySize;
+  }
 
-    public void setRole(String role) {
-        this.role = role;
-    }
+  public void setMemorySize(int memorySize) {
+    this.memorySize = memorySize;
+  }
 
-    int timeout;
+  String role;
 
-    public int getTimeout() {
-        return timeout;
-    }
+  public String getRole() {
+    return role;
+  }
 
-    public void setTimeout(int timeout) {
-        this.timeout = timeout;
-    }
+  public void setRole(String role) {
+    this.role = role;
+  }
 
-    String handler;
+  int timeout;
 
-    public String getHandler() {
-        return handler;
-    }
+  public int getTimeout() {
+    return timeout;
+  }
 
-    public void setHandler(String handler) {
-        this.handler = handler;
-    }
+  public void setTimeout(int timeout) {
+    this.timeout = timeout;
+  }
 
-    @Override
-    public int compareTo(LambdaFunctionDefinition o) {
-        if (null == o)
-            return -1;
+  String handler;
 
-        if (this == o)
-            return 0;
+  public String getHandler() {
+    return handler;
+  }
 
-        return new CompareToBuilder().append(this.name, o.name).toComparison();
-    }
+  public void setHandler(String handler) {
+    this.handler = handler;
+  }
+
+  @Override
+  public int compareTo(LambdaFunctionDefinition o) {
+    if (null == o) return -1;
+
+    if (this == o) return 0;
+
+    return new CompareToBuilder().append(this.name, o.name).toComparison();
+  }
+
+  ObjectNode api;
+
+  public ObjectNode getApi() {
+    return api;
+  }
+
+  public void setApi(ObjectNode api) {
+    this.api = api;
+  }
+
+  List<String> bindings = new ArrayList<>();
+
+  public List<String> getBindings() {
+    return bindings;
+  }
+
+  public void setBindings(List<String> bindings) {
+    this.bindings = bindings;
+  }
+
+  String arn;
+
+  public String getArn() {
+    return arn;
+  }
+
+  public void setArn(String arn) {
+    this.arn = arn;
+  }
+
+  String version;
+
+  public String getVersion() {
+    return version;
+  }
+
+  public void setVersion(String version) {
+    this.version = version;
+  }
 }

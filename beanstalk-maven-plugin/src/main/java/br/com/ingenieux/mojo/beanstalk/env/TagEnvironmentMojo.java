@@ -1,11 +1,11 @@
-package br.com.ingenieux.mojo.beanstalk.env;
-
 /*
+ * Copyright (c) 2016 ingenieux Labs
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,8 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package br.com.ingenieux.mojo.beanstalk.env;
 
 import com.amazonaws.services.elasticbeanstalk.model.CreateConfigurationTemplateRequest;
 import com.amazonaws.services.elasticbeanstalk.model.CreateConfigurationTemplateResult;
@@ -51,8 +53,7 @@ public class TagEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
 
   @Override
   protected Object executeInternal() throws AbstractMojoExecutionException {
-    Set<String> configTemplates = new TreeSet<String>(
-        super.getConfigurationTemplates(applicationName));
+    Set<String> configTemplates = new TreeSet<String>(super.getConfigurationTemplates(applicationName));
     String today = DATE_FORMAT.format(new Date());
 
     if (StringUtils.isBlank(templateName)) {
@@ -63,13 +64,15 @@ public class TagEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
       } while (configTemplates.contains(templateName));
     }
 
-    CreateConfigurationTemplateResult result = getService().createConfigurationTemplate(
-        new CreateConfigurationTemplateRequest().withEnvironmentId(
-            curEnv.getEnvironmentId()).withTemplateName(
-            templateName).withApplicationName(curEnv.getApplicationName()));
+    CreateConfigurationTemplateResult result =
+        getService()
+            .createConfigurationTemplate(
+                new CreateConfigurationTemplateRequest()
+                    .withEnvironmentId(curEnv.getEnvironmentId())
+                    .withTemplateName(templateName)
+                    .withApplicationName(curEnv.getApplicationName()));
 
-    getLog().info("Created config template " + templateName + " for environment " + curEnv
-        .getEnvironmentId());
+    getLog().info("Created config template " + templateName + " for environment " + curEnv.getEnvironmentId());
 
     return result;
   }

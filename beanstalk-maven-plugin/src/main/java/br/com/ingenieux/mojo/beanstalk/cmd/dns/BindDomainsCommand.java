@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2016 ingenieux Labs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package br.com.ingenieux.mojo.beanstalk.cmd.dns;
 
 import com.amazonaws.services.ec2.AmazonEC2;
@@ -44,21 +60,7 @@ import static java.util.Arrays.asList;
 import static org.apache.commons.lang.StringUtils.join;
 import static org.apache.commons.lang.StringUtils.strip;
 
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-public class BindDomainsCommand extends
-                                BaseCommand<BindDomainsContext, Void> {
+public class BindDomainsCommand extends BaseCommand<BindDomainsContext, Void> {
 
   private final AmazonRoute53 r53;
   private final AmazonEC2 ec2;
@@ -69,8 +71,7 @@ public class BindDomainsCommand extends
    *
    * @param parentMojo parent mojo
    */
-  public BindDomainsCommand(AbstractNeedsEnvironmentMojo parentMojo)
-      throws AbstractMojoExecutionException {
+  public BindDomainsCommand(AbstractNeedsEnvironmentMojo parentMojo) throws AbstractMojoExecutionException {
     super(parentMojo);
 
     try {
@@ -86,23 +87,18 @@ public class BindDomainsCommand extends
   protected boolean isSingleInstance(EnvironmentDescription env) {
     Validate.isTrue("WebServer".equals(env.getTier().getName()), "Not a Web Server environment!");
 
-    final DescribeConfigurationSettingsResult
-        describeConfigurationSettingsResult =
-        parentMojo.getService().describeConfigurationSettings(
-            new DescribeConfigurationSettingsRequest()
-                .withApplicationName(env.getApplicationName())
-                .withEnvironmentName(env.getEnvironmentName()));
+    final DescribeConfigurationSettingsResult describeConfigurationSettingsResult =
+        parentMojo
+            .getService()
+            .describeConfigurationSettings(
+                new DescribeConfigurationSettingsRequest().withApplicationName(env.getApplicationName()).withEnvironmentName(env.getEnvironmentName()));
 
-    Validate.isTrue(1 == describeConfigurationSettingsResult.getConfigurationSettings().size(),
-                    "There should be one environment");
+    Validate.isTrue(1 == describeConfigurationSettingsResult.getConfigurationSettings().size(), "There should be one environment");
 
-    final List<ConfigurationOptionSetting>
-        optionSettings =
-        describeConfigurationSettingsResult.getConfigurationSettings().get(0).getOptionSettings();
+    final List<ConfigurationOptionSetting> optionSettings = describeConfigurationSettingsResult.getConfigurationSettings().get(0).getOptionSettings();
 
     for (ConfigurationOptionSetting optionSetting : optionSettings) {
-      if (ConfigUtil.optionSettingMatchesP(optionSetting, "aws:elasticbeanstalk:environment",
-                                           "EnvironmentType")) {
+      if (ConfigUtil.optionSettingMatchesP(optionSetting, "aws:elasticbeanstalk:environment", "EnvironmentType")) {
         return "SingleInstance".equals(optionSetting.getValue());
       }
     }
@@ -124,9 +120,9 @@ public class BindDomainsCommand extends
         String key = formatDomain(domain);
         String value = null;
 
-				/*
-                                 * Handle Entries in the form <record>:<zoneid>
-				 */
+        /*
+         * Handle Entries in the form <record>:<zoneid>
+         */
         if (-1 != key.indexOf(':')) {
           String[] pair = key.split(":", 2);
 
@@ -190,8 +186,7 @@ public class BindDomainsCommand extends
         }
       }
 
-      Validate.isTrue(unresolvedDomains.isEmpty(),
-                      "Domains not resolved: " + join(unresolvedDomains, "; "));
+      Validate.isTrue(unresolvedDomains.isEmpty(), "Domains not resolved: " + join(unresolvedDomains, "; "));
     }
 
     /**
@@ -203,11 +198,9 @@ public class BindDomainsCommand extends
         String zoneId = entry.getValue();
         HostedZone hostedZone = hostedZoneMapping.get(zoneId);
 
-        Validate.notNull(hostedZone,
-                         format("Unknown Hosted Zone Id: %s for Record: %s", zoneId, record));
-        Validate.isTrue(record.endsWith(hostedZone.getName()),
-                        format("Record %s does not map to zoneId %s (domain: %s)", record, zoneId,
-                               hostedZone.getName()));
+        Validate.notNull(hostedZone, format("Unknown Hosted Zone Id: %s for Record: %s", zoneId, record));
+        Validate.isTrue(
+            record.endsWith(hostedZone.getName()), format("Record %s does not map to zoneId %s (domain: %s)", record, zoneId, hostedZone.getName()));
       }
     }
 
@@ -215,18 +208,18 @@ public class BindDomainsCommand extends
      * Step #5: Get ELB Hosted Zone Id - if appliable
      */
     if (!ctx.singleInstance) {
-      String
-          loadBalancerName =
-          parentMojo.getService().describeEnvironmentResources(
-              new DescribeEnvironmentResourcesRequest()
-                  .withEnvironmentId(ctx.getCurEnv().getEnvironmentId())).getEnvironmentResources()
-              .getLoadBalancers().get(0).getName();
+      String loadBalancerName =
+          parentMojo
+              .getService()
+              .describeEnvironmentResources(new DescribeEnvironmentResourcesRequest().withEnvironmentId(ctx.getCurEnv().getEnvironmentId()))
+              .getEnvironmentResources()
+              .getLoadBalancers()
+              .get(0)
+              .getName();
 
-      DescribeLoadBalancersRequest req = new DescribeLoadBalancersRequest(
-          asList(loadBalancerName));
+      DescribeLoadBalancersRequest req = new DescribeLoadBalancersRequest(asList(loadBalancerName));
 
-      List<LoadBalancerDescription> loadBalancers = elb.describeLoadBalancers(req)
-          .getLoadBalancerDescriptions();
+      List<LoadBalancerDescription> loadBalancers = elb.describeLoadBalancers(req).getLoadBalancerDescriptions();
 
       Validate.isTrue(1 == loadBalancers.size(), "Unexpected number of Load Balancers returned");
 
@@ -258,12 +251,9 @@ public class BindDomainsCommand extends
     {
       ResourceRecordSet resourceRecordSet = null;
 
-      ListResourceRecordSetsResult listResourceRecordSets = r53
-          .listResourceRecordSets(new ListResourceRecordSetsRequest(
-              zoneId));
+      ListResourceRecordSetsResult listResourceRecordSets = r53.listResourceRecordSets(new ListResourceRecordSetsRequest(zoneId));
 
-      for (ResourceRecordSet rrs : listResourceRecordSets
-          .getResourceRecordSets()) {
+      for (ResourceRecordSet rrs : listResourceRecordSets.getResourceRecordSets()) {
         if (!rrs.getName().equals(record)) {
           continue;
         }
@@ -278,8 +268,7 @@ public class BindDomainsCommand extends
           info("Excluding resourceRecordSet %s for domain %s", rrs, record);
         }
 
-        changeBatch.getChanges().add(new Change(ChangeAction.DELETE,
-                                                rrs));
+        changeBatch.getChanges().add(new Change(ChangeAction.DELETE, rrs));
       }
     }
 
@@ -299,8 +288,7 @@ public class BindDomainsCommand extends
       resourceRecordSet.setResourceRecords(asList(resourceRecord));
 
       if (isInfoEnabled()) {
-        info("Adding resourceRecordSet %s for domain %s mapped to %s", resourceRecordSet, record,
-             address);
+        info("Adding resourceRecordSet %s for domain %s mapped to %s", resourceRecordSet, record, address);
       }
     } else {
       AliasTarget aliasTarget = new AliasTarget();
@@ -311,8 +299,7 @@ public class BindDomainsCommand extends
       resourceRecordSet.setAliasTarget(aliasTarget);
 
       if (isInfoEnabled()) {
-        info("Adding resourceRecordSet %s for domain %s mapped to %s", resourceRecordSet, record,
-             aliasTarget.getDNSName());
+        info("Adding resourceRecordSet %s for domain %s mapped to %s", resourceRecordSet, record, aliasTarget.getDNSName());
       }
     }
 
@@ -322,8 +309,7 @@ public class BindDomainsCommand extends
       info("Changes to be sent: %s", changeBatch.getChanges());
     }
 
-    ChangeResourceRecordSetsRequest req = new ChangeResourceRecordSetsRequest(
-        zoneId, changeBatch);
+    ChangeResourceRecordSetsRequest req = new ChangeResourceRecordSetsRequest(zoneId, changeBatch);
 
     r53.changeResourceRecordSets(req);
   }

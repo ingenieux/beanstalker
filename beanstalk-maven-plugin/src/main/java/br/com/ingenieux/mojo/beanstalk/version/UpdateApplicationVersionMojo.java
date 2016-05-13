@@ -1,11 +1,11 @@
-package br.com.ingenieux.mojo.beanstalk.version;
-
 /*
+ * Copyright (c) 2016 ingenieux Labs
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,8 @@ package br.com.ingenieux.mojo.beanstalk.version;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package br.com.ingenieux.mojo.beanstalk.version;
 
 import com.amazonaws.services.elasticbeanstalk.model.UpdateApplicationVersionRequest;
 import com.amazonaws.services.elasticbeanstalk.model.UpdateApplicationVersionResult;
@@ -37,8 +39,7 @@ public class UpdateApplicationVersionMojo extends AbstractBeanstalkMojo {
   /**
    * Beanstalk Application Name
    */
-  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
-             required = true)
+  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}", required = true)
   String applicationName;
 
   /**
@@ -57,8 +58,7 @@ public class UpdateApplicationVersionMojo extends AbstractBeanstalkMojo {
     request.setDescription(applicationDescription);
     request.setVersionLabel(versionLabel);
 
-    UpdateApplicationVersionResult result = getService()
-        .updateApplicationVersion(request);
+    UpdateApplicationVersionResult result = getService().updateApplicationVersion(request);
 
     return result.getApplicationVersion();
   }

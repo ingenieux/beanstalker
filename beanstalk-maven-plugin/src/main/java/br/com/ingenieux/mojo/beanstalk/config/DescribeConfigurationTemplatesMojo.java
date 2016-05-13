@@ -1,11 +1,11 @@
-package br.com.ingenieux.mojo.beanstalk.config;
-
 /*
+ * Copyright (c) 2016 ingenieux Labs
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,8 @@ package br.com.ingenieux.mojo.beanstalk.config;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package br.com.ingenieux.mojo.beanstalk.config;
 
 import com.amazonaws.services.elasticbeanstalk.model.ApplicationDescription;
 import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
@@ -51,8 +53,7 @@ public class DescribeConfigurationTemplatesMojo extends AbstractBeanstalkMojo {
   /**
    * Beanstalk Application Name
    */
-  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
-             required = true)
+  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}", required = true)
   protected String applicationName;
 
   /**
@@ -69,19 +70,15 @@ public class DescribeConfigurationTemplatesMojo extends AbstractBeanstalkMojo {
 
   @Override
   protected Object executeInternal() throws Exception {
-    DescribeApplicationsRequest req = new DescribeApplicationsRequest()
-        .withApplicationNames(applicationName);
-    boolean bConfigurationTemplateDefined = StringUtils
-        .isNotBlank(configurationTemplate);
+    DescribeApplicationsRequest req = new DescribeApplicationsRequest().withApplicationNames(applicationName);
+    boolean bConfigurationTemplateDefined = StringUtils.isNotBlank(configurationTemplate);
 
-    DescribeApplicationsResult apps = getService()
-        .describeApplications(req);
+    DescribeApplicationsResult apps = getService().describeApplications(req);
 
     List<ApplicationDescription> applications = apps.getApplications();
 
     if (applications.isEmpty()) {
-      String errorMessage = "Application ('" + applicationName
-                            + "') not found!";
+      String errorMessage = "Application ('" + applicationName + "') not found!";
 
       getLog().warn(errorMessage);
 
@@ -104,31 +101,24 @@ public class DescribeConfigurationTemplatesMojo extends AbstractBeanstalkMojo {
   }
 
   void describeConfigurationTemplate(String configTemplateName) throws Exception {
-    DescribeConfigurationSettingsRequest req = new DescribeConfigurationSettingsRequest()
-        .withApplicationName(applicationName).withTemplateName(
-            configTemplateName);
+    DescribeConfigurationSettingsRequest req =
+        new DescribeConfigurationSettingsRequest().withApplicationName(applicationName).withTemplateName(configTemplateName);
 
-    DescribeConfigurationSettingsResult configSettings = getService()
-        .describeConfigurationSettings(req);
+    DescribeConfigurationSettingsResult configSettings = getService().describeConfigurationSettings(req);
 
     List<String> buf = new ArrayList<String>();
 
     buf.add("<optionSettings>");
 
-    for (ConfigurationSettingsDescription configSetting : configSettings
-        .getConfigurationSettings()) {
-      for (ConfigurationOptionSetting setting : configSetting
-          .getOptionSettings()) {
+    for (ConfigurationSettingsDescription configSetting : configSettings.getConfigurationSettings()) {
+      for (ConfigurationOptionSetting setting : configSetting.getOptionSettings()) {
         if (harmfulOptionSettingP(null, setting)) {
           continue;
         }
         buf.add("  <optionSetting>");
-        buf.add(String.format("    <%s>%s</%1$s>", "namespace",
-                              setting.getNamespace()));
-        buf.add(String.format("    <%s>%s</%1$s>", "optionName",
-                              setting.getOptionName()));
-        buf.add(String.format("    <%s>%s</%1$s>", "value",
-                              setting.getValue()));
+        buf.add(String.format("    <%s>%s</%1$s>", "namespace", setting.getNamespace()));
+        buf.add(String.format("    <%s>%s</%1$s>", "optionName", setting.getOptionName()));
+        buf.add(String.format("    <%s>%s</%1$s>", "value", setting.getValue()));
         buf.add("  </optionSetting>");
       }
     }
@@ -146,8 +136,7 @@ public class DescribeConfigurationTemplatesMojo extends AbstractBeanstalkMojo {
 
         IOUtils.copy(new StringReader(bufChars), writer);
       } catch (IOException e) {
-        throw new RuntimeException("Failure when writing to file: "
-                                   + outputFile.getName(), e);
+        throw new RuntimeException("Failure when writing to file: " + outputFile.getName(), e);
       } finally {
         IOUtils.closeQuietly(writer);
       }

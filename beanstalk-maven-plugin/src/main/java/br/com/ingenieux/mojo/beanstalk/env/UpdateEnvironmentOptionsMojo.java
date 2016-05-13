@@ -1,11 +1,11 @@
-package br.com.ingenieux.mojo.beanstalk.env;
-
 /*
+ * Copyright (c) 2016 ingenieux Labs
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,8 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package br.com.ingenieux.mojo.beanstalk.env;
 
 import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
 import com.amazonaws.services.elasticbeanstalk.model.OptionSpecification;
@@ -39,14 +41,12 @@ public class UpdateEnvironmentOptionsMojo extends AbstractNeedsEnvironmentMojo {
   /**
    * Configuration Option Settings
    */
-  @Parameter
-  ConfigurationOptionSetting[] optionSettings;
+  @Parameter ConfigurationOptionSetting[] optionSettings;
 
   /**
    * Configuration Options To Remove
    */
-  @Parameter
-  OptionSpecification[] optionsToRemove;
+  @Parameter OptionSpecification[] optionsToRemove;
 
   /**
    * Environment Name
@@ -62,9 +62,8 @@ public class UpdateEnvironmentOptionsMojo extends AbstractNeedsEnvironmentMojo {
    * <p>Template Name.</p>
    *
    * <p>Could be either literal or a glob, like, <pre>ingenieux-services-prod-*</pre>. If a glob,
-   * there will
-   * be a lookup involved, and the first one in reverse ASCIIbetical order will be picked upon.
-   * </p>
+   * there will be a lookup involved, and the first one in reverse ASCIIbetical order will be
+   * picked upon. </p>
    */
   @Parameter(property = "beanstalk.templateName")
   String templateName;
@@ -74,8 +73,7 @@ public class UpdateEnvironmentOptionsMojo extends AbstractNeedsEnvironmentMojo {
   @Parameter(property = "beanstalk.whatToSet", defaultValue = "versionLabel", required = true)
   WhatToSet whatToSet;
 
-  protected Object executeInternal() throws MojoExecutionException,
-                                            MojoFailureException {
+  protected Object executeInternal() throws MojoExecutionException, MojoFailureException {
     UpdateEnvironmentRequest req = new UpdateEnvironmentRequest();
 
     req.setEnvironmentId(curEnv.getEnvironmentId());
@@ -90,13 +88,17 @@ public class UpdateEnvironmentOptionsMojo extends AbstractNeedsEnvironmentMojo {
     } else if (WhatToSet.templateName.equals(whatToSet)) {
       req.setTemplateName(lookupTemplateName(applicationName, templateName));
     } else if (WhatToSet.optionsToRemove.equals(whatToSet)) {
-       req.setOptionsToRemove(getOptionsToRemove(optionsToRemove));
+      req.setOptionsToRemove(getOptionsToRemove(optionsToRemove));
     }
 
     return getService().updateEnvironment(req);
   }
 
   public enum WhatToSet {
-    description, optionSettings, templateName, versionLabel, optionsToRemove
+    description,
+    optionSettings,
+    templateName,
+    versionLabel,
+    optionsToRemove
   }
 }

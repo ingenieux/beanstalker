@@ -1,11 +1,11 @@
-package br.com.ingenieux.mojo.beanstalk.sec;
-
 /*
+ * Copyright (c) 2016 ingenieux Labs
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,8 @@ package br.com.ingenieux.mojo.beanstalk.sec;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package br.com.ingenieux.mojo.beanstalk.sec;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -55,8 +57,7 @@ public class ExposeSecurityCredentialsMojo extends AbstractBeanstalkMojo {
   /**
    * Which Server Settings to Expose?
    */
-  @Parameter
-  Expose[] exposes = new Expose[0];
+  @Parameter Expose[] exposes = new Expose[0];
 
   @Parameter(defaultValue = "${project}")
   MavenProject project;
@@ -65,8 +66,7 @@ public class ExposeSecurityCredentialsMojo extends AbstractBeanstalkMojo {
    */
   BuildContext buildContext;
 
-  protected Object executeInternal() throws MojoExecutionException,
-                                            MojoFailureException {
+  protected Object executeInternal() throws MojoExecutionException, MojoFailureException {
     /**
      * Fill in defaults if needed
      */
@@ -82,12 +82,9 @@ public class ExposeSecurityCredentialsMojo extends AbstractBeanstalkMojo {
        */
       try {
         for (Expose e : exposes) {
-          assertOrWarn(StringUtils.isNotBlank(e.getServerId()),
-                       "serverId must be supplied");
-          assertOrWarn(StringUtils.isNotBlank(e.getAccessKey()),
-                       "accessKey must be supplied");
-          assertOrWarn(StringUtils.isNotBlank(e.getSharedKey()),
-                       "sharedKey must be supplied");
+          assertOrWarn(StringUtils.isNotBlank(e.getServerId()), "serverId must be supplied");
+          assertOrWarn(StringUtils.isNotBlank(e.getAccessKey()), "accessKey must be supplied");
+          assertOrWarn(StringUtils.isNotBlank(e.getSharedKey()), "sharedKey must be supplied");
         }
       } catch (IllegalStateException e) {
         return null;
@@ -104,16 +101,17 @@ public class ExposeSecurityCredentialsMojo extends AbstractBeanstalkMojo {
         continue;
       }
 
-      getLog().info(
-          String.format(
-              "Writing Security Settings from serverId ('%s') into properties '%s' (accessKey) and '%s' (secretKey)",
-              e.getServerId(), e.getAccessKey(), e.getSharedKey()));
+      getLog()
+          .info(
+              String.format(
+                  "Writing Security Settings from serverId ('%s') into properties '%s' (accessKey) and '%s' (secretKey)",
+                  e.getServerId(),
+                  e.getAccessKey(),
+                  e.getSharedKey()));
 
-      project.getProperties().put(e.getAccessKey(),
-                                  realExpose.getAccessKey());
+      project.getProperties().put(e.getAccessKey(), realExpose.getAccessKey());
 
-      project.getProperties().put(e.getSharedKey(),
-                                  realExpose.getSharedKey());
+      project.getProperties().put(e.getSharedKey(), realExpose.getSharedKey());
     }
 
     return null;
@@ -125,8 +123,7 @@ public class ExposeSecurityCredentialsMojo extends AbstractBeanstalkMojo {
     }
 
     if (null != buildContext) {
-      buildContext.addMessage(project.getFile(), 1, 1, message,
-                              BuildContext.SEVERITY_WARNING, null);
+      buildContext.addMessage(project.getFile(), 1, 1, message, BuildContext.SEVERITY_WARNING, null);
     } else {
       getLog().warn(message);
     }

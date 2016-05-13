@@ -1,10 +1,10 @@
 .project
 .classpath
 .settings/
+.metadata/
 .idea
 *.iml
 
-src/
 bin/
 target/
 

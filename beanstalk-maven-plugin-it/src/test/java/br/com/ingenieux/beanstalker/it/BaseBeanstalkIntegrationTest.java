@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2016 ingenieux Labs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package br.com.ingenieux.beanstalker.it;
 
 import com.google.inject.Guice;
@@ -31,21 +47,17 @@ import br.com.ingenieux.beanstalker.it.di.CoreModule;
 
 public class BaseBeanstalkIntegrationTest {
 
-  @Inject
-  protected Properties properties;
+  @Inject protected Properties properties;
 
   protected Invoker invoker;
 
-  @Inject
-  protected StrSubstitutor sub;
+  @Inject protected StrSubstitutor sub;
 
   protected File projectDir;
 
-  @Inject
-  protected AWSCredentials credsProvider;
+  @Inject protected AWSCredentials credsProvider;
 
-  @Inject
-  protected AWSElasticBeanstalk service;
+  @Inject protected AWSElasticBeanstalk service;
 
   @Before
   public void setUpProject() throws Exception {
@@ -60,21 +72,21 @@ public class BaseBeanstalkIntegrationTest {
 
       baseDir.mkdirs();
 
-      invoker.execute(new DefaultInvocationRequest()
-                          .setBaseDirectory(baseDir)
-                          .setGoals(
-                              Arrays.asList(r(
-                                  "archetype:generate -DarchetypeVersion=${project.version} -DarchetypeGroupId=br.com.ingenieux -DarchetypeArtifactId=elasticbeanstalk-service-webapp-archetype -DgroupId=br.com.ingenieux -DartifactId=${beanstalk.project.name} -Dversion=0.0.1-SNAPSHOT -Dpackage=br.com.ingenieux.sample -DarchetypeCatalog=local")
-                                                .split("\\s+"))));
+      invoker.execute(
+          new DefaultInvocationRequest()
+              .setBaseDirectory(baseDir)
+              .setGoals(
+                  Arrays.asList(
+                      r(
+                              "archetype:generate -DarchetypeVersion=${project.version} -DarchetypeGroupId=br.com.ingenieux -DarchetypeArtifactId=elasticbeanstalk-service-webapp-archetype -DgroupId=br.com.ingenieux -DartifactId=${beanstalk.project.name} -Dversion=0.0.1-SNAPSHOT -Dpackage=br.com.ingenieux.sample -DarchetypeCatalog=local")
+                          .split("\\s+"))));
     }
     invoker.setWorkingDirectory(projectDir);
   }
 
   public InvocationResult invoke(String mask, Object... args) throws Exception {
     String command = String.format(mask, args);
-    return invoker.execute(new DefaultInvocationRequest().setBaseDirectory(
-        projectDir).setGoals(
-        Arrays.asList(sub.replace(command).split("\\s+"))));
+    return invoker.execute(new DefaultInvocationRequest().setBaseDirectory(projectDir).setGoals(Arrays.asList(sub.replace(command).split("\\s+"))));
   }
 
   @After
@@ -85,9 +97,7 @@ public class BaseBeanstalkIntegrationTest {
       try {
         System.err.println("Terminating environment id=" + ed.getEnvironmentId());
 
-        service.terminateEnvironment(
-            new TerminateEnvironmentRequest().withEnvironmentId(ed.getEnvironmentId())
-                .withTerminateResources(true));
+        service.terminateEnvironment(new TerminateEnvironmentRequest().withEnvironmentId(ed.getEnvironmentId()).withTerminateResources(true));
       } catch (Exception exc) {
         exc.printStackTrace();
       }
@@ -95,9 +105,7 @@ public class BaseBeanstalkIntegrationTest {
   }
 
   protected DescribeEnvironmentsResult getEnvironments() {
-    return service.describeEnvironments(
-        new DescribeEnvironmentsRequest().withApplicationName(r("${beanstalk.project.name}"))
-            .withIncludeDeleted(false));
+    return service.describeEnvironments(new DescribeEnvironmentsRequest().withApplicationName(r("${beanstalk.project.name}")).withIncludeDeleted(false));
   }
 
   protected String r(String text) {

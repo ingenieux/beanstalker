@@ -1,0 +1,35 @@
+#set( $symbol_pound = '#' )
+#set( $symbol_dollar = '$' )
+#set( $symbol_escape = '\' )
+<assembly
+        xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.${version}"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.${version} http://maven.apache.org/xsd/assembly-1.${version}.xsd">
+    <id>build-zip-file</id>
+    <baseDirectory>/</baseDirectory>
+    <formats>
+        <format>zip</format>
+    </formats>
+    <fileSets>
+        <fileSet>
+            <directory>${symbol_dollar}{project.basedir}</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>Procfile</include>
+                <include>Buildfile</include>
+                <include>.ebextensions</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>${symbol_dollar}{project.build.directory}</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>*.jar</include>
+            </includes>
+        </fileSet>
+        <!-- Additional file sets you want to add in.
+        <fileSet>
+        </fileSet>
+        -->
+    </fileSets>
+</assembly>

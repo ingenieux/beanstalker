@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2016 ingenieux Labs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package br.com.ingenieux.beanstalker.it;
 
 import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsResult;
@@ -25,8 +41,7 @@ public class DummyIT extends BaseBeanstalkIntegrationTest {
 
     result = invoke("package deploy -Ps3-deploy");
 
-    assertThat("The deployment shouldn't be a problem, you know.", result.getExitCode(),
-               is(equalTo(0)));
+    assertThat("The deployment shouldn't be a problem, you know.", result.getExitCode(), is(equalTo(0)));
 
     DescribeEnvironmentsResult envs = getEnvironments();
 
@@ -34,11 +49,9 @@ public class DummyIT extends BaseBeanstalkIntegrationTest {
 
     EnvironmentDescription envDesc = envs.getEnvironments().get(0);
 
-    assertThat("This environment name wasn't expected. Really", envDesc.getEnvironmentName(),
-               startsWith(r("${beanstalk.project.name}-env")));
+    assertThat("This environment name wasn't expected. Really", envDesc.getEnvironmentName(), startsWith(r("${beanstalk.project.name}-env")));
 
-    writeIntoFile("src/main/webapp/index.txt", "Hello, World %08X!",
-                  System.currentTimeMillis() / 1000);
+    writeIntoFile("src/main/webapp/index.txt", "Hello, World %08X!", System.currentTimeMillis() / 1000);
 
     result =
         invoke(
@@ -50,19 +63,15 @@ public class DummyIT extends BaseBeanstalkIntegrationTest {
 
     assertThat("Well, we wanted two environments", envs.getEnvironments().size(), is(equalTo(2)));
 
-    writeIntoFile("src/main/webapp/index.txt", "Hello, World %08X!",
-                  System.currentTimeMillis() / 1000);
+    writeIntoFile("src/main/webapp/index.txt", "Hello, World %08X!", System.currentTimeMillis() / 1000);
 
     result = invoke("package deploy -Pbluegreen-s3-deploy", envDesc.getCNAME());
 
     envs = getEnvironments();
 
-    assertThat("Environment Ids must be different",
-               envs.getEnvironments().get(0).getEnvironmentId(),
-               is(not(equalTo(envDesc.getEnvironmentId()))));
+    assertThat("Environment Ids must be different", envs.getEnvironments().get(0).getEnvironmentId(), is(not(equalTo(envDesc.getEnvironmentId()))));
 
-    writeIntoFile("src/main/webapp/index.txt", "Hello, World %08X!",
-                  System.currentTimeMillis() / 1000);
+    writeIntoFile("src/main/webapp/index.txt", "Hello, World %08X!", System.currentTimeMillis() / 1000);
 
     result = invoke("package deploy -Pdeploy", envDesc.getCNAME());
 

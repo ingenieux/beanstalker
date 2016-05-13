@@ -1,11 +1,11 @@
-package br.com.ingenieux.mojo.beanstalk;
-
 /*
+ * Copyright (c) 2016 ingenieux Labs
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,8 @@ package br.com.ingenieux.mojo.beanstalk;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package br.com.ingenieux.mojo.beanstalk;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalk;
@@ -132,17 +134,14 @@ public abstract class BeanstalkTestBase extends AbstractMojoTestCase {
   }
 
   protected File getBasePom(String pomName) {
-    return new File(getBasedir(),
-                    "target/test-classes/br/com/ingenieux/mojo/beanstalk/" + pomName);
+    return new File(getBasedir(), "target/test-classes/br/com/ingenieux/mojo/beanstalk/" + pomName);
   }
 
   @SuppressWarnings("unchecked")
-  protected <T extends AbstractAWSMojo<?>> T getMojo(Class<T> mojoClazz)
-      throws Exception {
+  protected <T extends AbstractAWSMojo<?>> T getMojo(Class<T> mojoClazz) throws Exception {
     File testPom = this.getBasePom("pom.xml");
 
-    PlexusConfiguration pluginConfiguration = extractPluginConfiguration(
-        "beanstalk-maven-plugin", testPom);
+    PlexusConfiguration pluginConfiguration = extractPluginConfiguration("beanstalk-maven-plugin", testPom);
 
     return (T) configureMojo(mojoClazz.newInstance(), pluginConfiguration);
   }
@@ -166,11 +165,7 @@ public abstract class BeanstalkTestBase extends AbstractMojoTestCase {
     DescribeEnvironmentsResult environments = service.describeEnvironments();
 
     for (EnvironmentDescription d : environments.getEnvironments()) {
-      service
-          .terminateEnvironment(new TerminateEnvironmentRequest()
-                                    .withEnvironmentId(d.getEnvironmentId()).withTerminateResources(
-                  true));
+      service.terminateEnvironment(new TerminateEnvironmentRequest().withEnvironmentId(d.getEnvironmentId()).withTerminateResources(true));
     }
   }
-
 }

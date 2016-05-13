@@ -1,11 +1,11 @@
-package br.com.ingenieux.mojo.beanstalk.env;
-
 /*
+ * Copyright (c) 2016 ingenieux Labs
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,12 +14,15 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * limitations under the License.
  */
 
-import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
+package br.com.ingenieux.mojo.beanstalk.env;
+
 import com.amazonaws.services.elasticbeanstalk.model.AbortEnvironmentUpdateRequest;
-import com.amazonaws.services.elasticbeanstalk.model.RestartAppServerRequest;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
+
+import br.com.ingenieux.mojo.beanstalk.AbstractNeedsEnvironmentMojo;
 
 /**
  * Aborts Environment Update
@@ -34,8 +37,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 public class AbortEnvironmentUpdateMojo extends AbstractNeedsEnvironmentMojo {
 
   @Override
-  protected Object executeInternal() throws MojoExecutionException,
-                                            MojoFailureException {
+  protected Object executeInternal() throws MojoExecutionException, MojoFailureException {
     AbortEnvironmentUpdateRequest req = new AbortEnvironmentUpdateRequest();
 
     req.setEnvironmentId(curEnv.getEnvironmentId());

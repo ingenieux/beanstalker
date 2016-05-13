@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2016 ingenieux Labs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package br.com.ingenieux.beanstalker.it;
 
 import com.google.common.base.Predicate;
@@ -16,21 +32,20 @@ import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
 public class ProjectCleaner {
 
-  @Inject
-  AWSElasticBeanstalk service;
-  AbstractBeanstalkMojo nullMojo = new AbstractBeanstalkMojo() {
-    @Override
-    public AWSElasticBeanstalkClient getService() {
-      return (AWSElasticBeanstalkClient) ProjectCleaner.getInstance().service;
-    }
+  @Inject AWSElasticBeanstalk service;
+  AbstractBeanstalkMojo nullMojo =
+      new AbstractBeanstalkMojo() {
+        @Override
+        public AWSElasticBeanstalkClient getService() {
+          return (AWSElasticBeanstalkClient) ProjectCleaner.getInstance().service;
+        }
 
-    @Override
-    protected Object executeInternal() throws Exception {
-      return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-  };
-  private Predicate<? super EnvironmentDescription>
-      activeEnvironmentPredicate =
+        @Override
+        protected Object executeInternal() throws Exception {
+          return null; //To change body of implemented methods use File | Settings | File Templates.
+        }
+      };
+  private Predicate<? super EnvironmentDescription> activeEnvironmentPredicate =
       new Predicate<EnvironmentDescription>() {
         @Override
         public boolean apply(EnvironmentDescription t) {
@@ -70,9 +85,7 @@ public class ProjectCleaner {
 
       info("Deleting application");
 
-      service.deleteApplication(
-          new DeleteApplicationRequest().withApplicationName(appDesc.getApplicationName())
-              .withTerminateEnvByForce(true));
+      service.deleteApplication(new DeleteApplicationRequest().withApplicationName(appDesc.getApplicationName()).withTerminateEnvByForce(true));
     }
   }
 

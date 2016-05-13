@@ -1,7 +1,0 @@
-.classpath
-.project
-.settings
-target
-tmp-git-deployment-staging
-syntax:glob
-*.log

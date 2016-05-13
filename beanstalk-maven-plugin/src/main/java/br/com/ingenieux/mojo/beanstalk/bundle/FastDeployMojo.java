@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2016 ingenieux Labs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package br.com.ingenieux.mojo.beanstalk.bundle;
 
 import com.amazonaws.services.elasticbeanstalk.model.ApplicationVersionDescription;
@@ -43,8 +59,7 @@ public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
   /**
    * Git Staging Dir (should not be under target/)
    */
-  @Parameter(property = "beanstalk.stagingDirectory",
-             defaultValue = "${project.basedir}/tmp-git-deployment-staging")
+  @Parameter(property = "beanstalk.stagingDirectory", defaultValue = "${project.basedir}/tmp-git-deployment-staging")
   File stagingDirectory;
 
   /**
@@ -90,8 +105,7 @@ public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
 
     String commitId = null;
 
-    Ref masterRef = git.getRepository()
-        .getRef("master");
+    Ref masterRef = git.getRepository().getRef("master");
     if (null != masterRef) {
       commitId = ObjectId.toString(masterRef.getObjectId());
     }
@@ -104,12 +118,10 @@ public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
       versionLabel = lookupVersionLabelForCommitId(commitId);
 
       if (null == versionLabel) {
-        getLog().info(
-            "No Changes. However, we've didn't get something close in AWS Elastic Beanstalk and we're pushing ahead");
+        getLog().info("No Changes. However, we've didn't get something close in AWS Elastic Beanstalk and we're pushing ahead");
         pushAhead = true;
       } else {
-        getLog().info(
-            "No Changes. However, we've got something close in AWS Elastic Beanstalk and we're continuing");
+        getLog().info("No Changes. However, we've got something close in AWS Elastic Beanstalk and we're continuing");
 
         project.getProperties().put("beanstalk.versionLabel", versionLabel);
 
@@ -136,17 +148,16 @@ public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
 
       git.commit().setAll(true).setMessage(versionDescription).call();
 
-      masterRef = git.getRepository()
-          .getRef("master");
+      masterRef = git.getRepository().getRef("master");
 
       commitId = ObjectId.toString(masterRef.getObjectId());
     }
 
     String environmentName = null;
 
-		/*
-                 * Builds the remote push URL
-		 */
+    /*
+     * Builds the remote push URL
+     */
     if (null != curEnv && !skipEnvironmentUpdate) {
       environmentName = curEnv.getEnvironmentName();
     }
@@ -155,12 +166,13 @@ public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
 
     getLog().info("Using remote: " + remote);
 
-		/*
-                 * Does the Push
-		 */
+    /*
+     * Does the Push
+     */
     {
-      PushCommand cmd = git.//
-          push();
+      PushCommand cmd =
+          git. //
+              push();
 
       if (!silentUpload) {
         cmd.setProgressMonitor(new TextProgressMonitor());
@@ -168,18 +180,22 @@ public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
 
       Iterable<PushResult> pushResults = null;
       try {
-        pushResults = cmd.setRefSpecs(new RefSpec("HEAD:refs/heads/master")).//
-            setForce(true).//
-            setRemote(remote).//
-            call();
+        pushResults =
+            cmd.setRefSpecs(new RefSpec("HEAD:refs/heads/master"))
+                . //
+                setForce(true)
+                . //
+                setRemote(remote)
+                . //
+                call();
       } catch (Exception exc) {
         // Ignore
         getLog().debug("(Actually Expected) Exception", exc);
       }
 
-			/*
-                         * I wish someday it could work... :(
-			 */
+      /*
+       * I wish someday it could work... :(
+       */
       if (null != pushResults) {
         for (PushResult pushResult : pushResults) {
           getLog().debug(" * " + pushResult.getMessages());
@@ -201,19 +217,15 @@ public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
   }
 
   protected String getRemoteUrl(String commitId, String environmentName) throws org.apache.maven.plugin.MojoFailureException {
-    return new RequestSigner(getAWSCredentials(), applicationName,
-                                      regionName, commitId, environmentName, new Date())
-        .getPushUrl();
+    return new RequestSigner(getAWSCredentials(), applicationName, regionName, commitId, environmentName, new Date()).getPushUrl();
   }
 
   protected String lookupVersionLabelForCommitId(String commitId) throws Exception {
     String versionLabel = null;
     String prefixToLookup = format("git-%s-", commitId);
 
-    DescribeApplicationVersionsResult
-        describeApplicationVersions =
-        getService().describeApplicationVersions(
-            new DescribeApplicationVersionsRequest().withApplicationName(applicationName));
+    DescribeApplicationVersionsResult describeApplicationVersions =
+        getService().describeApplicationVersions(new DescribeApplicationVersionsRequest().withApplicationName(applicationName));
 
     for (ApplicationVersionDescription avd : describeApplicationVersions.getApplicationVersions()) {
       if (avd.getVersionLabel().startsWith(prefixToLookup)) {
@@ -240,9 +252,7 @@ public class FastDeployMojo extends AbstractNeedsEnvironmentMojo {
       File gitRepo = stagingDirectory;
       Repository r = null;
 
-      RepositoryBuilder
-          b =
-          new RepositoryBuilder().setGitDir(stagingDirectory).setWorkTree(sourceDirectory);
+      RepositoryBuilder b = new RepositoryBuilder().setGitDir(stagingDirectory).setWorkTree(sourceDirectory);
 
       if (!gitRepo.exists()) {
         gitRepo.getParentFile().mkdirs();

@@ -1,27 +1,11 @@
-package br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor;
-
-import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
-import br.com.ingenieux.mojo.beanstalk.cmd.BaseCommand;
-import com.amazonaws.services.elasticbeanstalk.model.*;
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Collections2;
-import org.apache.commons.lang.Validate;
-import org.apache.maven.plugin.MojoExecutionException;
-
-import java.util.*;
-import java.util.regex.Pattern;
-
-import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.defaultString;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-
 /*
+ * Copyright (c) 2016 ingenieux Labs
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,8 +13,42 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-public class WaitForEnvironmentCommand extends
-                                       BaseCommand<WaitForEnvironmentContext, EnvironmentDescription> {
+
+package br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor;
+
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+import com.google.common.collect.Collections2;
+
+import com.amazonaws.regions.Region;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeEnvironmentsRequest;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeEventsRequest;
+import com.amazonaws.services.elasticbeanstalk.model.DescribeEventsResult;
+import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
+import com.amazonaws.services.elasticbeanstalk.model.EventDescription;
+
+import org.apache.commons.lang.Validate;
+import org.apache.maven.plugin.MojoExecutionException;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
+import br.com.ingenieux.mojo.beanstalk.cmd.BaseCommand;
+import br.com.ingenieux.mojo.beanstalk.util.EnvironmentHostnameUtil;
+
+import static java.lang.String.format;
+import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
+
+public class WaitForEnvironmentCommand extends BaseCommand<WaitForEnvironmentContext, EnvironmentDescription> {
 
   /**
    * Poll Interval
@@ -46,30 +64,21 @@ public class WaitForEnvironmentCommand extends
    *
    * @param parentMojo parent mojo
    */
-  public WaitForEnvironmentCommand(AbstractBeanstalkMojo parentMojo)
-      throws MojoExecutionException {
+  public WaitForEnvironmentCommand(AbstractBeanstalkMojo parentMojo) throws MojoExecutionException {
     super(parentMojo);
   }
 
   public Collection<EnvironmentDescription> lookupInternal(WaitForEnvironmentContext context) {
-    List<Predicate<EnvironmentDescription>>
-        envPredicates =
-        getEnvironmentDescriptionPredicate(context);
+    List<Predicate<EnvironmentDescription>> envPredicates = getEnvironmentDescriptionPredicate(context);
 
-    DescribeEnvironmentsRequest
-        req =
-        new DescribeEnvironmentsRequest().withApplicationName(context.getApplicationName())
-            .withIncludeDeleted(true);
+    DescribeEnvironmentsRequest req = new DescribeEnvironmentsRequest().withApplicationName(context.getApplicationName()).withIncludeDeleted(true);
 
-    final List<EnvironmentDescription>
-        envs =
-        parentMojo.getService().describeEnvironments(req).getEnvironments();
+    final List<EnvironmentDescription> envs = parentMojo.getService().describeEnvironments(req).getEnvironments();
 
     return Collections2.filter(envs, Predicates.and(envPredicates));
   }
 
-  protected List<Predicate<EnvironmentDescription>> getEnvironmentDescriptionPredicate(
-      WaitForEnvironmentContext context) {
+  protected List<Predicate<EnvironmentDescription>> getEnvironmentDescriptionPredicate(WaitForEnvironmentContext context) {
     // as well as those (which are used as predicate variables, thus being
     // final)
     final String environmentRef = context.getEnvironmentRef();
@@ -85,27 +94,29 @@ public class WaitForEnvironmentCommand extends
 
     // argument juggling
 
-    List<Predicate<EnvironmentDescription>>
-        result =
-        new ArrayList<Predicate<EnvironmentDescription>>();
+    List<Predicate<EnvironmentDescription>> result = new ArrayList<Predicate<EnvironmentDescription>>();
+
+    Matcher hostMatcher = EnvironmentHostnameUtil.PATTERN_HOSTNAME.matcher(environmentRef);
 
     if (environmentRef.matches("e-\\p{Alnum}{10}")) {
-      result.add(new Predicate<EnvironmentDescription>() {
-        @Override
-        public boolean apply(EnvironmentDescription t) {
-          return t.getEnvironmentId().equals(environmentRef);
-        }
-      });
+      result.add(
+          new Predicate<EnvironmentDescription>() {
+            @Override
+            public boolean apply(EnvironmentDescription t) {
+              return t.getEnvironmentId().equals(environmentRef);
+            }
+          });
 
       info("... with environmentId equal to '%s'", environmentRef);
-    } else if (environmentRef.matches(".*\\Q.elasticbeanstalk.com\\E")) {
-      result.add(new Predicate<EnvironmentDescription>() {
-        @Override
-        public boolean apply(EnvironmentDescription t) {
-          return defaultString(t.getCNAME()).equals(environmentRef);
-        }
-      });
-      info("... with cname set to '%s'", environmentRef);
+    } else if (hostMatcher.matches()) {
+      final Region region = parentMojo.getRegion();
+      final String cnamePrefix = hostMatcher.group("cnamePrefix");
+
+      final Predicate<EnvironmentDescription> predicate = EnvironmentHostnameUtil.getHostnamePredicate(region, cnamePrefix);
+
+      result.add(predicate);
+
+      info(predicate.toString());
     } else {
       String tmpRE = Pattern.quote(environmentRef);
 
@@ -115,12 +126,13 @@ public class WaitForEnvironmentCommand extends
 
       final String environmentRefNameRE = tmpRE;
 
-      result.add(new Predicate<EnvironmentDescription>() {
-        @Override
-        public boolean apply(EnvironmentDescription t) {
-          return t.getEnvironmentName().matches(environmentRefNameRE);
-        }
-      });
+      result.add(
+          new Predicate<EnvironmentDescription>() {
+            @Override
+            public boolean apply(EnvironmentDescription t) {
+              return t.getEnvironmentName().matches(environmentRefNameRE);
+            }
+          });
 
       info("... with environmentName matching re '%s'", environmentRefNameRE);
     }
@@ -131,34 +143,34 @@ public class WaitForEnvironmentCommand extends
       final int offset = negated ? 1 : 0;
       final String vStatusToWaitFor = statusToWaitFor.substring(offset);
 
-      result.add(new Predicate<EnvironmentDescription>() {
-        public boolean apply(EnvironmentDescription t) {
+      result.add(
+          new Predicate<EnvironmentDescription>() {
+            public boolean apply(EnvironmentDescription t) {
 
-          boolean result = vStatusToWaitFor.equals(t.getStatus());
+              boolean result = vStatusToWaitFor.equals(t.getStatus());
 
-          if (negated) {
-            result = !result;
-          }
+              if (negated) {
+                result = !result;
+              }
 
-          debug("testing status '%s' as equal as '%s' (negated? %s, offset: %d): %s",
-                vStatusToWaitFor, t.getStatus(), negated, offset,
-                result);
+              debug("testing status '%s' as equal as '%s' (negated? %s, offset: %d): %s", vStatusToWaitFor, t.getStatus(), negated, offset, result);
 
-          return result;
-        }
-      });
+              return result;
+            }
+          });
 
       info("... with status %s set to '%s'", (negated ? "*NOT*" : " "), vStatusToWaitFor);
     }
 
     {
       if (isNotBlank(healthToWaitFor)) {
-        result.add(new Predicate<EnvironmentDescription>() {
-          @Override
-          public boolean apply(EnvironmentDescription t) {
-            return t.getHealth().equals(healthToWaitFor);
-          }
-        });
+        result.add(
+            new Predicate<EnvironmentDescription>() {
+              @Override
+              public boolean apply(EnvironmentDescription t) {
+                return t.getHealth().equals(healthToWaitFor);
+              }
+            });
 
         info("... with health equal to '%s'", healthToWaitFor);
       }
@@ -166,49 +178,36 @@ public class WaitForEnvironmentCommand extends
     return result;
   }
 
-  public EnvironmentDescription executeInternal(
-      WaitForEnvironmentContext context) throws Exception {
+  public EnvironmentDescription executeInternal(WaitForEnvironmentContext context) throws Exception {
     // Those are invariants
     long timeoutMins = context.getTimeoutMins();
 
-    Date expiresAt = new Date(System.currentTimeMillis() + MINS_TO_MSEC
-                                                           * timeoutMins);
+    Date expiresAt = new Date(System.currentTimeMillis() + MINS_TO_MSEC * timeoutMins);
     Date lastMessageRecord = new Date();
 
     info("Environment Lookup");
 
-    List<Predicate<EnvironmentDescription>>
-        envPredicates =
-        getEnvironmentDescriptionPredicate(context);
+    List<Predicate<EnvironmentDescription>> envPredicates = getEnvironmentDescriptionPredicate(context);
     Predicate<EnvironmentDescription> corePredicate = envPredicates.get(0);
     Predicate<EnvironmentDescription> fullPredicate = Predicates.and(envPredicates);
 
     do {
-      DescribeEnvironmentsRequest
-          req =
-          new DescribeEnvironmentsRequest().withApplicationName(context.getApplicationName())
-              .withIncludeDeleted(true);
+      DescribeEnvironmentsRequest req = new DescribeEnvironmentsRequest().withApplicationName(context.getApplicationName()).withIncludeDeleted(true);
 
-      final List<EnvironmentDescription>
-          envs =
-          parentMojo.getService().describeEnvironments(req).getEnvironments();
+      final List<EnvironmentDescription> envs = parentMojo.getService().describeEnvironments(req).getEnvironments();
 
-      Collection<EnvironmentDescription>
-          validEnvironments =
-          Collections2.filter(envs, fullPredicate);
+      Collection<EnvironmentDescription> validEnvironments = Collections2.filter(envs, fullPredicate);
 
       debug("There are %d environments", validEnvironments.size());
 
       if (1 == validEnvironments.size()) {
-        EnvironmentDescription foundEnvironment = validEnvironments.iterator()
-            .next();
+        EnvironmentDescription foundEnvironment = validEnvironments.iterator().next();
 
         debug("Found environment %s", foundEnvironment);
 
         return foundEnvironment;
       } else {
-        debug("Found %d environments. No good. Ignoring.",
-              validEnvironments.size());
+        debug("Found %d environments. No good. Ignoring.", validEnvironments.size());
 
         for (EnvironmentDescription d : validEnvironments) {
           debug(" ... %s", d);
@@ -216,24 +215,20 @@ public class WaitForEnvironmentCommand extends
 
         // ... but have we've got any closer match? If so, dump recent events
 
-        Collection<EnvironmentDescription>
-            foundEnvironments =
-            Collections2.filter(envs, corePredicate);
+        Collection<EnvironmentDescription> foundEnvironments = Collections2.filter(envs, corePredicate);
 
         if (1 == foundEnvironments.size()) {
           EnvironmentDescription foundEnvironment = foundEnvironments.iterator().next();
 
-          DescribeEventsResult events = service
-              .describeEvents(new DescribeEventsRequest()
-                                  .withApplicationName(foundEnvironment.getApplicationName())
-                                  .withStartTime(
-                                      new Date(1000 + lastMessageRecord
-                                          .getTime()))
-                                  .withEnvironmentId(foundEnvironment.getEnvironmentId())
-                                  .withSeverity("TRACE"));
+          DescribeEventsResult events =
+              service.describeEvents(
+                  new DescribeEventsRequest()
+                      .withApplicationName(foundEnvironment.getApplicationName())
+                      .withStartTime(new Date(1000 + lastMessageRecord.getTime()))
+                      .withEnvironmentId(foundEnvironment.getEnvironmentId())
+                      .withSeverity("TRACE"));
 
-          Set<EventDescription> eventList = new TreeSet<EventDescription>(
-              new EventDescriptionComparator());
+          Set<EventDescription> eventList = new TreeSet<EventDescription>(new EventDescriptionComparator());
 
           eventList.addAll(events.getEvents());
 
@@ -241,9 +236,7 @@ public class WaitForEnvironmentCommand extends
             info("%s %s %s", d.getSeverity(), d.getEventDate(), d.getMessage());
 
             if (d.getSeverity().equals(("ERROR"))) {
-              throw new MojoExecutionException(
-                  "Something went wrong in while waiting for the environment setup to complete : "
-                  + d.getMessage());
+              throw new MojoExecutionException("Something went wrong in while waiting for the environment setup to complete : " + d.getMessage());
             }
             lastMessageRecord = d.getEventDate();
           }
@@ -268,8 +261,7 @@ public class WaitForEnvironmentCommand extends
     }
   }
 
-  static class EventDescriptionComparator implements
-                                          Comparator<EventDescription> {
+  static class EventDescriptionComparator implements Comparator<EventDescription> {
 
     @Override
     public int compare(EventDescription o1, EventDescription o2) {

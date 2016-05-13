@@ -1,11 +1,11 @@
-package br.com.ingenieux.mojo.beanstalk.config;
-
 /*
+ * Copyright (c) 2016 ingenieux Labs
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,8 @@ package br.com.ingenieux.mojo.beanstalk.config;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package br.com.ingenieux.mojo.beanstalk.config;
 
 import com.amazonaws.services.elasticbeanstalk.model.DeleteConfigurationTemplateRequest;
 
@@ -37,8 +39,7 @@ public class DeleteConfigurationTemplateMojo extends AbstractBeanstalkMojo {
   /**
    * Beanstalk Application Name
    */
-  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
-             required = true)
+  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}", required = true)
   String applicationName;
 
   /**
@@ -50,15 +51,12 @@ public class DeleteConfigurationTemplateMojo extends AbstractBeanstalkMojo {
   /**
    * Configuration Templates
    */
-  @Parameter
-  ConfigurationTemplate[] configurationTemplates;
+  @Parameter ConfigurationTemplate[] configurationTemplates;
 
   @Override
-  protected Object executeInternal() throws MojoExecutionException,
-                                            MojoFailureException {
+  protected Object executeInternal() throws MojoExecutionException, MojoFailureException {
 
-    boolean bConfigurationTemplateDefined = StringUtils
-        .isNotBlank(configurationTemplate);
+    boolean bConfigurationTemplateDefined = StringUtils.isNotBlank(configurationTemplate);
 
     if (bConfigurationTemplateDefined) {
       deleteConfiguration(configurationTemplate);
@@ -73,11 +71,8 @@ public class DeleteConfigurationTemplateMojo extends AbstractBeanstalkMojo {
 
   void deleteConfiguration(String templateName) {
 
-    DeleteConfigurationTemplateRequest
-        req =
-        new DeleteConfigurationTemplateRequest(applicationName, templateName);
+    DeleteConfigurationTemplateRequest req = new DeleteConfigurationTemplateRequest(applicationName, templateName);
 
     getService().deleteConfigurationTemplate(req);
   }
-
 }

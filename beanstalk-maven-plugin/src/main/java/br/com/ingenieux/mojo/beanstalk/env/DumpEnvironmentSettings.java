@@ -1,11 +1,11 @@
-package br.com.ingenieux.mojo.beanstalk.env;
-
 /*
+ * Copyright (c) 2016 ingenieux Labs
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,8 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package br.com.ingenieux.mojo.beanstalk.env;
 
 import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionDescription;
 import com.amazonaws.services.elasticbeanstalk.model.ConfigurationOptionSetting;
@@ -65,28 +67,21 @@ public class DumpEnvironmentSettings extends AbstractNeedsEnvironmentMojo {
   @Parameter(property = "beanstalk.changedOnly", defaultValue = "true")
   private boolean changedOnly;
 
-  private Map<String, ConfigurationOptionDescription>
-      defaultSettings =
-      new TreeMap<String, ConfigurationOptionDescription>();
+  private Map<String, ConfigurationOptionDescription> defaultSettings = new TreeMap<String, ConfigurationOptionDescription>();
 
   protected Object executeInternal() throws Exception {
-    DescribeConfigurationOptionsResult configOptions = getService()
-        .describeConfigurationOptions(
-            new DescribeConfigurationOptionsRequest()
-                .withApplicationName(applicationName)
-                .withEnvironmentName(
-                    curEnv.getEnvironmentName()));
+    DescribeConfigurationOptionsResult configOptions =
+        getService()
+            .describeConfigurationOptions(
+                new DescribeConfigurationOptionsRequest().withApplicationName(applicationName).withEnvironmentName(curEnv.getEnvironmentName()));
 
     for (ConfigurationOptionDescription o : configOptions.getOptions()) {
-      String key = String.format("beanstalk.env.%s.%s", o.getNamespace()
-          .replace(":", "."), o.getName());
+      String key = String.format("beanstalk.env.%s.%s", o.getNamespace().replace(":", "."), o.getName());
 
-      for (Map.Entry<String, ConfigurationOptionSetting> entry : COMMON_PARAMETERS
-          .entrySet()) {
+      for (Map.Entry<String, ConfigurationOptionSetting> entry : COMMON_PARAMETERS.entrySet()) {
         ConfigurationOptionSetting cos = entry.getValue();
 
-        if (cos.getNamespace().equals(o.getNamespace())
-            && cos.getOptionName().equals(o.getName())) {
+        if (cos.getNamespace().equals(o.getNamespace()) && cos.getOptionName().equals(o.getName())) {
           key = entry.getKey();
           break;
         }
@@ -95,41 +90,32 @@ public class DumpEnvironmentSettings extends AbstractNeedsEnvironmentMojo {
       defaultSettings.put(key, o);
     }
 
-    DescribeConfigurationSettingsResult configurationSettings = getService()
-        .describeConfigurationSettings(
-            new DescribeConfigurationSettingsRequest()
-                .withApplicationName(applicationName)
-                .withEnvironmentName(
-                    curEnv.getEnvironmentName()));
+    DescribeConfigurationSettingsResult configurationSettings =
+        getService()
+            .describeConfigurationSettings(
+                new DescribeConfigurationSettingsRequest().withApplicationName(applicationName).withEnvironmentName(curEnv.getEnvironmentName()));
 
     Properties newProperties = new Properties();
 
     if (configurationSettings.getConfigurationSettings().isEmpty()) {
-      throw new IllegalStateException(
-          "No Configuration Settings received");
+      throw new IllegalStateException("No Configuration Settings received");
     }
 
-    ConfigurationSettingsDescription configSettings = configurationSettings
-        .getConfigurationSettings().get(0);
+    ConfigurationSettingsDescription configSettings = configurationSettings.getConfigurationSettings().get(0);
 
-    Map<String, ConfigurationOptionSetting>
-        keyMap =
-        new LinkedHashMap<String, ConfigurationOptionSetting>();
+    Map<String, ConfigurationOptionSetting> keyMap = new LinkedHashMap<String, ConfigurationOptionSetting>();
 
     for (ConfigurationOptionSetting d : configSettings.getOptionSettings()) {
-      String key = String.format("beanstalk.env.%s.%s", d.getNamespace()
-          .replaceAll(":", "."), d.getOptionName());
+      String key = String.format("beanstalk.env.%s.%s", d.getNamespace().replaceAll(":", "."), d.getOptionName());
       String defaultValue = "";
       String outputKey = key;
 
       keyMap.put(key, d);
 
-      for (Map.Entry<String, ConfigurationOptionSetting> cosEntry : COMMON_PARAMETERS
-          .entrySet()) {
+      for (Map.Entry<String, ConfigurationOptionSetting> cosEntry : COMMON_PARAMETERS.entrySet()) {
         ConfigurationOptionSetting v = cosEntry.getValue();
 
-        boolean match = v.getNamespace().equals(d.getNamespace())
-                        && v.getOptionName().equals(d.getOptionName());
+        boolean match = v.getNamespace().equals(d.getNamespace()) && v.getOptionName().equals(d.getOptionName());
 
         if (match) {
           outputKey = cosEntry.getKey();
@@ -138,8 +124,7 @@ public class DumpEnvironmentSettings extends AbstractNeedsEnvironmentMojo {
       }
 
       if (defaultSettings.containsKey(outputKey)) {
-        defaultValue = StringUtils.defaultString(defaultSettings.get(
-            outputKey).getDefaultValue());
+        defaultValue = StringUtils.defaultString(defaultSettings.get(outputKey).getDefaultValue());
       }
 
       String value = d.getValue();
@@ -153,8 +138,7 @@ public class DumpEnvironmentSettings extends AbstractNeedsEnvironmentMojo {
           getLog().info("Adding property " + key);
 
           if (changedOnly) {
-            String curValue = project.getProperties().getProperty(
-                outputKey);
+            String curValue = project.getProperties().getProperty(outputKey);
 
             if (!value.equals(curValue)) {
               newProperties.put(outputKey, value);
@@ -163,12 +147,7 @@ public class DumpEnvironmentSettings extends AbstractNeedsEnvironmentMojo {
             newProperties.put(outputKey, value);
           }
         } else {
-          getLog().info(
-              "Ignoring property "
-              + outputKey
-              + "(value="
-              + value
-              + ") due to containing references to the environment id");
+          getLog().info("Ignoring property " + outputKey + "(value=" + value + ") due to containing references to the environment id");
         }
 
       } else {
@@ -177,8 +156,7 @@ public class DumpEnvironmentSettings extends AbstractNeedsEnvironmentMojo {
     }
 
     if ("properties".equals(this.outputFileFormat)) {
-      String comment = "elastic beanstalk environment properties for "
-                       + curEnv.getEnvironmentName();
+      String comment = "elastic beanstalk environment properties for " + curEnv.getEnvironmentName();
       if (null != outputFile) {
         newProperties.store(new FileOutputStream(outputFile), comment);
       } else {

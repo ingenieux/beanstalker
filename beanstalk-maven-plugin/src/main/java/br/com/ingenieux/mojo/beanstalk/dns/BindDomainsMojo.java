@@ -1,11 +1,11 @@
-package br.com.ingenieux.mojo.beanstalk.dns;
-
 /*
+ * Copyright (c) 2016 ingenieux Labs
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,8 @@ package br.com.ingenieux.mojo.beanstalk.dns;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package br.com.ingenieux.mojo.beanstalk.dns;
 
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -37,21 +39,18 @@ public class BindDomainsMojo extends AbstractNeedsEnvironmentMojo {
   /**
    * <p>List of Domains</p>
    *
-   * <p>Could be set as either:</p> <ul> <li>fqdn:hostedZoneId (e.g. "services.modafocas.org:Z3DJ4DL0DIEEJA")</li>
-   * <li>hosted zone name - will be set to root. (e.g., "modafocas.org")</li> </ul>
+   * <p>Could be set as either:</p> <ul> <li>fqdn:hostedZoneId (e.g.
+   * "services.modafocas.org:Z3DJ4DL0DIEEJA")</li> <li>hosted zone name - will be set to root.
+   * (e.g., "modafocas.org")</li> </ul>
    */
   @Parameter(property = "beanstalk.domains")
   String[] domains;
 
   @Override
   protected Object executeInternal() throws Exception {
-    final BindDomainsContext
-        ctx =
-        new BindDomainsContextBuilder().withCurEnv(this.curEnv).withDomains(asList(domains))
-            .build();
+    final BindDomainsContext ctx = new BindDomainsContextBuilder().withCurEnv(this.curEnv).withDomains(asList(domains)).build();
 
-    new BindDomainsCommand(this).execute(
-        ctx);
+    new BindDomainsCommand(this).execute(ctx);
 
     return null;
   }

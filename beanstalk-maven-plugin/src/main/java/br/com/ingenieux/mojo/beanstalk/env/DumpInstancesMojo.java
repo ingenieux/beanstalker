@@ -1,11 +1,11 @@
-package br.com.ingenieux.mojo.beanstalk.env;
-
 /*
+ * Copyright (c) 2016 ingenieux Labs
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,8 @@ package br.com.ingenieux.mojo.beanstalk.env;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package br.com.ingenieux.mojo.beanstalk.env;
 
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2Client;
@@ -62,21 +64,17 @@ public class DumpInstancesMojo extends AbstractNeedsEnvironmentMojo {
   protected Object executeInternal() throws Exception {
     AmazonEC2 ec2 = clientFactory.getService(AmazonEC2Client.class);
 
-    DescribeEnvironmentResourcesResult envResources = getService()
-        .describeEnvironmentResources(
-            new DescribeEnvironmentResourcesRequest()
-                .withEnvironmentId(curEnv.getEnvironmentId())
-                .withEnvironmentName(
-                    curEnv.getEnvironmentName()));
+    DescribeEnvironmentResourcesResult envResources =
+        getService()
+            .describeEnvironmentResources(
+                new DescribeEnvironmentResourcesRequest().withEnvironmentId(curEnv.getEnvironmentId()).withEnvironmentName(curEnv.getEnvironmentName()));
     List<String> instanceIds = new ArrayList<String>();
 
     for (Instance i : envResources.getEnvironmentResources().getInstances()) {
       instanceIds.add(i.getId());
     }
 
-    DescribeInstancesResult ec2Instances = ec2
-        .describeInstances(new DescribeInstancesRequest()
-                               .withInstanceIds(instanceIds));
+    DescribeInstancesResult ec2Instances = ec2.describeInstances(new DescribeInstancesRequest().withInstanceIds(instanceIds));
 
     PrintStream printStream = null;
 
@@ -86,9 +84,7 @@ public class DumpInstancesMojo extends AbstractNeedsEnvironmentMojo {
 
     for (Reservation r : ec2Instances.getReservations()) {
       for (com.amazonaws.services.ec2.model.Instance i : r.getInstances()) {
-        String ipAddress = dumpPrivateAddresses ? i
-            .getPrivateIpAddress() : StringUtils.defaultString(
-            i.getPublicIpAddress(), i.getPrivateDnsName());
+        String ipAddress = dumpPrivateAddresses ? i.getPrivateIpAddress() : StringUtils.defaultString(i.getPublicIpAddress(), i.getPrivateDnsName());
         String instanceId = i.getInstanceId();
 
         if (null != printStream) {

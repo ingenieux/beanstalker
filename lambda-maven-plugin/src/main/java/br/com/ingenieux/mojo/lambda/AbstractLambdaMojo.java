@@ -1,14 +1,11 @@
-package br.com.ingenieux.mojo.lambda;
-
-import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
-import com.amazonaws.services.lambda.AWSLambdaClient;
-
 /*
+ * Copyright (c) 2016 ingenieux Labs
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,9 +14,13 @@ import com.amazonaws.services.lambda.AWSLambdaClient;
  * limitations under the License.
  */
 
+package br.com.ingenieux.mojo.lambda;
+
+import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
+
+import com.amazonaws.services.lambda.AWSLambdaClient;
+
 /**
  * A Mojo for AWS Lambda Projects
  */
-public abstract class AbstractLambdaMojo extends AbstractAWSMojo<AWSLambdaClient> {
-
-}
+public abstract class AbstractLambdaMojo extends AbstractAWSMojo<AWSLambdaClient> {}

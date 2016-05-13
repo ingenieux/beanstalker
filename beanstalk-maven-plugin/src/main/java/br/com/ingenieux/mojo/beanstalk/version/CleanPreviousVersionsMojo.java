@@ -1,11 +1,11 @@
-package br.com.ingenieux.mojo.beanstalk.version;
-
 /*
+ * Copyright (c) 2016 ingenieux Labs
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,8 @@ package br.com.ingenieux.mojo.beanstalk.version;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package br.com.ingenieux.mojo.beanstalk.version;
 
 import com.amazonaws.services.elasticbeanstalk.model.ApplicationVersionDescription;
 import com.amazonaws.services.elasticbeanstalk.model.DeleteApplicationVersionRequest;
@@ -38,8 +40,6 @@ import java.util.regex.Pattern;
 
 import br.com.ingenieux.mojo.beanstalk.AbstractBeanstalkMojo;
 
-import static java.lang.String.format;
-
 /**
  * Deletes application versions, either by count and/or by date old
  *
@@ -51,8 +51,7 @@ public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
   /**
    * Beanstalk Application Name
    */
-  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}",
-             required = true)
+  @Parameter(property = "beanstalk.applicationName", defaultValue = "${project.artifactId}", required = true)
   String applicationName;
 
   /**
@@ -89,54 +88,34 @@ public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
   private int deletedVersionsCount;
 
   @Override
-  protected Object executeInternal() throws MojoExecutionException,
-                                            MojoFailureException {
+  protected Object executeInternal() throws MojoExecutionException, MojoFailureException {
     boolean bVersionsToKeepDefined = (null != versionsToKeep);
     boolean bDaysToKeepDefined = (null != daysToKeep);
 
     if (!(bVersionsToKeepDefined ^ bDaysToKeepDefined)) {
-      throw new MojoFailureException(
-          "Declare either versionsToKeep or daysToKeep, but not both nor none!");
+      throw new MojoFailureException("Declare either versionsToKeep or daysToKeep, but not both nor none!");
     }
 
-    DescribeApplicationVersionsRequest
-        describeApplicationVersionsRequest =
-        new DescribeApplicationVersionsRequest()
-            .withApplicationName(applicationName);
+    DescribeApplicationVersionsRequest describeApplicationVersionsRequest = new DescribeApplicationVersionsRequest().withApplicationName(applicationName);
 
-    DescribeApplicationVersionsResult appVersions = getService()
-        .describeApplicationVersions(describeApplicationVersionsRequest);
+    DescribeApplicationVersionsResult appVersions = getService().describeApplicationVersions(describeApplicationVersionsRequest);
 
-    DescribeEnvironmentsRequest 
-        req = new DescribeEnvironmentsRequest().withApplicationName(applicationName);
+    DescribeEnvironmentsResult environments = getService().describeEnvironments(new DescribeEnvironmentsRequest().withApplicationName(applicationName));
 
-    DescribeEnvironmentsResult environments = getService().describeEnvironments(req);
-
-    List<ApplicationVersionDescription>
-        appVersionList =
-        new ArrayList<ApplicationVersionDescription>(
-            appVersions.getApplicationVersions());
+    List<ApplicationVersionDescription> appVersionList = new ArrayList<ApplicationVersionDescription>(appVersions.getApplicationVersions());
 
     deletedVersionsCount = 0;
 
     for (EnvironmentDescription d : environments.getEnvironments()) {
-      boolean bActiveEnvironment = (d.getStatus().equals("Running")
-                                    || d.getStatus().equals("Launching") || d.getStatus()
-          .equals("Ready"));
+      boolean bActiveEnvironment = (d.getStatus().equals("Running") || d.getStatus().equals("Launching") || d.getStatus().equals("Ready"));
 
-      for (ListIterator<ApplicationVersionDescription> appVersionIterator = appVersionList
-          .listIterator(); appVersionIterator.hasNext(); ) {
-        ApplicationVersionDescription appVersion = appVersionIterator
-            .next();
+      for (ListIterator<ApplicationVersionDescription> appVersionIterator = appVersionList.listIterator(); appVersionIterator.hasNext(); ) {
+        ApplicationVersionDescription appVersion = appVersionIterator.next();
 
-        boolean bMatchesVersion = appVersion.getVersionLabel().equals(
-            d.getVersionLabel());
+        boolean bMatchesVersion = appVersion.getVersionLabel().equals(d.getVersionLabel());
 
         if (bActiveEnvironment && bMatchesVersion) {
-          getLog().info(
-              "VersionLabel " + appVersion.getVersionLabel()
-              + " is bound to environment "
-              + d.getEnvironmentName() + " - Skipping it");
+          getLog().info("VersionLabel " + appVersion.getVersionLabel() + " is bound to environment " + d.getEnvironmentName() + " - Skipping it");
 
           appVersionIterator.remove();
         }
@@ -145,16 +124,14 @@ public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
 
     filterAppVersionListByVersionLabelPattern(appVersionList, cleanFilter);
 
-    Collections.sort(appVersionList,
-                     new Comparator<ApplicationVersionDescription>() {
-                       @Override
-                       public int compare(ApplicationVersionDescription o1,
-                                          ApplicationVersionDescription o2) {
-                         return new CompareToBuilder().append(
-                             o1.getDateUpdated(), o2.getDateUpdated())
-                             .toComparison();
-                       }
-                     });
+    Collections.sort(
+        appVersionList,
+        new Comparator<ApplicationVersionDescription>() {
+          @Override
+          public int compare(ApplicationVersionDescription o1, ApplicationVersionDescription o2) {
+            return new CompareToBuilder().append(o1.getDateUpdated(), o2.getDateUpdated()).toComparison();
+          }
+        });
 
     if (bDaysToKeepDefined) {
       Date now = new Date();
@@ -168,10 +145,7 @@ public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
         boolean shouldDeleteP = (delta > daysToKeep);
 
         if (getLog().isDebugEnabled()) {
-          getLog().debug(
-              "Version " + d.getVersionLabel() + " was from "
-              + delta + " days ago. Should we delete? "
-              + shouldDeleteP);
+          getLog().debug("Version " + d.getVersionLabel() + " was from " + delta + " days ago. Should we delete? " + shouldDeleteP);
         }
 
         if (shouldDeleteP) {
@@ -184,20 +158,19 @@ public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
       }
     }
 
-    getLog().info(
-        "Deleted " + deletedVersionsCount + " versions.");
+    getLog().info("Deleted " + deletedVersionsCount + " versions.");
 
     return null;
   }
 
   void deleteVersion(ApplicationVersionDescription versionToRemove) {
-    getLog().info(
-        "Must delete version: " + versionToRemove.getVersionLabel());
+    getLog().info("Must delete version: " + versionToRemove.getVersionLabel());
 
-    DeleteApplicationVersionRequest req = new DeleteApplicationVersionRequest()
-        .withApplicationName(versionToRemove.getApplicationName())//
-        .withDeleteSourceBundle(deleteSourceBundle)//
-        .withVersionLabel(versionToRemove.getVersionLabel());
+    DeleteApplicationVersionRequest req =
+        new DeleteApplicationVersionRequest()
+            .withApplicationName(versionToRemove.getApplicationName()) //
+            .withDeleteSourceBundle(deleteSourceBundle) //
+            .withVersionLabel(versionToRemove.getVersionLabel());
 
     if (!dryRun) {
       getService().deleteApplicationVersion(req);
@@ -205,23 +178,17 @@ public class CleanPreviousVersionsMojo extends AbstractBeanstalkMojo {
     }
   }
 
-  void filterAppVersionListByVersionLabelPattern(List<ApplicationVersionDescription> appVersionList,
-                                                 String patternString) {
+  void filterAppVersionListByVersionLabelPattern(List<ApplicationVersionDescription> appVersionList, String patternString) {
     if (patternString == null) {
       return;
     }
 
-    getLog().info(
-        "Filtering versions with pattern : " + patternString);
+    getLog().info("Filtering versions with pattern : " + patternString);
 
     Pattern p = Pattern.compile(patternString);
-    for (ListIterator<ApplicationVersionDescription> appVersionIterator = appVersionList
-        .listIterator(); appVersionIterator.hasNext(); ) {
+    for (ListIterator<ApplicationVersionDescription> appVersionIterator = appVersionList.listIterator(); appVersionIterator.hasNext(); ) {
 
-      if (!p.matcher(appVersionIterator
-                         .next()
-                         .getVersionLabel())
-          .matches()) {
+      if (!p.matcher(appVersionIterator.next().getVersionLabel()).matches()) {
         appVersionIterator.remove();
       }
     }
