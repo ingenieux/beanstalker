@@ -78,11 +78,18 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
    */
   public static final Pattern KEY_STAGE_VARIABLE_REGEX = Pattern.compile("^apigateway\\.stage\\.([^\\.]{3,}).(.+)$");
 
-  private static final String STR_TEMPLATE_LAMBDA_METHOD =
-      "{\"x-amazon-apigateway-integration\":{\"type\":\"aws\",\"requestTemplates\":{\"application/json\":\"##  See http://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-mapping-template-reference.html\\n##  This template will pass through all parameters including path, querystring, header, stage variables, and context through to the integration endpoint via the body/payload\\n#set($allParams = $input.params())\\n{\\n\\\"body-json\\\" : $input.json('$'),\\n\\\"params\\\" : {\\n#foreach($type in $allParams.keySet())\\n    #set($params = $allParams.get($type))\\n\\\"$type\\\" : {\\n    #foreach($paramName in $params.keySet())\\n    \\\"$paramName\\\" : \\\"$util.escapeJavaScript($params.get($paramName))\\\"\\n        #if($foreach.hasNext),#end\\n    #end\\n}\\n    #if($foreach.hasNext),#end\\n#end\\n},\\n\\\"stage-variables\\\" : {\\n#foreach($key in $stageVariables.keySet())\\n\\\"$key\\\" : \\\"$util.escapeJavaScript($stageVariables.get($key))\\\"\\n    #if($foreach.hasNext),#end\\n#end\\n},\\n\\\"context\\\" : {\\n    \\\"account-id\\\" : \\\"$context.identity.accountId\\\",\\n    \\\"api-id\\\" : \\\"$context.apiId\\\",\\n    \\\"api-key\\\" : \\\"$context.identity.apiKey\\\",\\n    \\\"authorizer-principal-id\\\" : \\\"$context.authorizer.principalId\\\",\\n    \\\"caller\\\" : \\\"$context.identity.caller\\\",\\n    \\\"cognito-authentication-provider\\\" : \\\"$context.identity.cognitoAuthenticationProvider\\\",\\n    \\\"cognito-authentication-type\\\" : \\\"$context.identity.cognitoAuthenticationType\\\",\\n    \\\"cognito-identity-id\\\" : \\\"$context.identity.cognitoIdentityId\\\",\\n    \\\"cognito-identity-pool-id\\\" : \\\"$context.identity.cognitoIdentityPoolId\\\",\\n    \\\"http-method\\\" : \\\"$context.httpMethod\\\",\\n    \\\"stage\\\" : \\\"$context.stage\\\",\\n    \\\"source-ip\\\" : \\\"$context.identity.sourceIp\\\",\\n    \\\"user\\\" : \\\"$context.identity.user\\\",\\n    \\\"user-agent\\\" : \\\"$context.identity.userAgent\\\",\\n    \\\"user-arn\\\" : \\\"$context.identity.userArn\\\",\\n    \\\"request-id\\\" : \\\"$context.requestId\\\",\\n    \\\"resource-id\\\" : \\\"$context.resourceId\\\",\\n    \\\"resource-path\\\" : \\\"$context.resourcePath\\\"\\n    }\\n}\\n\"},\"uri\":\"\",\"httpMethod\":\"POST\",\"responses\":{\"default\":{\"statusCode\":\"200\"}}},\"responses\":{\"200\":{\"schema\":{\"$ref\":\"#/definitions/Empty\"},\"description\":\"200 response\"}},\"produces\":[\"application/json\"],\"consumes\":[\"application/json\"]}";
+  private static final String STR_TEMPLATE_LAMBDA_METHOD = loadResourceAsString("lambda-method.json");
 
   private static final String STR_TEMPLATE_CORS_METHOD =
-      "{\"x-amazon-apigateway-integration\":{\"type\":\"mock\",\"requestTemplates\":{\"application/json\":\"{\\\"statusCode\\\": 200}\"},\"responses\":{\"default\":{\"responseParameters\":{\"method.response.header.Access-Control-Allow-Origin\":\"'*'\",\"method.response.header.Access-Control-Allow-Headers\":\"'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'\",\"method.response.header.Access-Control-Allow-Methods\":\"'POST,OPTIONS'\"},\"statusCode\":\"200\"}}},\"responses\":{\"200\":{\"headers\":{\"Access-Control-Allow-Headers\":{\"type\":\"string\"},\"Access-Control-Allow-Methods\":{\"type\":\"string\"},\"Access-Control-Allow-Origin\":{\"type\":\"string\"}},\"schema\":{\"$ref\":\"#/definitions/Empty\"},\"description\":\"200 response\"}},\"produces\":[\"application/json\"],\"consumes\":[\"application/json\"]}";
+      loadResourceAsString("cors-method.json");
+
+  private static String loadResourceAsString(String name) {
+    try {
+      return IOUtils.toString(CreateOrUpdateMojo.class.getClassLoader().getResource("templates/" + name));
+    } catch (Exception exc) {
+      throw new IllegalStateException("While loading template: " + name, exc);
+    }
+  }
 
   private static final Pattern PATTERN_PARAMETER = Pattern.compile("\\{(\\w+)\\}");
 
