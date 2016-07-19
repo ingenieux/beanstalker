@@ -36,7 +36,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.reflect.FieldUtils;
@@ -44,7 +43,6 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.PluginParameterExpressionEvaluator;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Proxy;
@@ -57,7 +55,7 @@ import org.codehaus.plexus.context.ContextException;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Contextualizable;
 
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -68,6 +66,7 @@ import br.com.ingenieux.mojo.aws.util.AWSClientFactory;
 import br.com.ingenieux.mojo.aws.util.TypeUtil;
 
 import static java.lang.String.format;
+
 /**
  * Represents a Mojo which keeps AWS passwords <p/> TODO: Refactor into tiny, delegated classes.
  * Currently its a huge bloat, but it works, right? <p/> <p> <b>NOTE:</b> Settings in this class use
@@ -120,8 +119,7 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends 
 
   protected Context context;
   /**
-   * <p> Service region e.g. &quot;us-east-1&quot; </p>
-   * <p> See <a href="http://docs.amazonwebservices.com/general/latest/gr/rande.html"
+   * <p> Service region e.g. &quot;us-east-1&quot; </p> <p> See <a href="http://docs.amazonwebservices.com/general/latest/gr/rande.html"
    * >this list</a> for reference. </p>
    */
   @Parameter(property = "beanstalker.region")
@@ -130,14 +128,14 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends 
   protected Region regionObj;
 
   protected final ObjectMapper objectMapper =
-      new ObjectMapper()
-          .enable(SerializationFeature.INDENT_OUTPUT)
-          .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-          //https://github.com/ingenieux/beanstalker/issues/87 - Decouple the serialization of AWS responses to avoid warning mgs
-          .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
-          .enable(JsonParser.Feature.ALLOW_COMMENTS)
-          .enable(JsonParser.Feature.ALLOW_YAML_COMMENTS)
-          .enable(JsonParser.Feature.STRICT_DUPLICATE_DETECTION);
+    new ObjectMapper()
+      .enable(SerializationFeature.INDENT_OUTPUT)
+      .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+      //https://github.com/ingenieux/beanstalker/issues/87 - Decouple the serialization of AWS responses to avoid warning mgs
+      .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+      .enable(JsonParser.Feature.ALLOW_COMMENTS)
+      .enable(JsonParser.Feature.ALLOW_YAML_COMMENTS)
+      .enable(JsonParser.Feature.STRICT_DUPLICATE_DETECTION);
 
   public Region getRegion() {
     if (null != regionObj) {
@@ -168,11 +166,11 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends 
   class BeanstalkerAWSCredentialsProviderChain extends AWSCredentialsProviderChain {
     public BeanstalkerAWSCredentialsProviderChain(String serverId, String profileName) {
       super(
-          new ExposeCredentialsProvider(serverId),
-          new EnvironmentVariableCredentialsProvider(),
-          new SystemPropertiesCredentialsProvider(),
-          new ProfileCredentialsProvider(profileName),
-          new InstanceProfileCredentialsProvider());
+        new ExposeCredentialsProvider(serverId),
+        new EnvironmentVariableCredentialsProvider(),
+        new SystemPropertiesCredentialsProvider(),
+        new ProfileCredentialsProvider(profileName),
+        new InstanceProfileCredentialsProvider());
     }
   }
 
@@ -200,7 +198,8 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends 
     }
 
     @Override
-    public void refresh() {}
+    public void refresh() {
+    }
   }
 
   public AWSCredentialsProvider getAWSCredentials() throws MojoFailureException {
@@ -348,22 +347,30 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends 
   final Properties properties = new Properties();
 
   protected Properties getProperties() {
-    try {
-      if (properties.isEmpty()) {
-        Object curProjectAsObject = null;
-        if (null != (curProjectAsObject = BeanUtils.getProperty(this, "curProject"))) {
-          MavenProject curProject = (MavenProject) curProjectAsObject;
+    if (properties.isEmpty()) {
+      try {
+        for (Class<?> c = this.getClass(); null != c; c = c.getSuperclass()) {
+          Field f = FieldUtils.getField(c, "curProject", true);
 
-          properties.putAll(curProject.getProperties());
+          if (null != f) {
+            Object curProjectAsObject = f.get(this);
+
+            MavenProject curProject = (MavenProject) curProjectAsObject;
+
+            properties.putAll(curProject.getProperties());
+
+            break;
+          }
         }
-        properties.putAll(session.getSystemProperties());
-        properties.putAll(session.getUserProperties());
+      } catch (Exception exc) {
+        throw new IllegalStateException(exc);
       }
 
-      return properties;
-    } catch (Exception exc) {
-      throw new IllegalStateException(exc);
+      properties.putAll(session.getSystemProperties());
+      properties.putAll(session.getUserProperties());
     }
+
+    return properties;
   }
 
   public S getService() {
@@ -402,7 +409,8 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends 
   /**
    * Extension Point - Meant for others to declare and redefine variables as needed.
    */
-  protected void configure() {}
+  protected void configure() {
+  }
 
   public void handleException(Exception e) throws MojoExecutionException, MojoFailureException {
     /*
