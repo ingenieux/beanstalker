@@ -180,7 +180,7 @@ public class PushStackMojo extends AbstractCloudformationMojo {
       templateBody = new StrSubstitutor(new StrLookup<String>() {
         @Override
         public String lookup(String key) {
-          return (String) propsgi.get(key);
+          return (String) props.get(key);
         }
       }).replace(templateBody);
     }
