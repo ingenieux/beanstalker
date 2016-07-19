@@ -31,6 +31,8 @@ import com.amazonaws.services.cloudformation.model.ValidateTemplateResult;
 import com.amazonaws.services.s3.AmazonS3URI;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.text.StrLookup;
+import org.apache.commons.lang3.text.StrSubstitutor;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
@@ -39,6 +41,8 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -170,6 +174,15 @@ public class PushStackMojo extends AbstractCloudformationMojo {
       uploadContents(templateLocation, destinationS3Uri);
     } else {
       templateBody = IOUtils.toString(new FileInputStream(this.templateLocation));
+
+      final Properties props = getProperties();
+
+      templateBody = new StrSubstitutor(new StrLookup<String>() {
+        @Override
+        public String lookup(String key) {
+          return (String) propsgi.get(key);
+        }
+      }).replace(templateBody);
     }
 
     {

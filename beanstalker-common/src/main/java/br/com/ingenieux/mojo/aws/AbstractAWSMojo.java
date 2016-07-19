@@ -36,14 +36,17 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
+import org.apache.commons.lang.reflect.FieldUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.PluginParameterExpressionEvaluator;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Proxy;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
@@ -54,6 +57,7 @@ import org.codehaus.plexus.context.ContextException;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Contextualizable;
 
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -338,6 +342,27 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends 
       return clientFactory.getService(serviceClass);
     } catch (Exception exc) {
       throw new MojoExecutionException("Unable to create service", exc);
+    }
+  }
+
+  final Properties properties = new Properties();
+
+  protected Properties getProperties() {
+    try {
+      if (properties.isEmpty()) {
+        Object curProjectAsObject = null;
+        if (null != (curProjectAsObject = BeanUtils.getProperty(this, "curProject"))) {
+          MavenProject curProject = (MavenProject) curProjectAsObject;
+
+          properties.putAll(curProject.getProperties());
+        }
+        properties.putAll(session.getSystemProperties());
+        properties.putAll(session.getUserProperties());
+      }
+
+      return properties;
+    } catch (Exception exc) {
+      throw new IllegalStateException(exc);
     }
   }
 

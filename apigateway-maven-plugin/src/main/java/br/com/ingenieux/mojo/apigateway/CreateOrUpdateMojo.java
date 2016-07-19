@@ -525,16 +525,6 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
     return result;
   }
 
-  protected Properties getProperties() {
-    Properties p = new Properties();
-
-    p.putAll(session.getSystemProperties());
-    p.putAll(curProject.getProperties());
-    p.putAll(session.getUserProperties());
-
-    return p;
-  }
-
   private void createOrUpdateRestApi() throws Exception {
     super.lookupIds();
 
