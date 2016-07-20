@@ -81,7 +81,7 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
   private static final String STR_TEMPLATE_LAMBDA_METHOD = loadResourceAsString("lambda-method.json");
 
   private static final String STR_TEMPLATE_CORS_METHOD =
-      loadResourceAsString("cors-method.json");
+    loadResourceAsString("cors-method.json");
 
   private static String loadResourceAsString(String name) {
     try {
@@ -152,6 +152,12 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
   protected Boolean overwriteDefinitions;
 
   /**
+   * Overwrite Definitions (otherwise, merge)
+   */
+  @Parameter(property = "apigateway.overwriteDefinitions", required = true, defaultValue = "false")
+  protected Boolean skipInterpolate;
+
+  /**
    * Parameters
    */
   @Parameter(property = "apigateway.parameters", required = false)
@@ -202,11 +208,23 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
   }
 
   private void initConstants() throws Exception {
-    this.templateChildNode = (ObjectNode) objectMapper.readTree(STR_TEMPLATE_LAMBDA_METHOD);
+    try {
+      this.templateChildNode = (ObjectNode) objectMapper.readTree(STR_TEMPLATE_LAMBDA_METHOD);
+    } catch (Exception exc) {
+      getLog().warn("While building template credentials node:", exc);
+    }
 
-    this.templateChildNode.with("x-amazon-apigateway-integration").put("credentials", roleResolver.lookupRoleGlob("*/apigateway-lambda-invoker"));
+    try {
+      this.templateChildNode.with("x-amazon-apigateway-integration").put("credentials", roleResolver.lookupRoleGlob("*/apigateway-lambda-invoker"));
+    } catch (Exception exc) {
+      getLog().warn("While building template credentials node:", exc);
+    }
 
-    this.templateOptionsNode = (ObjectNode) objectMapper.readTree(STR_TEMPLATE_CORS_METHOD);
+    try {
+      this.templateOptionsNode = (ObjectNode) objectMapper.readTree(STR_TEMPLATE_CORS_METHOD);
+    } catch (Exception exc) {
+      getLog().warn("While building template credentials node:", exc);
+    }
   }
 
   private CreateDeploymentResult deploy() {
@@ -214,15 +232,15 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
      * Step #1: Doing the stage itself
      */
     CreateDeploymentRequest req =
-        new CreateDeploymentRequest()
-            .withRestApiId(restApiId)
-            .withStageName(stageName)
-            .withDescription(deploymentDescription)
-            .withStageName(stageName)
-            .withStageDescription(stageNameDescription)
-            .withCacheClusterEnabled(cacheClusterEnabled)
-            .withCacheClusterSize(cacheClusterSize)
-            .withVariables(getStageVariables(stageName));
+      new CreateDeploymentRequest()
+        .withRestApiId(restApiId)
+        .withStageName(stageName)
+        .withDescription(deploymentDescription)
+        .withStageName(stageName)
+        .withStageDescription(stageNameDescription)
+        .withCacheClusterEnabled(cacheClusterEnabled)
+        .withCacheClusterSize(cacheClusterSize)
+        .withVariables(getStageVariables(stageName));
 
     getLog().info("Creating Deployment Request: " + req);
 
@@ -241,67 +259,83 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
     return Collections.emptyMap();
   }
 
-  private void cleanupPermissions() {}
+  private void cleanupPermissions() {
+  }
 
   private void initProperties() {
-    getProperties()
-        .entrySet()
-        .stream()
-        .map(e -> KEY_PARAM_REGEX.matcher(e.getKey() + ""))
-        .filter(m -> m.matches())
-        .forEach(
-            m -> {
-              String k = m.group(1);
-              String v = curProject.getProperties().getProperty(m.group(0), "");
+    final Properties props = getProperties();
 
-              if (isEmpty(v) && parameters.containsKey(k)) {
-                getLog().info("Removing parameter " + k);
+    props
+      .entrySet()
+      .stream()
+      .map(e -> KEY_PARAM_REGEX.matcher(e.getKey() + ""))
+      .filter(m -> m.matches())
+      .forEach(
+        m -> {
+          String k = m.group(1);
+          String v = curProject.getProperties().getProperty(m.group(0), "");
 
-                parameters.remove(k);
+          if (isEmpty(v) && parameters.containsKey(k)) {
+            getLog().info("Removing parameter " + k);
 
-              } else {
-                getLog().info("Updating parameter " + k + ": " + v);
+            parameters.remove(k);
 
-                parameters.put(k, v);
-              }
-            });
+          } else {
+            getLog().info("Updating parameter " + k + ": " + v);
 
-    getProperties()
-        .entrySet()
-        .stream()
-        .map(e -> KEY_STAGE_VARIABLE_REGEX.matcher(e.getKey() + ""))
-        .filter(m -> m.matches())
-        .forEach(
-            m -> {
-              String env = m.group(1);
-              String k = m.group(2);
-              String v = curProject.getProperties().getProperty(m.group(0), "");
+            parameters.put(k, v);
+          }
+        });
 
-              Map<String, String> stageVariablesForEnv = stageVariables.get(env);
+    props
+      .entrySet()
+      .stream()
+      .map(e -> KEY_STAGE_VARIABLE_REGEX.matcher(e.getKey() + ""))
+      .filter(m -> m.matches())
+      .forEach(
+        m -> {
+          String env = m.group(1);
+          String k = m.group(2);
+          String v = curProject.getProperties().getProperty(m.group(0), "");
 
-              if (null == stageVariablesForEnv) {
-                stageVariablesForEnv = new LinkedHashMap<String, String>();
+          Map<String, String> stageVariablesForEnv = stageVariables.get(env);
 
-                stageVariables.put(env, stageVariablesForEnv);
-              }
+          if (null == stageVariablesForEnv) {
+            stageVariablesForEnv = new LinkedHashMap<String, String>();
 
-              if (isEmpty(v) && stageVariablesForEnv.containsKey(k)) {
-                getLog().info("Removing stage variable " + k);
+            stageVariables.put(env, stageVariablesForEnv);
+          }
 
-                stageVariablesForEnv.remove(k);
-              } else {
-                getLog().info("Updating stage variable " + k + ": " + v);
+          if (isEmpty(v) && stageVariablesForEnv.containsKey(k)) {
+            getLog().info("Removing stage variable " + k);
 
-                stageVariablesForEnv.put(k, v);
-              }
-            });
+            stageVariablesForEnv.remove(k);
+          } else {
+            getLog().info("Updating stage variable " + k + ": " + v);
+
+            stageVariablesForEnv.put(k, v);
+          }
+        });
+
+    if (props.containsKey("apigateway.restApiId")) {
+      restApiId = props.getProperty("apigateway.restApiId");
+    }
+
+    if (props.containsKey("apigateway.restApiName")) {
+      restApiName = props.getProperty("apigateway.restApiName");
+    }
+
+//    if (props.containsKey("apigateway.restApiHost")) {
+//      restApiHost = props.getProperty("apigateway.restApiHost");
+//    }
   }
 
   protected void loadLambdaDefinitions() throws Exception {
     if (null != lambdasFile && lambdasFile.exists()) {
       getLog().info("Loading lambdas from " + lambdasFile.getPath());
 
-      Map<String, LambdaDefinition> defs = objectMapper.readValue(lambdasFile, new TypeReference<Map<String, LambdaDefinition>>() {});
+      Map<String, LambdaDefinition> defs = objectMapper.readValue(lambdasFile, new TypeReference<Map<String, LambdaDefinition>>() {
+      });
 
       this.lambdaDefinitions = defs.values().stream().filter(x -> null != x.getApi()).collect(Collectors.toList());
 
@@ -313,13 +347,13 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
     getLog().info("Uploading definitions update (overwrite mode?: " + overwriteDefinitions + ")");
 
     final PutRestApiResult result =
-        getService()
-            .putRestApi(
-                new PutRestApiRequest()
-                    .withRestApiId(restApiId)
-                    .withMode(this.overwriteDefinitions ? PutMode.Overwrite : PutMode.Merge)
-                    .withBody(ByteBuffer.wrap(body.getBytes(DEFAULT_CHARSET)))
-                    .withParameters(parameters));
+      getService()
+        .putRestApi(
+          new PutRestApiRequest()
+            .withRestApiId(restApiId)
+            .withMode(this.overwriteDefinitions ? PutMode.Overwrite : PutMode.Merge)
+            .withBody(ByteBuffer.wrap(body.getBytes(DEFAULT_CHARSET)))
+            .withParameters(parameters));
 
     getLog().debug("result: " + result);
 
@@ -338,11 +372,11 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
     deploymentFileContents = new StrSubstitutor(getProperties()).replace(deploymentFileContents);
 
     // IMPROVE THIS
-    {
+    if (!skipInterpolate) {
       deploymentFileContents = deploymentFileContents.replaceAll("\\Qarn:aws:iam:::role/\\E", "arn:aws:iam::" + accountId + ":role/");
 
       deploymentFileContents =
-          deploymentFileContents.replaceAll("\\Qarn:aws:lambda:\\E[\\w\\-]*:\\d*:", "arn:aws:lambda:" + regionName + ":" + accountId + ":");
+        deploymentFileContents.replaceAll("\\Qarn:aws:lambda:\\E[\\w\\-]*:\\d*:", "arn:aws:lambda:" + regionName + ":" + accountId + ":");
     }
 
     getLog().debug("Contents: " + deploymentFileContents);
@@ -363,8 +397,10 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
   protected void mergeLambdas(ObjectNode swaggerDefinition) throws Exception {
     getLog().info("Loaded " + lambdaDefinitions.size() + " active lambda definitions.");
 
-    if (lambdaDefinitions.isEmpty()) {
+    if (lambdaDefinitions.isEmpty() || skipInterpolate) {
       getLog().info("Skipping interpolation.");
+
+      return;
     }
 
     ObjectNode pathNode = swaggerDefinition.with("paths");
@@ -405,11 +441,11 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
     }
 
     Map<String, Set<String>> corsPaths =
-        lambdaDefinitions
-            .stream()
-            .filter(x -> x.api.isCorsEnabled())
-            .map(x -> x.getApi())
-            .collect(groupingBy(x -> x.getPath(), mapping(k -> k.getMethodType(), toSet())));
+      lambdaDefinitions
+        .stream()
+        .filter(x -> x.api.isCorsEnabled())
+        .map(x -> x.getApi())
+        .collect(groupingBy(x -> x.getPath(), mapping(k -> k.getMethodType(), toSet())));
 
     for (Map.Entry<String, Set<String>> e : corsPaths.entrySet()) {
       String supportedMethods = format("'%s'", StringUtils.join(e.getValue().iterator(), ","));
@@ -419,11 +455,11 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
       optionsNode.setAll(templateOptionsNode);
 
       optionsNode
-          .with("x-amazon-apigateway-integration")
-          .with("responses")
-          .with("default")
-          .with("responseParameters")
-          .put("method.response.header.Access-Control-Allow-Methods", supportedMethods);
+        .with("x-amazon-apigateway-integration")
+        .with("responses")
+        .with("default")
+        .with("responseParameters")
+        .put("method.response.header.Access-Control-Allow-Methods", supportedMethods);
     }
   }
 
@@ -433,48 +469,48 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
     ArrayNode result = objectMapper.createArrayNode();
 
     result.addAll(
-        Arrays.stream(api.getPatches())
-            .map(
-                p ->
-                    Unthrow.wrap(
-                        patch -> {
-                          ObjectNode resultNode = objectMapper.createObjectNode();
+      Arrays.stream(api.getPatches())
+        .map(
+          p ->
+            Unthrow.wrap(
+              patch -> {
+                ObjectNode resultNode = objectMapper.createObjectNode();
 
-                          resultNode.put("op", patch.getOp().toLowerCase());
+                resultNode.put("op", patch.getOp().toLowerCase());
 
-                          resultNode.put("path", patch.getPath());
+                resultNode.put("path", patch.getPath());
 
-                          // TODO: Interpolate patch.value
-                          if (isNotBlank(patch.getValue())) {
-                            JsonNode value = null;
+                // TODO: Interpolate patch.value
+                if (isNotBlank(patch.getValue())) {
+                  JsonNode value = null;
 
-                            String sourceValue = patch.getValue();
+                  String sourceValue = patch.getValue();
 
-                            if (-1 != "[{\"".indexOf(sourceValue.charAt(0))) {
-                              value = objectMapper.readTree(sourceValue);
-                            } else {
-                              value = resultNode.textNode(sourceValue);
-                            }
+                  if (-1 != "[{\"".indexOf(sourceValue.charAt(0))) {
+                    value = objectMapper.readTree(sourceValue);
+                  } else {
+                    value = resultNode.textNode(sourceValue);
+                  }
 
-                            resultNode.set("value", value);
-                          } else if (isNotBlank(patch.getFrom())) {
-                            JsonNode value = null;
+                  resultNode.set("value", value);
+                } else if (isNotBlank(patch.getFrom())) {
+                  JsonNode value = null;
 
-                            String sourceValue = patch.getFrom();
+                  String sourceValue = patch.getFrom();
 
-                            if (-1 != "[{\"".indexOf(sourceValue.charAt(0))) {
-                              value = objectMapper.readTree(sourceValue);
-                            } else {
-                              value = resultNode.textNode(sourceValue);
-                            }
+                  if (-1 != "[{\"".indexOf(sourceValue.charAt(0))) {
+                    value = objectMapper.readTree(sourceValue);
+                  } else {
+                    value = resultNode.textNode(sourceValue);
+                  }
 
-                            resultNode.set("from", value);
-                          }
+                  resultNode.set("from", value);
+                }
 
-                          return resultNode;
-                        },
-                        p))
-            .collect(Collectors.toList()));
+                return resultNode;
+              },
+              p))
+        .collect(Collectors.toList()));
 
     return result;
   }

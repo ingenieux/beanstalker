@@ -67,6 +67,12 @@ public abstract class AbstractAPIGatewayMojo extends AbstractAWSMojo<AmazonApiGa
   protected String endpointUrl;
 
   protected void lookupIds() throws Exception {
+    if (null != restApiId) {
+      updateEndpoint();
+
+      return;
+    }
+
     GetRestApisRequest req = new GetRestApisRequest();
     String position = "";
 
