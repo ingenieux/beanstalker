@@ -26,7 +26,14 @@ public class GlobUtil {
   }
 
   public static Pattern globify(String templateName) {
-    return Pattern.compile(templateName.replaceAll("\\.", "\\\\.").replaceAll("\\Q*\\E", ".*").replaceAll("\\Q?\\E", "."));
+    final String escapedPattern = templateName
+      .replaceAll("\\.", "\\\\.")
+      .replaceAll("\\Q*\\E", ".*")
+      .replaceAll("\\Q?\\E", ".")
+      .replaceAll("(\\Q.*\\E){2,}", ".*");
+
+    return Pattern.compile(escapedPattern
+    );
   }
 
   public static boolean hasWildcards(String input) {

@@ -192,7 +192,13 @@ public class DeployMojo extends AbstractLambdaMojo {
 
     s3Uri = new AmazonS3URI(s3Url);
 
-    defaultRole = roleResolver.lookupRoleGlob(defaultRole);
+    try {
+      defaultRole = roleResolver.lookupRoleGlob(defaultRole);
+    } catch (Exception exc) {
+      getLog().warn("Role not found. Using default role. Reason?", exc);
+
+      defaultRole = null;
+    }
   }
 
   @Override

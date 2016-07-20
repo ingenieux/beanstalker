@@ -88,7 +88,9 @@ public class RoleResolver {
       Pattern p = GlobUtil.globify(role);
 
       for (String s : roles) {
-        if (p.matcher(s).matches()) {
+        final Matcher matcher = p.matcher(s);
+
+        if (matcher.matches() || matcher.find()) {
           //getLog().info(format("Found Role: '%s'", s));
 
           return s;
