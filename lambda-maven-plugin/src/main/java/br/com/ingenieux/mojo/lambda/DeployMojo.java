@@ -16,30 +16,6 @@
 
 package br.com.ingenieux.mojo.lambda;
 
-import static java.lang.String.format;
-import static java.util.Arrays.asList;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.codehaus.plexus.util.StringUtils.isBlank;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.text.StrSubstitutor;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-
-import br.com.ingenieux.mojo.aws.util.RoleResolver;
-
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
@@ -65,6 +41,31 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.text.StrSubstitutor;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import br.com.ingenieux.mojo.aws.util.RoleResolver;
+
+import static java.lang.String.format;
+import static java.util.Arrays.asList;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.codehaus.plexus.util.StringUtils.isBlank;
+
 /**
  * <p>Represents the AWS Lambda Deployment Process, which means:</p> <p/> <ul> <li>Parsing the
  * function-definition file</li> <li>For each declared function, tries to update the function</li>
@@ -73,6 +74,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
  */
 @Mojo(name = "deploy-functions")
 public class DeployMojo extends AbstractLambdaMojo {
+  @Parameter(property = "project", required = false)
+  protected MavenProject curProject;
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
 
@@ -215,7 +218,7 @@ public class DeployMojo extends AbstractLambdaMojo {
 
       try {
         final UpdateFunctionCodeRequest updateFunctionCodeRequest =
-            new UpdateFunctionCodeRequest().withFunctionName(d.getName()).withS3Bucket(s3Bucket).withPublish(this.deployPublish).withS3Key(s3Key);
+          new UpdateFunctionCodeRequest().withFunctionName(d.getName()).withS3Bucket(s3Bucket).withPublish(this.deployPublish).withS3Key(s3Key);
         final UpdateFunctionCodeResult updateFunctionCodeResult = lambdaClient.updateFunctionCode(updateFunctionCodeRequest);
 
         d.setArn(updateFunctionCodeResult.getFunctionArn());
@@ -270,30 +273,25 @@ public class DeployMojo extends AbstractLambdaMojo {
       }
 
       switch (arn.getService()) {
-        case "sns":
-          {
-            updateSNSFunction(arn, d);
-            break;
-          }
-        case "dynamodb":
-          {
-            updateDynamoDBFunction(arn, d);
-            break;
-          }
-        case "kinesis":
-          {
-            updateKinesisFunction(arn, d);
-            break;
-          }
-        case "cognito":
-          {
-            updateCognitoFunction(arn, d);
-            break;
-          }
-        case "s3":
-          {
-            updateS3Function(arn, d);
-          }
+        case "sns": {
+          updateSNSFunction(arn, d);
+          break;
+        }
+        case "dynamodb": {
+          updateDynamoDBFunction(arn, d);
+          break;
+        }
+        case "kinesis": {
+          updateKinesisFunction(arn, d);
+          break;
+        }
+        case "cognito": {
+          updateCognitoFunction(arn, d);
+          break;
+        }
+        case "s3": {
+          updateS3Function(arn, d);
+        }
       }
     }
   }
@@ -343,17 +341,17 @@ public class DeployMojo extends AbstractLambdaMojo {
 
   private CreateFunctionResult createFunction(LambdaFunctionDefinition d) {
     CreateFunctionRequest req =
-        new CreateFunctionRequest()
-            .withCode(new FunctionCode().withS3Bucket(s3Uri.getBucket()).withS3Key(s3Uri.getKey()))
-            .withDescription(d.getDescription())
-            .withFunctionName(d.getName())
-            .withHandler(d.getHandler())
-            .withMemorySize(d.getMemorySize())
-            .withRole(d.getRole())
-            .withRuntime(Runtime.Java8)
-            .withPublish(this.deployPublish)
-            .withVpcConfig(new VpcConfig().withSecurityGroupIds(securityGroupIds).withSubnetIds(subnetIds))
-            .withTimeout(d.getTimeout());
+      new CreateFunctionRequest()
+        .withCode(new FunctionCode().withS3Bucket(s3Uri.getBucket()).withS3Key(s3Uri.getKey()))
+        .withDescription(d.getDescription())
+        .withFunctionName(d.getName())
+        .withHandler(d.getHandler())
+        .withMemorySize(d.getMemorySize())
+        .withRole(d.getRole())
+        .withRuntime(Runtime.Java8)
+        .withPublish(this.deployPublish)
+        .withVpcConfig(new VpcConfig().withSecurityGroupIds(securityGroupIds).withSubnetIds(subnetIds))
+        .withTimeout(d.getTimeout());
 
     final CreateFunctionResult createFunctionResult = lambdaClient.createFunction(req);
 
@@ -368,18 +366,19 @@ public class DeployMojo extends AbstractLambdaMojo {
 
     List<String> returnedSubnetIdsToMatch = Collections.emptyList();
 
-    if (null != curFc.getVpcConfig() && !curFc.getVpcConfig().getSubnetIds().isEmpty()) returnedSubnetIdsToMatch = curFc.getVpcConfig().getSubnetIds();
+    if (null != curFc.getVpcConfig() && !curFc.getVpcConfig().getSubnetIds().isEmpty())
+      returnedSubnetIdsToMatch = curFc.getVpcConfig().getSubnetIds();
 
     boolean bEquals =
-        new EqualsBuilder()
-            .append(d.getDescription(), curFc.getDescription())
-            .append(d.getHandler(), curFc.getHandler())
-            .append(d.getMemorySize(), curFc.getMemorySize().intValue())
-            .append(d.getRole(), curFc.getRole())
-            .append(d.getTimeout(), curFc.getTimeout().intValue())
-            .append(this.securityGroupIds, returnedSecurityGroupIdsToMatch)
-            .append(this.subnetIds, returnedSubnetIdsToMatch)
-            .isEquals();
+      new EqualsBuilder()
+        .append(d.getDescription(), curFc.getDescription())
+        .append(d.getHandler(), curFc.getHandler())
+        .append(d.getMemorySize(), curFc.getMemorySize().intValue())
+        .append(d.getRole(), curFc.getRole())
+        .append(d.getTimeout(), curFc.getTimeout().intValue())
+        .append(this.securityGroupIds, returnedSecurityGroupIdsToMatch)
+        .append(this.subnetIds, returnedSubnetIdsToMatch)
+        .isEquals();
 
     if (!bEquals) {
       final UpdateFunctionConfigurationRequest updRequest = new UpdateFunctionConfigurationRequest();
@@ -409,11 +408,12 @@ public class DeployMojo extends AbstractLambdaMojo {
     String source = IOUtils.toString(new FileInputStream(definitionFile));
 
     // TODO: Consider PluginParameterExpressionEvaluator
-    source = new StrSubstitutor(session.getSystemProperties()).replace(source);
+    source = new StrSubstitutor(getProperties()).replace(source);
 
     getLog().info(format("Loaded and replaced definitions from file '%s'", definitionFile.getPath()));
 
-    List<LambdaFunctionDefinition> definitionList = OBJECT_MAPPER.readValue(source, new TypeReference<List<LambdaFunctionDefinition>>() {});
+    List<LambdaFunctionDefinition> definitionList = OBJECT_MAPPER.readValue(source, new TypeReference<List<LambdaFunctionDefinition>>() {
+    });
 
     getLog().info(format("Found %d definitions: ", definitionList.size()));
 

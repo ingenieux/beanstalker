@@ -355,11 +355,13 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends 
           if (null != f) {
             Object curProjectAsObject = f.get(this);
 
-            MavenProject curProject = (MavenProject) curProjectAsObject;
+            if (null != curProjectAsObject) {
+              MavenProject curProject = (MavenProject) curProjectAsObject;
 
-            properties.putAll(curProject.getProperties());
+              properties.putAll(curProject.getProperties());
 
-            break;
+              break;
+            }
           }
         }
       } catch (Exception exc) {
