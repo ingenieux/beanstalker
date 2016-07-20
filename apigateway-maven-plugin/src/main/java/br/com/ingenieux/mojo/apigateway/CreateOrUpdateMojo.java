@@ -208,23 +208,22 @@ public class CreateOrUpdateMojo extends AbstractAPIGatewayMojo {
   }
 
   private void initConstants() throws Exception {
+    this.templateChildNode = (ObjectNode) objectMapper.readTree(STR_TEMPLATE_LAMBDA_METHOD);
+
+    String invokerRole = null;
     try {
-      this.templateChildNode = (ObjectNode) objectMapper.readTree(STR_TEMPLATE_LAMBDA_METHOD);
+      // TODO: FIX THIS
+      invokerRole = roleResolver.lookupRoleGlob("*/apigateway-lambda-invoker");
     } catch (Exception exc) {
-      getLog().warn("While building template credentials node:", exc);
     }
 
-    try {
-      this.templateChildNode.with("x-amazon-apigateway-integration").put("credentials", roleResolver.lookupRoleGlob("*/apigateway-lambda-invoker"));
-    } catch (Exception exc) {
-      getLog().warn("While building template credentials node:", exc);
+    if (null != invokerRole) {
+      this.templateChildNode.with("x-amazon-apigateway-integration").put("credentials", invokerRole);
+    } else {
+      getLog().warn("Invoker Role not found. Shouldn't be critical though.");
     }
 
-    try {
-      this.templateOptionsNode = (ObjectNode) objectMapper.readTree(STR_TEMPLATE_CORS_METHOD);
-    } catch (Exception exc) {
-      getLog().warn("While building template credentials node:", exc);
-    }
+    this.templateOptionsNode = (ObjectNode) objectMapper.readTree(STR_TEMPLATE_CORS_METHOD);
   }
 
   private CreateDeploymentResult deploy() {
