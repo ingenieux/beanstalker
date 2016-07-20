@@ -20,7 +20,9 @@ package br.com.ingenieux.mojo.cloudformation;
 import com.amazonaws.services.cloudformation.model.DescribeStacksRequest;
 import com.amazonaws.services.cloudformation.model.DescribeStacksResult;
 import com.amazonaws.services.cloudformation.model.Output;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -45,6 +47,11 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
  */
 @Mojo(name = "load-stack-outputs", defaultPhase = LifecyclePhase.VALIDATE)
 public class LoadStackOutputsMojo extends AbstractCloudformationMojo {
+  public enum OutputFormat {
+    PROPERTIES,
+    JSON
+  }
+
   /**
    * If set to true, ignores/skips in case of a missing active stack found
    */
@@ -79,6 +86,21 @@ public class LoadStackOutputsMojo extends AbstractCloudformationMojo {
   @Parameter(property = "cloudformation.outputFile")
   File outputFile;
 
+  /**
+   * <p>Optional: If defined as "JSON", will write into outputFile as JSON</p>
+   *
+   * <p>Value values are:</p>
+   *
+   * <ul>
+   *   <li>PROPERTIES</li>
+   *   <li>JSON</li>
+   * </ul>
+   *
+   *
+   */
+  @Parameter(property = "cloudformation.outputFormat", defaultValue = "PROPERTIES")
+  OutputFormat outputFormat = OutputFormat.PROPERTIES;
+
   @Override
   protected Object executeInternal() throws Exception {
     if (shouldFailIfMissingStack(failIfMissing)) {
@@ -88,7 +110,9 @@ public class LoadStackOutputsMojo extends AbstractCloudformationMojo {
 
     Map<String, String> result = new LinkedHashMap<>();
 
-    for (Output o : listOutputs()) {
+    final Collection<Output> variables = listOutputs();
+
+    for (Output o : variables) {
       String propertyName = resolvePropertyName(o);
 
       getLog().info(" * Found output: " + o);
@@ -112,7 +136,17 @@ public class LoadStackOutputsMojo extends AbstractCloudformationMojo {
     }
 
     if (null != p) {
-      p.store(new FileOutputStream(outputFile), "Output from cloudformation-maven-plugin for stackId " + this.stackSummary.getStackId());
+      if (OutputFormat.PROPERTIES.equals(outputFormat)) {
+        p.store(new FileOutputStream(outputFile), "Output from cloudformation-maven-plugin for stackId " + this.stackSummary.getStackId());
+      } else if (OutputFormat.JSON.equals(outputFormat)) {
+        ObjectNode resultNode = objectMapper.createObjectNode();
+
+        for (Map.Entry<String, String> e : result.entrySet()) {
+          resultNode.put(e.getKey(), e.getValue());
+        }
+
+        objectMapper.writeValue(outputFile, resultNode);
+      }
     }
 
     return result;
