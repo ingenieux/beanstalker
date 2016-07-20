@@ -65,12 +65,6 @@ public class PushStackMojo extends AbstractCloudformationMojo {
   File templateLocation;
 
   /**
-   * If set to true, ignores/skips in case of a missing active stack found
-   */
-  @Parameter(property = "cloudformation.failIfMissing", defaultValue = "false")
-  Boolean failIfMissing;
-
-  /**
    * <p> S3 URL &quot;s3://&lt;bucketName&gt;/&lt;keyPath&gt;&quot; of the S3 Location </p>
    *
    * <p>If set, will upload the @{templateLocation} contents prior to issuing a stack
@@ -154,7 +148,7 @@ public class PushStackMojo extends AbstractCloudformationMojo {
 
   @Override
   protected Object executeInternal() throws Exception {
-    shouldFailIfMissingStack(failIfMissing);
+    shouldFailIfMissingStack(false);
 
     if (!templateLocation.exists() && !templateLocation.isFile()) {
       getLog().warn("File not found (or not a file): " + templateLocation.getPath() + ". Skipping.");
@@ -215,7 +209,6 @@ public class PushStackMojo extends AbstractCloudformationMojo {
       result = createStackResult = createStack();
 
       ctx = new WaitForStackCommand.WaitForStackContext(createStackResult.getStackId(), getService(), this::info, 30, asList(StackStatus.CREATE_COMPLETE));
-
     } else {
       getLog().info("Must Update Stack");
 
