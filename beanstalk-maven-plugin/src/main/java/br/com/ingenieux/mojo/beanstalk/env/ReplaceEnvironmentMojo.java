@@ -77,7 +77,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
   /**
    * Max Environment Name Length
    */
-  private static final int MAX_ENVNAME_LEN = 23;
+  private static final int MAX_ENVNAME_LEN = 40;
 
   /**
    * Minutes until timeout
