@@ -32,27 +32,33 @@ import static java.lang.String.format;
 
 public class EnvironmentHostnameUtil {
   public static final Pattern PATTERN_HOSTNAME =
-      Pattern.compile("(?<cnamePrefix>[\\p{Alnum}\\-]{4,63})(?<regionName>.\\p{Alpha}{2}\\-\\p{Alpha}{4,9}\\-\\p{Digit})?\\Q.elasticbeanstalk.com\\E$");
+    Pattern.compile("(?<cnamePrefix>[\\p{Alnum}\\-]{4,63})(?<regionName>.\\p{Alpha}{2}\\-\\p{Alpha}{4,9}\\-\\p{Digit})?\\Q.elasticbeanstalk.com\\E$");
 
   public static Predicate<EnvironmentDescription> getHostnamePredicate(Region region, String cnamePrefix) {
-    final Set<String> hostnamesToMatch = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+    final Set<Pattern> hostnamesToMatch = new TreeSet<Pattern>();
 
-    hostnamesToMatch.add(format("%s.elasticbeanstalk.com", cnamePrefix).toLowerCase());
-    hostnamesToMatch.add(format("%s.%s.elasticbeanstalk.com", cnamePrefix, region.getName()).toLowerCase());
+    hostnamesToMatch.add(Pattern.compile(Pattern.quote(format("%s.elasticbeanstalk.com", cnamePrefix).toLowerCase()), Pattern.CASE_INSENSITIVE));
+    hostnamesToMatch.add(Pattern.compile(Pattern.quote(format("%s.%s.elasticbeanstalk.com", cnamePrefix, region.getName()).toLowerCase()), Pattern.CASE_INSENSITIVE));
+    hostnamesToMatch.add(Pattern.compile(format("\\Q%s\\E\\.\\p{Alnum}+\\.\\Q%s.elasticbeanstalk.com\\E"), Pattern.CASE_INSENSITIVE));
 
     return new Predicate<EnvironmentDescription>() {
       @Override
       public boolean apply(EnvironmentDescription t) {
-        return hostnamesToMatch.contains(t.getCNAME());
+        for (Pattern p : hostnamesToMatch)
+          if (p.matcher(t.getCNAME()).matches())
+            return true;
+
+        return false;
       }
 
       @Override
       public String toString() {
-        return format("... with cname belonging to %s", StringUtils.join(hostnamesToMatch.iterator(), " or "));
+        return format("... with cname matching either %s", StringUtils.join(hostnamesToMatch.iterator(), " / "));
       }
     };
   }
 
+  // TODO: Does it still stands?
   public static String ensureSuffix(String cname, Region region) {
     if (PATTERN_HOSTNAME.matcher(cname).matches()) {
       return cname;
@@ -61,11 +67,12 @@ public class EnvironmentHostnameUtil {
     }
   }
 
+  // TODO: Does it still stands?
   public static String ensureSuffixStripped(String cnamePrefix) {
     final Matcher matcher = PATTERN_HOSTNAME.matcher(cnamePrefix);
 
     if (matcher.matches()) {
-      return matcher.group("cnamePrefix");
+      return matcher.group(1);
     }
 
     return cnamePrefix;
