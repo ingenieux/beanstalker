@@ -224,7 +224,7 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends 
     if (null != server) {
       expose.setServerId(serverId);
       expose.setAccessKey(server.getUsername());
-      expose.setSharedKey(getDecryptedAwsKey(server.getPassword().trim()));
+      expose.setSharedKey(getDecryptedAwsKey(server.getPassword().trim(), true));
     } else {
       getLog().warn(format("serverId['%s'] not found. Using runtime defaults", serverId));
 
@@ -240,21 +240,24 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends 
    * Decrypts (or warns) a supplied user password
    *
    * @param awsSecretKey Aws Secret Key
+   * @param complainWhenMissing
    * @return The same awsSecretKey - Decrypted
    */
-  private String getDecryptedAwsKey(final String awsSecretKey) {
+  private String getDecryptedAwsKey(final String awsSecretKey, boolean complainWhenMissing) {
     /*
      * Checks if we have a encrypted key. And warn if we don't.
      */
-    if (!(awsSecretKey.startsWith("{") && awsSecretKey.endsWith("}"))) {
+    final String awsSecretKeyTrimmed = awsSecretKey.trim();
+
+    if (!(awsSecretKeyTrimmed.startsWith("{") && awsSecretKeyTrimmed.endsWith("}"))) {
       getLog().warn("You should encrypt your passwords. See http://beanstalker.ingenieux.com.br/security.html for more information");
     } else {
       /*
        * ... but we do have a valid key. Lets decrypt and return it.
        */
-      return decryptPassword(awsSecretKey);
+      return decryptPassword(awsSecretKeyTrimmed);
     }
-    return awsSecretKey;
+    return awsSecretKeyTrimmed;
   }
 
   public void contextualize(final Context context) throws ContextException {
@@ -295,8 +298,8 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends 
       Proxy proxy = settings.getActiveProxy();
 
       clientConfiguration.setProxyHost(proxy.getHost());
-      clientConfiguration.setProxyUsername(proxy.getUsername());
-      clientConfiguration.setProxyPassword(proxy.getPassword());
+      clientConfiguration.setProxyUsername(getDecryptedAwsKey(proxy.getUsername(), false));
+      clientConfiguration.setProxyPassword(getDecryptedAwsKey(proxy.getPassword(), false));
       clientConfiguration.setProxyPort(proxy.getPort());
     }
 
