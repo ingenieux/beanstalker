@@ -25,7 +25,7 @@
               img="http://maven.apache.org/images/logos/maven-feather.png"/>
     </poweredBy>
     <body>
-        <head>
+        <head><![CDATA[
             <script type="text/javascript">
 
                 var _gaq = _gaq || [];
@@ -43,6 +43,7 @@
                 })();
 
             </script>
+            ]]>
         </head>
         <menu name="Overview">
             <item name="Index" href="./index.html"/>
