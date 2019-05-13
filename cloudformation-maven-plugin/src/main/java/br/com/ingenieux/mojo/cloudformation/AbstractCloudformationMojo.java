@@ -65,6 +65,9 @@ public abstract class AbstractCloudformationMojo extends AbstractAWSMojo<AmazonC
   @Parameter(property = "cloudformation.stackName", defaultValue = "${project.artifactId}")
   String stackName;
 
+  @Parameter(property = "cloudformation.roleArn")
+  String roleArn;
+  
   /**
    * Matched Stack Summary (when found)
    */
