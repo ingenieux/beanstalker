@@ -66,4 +66,25 @@
       <artifactId>maven-core</artifactId>
     </dependency>
   </dependencies>
+  
+  <repositories>
+      <repository>
+          <id>integral-3rdparty-repo</id>
+          <url>http://nexus.303net.net:8081/nexus/content/repositories/thirdparty/</url>
+          <snapshots>
+              <enabled>false</enabled>
+          </snapshots>
+      </repository>
+      <repository>
+          <id>integral-snapshots-repo</id>
+          <url>http://nexus.303net.net:8081/nexus/content/repositories/snapshots/</url>
+      </repository>
+      <repository>
+          <id>integral-releases-repo</id>
+          <url>http://nexus.303net.net:8081/nexus/content/repositories/releases/</url>
+          <snapshots>
+              <enabled>false</enabled>
+          </snapshots>
+      </repository>
+  </repositories>
 </project>
