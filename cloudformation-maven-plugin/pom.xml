@@ -19,7 +19,7 @@
   <parent>
     <artifactId>beanstalker</artifactId>
     <groupId>br.com.ingenieux</groupId>
-    <version>1.5.3-SNAPSHOT</version>
+    <version>1.5.2</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -59,6 +59,7 @@
     <dependency>
       <groupId>br.com.ingenieux</groupId>
       <artifactId>beanstalker-common</artifactId>
+      <version>1.5.2</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
