@@ -19,12 +19,11 @@
   <parent>
     <artifactId>beanstalker</artifactId>
     <groupId>br.com.ingenieux</groupId>
-    <version>1.5.2</version>
+    <version>1.5.3-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>cloudformation-maven-plugin</artifactId>
-  <version>1.5.3-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
 
 
@@ -59,22 +58,10 @@
     <dependency>
       <groupId>br.com.ingenieux</groupId>
       <artifactId>beanstalker-common</artifactId>
-      <version>1.5.2</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-core</artifactId>
     </dependency>
   </dependencies>
-  
-    <distributionManagement>
-        <repository>
-            <id>integral-releases</id>
-            <url>http://nexus.303net.net:8081/nexus/content/repositories/releases</url>
-        </repository>
-        <snapshotRepository>
-            <id>integral-snapshots</id>
-            <url>http://nexus.303net.net:8081/nexus/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
 </project>
