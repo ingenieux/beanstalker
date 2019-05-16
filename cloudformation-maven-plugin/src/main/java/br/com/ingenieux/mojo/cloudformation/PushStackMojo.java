@@ -253,7 +253,7 @@ public class PushStackMojo extends AbstractCloudformationMojo {
     }
 
     req.withNotificationARNs(notificationArns);
-
+    req.withRoleARN(roleArn);
     req.withParameters(parameters);
     req.withResourceTypes(resourceTypes);
     req.withDisableRollback(disableRollback);
@@ -277,7 +277,7 @@ public class PushStackMojo extends AbstractCloudformationMojo {
     }
 
     req.withNotificationARNs(notificationArns);
-
+    req.withRoleARN(roleArn);
     req.withParameters(parameters);
     req.withResourceTypes(resourceTypes);
     req.withTags(tags);

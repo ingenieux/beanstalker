@@ -52,7 +52,7 @@ public class DeleteStackMojo extends AbstractCloudformationMojo {
   protected Object executeInternal() throws Exception {
     shouldFailIfMissingStack(failIfMissing);
 
-    getService().deleteStack(new DeleteStackRequest().withStackName(this.stackName).withRetainResources(retainResources));
+    getService().deleteStack(new DeleteStackRequest().withStackName(this.stackName).withRetainResources(retainResources).withRoleARN(roleArn));
 
     WaitForStackCommand.WaitForStackContext ctx =
         new WaitForStackCommand.WaitForStackContext(this.stackName, getService(), this, 30, asList(StackStatus.DELETE_COMPLETE));
