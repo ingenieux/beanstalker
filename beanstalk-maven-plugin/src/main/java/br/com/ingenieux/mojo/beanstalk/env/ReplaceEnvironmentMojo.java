@@ -116,7 +116,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
   int attemptRetryInterval = 60;
 
   /**
-   * <p>List of R53 Domains</p> <p/> <p>Could be set as either:</p> <ul> <li>fqdn:hostedZoneId
+   * <p>List of R53 Domains</p> <p> <p>Could be set as either:</p> <ul> <li>fqdn:hostedZoneId
    * (e.g. "services.modafocas.org:Z3DJ4DL0DIEEJA")</li> <li>hosted zone name - will be set to
    * root. (e.g., "modafocas.org")</li> </ul>
    */

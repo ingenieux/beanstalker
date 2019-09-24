@@ -29,7 +29,7 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentContextBuilder;
 
 /**
- * Updates the environment versionLabel for a given environmentName <p/> See the <a href=
+ * Updates the environment versionLabel for a given environmentName <p> See the <a href=
  * "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_UpdateEnvironment.html"
  * >UpdateEnvironment API</a> call.
  *
@@ -51,17 +51,17 @@ public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
   String environmentDescription;
 
   /**
-   * <p> Configuration Option Settings. Will evaluate as such: </p> <p/> <p> If empty, will lookup
+   * <p> Configuration Option Settings. Will evaluate as such: </p> <p> <p> If empty, will lookup
    * for beanstalk.env.aws.x.y variable in the context, and it will map this variable to namespace
-   * [aws.x], under option name y, unless there's an alias set. </p> <p/> <p> A Property might be
-   * aliased. Current aliases include: </p> <p/> <ul> <li>beanstalk.scalingAvailabilityZones, to
+   * [aws.x], under option name y, unless there's an alias set. </p> <p> <p> A Property might be
+   * aliased. Current aliases include: </p> <p> <ul> <li>beanstalk.scalingAvailabilityZones, to
    * aws:autoscaling:asg/Availability Zones</li> <li>beanstalk.scalingCooldown, to
    * aws:autoscaling:asg/Cooldown</li> <li>beanstalk.scalingCustomAvailabilityZones, to
    * aws:autoscaling:asg/Custom Availability Zones</li> <li>beanstalk.scalingMinSize, to
    * aws:autoscaling:asg/MinSize</li> <li>beanstalk.scalingMaxSize, to
    * aws:autoscaling:asg/MaxSize</li> <li>beanstalk.availabilityZones, to
    * aws:autoscaling:asg/Custom Availability Zones (SAME AS beanstalk.scalingCustomAvailabilityZones
-   * FOR BACKWARD COMPATIBILITY</li> <p/> <li>beanstalk.keyName, to aws:autoscaling:launchconfiguration/EC2KeyName
+   * FOR BACKWARD COMPATIBILITY</li> <p> <li>beanstalk.keyName, to aws:autoscaling:launchconfiguration/EC2KeyName
    * (EC2 Instance Key)</li> <li>beanstalk.iamInstanceProfile, to aws:autoscaling:launchconfiguration/IamInstanceProfile
    * (IAM Instance Profile Role Name)</li> <li>beanstalk.imageId, to
    * aws:autoscaling:launchconfiguration/ImageId</li> <li>beanstalk.instanceType, to
@@ -72,7 +72,7 @@ public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
    * <li>beanstalk.blockDeviceMappings, to aws:autoscaling:launchconfiguration/BlockDeviceMappings</li>
    * <li>beanstalk.rootVolumeType, to aws:autoscaling:launchconfiguration/RootVolumeType</li>
    * <li>beanstalk.rootVolumeSize, to aws:autoscaling:launchconfiguration/RootVolumeSize</li>
-   * <li>beanstalk.rootVolumeIOPS, to aws:autoscaling:launchconfiguration/RootVolumeIOPS</li> <p/>
+   * <li>beanstalk.rootVolumeIOPS, to aws:autoscaling:launchconfiguration/RootVolumeIOPS</li> <p>
    * <li>beanstalk.triggerBreachDuration, to aws:autoscaling:trigger/BreachDuration</li>
    * <li>beanstalk.triggerLowerBreachScaleIncrement, to aws:autoscaling:trigger/LowerBreachScaleIncrement</li>
    * <li>beanstalk.triggerLowerThreshold, to aws:autoscaling:trigger/LowerThreshold</li>
@@ -81,26 +81,26 @@ public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
    * <li>beanstalk.triggerStatistic, to aws:autoscaling:trigger/Statistic</li>
    * <li>beanstalk.triggerUnit, to aws:autoscaling:trigger/Unit</li>
    * <li>beanstalk.triggerUpperBreachScaleIncrement, to aws:autoscaling:trigger/UpperBreachScaleIncrement</li>
-   * <li>beanstalk.triggerUpperThreshold, to aws:autoscaling:trigger/UpperThreshold</li> <p/>
+   * <li>beanstalk.triggerUpperThreshold, to aws:autoscaling:trigger/UpperThreshold</li> <p>
    * <li>beanstalk.rollingupdateMaxBatchSize, to aws:autoscaling:updatepolicy:rollingupdate/MaxBatchSize</li>
    * <li>beanstalk.rollingupdateMinInstancesInService, to aws:autoscaling:updatepolicy:rollingupdate/MinInstancesInService</li>
    * <li>beanstalk.rollingupdatePauseTime, to aws:autoscaling:updatepolicy:rollingupdate/PauseTime</li>
    * <li>beanstalk.rollingupdateEnabled, to aws:autoscaling:updatepolicy:rollingupdate/RollingUpdateEnabled</li>
-   * <p/> <li>beanstalk.vpcId, to aws:ec2:vpc/VPCId</li> <li>beanstalk.vpcSubnets, to
+   * <p> <li>beanstalk.vpcId, to aws:ec2:vpc/VPCId</li> <li>beanstalk.vpcSubnets, to
    * aws:ec2:vpc/Subnets</li> <li>beanstalk.vpcELBSubnets, to aws:ec2:vpc/ELBSubnets</li>
    * <li>beanstalk.vpcELBScheme, to aws:ec2:vpc/ELBScheme</li> <li>beanstalk.vpcDBSubnets, to
    * aws:ec2:vpc/DBSubnets</li> <li>beanstalk.vpcAssociatePublicIpAddress, to
-   * aws:ec2:vpc/AssociatePublicIpAddress</li> <p/> <li>beanstalk.applicationHealthCheckURL, to
+   * aws:ec2:vpc/AssociatePublicIpAddress</li> <p> <li>beanstalk.applicationHealthCheckURL, to
    * aws:elasticbeanstalk:application/Application Healthcheck URL (Application Healthcheck
-   * URL)</li> <p/> <li>beanstalk.timeout, to aws:elasticbeanstalk:command/Timeout</li> <p/>
+   * URL)</li> <p> <li>beanstalk.timeout, to aws:elasticbeanstalk:command/Timeout</li> <p>
    * <li>beanstalk.environmentType, to aws:elasticbeanstalk:environment/EnvironmentType
-   * (SingleInstance or ELB-bound Environment)</li> <p/> <li>beanstalk.automaticallyTerminateUnhealthyInstances,
+   * (SingleInstance or ELB-bound Environment)</li> <p> <li>beanstalk.automaticallyTerminateUnhealthyInstances,
    * to aws:elasticbeanstalk:monitoring/Automatically Terminate Unhealthy Instances (true if
-   * should automatically terminate instances)</li> <p/> <li>beanstalk.notificationEndpoint, to
+   * should automatically terminate instances)</li> <p> <li>beanstalk.notificationEndpoint, to
    * aws:elasticbeanstalk:sns:topics/Notification Endpoint</li> <li>beanstalk.notificationProtocol,
    * to aws:elasticbeanstalk:sns:topics/Notification Protocol</li> <li>beanstalk.notificationTopicARN,
    * to aws:elasticbeanstalk:sns:topics/Notification Topic ARN</li> <li>beanstalk.notificationTopicName,
-   * to aws:elasticbeanstalk:sns:topics/Notification Topic Name</li> <p/>
+   * to aws:elasticbeanstalk:sns:topics/Notification Topic Name</li> <p>
    * <li>beanstalk.sqsdWorkerQueueUrl, to aws:elasticbeanstalk:sqsd/WorkerQueueURL</li>
    * <li>beanstalk.sqsdHttpPath, to aws:elasticbeanstalk:sqsd/HttpPath</li>
    * <li>beanstalk.sqsdMimeType, to aws:elasticbeanstalk:sqsd/MimeType</li>
@@ -109,19 +109,19 @@ public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
    * <li>beanstalk.sqsdInactivityTimeout, to aws:elasticbeanstalk:sqsd/InactivityTimeout</li>
    * <li>beanstalk.sqsdVisibilityTimeout, to aws:elasticbeanstalk:sqsd/VisibilityTimeout</li>
    * <li>beanstalk.sqsdRetentionPeriod, to aws:elasticbeanstalk:sqsd/RetentionPeriod</li>
-   * <li>beanstalk.sqsdMaxRetries, to aws:elasticbeanstalk:sqsd/MaxRetries</li> <p/>
+   * <li>beanstalk.sqsdMaxRetries, to aws:elasticbeanstalk:sqsd/MaxRetries</li> <p>
    * <li>beanstalk.healthcheckHealthyThreshold, to aws:elb:healthcheck/HealthyThreshold</li>
    * <li>beanstalk.healthcheckInterval, to aws:elb:healthcheck/Interval</li>
    * <li>beanstalk.healthcheckTimeout, to aws:elb:healthcheck/Timeout</li>
    * <li>beanstalk.healthcheckUnhealthyThreshold, to aws:elb:healthcheck/UnhealthyThreshold</li>
-   * <p/> <li>beanstalk.loadBalancerHTTPPort, to aws:elb:loadbalancer/LoadBalancerHTTPPort</li>
+   * <p> <li>beanstalk.loadBalancerHTTPPort, to aws:elb:loadbalancer/LoadBalancerHTTPPort</li>
    * <li>beanstalk.loadBalancerPortProtocol, to aws:elb:loadbalancer/LoadBalancerPortProtocol</li>
    * <li>beanstalk.loadBalancerHTTPSPort, to aws:elb:loadbalancer/LoadBalancerHTTPSPort</li>
    * <li>beanstalk.loadBalancerSSLPortProtocol, to aws:elb:loadbalancer/LoadBalancerSSLPortProtocol</li>
    * <li>beanstalk.loadBalancerSSLCertificateId, to aws:elb:loadbalancer/SSLCertificateId</li>
-   * <p/> <li>beanstalk.stickinessCookieExpiration, to aws:elb:policies/Stickiness Cookie
+   * <p> <li>beanstalk.stickinessCookieExpiration, to aws:elb:policies/Stickiness Cookie
    * Expiration (Stickiness Cookie Expiration Timeout)</li> <li>beanstalk.stickinessPolicy, to
-   * aws:elb:policies/Stickiness Policy (ELB Stickiness Policy)</li> <p/>
+   * aws:elb:policies/Stickiness Policy (ELB Stickiness Policy)</li> <p>
    * <li>beanstalk.dbAllocatedStorage, to aws:rds:dbinstance/DBAllocatedStorage</li>
    * <li>beanstalk.dbDeletionPolicy, to aws:rds:dbinstance/DBDeletionPolicy</li>
    * <li>beanstalk.dbEngine, to aws:rds:dbinstance/DBEngine</li> <li>beanstalk.dbEngineVersion, to
@@ -130,7 +130,7 @@ public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
    * aws:rds:dbinstance/DBPassword</li> <li>beanstalk.dbSnapshotIdentifier, to
    * aws:rds:dbinstance/DBSnapshotIdentifier</li> <li>beanstalk.dbUser, to
    * aws:rds:dbinstance/DBUser</li> <li>beanstalk.dbMultiAZDatabase, to
-   * aws:rds:dbinstance/MultiAZDatabase</li> <p/> <li>beanstalk.environmentAwsSecretKey, to
+   * aws:rds:dbinstance/MultiAZDatabase</li> <p> <li>beanstalk.environmentAwsSecretKey, to
    * aws:elasticbeanstalk:application:environment/AWS_SECRET_KEY</li>
    * <li>beanstalk.environmentAwsAccessKeyId, to aws:elasticbeanstalk:application:environment/AWS_ACCESS_KEY_ID</li>
    * <li>beanstalk.environmentJdbcConnectionString, to aws:elasticbeanstalk:application:environment/JDBC_CONNECTION_STRING</li>
@@ -139,11 +139,11 @@ public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
    * <li>beanstalk.environmentParam3, to aws:elasticbeanstalk:application:environment/PARAM3</li>
    * <li>beanstalk.environmentParam4, to aws:elasticbeanstalk:application:environment/PARAM4</li>
    * <li>beanstalk.environmentParam5, to aws:elasticbeanstalk:application:environment/PARAM5</li>
-   * <p/> <li>beanstalk.logPublicationControl, to aws:elasticbeanstalk:hostmanager/LogPublicationControl</li>
-   * <p/> <li>beanstalk.jvmOptions, to aws:elasticbeanstalk:container:tomcat:jvmoptions/JVM
+   * <p> <li>beanstalk.logPublicationControl, to aws:elasticbeanstalk:hostmanager/LogPublicationControl</li>
+   * <p> <li>beanstalk.jvmOptions, to aws:elasticbeanstalk:container:tomcat:jvmoptions/JVM
    * Options</li> <li>beanstalk.jvmXmx, to aws:elasticbeanstalk:container:tomcat:jvmoptions/Xmx</li>
    * <li>beanstalk.jvmMaxPermSize, to aws:elasticbeanstalk:container:tomcat:jvmoptions/XX:MaxPermSize</li>
-   * <li>beanstalk.jvmXms, to aws:elasticbeanstalk:container:tomcat:jvmoptions/Xms</li> <p/>
+   * <li>beanstalk.jvmXms, to aws:elasticbeanstalk:container:tomcat:jvmoptions/Xms</li> <p>
    * <li>beanstalk.phpDocumentRoot, to aws:elasticbeanstalk:container:php:phpini/document_root</li>
    * <li>beanstalk.phpMemoryLimit, to aws:elasticbeanstalk:container:php:phpini/memory_limit</li>
    * <li>beanstalk.phpZlibOutputCompression, to aws:elasticbeanstalk:container:php:phpini/zlib.output_compression</li>
@@ -151,7 +151,7 @@ public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
    * <li>beanstalk.phpDisplayErrors, to aws:elasticbeanstalk:container:php:phpini/display_errors</li>
    * <li>beanstalk.phpMaxExecutionTime, to aws:elasticbeanstalk:container:php:phpini/max_execution_time</li>
    * <li>beanstalk.phpComposerOptions, to aws:elasticbeanstalk:container:php:phpini/composer_options</li>
-   * </ul> <p/> The reason for most of those aliases if the need to address space and ':' inside
+   * </ul> <p> The reason for most of those aliases if the need to address space and ':' inside
    * Maven Properties and XML Files.
    */
   @Parameter ConfigurationOptionSetting[] optionSettings;
@@ -159,11 +159,11 @@ public class UpdateEnvironmentMojo extends AbstractNeedsEnvironmentMojo {
   @Parameter OptionSpecification[] optionsToRemove;
 
   /**
-   * <p> Template Name. </p> <p/> <p> Could be either literal or a glob, like, <p/>
+   * <p> Template Name. </p> <p> <p> Could be either literal or a glob, like, <p>
    * <pre>
    * ingenieux-services-prod-*
    * </pre>
-   * <p/> . If a glob, there will be a lookup involved, and the first one in reverse ASCIIbetical
+   * <p> . If a glob, there will be a lookup involved, and the first one in reverse ASCIIbetical
    * order will be picked upon. </p>
    */
   @Parameter(property = "beanstalk.templateName")

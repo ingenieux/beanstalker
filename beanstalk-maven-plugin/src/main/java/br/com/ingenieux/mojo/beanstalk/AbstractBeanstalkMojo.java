@@ -108,9 +108,9 @@ public abstract class AbstractBeanstalkMojo extends AbstractAWSMojo<AWSElasticBe
   }
 
   /**
-   * Boolean predicate for harmful/placebo options <p/> I really mean harmful - If you mention a
+   * Boolean predicate for harmful/placebo options <p> I really mean harmful - If you mention a
    * terminated environment settings, Elastic Beanstalk will accept, but this might lead to
-   * inconsistent states, specially when creating / listing environments. <p/> Trust me on this
+   * inconsistent states, specially when creating / listing environments. <p> Trust me on this
    * one.
    *
    * @param environmentId environment id to lookup

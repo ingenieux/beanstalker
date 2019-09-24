@@ -68,10 +68,10 @@ import br.com.ingenieux.mojo.aws.util.TypeUtil;
 import static java.lang.String.format;
 
 /**
- * Represents a Mojo which keeps AWS passwords <p/> TODO: Refactor into tiny, delegated classes.
- * Currently its a huge bloat, but it works, right? <p/> <p> <b>NOTE:</b> Settings in this class use
+ * Represents a Mojo which keeps AWS passwords <p> TODO: Refactor into tiny, delegated classes.
+ * Currently its a huge bloat, but it works, right? <p> <p> <b>NOTE:</b> Settings in this class use
  * properties based in "beanstalker", which is the project. The beanstalk module, though, prefixes
- * then as "beanstalk" instead </p> <p/> Parts of this class come from <a
+ * then as "beanstalk" instead </p> <p> Parts of this class come from <a
  * href="http://code.google.com/p/maven-gae-plugin">maven-gae-plugin</a>'s source code.
  */
 public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends AbstractMojo implements Contextualizable {
@@ -152,7 +152,7 @@ public abstract class AbstractAWSMojo<S extends AmazonWebServiceClient> extends 
   protected AWSClientFactory clientFactory;
 
   /**
-   * Plexus container, needed to manually lookup components. <p/> To be able to use Password
+   * Plexus container, needed to manually lookup components. <p> To be able to use Password
    * Encryption http://maven.apache.org/guides/mini/guide-encryption.html
    */
   private PlexusContainer container;

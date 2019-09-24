@@ -23,7 +23,7 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentContext;
 import br.com.ingenieux.mojo.beanstalk.cmd.env.update.UpdateEnvironmentContextBuilder;
 
 /**
- * Creates (if needed) or Updates an Elastic Beanstalk Environment <p/> See the docs for the <a
+ * Creates (if needed) or Updates an Elastic Beanstalk Environment <p> See the docs for the <a
  * href= "http://docs.amazonwebservices.com/elasticbeanstalk/latest/api/API_CreateEnvironment.html"
  * >CreateEnvironment API</a> call.
  *

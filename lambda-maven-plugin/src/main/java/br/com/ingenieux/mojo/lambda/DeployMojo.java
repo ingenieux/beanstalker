@@ -67,7 +67,7 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.codehaus.plexus.util.StringUtils.isBlank;
 
 /**
- * <p>Represents the AWS Lambda Deployment Process, which means:</p> <p/> <ul> <li>Parsing the
+ * <p>Represents the AWS Lambda Deployment Process, which means:</p> <p> <ul> <li>Parsing the
  * function-definition file</li> <li>For each declared function, tries to update the function</li>
  * <li>if the function is missing, create it</li> <li>Otherwise, compare the function definition
  * with the expected parameters, and changes the function configuration if needed</li> </ul>
@@ -118,7 +118,7 @@ public class DeployMojo extends AbstractLambdaMojo {
   Boolean deployAliases;
 
   /**
-   * <p>Definition File</p> <p/> <p>Consists of a JSON file array as such:</p> <p/>
+   * <p>Definition File</p> <p> <p>Consists of a JSON file array as such:</p> <p>
    * <pre>[ {
    *   "name": "AWS Function Name",
    *   "handler": "AWS Function Handler ref",
@@ -127,10 +127,10 @@ public class DeployMojo extends AbstractLambdaMojo {
    *   "role": "aws role"
    * }
    * ]</pre>
-   * <p/> <p>Where:</p> <p/> <ul> <li>Name is the AWS Lambda Function Name</li> <li>Handler is the
+   * <p> <p>Where:</p> <p> <ul> <li>Name is the AWS Lambda Function Name</li> <li>Handler is the
    * Handler Ref (for Java, it is <code>classname::functionName</code>)</li> <li>Timeout is the
    * timeout</li> <li>memorySize is the memory </li> <li>Role is the AWS Service Role</li> </ul>
-   * <p/> <p>Of those, only <code>name</code> and <code>handler</code> are obligatory.</p>
+   * <p> <p>Of those, only <code>name</code> and <code>handler</code> are obligatory.</p>
    */
   @Parameter(required = true, property = "lambda.definition.file", defaultValue = "${project.build.outputDirectory}/META-INF/lambda-definitions.json")
   File definitionFile;

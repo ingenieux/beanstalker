@@ -96,7 +96,7 @@ public abstract class AbstractNeedsEnvironmentMojo extends AbstractBeanstalkMojo
 
   /***
    * <p>Allows you to declare your own properties inside the plugin configuration, as long as it
-   * starts with "beanstalk.x." <p/> <p/>
+   * starts with "beanstalk.x." <p> <p>
    * <code><pre>
    * &lt;pluginManagement&gt;
    *   &lt;plugins&gt;
