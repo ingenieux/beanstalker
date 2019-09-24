@@ -130,7 +130,7 @@ public abstract class AbstractBeanstalkMojo extends AbstractAWSMojo<AWSElasticBe
         getLog().info("Probing security group '" + securityGroup + "'");
       }
 
-      Validate.isTrue(securityGroup.matches("^sg-\\p{XDigit}{8}(,sg-\\p{XDigit}{8})*$"), "Invalid Security Group Spec: " + securityGroup);
+      Validate.isTrue(securityGroup.matches("^sg-\\p{XDigit}{8,16}(,sg-\\p{XDigit}{8,16})*$"), "Invalid Security Group Spec: " + securityGroup);
 
       final AmazonEC2 ec2 = this.getClientFactory().getService(AmazonEC2Client.class);
 
