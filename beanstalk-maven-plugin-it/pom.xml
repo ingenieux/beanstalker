@@ -19,7 +19,7 @@
     <parent>
         <groupId>br.com.ingenieux</groupId>
         <artifactId>beanstalker</artifactId>
-        <version>1.5.5</version>
+        <version>1.5.5-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>beanstalk-maven-plugin-it</artifactId>
