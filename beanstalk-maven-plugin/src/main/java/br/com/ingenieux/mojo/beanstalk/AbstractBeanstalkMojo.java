@@ -133,9 +133,9 @@ public abstract class AbstractBeanstalkMojo extends AbstractAWSMojo<AWSElasticBe
       Validate.isTrue(securityGroup.matches("^sg-\\p{XDigit}{8,17}(,sg-\\p{XDigit}{8,17})*$"), "Invalid Security Group Spec: " + securityGroup);
 
       final AmazonEC2 ec2 = this.getClientFactory().getService(AmazonEC2Client.class);
-
+      
       final DescribeSecurityGroupsResult describeSecurityGroupsResult =
-          ec2.describeSecurityGroups(new DescribeSecurityGroupsRequest().withGroupIds(securityGroup));
+          ec2.describeSecurityGroups(new DescribeSecurityGroupsRequest().withGroupIds(securityGroup.split(",")));
 
       if (!describeSecurityGroupsResult.getSecurityGroups().isEmpty()) {
         final Predicate<SecurityGroup> predicate =
