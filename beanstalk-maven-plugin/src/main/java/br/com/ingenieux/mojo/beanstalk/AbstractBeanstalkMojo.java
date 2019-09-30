@@ -138,6 +138,9 @@ public abstract class AbstractBeanstalkMojo extends AbstractAWSMojo<AWSElasticBe
           ec2.describeSecurityGroups(new DescribeSecurityGroupsRequest().withGroupIds(securityGroup.split(",")));
 
       if (!describeSecurityGroupsResult.getSecurityGroups().isEmpty()) {
+    	  
+    	getLog().info("Checking security groups.");
+    	
         final Predicate<SecurityGroup> predicate =
             new Predicate<SecurityGroup>() {
               @Override
@@ -150,6 +153,8 @@ public abstract class AbstractBeanstalkMojo extends AbstractAWSMojo<AWSElasticBe
       }
     }
 
+    getLog().info("Checking other options.");
+    
     boolean bInvalid = isBlank(optionSetting.getValue());
 
     if (!bInvalid) {
