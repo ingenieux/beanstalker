@@ -16,9 +16,27 @@
 
 package br.com.ingenieux.mojo.beanstalk;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
+import static java.lang.String.format;
+import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
+
+import java.text.Collator;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections.ComparatorUtils;
+import org.apache.commons.collections.comparators.ReverseComparator;
+import org.apache.commons.lang.Validate;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Parameter;
+
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
@@ -30,21 +48,9 @@ import com.amazonaws.services.elasticbeanstalk.model.DescribeApplicationsRequest
 import com.amazonaws.services.elasticbeanstalk.model.EnvironmentDescription;
 import com.amazonaws.services.elasticbeanstalk.model.OptionSpecification;
 import com.amazonaws.services.elasticbeanstalk.model.SolutionStackDescription;
-
-import org.apache.commons.collections.ComparatorUtils;
-import org.apache.commons.collections.comparators.ReverseComparator;
-import org.apache.commons.lang.Validate;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.Parameter;
-
-import java.text.Collator;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 
 import br.com.ingenieux.mojo.aws.AbstractAWSMojo;
 import br.com.ingenieux.mojo.aws.util.GlobUtil;
@@ -53,10 +59,6 @@ import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContext
 import br.com.ingenieux.mojo.beanstalk.cmd.env.waitfor.WaitForEnvironmentContextBuilder;
 import br.com.ingenieux.mojo.beanstalk.util.ConfigUtil;
 import br.com.ingenieux.mojo.beanstalk.util.EnvironmentHostnameUtil;
-import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.defaultString;
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 public abstract class AbstractBeanstalkMojo extends AbstractAWSMojo<AWSElasticBeanstalkClient> {
 
@@ -153,7 +155,18 @@ public abstract class AbstractBeanstalkMojo extends AbstractAWSMojo<AWSElasticBe
 
         boolean flag = Collections2.filter(describeSecurityGroupsResult.getSecurityGroups(), predicate).isEmpty();
         
+        
+        // issue 128 remove non-custom security groups from the list of security groups
+        List<String> customSecurityGroups = describeSecurityGroupsResult.getSecurityGroups().stream().filter(sg -> {
+        	return !sg.getGroupName().contains(environmentId);
+        }).map(csg -> csg.getGroupId()).collect(Collectors.toList());
+        
+        String securityGroupCsv = String.join(",", customSecurityGroups);
+        getLog().info("Adjusting security group from " + optionSetting.getValue() + " to " + securityGroupCsv);
+
         getLog().info("returning  " + flag + " for security group check.");
+
+        optionSetting.setValue(securityGroupCsv);
         
         return flag;
       }
