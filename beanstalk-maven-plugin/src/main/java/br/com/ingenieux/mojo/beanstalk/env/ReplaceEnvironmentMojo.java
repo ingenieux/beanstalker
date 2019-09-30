@@ -358,6 +358,8 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
     Object __secGroups = project.getProperties().get("beanstalk.securityGroups");
 
     if (null != __secGroups) {
+      getLog().info("Checking beanstalk.securityGroups security groups.");
+    	
       String securityGroups = StringUtils.defaultString(__secGroups.toString());
 
       if (!StringUtils.isBlank(securityGroups)) {
