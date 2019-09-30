@@ -141,20 +141,24 @@ public abstract class AbstractBeanstalkMojo extends AbstractAWSMojo<AWSElasticBe
     	  
     	getLog().info("Checking security groups.");
     	
-        final Predicate<SecurityGroup> predicate =
-            new Predicate<SecurityGroup>() {
-              @Override
-              public boolean apply(SecurityGroup input) {
-                return -1 == input.getGroupName().indexOf(environmentId);
-              }
-            };
+        final Predicate<SecurityGroup> predicate = new Predicate<SecurityGroup>() {
+		  @Override
+		  public boolean apply(SecurityGroup input) {
+			
+			  getLog().info("Checking predicate on security group " + input.getGroupName() + ", index of " + environmentId + " is " + input.getGroupName().indexOf(environmentId));
+			
+		    return -1 == input.getGroupName().indexOf(environmentId);
+		  }
+        };
 
-        return Collections2.filter(describeSecurityGroupsResult.getSecurityGroups(), predicate).isEmpty();
+        boolean flag = Collections2.filter(describeSecurityGroupsResult.getSecurityGroups(), predicate).isEmpty();
+        
+        getLog().info("returning  " + flag + " for security group check.");
+        
+        return flag;
       }
     }
 
-    getLog().info("Checking other options.");
-    
     boolean bInvalid = isBlank(optionSetting.getValue());
 
     if (!bInvalid) {
