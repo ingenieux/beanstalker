@@ -88,7 +88,7 @@
     <slf4j.version>1.6.4</slf4j.version>
     <preparationGoals>clean install verify</preparationGoals>
     <aws.sdk.version>1.11.525</aws.sdk.version>
-    <jackson.version>2.10.0.pr3</jackson.version>
+    <jackson.version>2.12.6.1</jackson.version>
   </properties>
 
   <scm>
