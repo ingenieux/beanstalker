@@ -286,7 +286,7 @@ public class ReplaceEnvironmentMojo extends CreateEnvironmentMojo {
     if (currentEnvironmentIsRed && userWantsHealthyExitStatus) {
       final String newHealth = newEnvDesc.getHealth();
 
-      if (newHealth.equals("Green")) {
+      if ("Green".equals(newHealth)) {
         getLog().info("Previous environment was 'Red', new environment is 'Green' (for the moment)");
       } else {
         getLog().warn(format("Previous environment was 'Red', replacement environment is currently '%s'", newHealth));
